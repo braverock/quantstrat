@@ -1,0 +1,6 @@
+export(add.indicator)
+export(strategy)
+export(applyStrategy)
+export(applyIndicators)
+export(is.strategy)
+export(getStrategy)
