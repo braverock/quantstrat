@@ -58,7 +58,7 @@ strategy <- function(name, ..., assets=NULL, constraints=NULL ,store=FALSE)
 #' @param mktdata an xts object containing market data.  depending on indicators, may need to be in OHLCV or BBO formats
 #' @param ... any other passthru parameters
 #' @export
-applyStrategy <- function(strategy,mktdata, ... ) {
+applyStrategy <- function(strategy , mktdata , ... ) {
     #TODO add Date subsetting
     
     ret<-list()
@@ -70,79 +70,16 @@ applyStrategy <- function(strategy,mktdata, ... ) {
     } 
     
     #loop over indicators
-    ret$indicators <- applyIndicators(strategy,mktdata, ... )
+    ret$indicators <- applyIndicators(strategy , mktdata , ... )
      
     #loop over signal generators
-    
+    ret$signals <- applySignals(strategy, mktdata, indicators, ... )
+
     #loop over rules 
     
+    
+    
     return(ret)
-}
-
-#' apply the indicators in the strategy to arbitrary market data
-#' @param strategy an object of type 'strategy' to add the indicator to
-#' @param mktdata an xts object containing market data.  depending on indicators, may need to be in OHLCV or BBO formats
-#' @param ... any other passthru parameters
-#' @export
-applyIndicators <- function(strategy, mktdata, ...) {
-    #TODO add Date subsetting
-    
-    # TODO check for symbol name in mktdata using Josh's code:
-    # symbol <- strsplit(colnames(mktdata)[1],"\\.")[[1]][1]
-    
-    if (!is.strategy(strategy)) {
-        strategy<-try(getStrategy(strategy))
-        if(inherits(strategy,"try-error"))
-            stop ("You must supply an object of type 'strategy'.")
-    } 
-    ret <- NULL
-    nargs <-list(...)
-    if(length(nargs)==0) nargs=NULL
-    if (length('...')==0 | is.null('...')) {
-        rm('...')
-        nargs=NULL
-    }
-    
-    for (indicator in strategy$indicators){
-        #TODO check to see if they've already been calculated
-        if(!is.function(get(indicator$name))) {
-            message(paste("Skipping indicator",indicator$name,"because there is no function by that name to call"))
-            next()
-        }
-        
-        # see 'S Programming p. 67 for this matching
-        fun<-match.fun(indicator$name)
-        .formals  <- formals(fun)
-        onames <- names(.formals)
-        
-        pm <- pmatch(names(indicator$arguments), onames, nomatch = 0L)
-        if (any(pm == 0L))
-            warning(paste("some arguments stored for",indicator$name,"do not match"))
-        names(indicator$arguments[pm > 0L]) <- onames[pm]
-        .formals[pm] <- indicator$arguments[pm > 0L]
-        #now add dots
-        if (length(nargs)) {
-            pm <- pmatch(names(nargs), onames, nomatch = 0L)
-            names(nargs[pm > 0L]) <- onames[pm]
-            .formals[pm] <- nargs[pm > 0L]
-        }
-        .formals$... <- NULL
-        
-        formals(fun) <- .formals
-        tmp_val<-do.call(fun,.formals)
-        if(is.null(names(tmp_val)) & ncol(tmp_val)==1) names(tmp_val)<-indicator$name
-        if (nrow(mktdata)==nrow(tmp_val) | length(mktdata)==length(tmp_val)) {
-            # the indicator returned a time series, so we'll name it and cbind it
-            mktdata<-cbind(mktdata,tmp_val)
-        } else {
-            # the indicator returned something else, add it to the ret list
-            if(is.null(ret)) ret<-list()
-            ret[[indicator$name]]<-tmp_val
-        }
-        #print(tmp_val)
-    } #end indicators loop
-    if(is.null(ret)) return(mktdata)
-    else return(list(mktdata=mktdata,indicator_ret=ret))
 }
 
 #' test to see if object is of type 'strategy'
@@ -179,6 +116,6 @@ getStrategy <- function(x){
 # This library is distributed under the terms of the GNU Public License (GPL)
 # for full details see the file COPYING
 #
-# $Id: strategy.R 217 2010-01-29 18:10:53Z braverock $
+# $Id$
 #
 ###############################################################################

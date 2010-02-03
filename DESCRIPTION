@@ -10,4 +10,4 @@ Maintainer: Jeffrey A. Ryan <jeff.a.ryan@gmail.com>
 Description: Specify, build, and backtest quantitative financial trading strategies
 LazyLoad: yes
 License: GPL-3
-Collate: 'indicators.R' 'strategy.R'
+Collate: 'indicators.R' 'match.names.R' 'signals.R' 'strategy.R'
