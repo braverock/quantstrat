@@ -66,15 +66,14 @@ applyIndicators <- function(strategy, mktdata, ...) {
             warning(paste("some arguments stored for",indicator$name,"do not match"))
         names(indicator$arguments[pm > 0L]) <- onames[pm]
         .formals[pm] <- indicator$arguments[pm > 0L]
-        #now add dots
+        #now add arguments from dots
         if (length(nargs)) {
             pm <- pmatch(names(nargs), onames, nomatch = 0L)
             names(nargs[pm > 0L]) <- onames[pm]
             .formals[pm] <- nargs[pm > 0L]
         }
-        #.formals$... <- ''
+        .formals$... <- NULL
         
-        formals(fun) <- .formals
         tmp_val<-do.call(fun,.formals)
         if(is.null(names(tmp_val)) & ncol(tmp_val)==1) names(tmp_val)<-indicator$label
         if (nrow(mktdata)==nrow(tmp_val) | length(mktdata)==length(tmp_val)) {

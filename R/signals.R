@@ -48,7 +48,7 @@ applySignals <- function(strategy, mktdata, indicators=NULL, ...) {
     nargs <-list(...)
     if(length(nargs)==0) nargs=NULL
     if (length('...')==0 | is.null('...')) {
-        #rm('...')
+        rm('...')
         nargs=NULL
     }
     
@@ -78,7 +78,6 @@ applySignals <- function(strategy, mktdata, indicators=NULL, ...) {
         }
         .formals$... <- NULL
         
-        formals(fun) <- .formals
         tmp_val<-do.call(fun,.formals)
         if(is.null(names(tmp_val)) & ncol(tmp_val)==1) names(tmp_val)<-signal$label
         if (nrow(mktdata)==nrow(tmp_val) | length(mktdata)==length(tmp_val)) {
