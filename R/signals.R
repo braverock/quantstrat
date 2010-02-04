@@ -54,14 +54,19 @@ applySignals <- function(strategy, mktdata, indicators=NULL, ...) {
     
     for (signal in strategy$signals){
         #TODO check to see if they've already been calculated
-        if(!is.function(get(signal$name)) & !is.function(get(paste("sig",signal$name,sep='.')))) {
-            message(paste("Skipping signal",signal$name,"because there is no function by that name to call"))
-            next()
+        
+        if(!is.function(get(signal$name))){
+            if(!is.function(get(paste("sig",signal$name,sep='.')))){
+                message(paste("Skipping signal",signal$name,"because there is no function by that name to call"))
+                next()      
+            } else {
+                signal$name<-paste("sig",signal$name,sep='.')
+            }
         }
         
         # see 'S Programming p. 67 for this matching
-        fun<-try(match.fun(signal$name),silent=TRUE)
-        if(inherits(fun,,"try-error")) fun <- match.fun(paste(sig,signal$name,'.'))
+        fun<-match.fun(signal$name)
+
         .formals  <- formals(fun)
         onames <- names(.formals)
         
@@ -126,7 +131,7 @@ sigComparison <- function(label,data, columns, relationship=c("gt","lt","eq","gt
     return(ret_sig)
 }
 
-sigCrossover <- sigComparison <- function(label,data, columns, relationship=c("gt","lt","eq","gte","lte")) {
+sigCrossover <- function(label,data, columns, relationship=c("gt","lt","eq","gte","lte")) {
     # TODO should call sigComparison and then do a diff so we only have the signal in the period it actually changes
 }
 

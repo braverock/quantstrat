@@ -51,9 +51,14 @@ applyIndicators <- function(strategy, mktdata, ...) {
     
     for (indicator in strategy$indicators){
         #TODO check to see if they've already been calculated
-        if(!is.function(get(indicator$name))) {
-            message(paste("Skipping indicator",indicator$name,"because there is no function by that name to call"))
-            next()
+
+        if(!is.function(get(indicator$name))){
+            if(!is.function(get(paste("sig",indicator$name,sep='.')))){
+                message(paste("Skipping indicator",indicator$name,"because there is no function by that name to call"))
+                next()      
+            } else {
+                indicator$name<-paste("ind",indicator$name,sep='.')
+            }
         }
         
         # see 'S Programming p. 67 for this matching
