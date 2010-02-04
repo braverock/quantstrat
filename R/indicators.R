@@ -61,6 +61,8 @@ applyIndicators <- function(strategy, mktdata, ...) {
             }
         }
         
+        if(!is.true(indicator$enabled)) next()
+        
         # see 'S Programming p. 67 for this matching
         fun<-match.fun(indicator$name)
         .formals  <- formals(fun)

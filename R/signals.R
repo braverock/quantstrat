@@ -63,6 +63,8 @@ applySignals <- function(strategy, mktdata, indicators=NULL, ...) {
                 signal$name<-paste("sig",signal$name,sep='.')
             }
         }
+ 
+        if(!is.true(signal$enabled)) next()
         
         # see 'S Programming p. 67 for this matching
         fun<-match.fun(signal$name)
