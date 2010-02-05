@@ -11,6 +11,6 @@ cbind(IBM.mod,sigComparison(label="Close.gt.Open",data=IBM.mod,columns=c("Close"
 cbind(IBM.mod,sigComparison(label="Adjusted.gt.SMA",data=IBM.mod,columns=c("Adjusted","SMA10"),">"))
 
 #or, do it properly and add it to the strategy:
-s<- add.signal(s,name="sigComparison",arguments = list(data=quote(mktdata),columns=c(".Close","Open"),relationship="gt"),label="ClosegtOpen")
-s<- add.signal(s,name="sigComparison",arguments = list(data=quote(mktdata),columns=c(".Close","up"),relationship="gt"),label="ClosegtUpperBand")
+s<- add.signal(s,name="sigComparison",arguments = list(data=quote(mktdata),columns=c("Close","Open"),relationship="gt"),label="Cl.gt.Op")
+s<- add.signal(s,name="sigComparison",arguments = list(data=quote(mktdata),columns=c("Close","up"),relationship="gt"),label="Cl.gt.UpperdBand")
 IBM.mod<-applySignals(s,mktdata=IBM.mod)

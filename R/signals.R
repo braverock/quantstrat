@@ -102,11 +102,20 @@ applySignals <- function(strategy, mktdata, indicators=NULL, ...) {
 }
 
 
-#' signal function for comparisons
+#' generate comparison signal
+#' 
+#' Currently, this function compares two columns.  
+#' Patches to compare an arbitrary number of columns would be gladly accepted.
+#' 
+#' Comparison will be applied from the first to the second column in the \code{columns} vector.
+#' 
 #' @param label text label to apply to the output
 #' @param data data to apply comparison to
 #' @param columns named columns to apply comparison to
 #' @param relationship one of c("gt","lt","eq","gte","lte") or reasonable alternatives
+#' @example 
+#' getSymbols("IBM")
+#' sigComparison(label="Cl.gt.Op",data=IBM,columns=c("Close","Open"),"gt")
 #' @export
 sigComparison <- function(label,data, columns, relationship=c("gt","lt","eq","gte","lte")) {
     relationship=relationship[1] #only use the first one
@@ -133,8 +142,25 @@ sigComparison <- function(label,data, columns, relationship=c("gt","lt","eq","gt
     return(ret_sig)
 }
 
+#' generate a crossover signal
+#' 
+#' This will generate a corssover signal, which is a dimension-reduced version 
+#' of a comparison signal \code{\link{sigComparison}}.
+#' 
+#' It will return TRUE on the period in which there is a crossover in the 
+#' direction specified by \code{relationship}, and NA otherwise.
+#' 
+#' If you want all the information, use a comparison instead.
+#'  
+#' @param label text label to apply to the output
+#' @param data data to apply crossover to
+#' @param columns named columns to apply crossover of the first against the second
+#' @param relationship one of c("gt","lt","eq","gte","lte") or reasonable alternatives
+#' @export
 sigCrossover <- function(label,data, columns, relationship=c("gt","lt","eq","gte","lte")) {
-    # TODO should call sigComparison and then do a diff so we only have the signal in the period it actually changes
+    ret_sig = ifelse(diff(sigComparison(label=label,data=data,columns=columns,relationship=relationship))==1,TRUE,NA)
+    colnames(ret_sig)<-label
+    return(ret_sig)
 }
 
 #' signal function for peak/valley signals
@@ -156,7 +182,12 @@ sigPeak <- function(label,data,column, direction=c("peak","bottom")){
     return(ret_sig)
 }
 
-#' signal function for threshold signal
+#' generate a threshold signal
+#' 
+#' Many strategies, including RSI or MACD styles, make trading decisions when an indicator 
+#' is over or under a specific threshold.  
+#' This function generates the appropriate signal based on such a threshold.
+#' 
 #' @param label text label to apply to the output
 #' @param data data to apply comparison to
 #' @param column named column to apply comparison to
