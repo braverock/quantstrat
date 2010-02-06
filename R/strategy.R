@@ -35,7 +35,13 @@ strategy <- function(name, ..., assets=NULL, constraints=NULL ,store=FALSE)
         }
         # if assets is a named vector, we'll assume it is current weights
     }
-       
+    rules<-list()
+    rules$risk<-list()
+    rules$order<-list()
+    rules$rebalance<-list()
+    rules$exit<-list()
+    rules$entry<-list()
+    
     ## now structure and return
     strat<-structure(
                     list(
@@ -43,7 +49,7 @@ strategy <- function(name, ..., assets=NULL, constraints=NULL ,store=FALSE)
                             assets = assets,
                             indicators = list(),
                             signals = list(),
-                            rules = list(),
+                            rules = rules,
                             constraints = NULL,
                             call = match.call()
                     ),

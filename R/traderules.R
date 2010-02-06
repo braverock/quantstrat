@@ -47,9 +47,9 @@ add.rule <- function(strategy, name, arguments, label=NULL, type=c(NULL,"risk","
     if (!is.list(arguments)) stop("arguments must be passed as a named list")
     arguments$label=label
     tmp_rule$arguments<-arguments
-    if(!hasArg(indexnum) | (hasArg(indexnum) & is.null(indexnum))) indexnum = length(strategy$rules)+1
+    if(!hasArg(indexnum) | (hasArg(indexnum) & is.null(indexnum))) indexnum = length(strategy$rules[type])+1
     tmp_rule$call<-match.call()
-    strategy$rules[[indexnum]]<-tmp_rule
+    strategy$rules[type][[indexnum]]<-tmp_rule
     
     if (store) assign(strategy$name,strategy,envir=as.environment(.strategy))
     else return(strategy)
