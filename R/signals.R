@@ -30,7 +30,7 @@ add.signal <- function(strategy, name, arguments, label=NULL, ..., enabled=TRUE,
 #' apply the signals in the strategy to arbitrary market data
 #' @param strategy an object of type 'strategy' to add the signal to
 #' @param mktdata an xts object containing market data.  depending on signals, may need to be in OHLCV or BBO formats
-#' @param indicators if indicator output is not contained in the mktdata object, it may be passed separately an xts object or a list.
+#' @param indicators if indicator output is not contained in the mktdata object, it may be passed separately as an xts object or a list.
 #' @param ... any other passthru parameters
 #' @export
 applySignals <- function(strategy, mktdata, indicators=NULL, ...) {
@@ -38,6 +38,8 @@ applySignals <- function(strategy, mktdata, indicators=NULL, ...) {
     
     # TODO check for symbol name in mktdata using Josh's code:
     # symbol <- strsplit(colnames(mktdata)[1],"\\.")[[1]][1]
+    
+    # TODO handle indicator lists as well as indicators that were cbound to mktdata
     
     if (!is.strategy(strategy)) {
         strategy<-try(getStrategy(strategy))
@@ -98,7 +100,7 @@ applySignals <- function(strategy, mktdata, indicators=NULL, ...) {
         #print(tmp_val)
     } #end signals loop
     if(is.null(ret)) return(mktdata)
-    else return(list(mktdata=mktdata,signal_ret=ret))
+    else return(ret)
 }
 
 
@@ -174,7 +176,7 @@ sigCrossover <- function(label,data, columns, relationship=c("gt","lt","eq","gte
 #' @export
 sigPeak <- function(label,data,column, direction=c("peak","bottom")){
     #should we only do this for one column?
-    column<-match.names(colnames(data),columns)
+    column<-match.names(colnames(data),column)
     direction=direction[1] # only use the first]
     #(Lag(IBM[,4],2)<Lag(IBM[,4],1)) & Lag(IBM[,4],1) >IBM[,4]
     switch(direction,
@@ -206,13 +208,13 @@ sigThreshold <- function(label, data, column, threshold=0, relationship=c("gt","
             'gt' = {ret_sig = data[,column] > threshold},
             '<' =,
             'lt' = {ret_sig = data[,column] < threshold},
-            'eq'     = {ret_sig = data[,columns[1]] == threshold}, #FIXME any way to specify '='?
+            'eq'     = {ret_sig = data[,column] == threshold}, #FIXME any way to specify '='?
             'gte' =,
             'gteq'=,
-            'ge'     = {ret_sig = data[,columns[1]] >= threshold}, #FIXME these fail with an 'unexpected =' error if you use '>='
+            'ge'     = {ret_sig = data[,column] >= threshold}, #FIXME these fail with an 'unexpected =' error if you use '>='
             'lte' =,
             'lteq'=,
-            'le'     = {ret_sig = data[,columns[1]] <= threshold}
+            'le'     = {ret_sig = data[,column] <= threshold}
     )
     colnames(ret_sig)<-label
     return(ret_sig)

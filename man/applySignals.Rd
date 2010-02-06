@@ -5,5 +5,5 @@
 \description{apply the signals in the strategy to arbitrary market data}
 \arguments{\item{strategy}{an object of type 'strategy' to add the signal to}
 \item{mktdata}{an xts object containing market data.  depending on signals, may need to be in OHLCV or BBO formats}
-\item{indicators}{if indicator output is not contained in the mktdata object, it may be passed separately an xts object or a list.}
+\item{indicators}{if indicator output is not contained in the mktdata object, it may be passed separately as an xts object or a list.}
 \item{...}{any other passthru parameters}}
