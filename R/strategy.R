@@ -79,7 +79,7 @@ applyStrategy <- function(strategy , mktdata , ... ) {
     ret$indicators <- applyIndicators(strategy , mktdata , ... )
      
     #loop over signal generators
-    ret$signals <- applySignals(strategy, mktdata, indicators, ... )
+    ret$signals <- applySignals(strategy, mktdata, ret$indicators, ... )
 
     #loop over rules 
     

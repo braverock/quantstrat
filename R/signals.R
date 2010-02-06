@@ -1,5 +1,5 @@
 
-#' add an signal to a strategy
+#' add a signal to a strategy
 #' @param strategy an object of type 'strategy' to add the signal to
 #' @param name name of the signal, must correspond to an R function
 #' @param arguments default arguments to be passed to an signal function when executed
@@ -64,7 +64,7 @@ applySignals <- function(strategy, mktdata, indicators=NULL, ...) {
             }
         }
  
-        if(!is.true(signal$enabled)) next()
+        if(!isTRUE(signal$enabled)) next()
         
         # see 'S Programming p. 67 for this matching
         fun<-match.fun(signal$name)
@@ -144,7 +144,7 @@ sigComparison <- function(label,data, columns, relationship=c("gt","lt","eq","gt
 
 #' generate a crossover signal
 #' 
-#' This will generate a corssover signal, which is a dimension-reduced version 
+#' This will generate a crossover signal, which is a dimension-reduced version 
 #' of a comparison signal \code{\link{sigComparison}}.
 #' 
 #' It will return TRUE on the period in which there is a crossover in the 
@@ -164,6 +164,9 @@ sigCrossover <- function(label,data, columns, relationship=c("gt","lt","eq","gte
 }
 
 #' signal function for peak/valley signals
+#' 
+#' This function tests to see if the mktdata or indicator \code{column} observations 
+#' on either side are lower(higher) creating a local peak(bottom).
 #' @param label text label to apply to the output
 #' @param data data to apply comparison to
 #' @param column named column to apply comparison to
@@ -191,6 +194,7 @@ sigPeak <- function(label,data,column, direction=c("peak","bottom")){
 #' @param label text label to apply to the output
 #' @param data data to apply comparison to
 #' @param column named column to apply comparison to
+#' @param threshold numeric threhold to test for
 #' @param relationship one of c("gt","lt","eq","gte","lte") or reasonable alternatives
 #' @export
 sigThreshold <- function(label, data, column, threshold=0, relationship=c("gt","lt","eq","gte","lte")) {

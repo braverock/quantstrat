@@ -6,6 +6,7 @@
 \arguments{\item{strategy}{an object of type 'strategy' to add the indicator to}
 \item{name}{name of the indicator, must correspond to an R function}
 \item{arguments}{default arguments to be passed to an indicator function when executed}
+\item{label}{arbitrary text label for indicator output, NULL default will be converted to '<name>.ind'}
 \item{...}{any other passthru parameters}
 \item{enabled}{TRUE/FALSE whether the indicator is enabled for use in applying the strategy, default TRUE}
 \item{indexnum}{if you are updating a specific indicator, the index number in the $indicators list to update}

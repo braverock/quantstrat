@@ -3,7 +3,7 @@
 \title{generate a crossover signal...}
 \usage{sigCrossover(label, data, columns, relationship=c("gt", "lt", "eq", "gte", "lte"))}
 \description{generate a crossover signal}
-\details{This will generate a corssover signal, which is a dimension-reduced version 
+\details{This will generate a crossover signal, which is a dimension-reduced version 
 of a comparison signal \code{\link{sigComparison}}.
 
 It will return TRUE on the period in which there is a crossover in the 

@@ -3,6 +3,7 @@
 #' @param strategy an object of type 'strategy' to add the indicator to
 #' @param name name of the indicator, must correspond to an R function
 #' @param arguments default arguments to be passed to an indicator function when executed
+#' @param label arbitrary text label for indicator output, NULL default will be converted to '<name>.ind'
 #' @param ... any other passthru parameters
 #' @param enabled TRUE/FALSE whether the indicator is enabled for use in applying the strategy, default TRUE
 #' @param indexnum if you are updating a specific indicator, the index number in the $indicators list to update
@@ -61,7 +62,7 @@ applyIndicators <- function(strategy, mktdata, ...) {
             }
         }
         
-        if(!is.true(indicator$enabled)) next()
+        if(!isTRUE(indicator$enabled)) next()
         
         # see 'S Programming p. 67 for this matching
         fun<-match.fun(indicator$name)
