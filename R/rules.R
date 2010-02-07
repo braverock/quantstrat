@@ -52,7 +52,6 @@ add.rule <- function(strategy, name, arguments, label=NULL, type=c(NULL,"risk","
     tmp_rule<-list()
     tmp_rule$name<-name
     tmp_rule$type<-type
-    # TODO change this to a separate slot!!!!!
     tmp_rule$enabled<-enabled
     if (!is.list(arguments)) stop("arguments must be passed as a named list")
     arguments$label=label
@@ -150,7 +149,7 @@ applyRules <- function(strategy, mktdata, Dates=NULL, indicators=NULL, signals=N
     } # end sub process function
 
     #TODO FIXME we should probably do something more sophisticated, but this should work
-    if(isTRUE(path.dep) & is.null(Dates)) Dates=time(mktdata) # sdhould this be index() instead?
+    if(isTRUE(path.dep) & is.null(Dates)) Dates=time(mktdata) # should this be index() instead?
     if(!isTRUE(path.dep)) Dates=''
 
     hold=FALSE
@@ -163,7 +162,7 @@ applyRules <- function(strategy, mktdata, Dates=NULL, indicators=NULL, signals=N
         for ( type in names(strategy$rules)){
             switch( type ,
                     pre = {
-                        # TODO check to see if wer need to relase hold
+                        # TODO check to see if we need to release hold
                         #      holdtill would be before current time stamp
                         if(length(strategy$rules[type])>=1)
                             ruleProc(strategy$rules$pre,Date=Date)    
@@ -177,7 +176,7 @@ applyRules <- function(strategy, mktdata, Dates=NULL, indicators=NULL, signals=N
                         if(length(strategy$rules[type])>=1) {
                             ruleProc(strategy$rules[type],Date=Date)
                         } else {
-                            ruleOrderProc(Symbol=Symbol, Date=Date, Portfolio=Portfolio)
+                            # TODO call ruleOrderProc(symbol=Symbol, Date=Date, portfolio=Portfolio)
                         }
                     },
                     rebalance =, exit = , enter = {
