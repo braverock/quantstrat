@@ -66,7 +66,6 @@ getOrdersByStatus <- function(portfolio,symbol,status="open",date=NULL,ordertype
     stop("stub function needs to be implemented")
 }
 
-# TODO addOrder
 #' add an order to the order book
 #' 
 #' we need to figure out how to handle stop entry and stop exit orders, maybe via a negative price to specify the pullback that would trigger the order at the market.
@@ -76,19 +75,33 @@ getOrdersByStatus <- function(portfolio,symbol,status="open",date=NULL,ordertype
 #' @param portfolio text name of the portfolio to associate the order book with
 #' @param symbol identfier of the instrument to find orders for.  The name of any associated price objects (xts prices, usually OHLC) should match these
 #' @param timestamp timestamp coercible to POSIXct that will be the time the order will be inserted on 
-#' @param qty 
-#' @param price 
+#' @param qty numeric quantity of the order
+#' @param price numeric price at which the order is to be inserted
 #' @param ordertype one of "market","limit",or "stop"
 #' @param side one of either "long" or "short" 
 #' @param status one of "open", "closed", "canceled", or "replaced"
 #' @param statustime timestamp of a status update, will be blank when order is initiated 
+#' @param delay what delay to add to timestamp when inserting the order into the order book, in seconds
 #' @export
-addOrder <- function(portfolio, symbol, timestamp, qty, price, ordertype, side, status="open", statustime='' )
+addOrder <- function(portfolio, symbol, timestamp, qty, price, ordertype, side, status="open", statustime='' , delay=.00001)
 {
-    stop("stub function needs to be implemented")
     # get order book
+    orderbook <- getOrderBook(portfolio)
+    
+    #data quality checks
+    if(!is.numeric(qty)) stop (paste("Quantity must be numeric:",qty))
+    if(!is.numeric(price)) stop (paste("Price must be numeric:",price))
+    if(!length(grep(symbol,names(orderbook)))==1) stop(paste("symbol",symbol,"does not exist in portfolio",portfolio,"having symbols",names(orderbook)))
+    if(!length(grep(side,c('long','short')))==1) stop(paste("side:",side," must be one of 'long' or 'short'"))
+    if(!length(grep(ordertype,c("market","limit","stop")))==1) stop(paste("ordertype:",ordertype,' must be one of "market","limit",or "stop"'))
+    if(!length(grep(status,c("open", "closed", "canceled","replaced")))==1) stop(paste("order status:",status,' must be one of "open", "closed", "canceled", or "replaced"'))
+    
     # insert new order
+    order<-xts(c(qty, price, ordertype, side, status, statustime),order.by=(as.POSIXct(timestamp)+delay))
+    colnames(order) <- c("Order.Qty","Order.Price","Order.Type","Order.Side","Order.Status","Order.StatusTime")
+    orderbook[[symbol]]<-rbind(orderbook[[symbol]],order)
     # assign order book back into place (do we need a non-exported "put" function?)
+    assign(paste("order_book",portfolio,sep='.'),orderbook,envir=.strategy)
 }
 
 # TODO update an order
