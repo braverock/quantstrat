@@ -54,16 +54,52 @@ initOrders <- function(portfolio=NULL, symbols=NULL, initDate = '1999-12-31')
 #TODO getOrdersByStatus
 #' get orders by status
 #' 
+#' This function exists so that other code can find open orders, potentially to update or cancel them.
+#' 
+#' It has some use as a reporting or post-hoc analytics tool, but it may not always be exported.
+#' 
 #' should this be symbols in stead of symbol?
 #' @param portfolio text name of the portfolio to associate the order book with
 #' @param symbol identfier of the instrument to find orders for.  The name of any associated price objects (xts prices, usually OHLC) should match these
 #' @param status one of "open", "closed", "canceled", or "replaced"
-#' @param date timestamp coercible to POSIXct that will be the period to find orders of the given status and ordertype 
+#' @param timestamp timestamp coercible to POSIXct that will be the period to find orders of the given status and ordertype 
 #' @param ordertype one of "market","limit",or "stop"
+#' @param starttime difference to current timestamp to search, in seconds(numeric) or as a POSIXct timestamp, defaults to -86400 (one day) 
 #' @export
-getOrdersByStatus <- function(portfolio,symbol,status="open",date=NULL,ordertype=NULL)
+getOrdersByStatus <- function(portfolio,symbol,status="open",timestamp=NULL,ordertype=NULL,starttime=-86400)
 {
-    stop("stub function needs to be implemented")
+    # get order book
+    orderbook <- getOrderBook(portfolio)
+    if(!length(grep(symbol,names(orderbook)))==1) stop(paste("symbol",symbol,"does not exist in portfolio",portfolio,"having symbols",names(orderbook)))
+    orderset<-NULL
+    
+    #data quality checks
+    if(!is.null(status) & !length(grep(status,c("open", "closed", "canceled","replaced")))==1) stop(paste("order status:",status,' must be one of "open", "closed", "canceled", or "replaced"'))
+    if(!is.null(ordertype) & !length(grep(ordertype,c("market","limit","stop")))==1) stop(paste("ordertype:",ordertype,' must be one of "market","limit",or "stop"'))
+
+    # subset by time and symbol
+    if(!is.null(timestamp)){
+        if(!is.null(starttime)){
+            timespan<-paste("::",timestamp,sep='')
+        } else {
+            if(!is.timeBased(starttime) & !is.numeric(starttime)) stop("starttime is not coercible to a time stamp")
+            if(is.numeric(starttime)) starttime = starttime + timestamp
+            timespan=paste(starttime,timestamp,sep='::')
+        }
+    } else {
+        # construct the timespan of the entire series
+        timespan=paste(index(first(orderbook[[symbol]]),index(last(orderbook[[symbol]])),sep='::'))
+    }
+    
+    # extract
+    orderset<-orderbook[[symbol]][timespan]
+    if(!is.null(status)){
+        orderset<-orderset[which(orderset[,"Order.Status"==status])]
+    }
+    if(!is.null(ordertype)) {
+        orderset<-orderset[which(orderset[,"Order.Type"==ordertype])]    
+    }
+    return(orderset)
 }
 
 #' add an order to the order book
@@ -87,19 +123,21 @@ addOrder <- function(portfolio, symbol, timestamp, qty, price, ordertype, side, 
 {
     # get order book
     orderbook <- getOrderBook(portfolio)
+    if(!length(grep(symbol,names(orderbook)))==1) stop(paste("symbol",symbol,"does not exist in portfolio",portfolio,"having symbols",names(orderbook)))
     
     #data quality checks
     if(!is.numeric(qty)) stop (paste("Quantity must be numeric:",qty))
     if(!is.numeric(price)) stop (paste("Price must be numeric:",price))
-    if(!length(grep(symbol,names(orderbook)))==1) stop(paste("symbol",symbol,"does not exist in portfolio",portfolio,"having symbols",names(orderbook)))
     if(!length(grep(side,c('long','short')))==1) stop(paste("side:",side," must be one of 'long' or 'short'"))
     if(!length(grep(ordertype,c("market","limit","stop")))==1) stop(paste("ordertype:",ordertype,' must be one of "market","limit",or "stop"'))
     if(!length(grep(status,c("open", "closed", "canceled","replaced")))==1) stop(paste("order status:",status,' must be one of "open", "closed", "canceled", or "replaced"'))
+    # TODO do we need to check for collision, and increment timestamp?  or alternately update?
     
     # insert new order
     order<-xts(c(qty, price, ordertype, side, status, statustime),order.by=(as.POSIXct(timestamp)+delay))
     colnames(order) <- c("Order.Qty","Order.Price","Order.Type","Order.Side","Order.Status","Order.StatusTime")
     orderbook[[symbol]]<-rbind(orderbook[[symbol]],order)
+    
     # assign order book back into place (do we need a non-exported "put" function?)
     assign(paste("order_book",portfolio,sep='.'),orderbook,envir=.strategy)
 }
