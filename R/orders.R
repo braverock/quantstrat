@@ -1,6 +1,7 @@
 #' get the order book object
 #' 
-#' I don't think this should be exported. 
+#' I don't think this should be exported, but it is for now while we're in test mode.
+#' 
 #' @param portfolio text name of the portfolio the order book is associated with
 #' @export
 getOrderBook <- function(portfolio) #should symbol subsets be supported too?  probably not.
@@ -23,7 +24,6 @@ getOrderBook <- function(portfolio) #should symbol subsets be supported too?  pr
 #' @param portfolio text name of the portfolio to associate the order book with
 #' @param symbols a list of identfiers of the instruments to be contained in the Portfolio.  The name of any associated price objects (xts prices, usually OHLC) should match these
 #' @param initDate date (ISO8601) prior to the first close price given in mktdata, used to initialize the order book with a dummy order
-#' @export
 initOrders <- function(portfolio=NULL, symbols=NULL, initDate = '1999-12-31')
 {
     # NOTE we could stor all of these in one object, but I think that might get big
@@ -51,14 +51,14 @@ initOrders <- function(portfolio=NULL, symbols=NULL, initDate = '1999-12-31')
     assign(paste("order_book",portfolio,sep='.'),orders,envir=.strategy)
 }
 
-#TODO getOrdersByStatus
-#' get orders by status
+#' get orders by time span, status, and type
 #' 
 #' This function exists so that other code can find open orders, potentially to update or cancel them.
 #' 
 #' It has some use as a reporting or post-hoc analytics tool, but it may not always be exported.
 #' 
-#' should this be symbols in stead of symbol?
+#' should this be symbols instead of symbol?
+#' 
 #' @param portfolio text name of the portfolio to associate the order book with
 #' @param symbol identfier of the instrument to find orders for.  The name of any associated price objects (xts prices, usually OHLC) should match these
 #' @param status one of "open", "closed", "canceled", or "replaced"
@@ -116,10 +116,10 @@ getOrdersByStatus <- function(portfolio,symbol,status="open",timestamp=NULL,orde
 #' @param ordertype one of "market","limit",or "stop"
 #' @param side one of either "long" or "short" 
 #' @param status one of "open", "closed", "canceled", or "replaced"
-#' @param statustime timestamp of a status update, will be blank when order is initiated 
+#' @param statustimestamp timestamp of a status update, will be blank when order is initiated 
 #' @param delay what delay to add to timestamp when inserting the order into the order book, in seconds
 #' @export
-addOrder <- function(portfolio, symbol, timestamp, qty, price, ordertype, side, status="open", statustime='' , delay=.00001)
+addOrder <- function(portfolio, symbol, timestamp, qty, price, ordertype, side, status="open", statustimestamp='' , delay=.00001)
 {
     # get order book
     orderbook <- getOrderBook(portfolio)
@@ -134,7 +134,7 @@ addOrder <- function(portfolio, symbol, timestamp, qty, price, ordertype, side, 
     # TODO do we need to check for collision, and increment timestamp?  or alternately update?
     
     # insert new order
-    order<-xts(c(qty, price, ordertype, side, status, statustime),order.by=(as.POSIXct(timestamp)+delay))
+    order<-xts(c(qty, price, ordertype, side, status, statustimestamp),order.by=(as.POSIXct(timestamp)+delay))
     colnames(order) <- c("Order.Qty","Order.Price","Order.Type","Order.Side","Order.Status","Order.StatusTime")
     orderbook[[symbol]]<-rbind(orderbook[[symbol]],order)
     
@@ -142,11 +142,49 @@ addOrder <- function(portfolio, symbol, timestamp, qty, price, ordertype, side, 
     assign(paste("order_book",portfolio,sep='.'),orderbook,envir=.strategy)
 }
 
-# TODO update an order
+#' update an order
+#' 
+#' When an order gets filled, it should have its status moved to 'closed'.
+#' 
+#' When an order is updated with a new order, the order status should change to 'replaced' with a StatusTime that is the same as the one for the new order.
+#' 
+#' When a risk event or over-limit event happens, typically open orders will be 'canceled'.  Possibly new orders will be added to close open positions.  
+#' Many models will also want to run a process at the close of market that will cancel all open orders. 
+#' 
+#' @param portfolio text name of the portfolio to associate the order book with
+#' @param symbol identfier of the instrument to find orders for.  The name of any associated price objects (xts prices, usually OHLC) should match these
+#' @param timestamp timestamp coercible to POSIXct that will be the time the order will be inserted on 
+#' @param oldstatus one of NULL, "open", "closed", "canceled", or "replaced"
+#' @param newstatus one of "open", "closed", "canceled", or "replaced"
+#' @param statustimestamp timestamp of a status update, will be blank when order is initiated 
+#' @export
+updateOrder <- function(portfolio, symbol, timestamp, oldstatus, newstatus, statustimestamp) 
+{ 
+    #data quality checks
+    if(!is.null(oldstatus) & !length(grep(oldstatus,c("open", "closed", "canceled","replaced")))==1) stop(paste("old order status:",oldstatus,' must be one of "open", "closed", "canceled", or "replaced"'))
+    if(!length(grep(newstatus,c("open", "closed", "canceled","replaced")))==1) stop(paste("new order status:",newstatus,' must be one of "open", "closed", "canceled", or "replaced"'))
+
+    # need the ability to pass a range like we do in blotter
+    updatedorders<-getOrdersByStatus(portfolio, symbol, timestamp, oldstatus,starttime=-.00001)  
+    
+    
+    # get order book 
+    #TODO this gets the order book again after it was already retrieved by getOrdersByStatus.  
+    # at some point, we should eliminate the double get
+    orderbook <- getOrderBook(portfolio)
+    
+    updatedorders[,"Order.Status"]<-newstatus
+    updatedorders[,"Order.StatusTime"]<-statustimestamp
+    
+    #orderbook<-merge.xts(orderbook,updatedorders,join='left')
+    orderbook[index(updatedorders)]<-updatedorders
+
+    # assign order book back into place (do we need a non-exported "put" function?)
+    assign(paste("order_book",portfolio,sep='.'),orderbook,envir=.strategy)
+}
 
 # TODO ruleOrderProc
 # process orders at time t, generating transactions
-
 
 ###############################################################################
 # R (http://r-project.org/) Quantitative Strategy Model Framework
