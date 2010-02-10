@@ -61,11 +61,13 @@ strategy <- function(name, ..., assets=NULL, constraints=NULL ,store=FALSE)
 
 #' apply the strategy to arbitrary market data
 #' @param strategy an object of type 'strategy' to add the indicator to
-#' @param mktdata an xts object containing market data.  depending on indicators, may need to be in OHLCV or BBO formats
+#' @param portfolios a list of portfolios to apply the strategy to
+#' @param mktdata an xts object containing market data.  depending on indicators, may need to be in OHLCV or BBO formats, default NULL
 #' @param ... any other passthru parameters
 #' @export
-applyStrategy <- function(strategy , mktdata , ... ) {
+applyStrategy <- function(strategy , portfolios, mktdata=NULL , ... ) {
     #TODO add Date subsetting
+    #TODO add saving of modified market data
     
     ret<-list()
     
@@ -74,15 +76,29 @@ applyStrategy <- function(strategy , mktdata , ... ) {
         if(inherits(strategy,"try-error"))
             stop ("You must supply an object of type 'strategy'.")
     } 
-    
-    #loop over indicators
-    ret$indicators <- applyIndicators(strategy , mktdata , ... )
-     
-    #loop over signal generators
-    ret$signals <- applySignals(strategy, mktdata, ret$indicators, ... )
-
-    #loop over rules 
-    
+    i=1
+    for (portfolio in portfolios) {
+        ret[portfolio]<-list() # this is slot [[i]] which we will use later
+        pobj<-getPortfolio(portfolio)
+        symbols<-names(pobj)
+        sret<-list()
+        for (symbol in symbols){
+            if(is.null(mktdata)) mktdata <- get(symbol)
+            #loop over indicators
+            sret$indicators <- applyIndicators(strategy , mktdata , ... )
+            
+            #loop over signal generators
+            sret$signals <- applySignals(strategy, mktdata, ret$indicators, ... )
+            
+            #loop over rules  
+            # non-path-dep first
+            sret$rules<-list()
+            sret$rules$nonpath<-applyRules(portfolio=portfolio, symbol=symbol, strategy=strategy, mktdata=mktdata, Dates=NULL, indicators=sret$indicators, signals=sret$signals,  ..., path.dep=FALSE)
+            sret$rules$pathdep<-applyRules(portfolio=portfolio, symbol=symbol, strategy=strategy, mktdata=mktdata, Dates=NULL, indicators=sret$indicators, signals=sret$signals,  ..., path.dep=TRUE)
+        }
+        ret[[i]][symbol]<-sret
+        i=i+1
+    }
     
     
     return(ret)

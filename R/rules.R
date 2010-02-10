@@ -56,6 +56,7 @@ add.rule <- function(strategy, name, arguments, label=NULL, type=c(NULL,"risk","
     if (!is.list(arguments)) stop("arguments must be passed as a named list")
     arguments$label=label
     tmp_rule$arguments<-arguments
+    tmp_rule$path.dep<-path.dep
     if(!hasArg(indexnum) | (hasArg(indexnum) & is.null(indexnum))) indexnum = length(strategy$rules[type])+1
     tmp_rule$call<-match.call()
     strategy$rules[type][[indexnum]]<-tmp_rule
@@ -69,6 +70,12 @@ add.rule <- function(strategy, name, arguments, label=NULL, type=c(NULL,"risk","
 #' In typical usage, this function will be called via \code{\link{applyStrategy}}.  
 #' In this mode, this function will be called twice, once with \code{path.dep=FALSE} 
 #' and then again in stepping over the time indexes of the mktdata object.
+#' 
+#' Individual rule functions may need to use <<- to place \code{hold} and \code{holdtill}
+#' variables into play.  These would be mosrt likely implemented by risk rules.
+#' 
+#' @param portfolio text name of the portfolio to associate the order book with
+#' @param symbol identfier of the instrument to find orders for.  The name of any associated price objects (xts prices, usually OHLC) should match these
 #' @param strategy an object of type 'strategy' to add the rule to
 #' @param mktdata an xts object containing market data.  depending on rules, may need to be in OHLCV or BBO formats, and may include indicator and signal information
 #' @param Dates default NULL, list of time stamps to iterate over, ignored if \code{path.dep=FALSE}
@@ -78,7 +85,7 @@ add.rule <- function(strategy, name, arguments, label=NULL, type=c(NULL,"risk","
 #' @param path.dep TRUE/FALSE whether rule is path dependent, default TRUE, see Details 
 #' @seealso \code{\link{add.rule}} \code{\link{applyStrategy}} 
 #' @export
-applyRules <- function(strategy, mktdata, Dates=NULL, indicators=NULL, signals=NULL,  ..., path.dep=TRUE) {
+applyRules <- function(portfolio, symbol, strategy, mktdata, Dates=NULL, indicators=NULL, signals=NULL,  ..., path.dep=TRUE) {
     # TODO check for symbol name in mktdata using Josh's code:
     # symbol <- strsplit(colnames(mktdata)[1],"\\.")[[1]][1]
     
@@ -97,10 +104,10 @@ applyRules <- function(strategy, mktdata, Dates=NULL, indicators=NULL, signals=N
         nargs=NULL
     }
     
-    ruleProc <- function (ruletypelist,Date=NULL){
+    ruleProc <- function (ruletypelist,timestamp=NULL, ...){
         for (rule in ruletypelist){
             #TODO check to see if they've already been calculated
-            
+            if (!rule$path.dep==path.dep) next()
             if(!is.function(get(rule$name))){
                 if(!is.function(get(paste("sig",rule$name,sep='.')))){
                     message(paste("Skipping rule",rule$name,"because there is no function by that name to call"))
@@ -117,7 +124,7 @@ applyRules <- function(strategy, mktdata, Dates=NULL, indicators=NULL, signals=N
             
             .formals  <- formals(fun)
             onames <- names(.formals)
-            rule$arguments$Date=Date
+            rule$arguments$timestamp=timestamp
             pm <- pmatch(names(rule$arguments), onames, nomatch = 0L)
             if (any(pm == 0L))
                 warning(paste("some arguments stored for",rule$name,"do not match"))
@@ -158,45 +165,56 @@ applyRules <- function(strategy, mktdata, Dates=NULL, indicators=NULL, signals=N
     for(d in 1:length(Dates)){ # d is a date slot counter
         # I shouldn't have to do this but we lose the class for the element 
         # when we do for(date in Dates)
-        Date=Dates[d]    
+        timestamp=Dates[d]    
+        
+        # check to see if we need to release a hold
+        if(isTRUE(hold) & holdtill<timestamp){
+            hold=FALSE
+            holdtill=NULL
+        }
         for ( type in names(strategy$rules)){
             switch( type ,
                     pre = {
-                        # TODO check to see if we need to release hold
-                        #      holdtill would be before current time stamp
-                        if(length(strategy$rules[type])>=1)
-                            ruleProc(strategy$rules$pre,Date=Date)    
+                        if(length(strategy$rules[type])>=1){
+                            ruleProc(strategy$rules$pre,timestamp=timestamp)    
+                        }
                     },
                     risk = {
-                        if(length(strategy$rules$risk)>=1)
-                            ruleProc(strategy$rules$risk,Date=Date)    
+                        if(length(strategy$rules$risk)>=1){
+                            ruleProc(strategy$rules$risk,timestamp=timestamp)    
+                        }       
                     },
                     order = {
                         if(isTRUE(hold)) next()
                         if(length(strategy$rules[type])>=1) {
-                            ruleProc(strategy$rules[type],Date=Date)
+                            ruleProc(strategy$rules[type],timestamp=timestamp)
                         } else {
-                            # TODO call ruleOrderProc(symbol=Symbol, Date=Date, portfolio=Portfolio)
+                            #(mktdata, portfolio, symbol, timestamp, slippageFUN=NULL)
+                            ruleOrderProc(portfolio=portfolio, symbol=symbol, mktdata=mktdata, timestamp=timestamp)
                         }
                     },
                     rebalance =, exit = , enter = {
+                        if(isTRUE(hold)) next()    
                         if(length(strategy$rules[type])>=1) {
-                            if(isTRUE(hold)) next()
-                            ruleProc(strategy$rules[type],Date=Date)
-                        } else next()       
+                            ruleProc(strategy$rules$risk,timestamp=timestamp)
+                        }      
                     },
                     post = {
-                        if(length(strategy$rules$post)>=1)
-                            ruleProc(strategy$rules$post,Date=Date)    
+                        #TODO do we processfor hold here, or not?
+                        if(length(strategy$rules$post)>=1) {
+                            ruleProc(strategy$rules$post,timestamp=timestamp)    
+                        }
                     }
             ) # end switch            
         } #end type loop
     } # end dates loop
     
-    if(is.null(ret)) return(mktdata)
+    mkdata<<-mktdata
+    if(is.null(ret)) {
+        return(mktdata)
+    }
     else return(ret)
 }
-
 
 ###############################################################################
 # R (http://r-project.org/) Quantitative Strategy Model Framework

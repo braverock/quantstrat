@@ -99,7 +99,10 @@ applySignals <- function(strategy, mktdata, indicators=NULL, ...) {
         }
         #print(tmp_val)
     } #end signals loop
-    if(is.null(ret)) return(mktdata)
+    mkdata<<-mktdata
+    if(is.null(ret)) {
+        return(mktdata)
+    }
     else return(ret)
 }
 
