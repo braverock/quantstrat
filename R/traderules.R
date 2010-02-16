@@ -1,0 +1,199 @@
+
+#' default rule to execute a trade on a signal
+#' 
+#' \code{pricemethod} may be one of 'market' and 'opside' which will either try to get the price of the market at \code{timestamp} and use this as the order price
+#' @param mktdata an xts object containing market data.  depending on rules, may need to be in OHLCV or BBO formats, and may include indicator and signal information
+#' @param timestamp timestamp coercible to POSIXct that will be the time the order will be inserted on 
+#' @param sigcol column name to check for signal
+#' @param sigval signal value to match against
+#' @param orderqty numeric quantity of the desired order, modified by osFUN
+#' @param ordertype one of "market","limit","stoplimit", or "stoptrailing"
+#' @param orderside one of either "long" or "short" 
+#' @param threshold numeric threshold to apply to trailing stop orders, default NULL
+#' @param replace TRUE/FALSE, whether to replace any other open order(s) on this portfolio symbol, default TRUE 
+#' @param delay what delay to add to timestamp when inserting the order into the order book, in seconds
+#' @param osFUN function or text descriptor of function to use for order sizing, default \code{\link{osNoOp}}
+#' @param pricemethod one of 'market' or 'opside', see Details
+#' @param portfolio text name of the portfolio to place orders in
+#' @param symbol identifier of the instrument to place orders for.  The name of any associated price objects (xts prices, usually OHLC) should match these
+#' @param ... any other passthru parameters
+#' @seealso \code{\link{osNoOp}}
+#' @export
+ruleSignal <- function(mktdata, timestamp, sigcol, sigval, orderqty=0, ordertype, orderside, threshold, replace=TRUE, delay=0.0001, osFUN='osNoOp', pricemethod=c('market','opside'), portfolio, symbol, ... ) {
+    if(!is.function(osFUN)) osFUN<-match.fun(osFUN)
+    if (mktdata[timestamp][,sigcol] == sigval) {
+        #TODO add fancy formals matching for osFUN
+        orderqty <- osFUN(strategy, mktdata, timestamp, orderqty, ordertype, orderside, portfolio, symbol)
+        #TODO calculate order price using pricemethod
+        switch(pricemethod,
+               opside = {}, #getPrice...
+               market = {}  #getPrice...
+        )
+        if(!is.null(orderqty) & !orderqty == 0){
+            addOrder(portfolio, symbol, timestamp, orderqty, orderprice, ordertype=ordertype, side=orderside, status="open", replace=replace , delay=delay, ...)
+        }
+    }
+}
+
+#TODO ruleORSignal
+#TODO ruleANDSingnal
+
+
+#' default order sizing function 
+#' 
+#' default function performs no operation (NoOp), returns orderqty
+#'  
+#' @param mktdata an xts object containing market data.  depending on rules, may need to be in OHLCV or BBO formats, and may include indicator and signal information
+#' @param timestamp timestamp coercible to POSIXct that will be the time the order will be inserted on 
+#' @param orderqty numeric quantity of the desired order, modified by osFUN
+#' @param ordertype one of "market","limit","stoplimit", or "stoptrailing"
+#' @param orderside one of either "long" or "short" 
+#' @param portfolio text name of the portfolio to place orders in
+#' @param symbol identifier of the instrument to place orders for.  The name of any associated price objects (xts prices, usually OHLC) should match these
+#' @export
+osNoOp <- function(mktdata, timestamp, orderqty, ordertype, orderside, portfolio, symbol){
+    return(orderqty)
+}
+
+
+#' add position and level limits at timestamp
+#' 
+#' @param portfolio text name of the portfolio to place orders in
+#' @param symbol identifier of the instrument to place orders for.  The name of any associated price objects (xts prices, usually OHLC) should match these
+#' @param timestamp timestamp coercible to POSIXct that will be the time the order will be inserted on 
+#' @param maxpos numeric maximum long position for symbol 
+#' @param longlevels numeric number of levels
+#' @param minpos numeric minimum position, default 0 (short allowed use negative number)
+#' @param shortlevels numeric number of short levels 
+#' @seealso 
+#' \code{\link{osMaxPos}}
+#' \code{\link{getPosLimit}}
+#' @export
+addPosLimit <- function(portfolio, symbol, timestamp, maxpos, longlevels=1, minpos=0, shortlevels=0){
+    portf<-getPortfolio(portfolio)
+    newrow <- xts(c(maxpos, longlevels, minpos, shortlevels),order.by=as.POSIXct(timestamp))
+    if(is.null(portf[[symbol]]$PosLimit)) {
+        portf[[symbol]]$PosLimit <- newrow 
+        colnames(portf[[symbol]]$PosLimit)<-c("MaxPos","LongLevels","MinPos","ShortLevels")
+    } else {
+        if(!is.null(portf[[symbol]]$PosLimit[timestamp])){
+            # it exists already, so replace
+            portf[[symbol]]$PosLimit[timestamp]<-newrow
+        } else {
+            # add a new row on timestamp
+            portf[[symbol]]$PosLimit <- rbind(portf[[symbol]]$PosLimit,newrow)
+        }
+    }
+    assign(paste("portfolio",portfolio,sep='.'),portf,envir=.blotter)
+}
+
+#' get position and level limits on timestamp
+#' @param portfolio text name of the portfolio to place orders in
+#' @param symbol identifier of the instrument to place orders for.  The name of any associated price objects (xts prices, usually OHLC) should match these
+#' @param timestamp timestamp coercible to POSIXct that will be the time the order will be inserted on 
+getPosLimit <- function(portfolio, symbol, timestamp){
+    portf<-getPortfolio(portfolio)
+    # try to get on timestamp, otherwise find the most recent
+    toDate = paste('::', timestamp, sep="")
+    PosLimit = last(portf[[symbol]]$PosLimit[toDate])
+    return(PosLimit)
+}
+
+#' order sizing function for position limits and level sizing 
+#' 
+#' levels are a simplification of more complex (proprietary) 
+#' techniques sometimes used for order sizing.  
+#' the max orderqty returned will be the limit/levels
+#' Obviously the strategy rules could ask for smaller order sizes, 
+#' but this is the default.  If you don't want to use levels, set 
+#' them to 1.
+#' 
+#' @param mktdata an xts object containing market data.  depending on rules, may need to be in OHLCV or BBO formats, and may include indicator and signal information
+#' @param timestamp timestamp coercible to POSIXct that will be the time the order will be inserted on 
+#' @param orderqty numeric quantity of the desired order, modified by osFUN
+#' @param ordertype one of "market","limit","stoplimit", or "stoptrailing"
+#' @param orderside one of either "long" or "short" 
+#' @param portfolio text name of the portfolio to place orders in
+#' @param symbol identifier of the instrument to place orders for.  The name of any associated price objects (xts prices, usually OHLC) should match these
+#' @export
+osMaxPos <- function(mktdata, timestamp, orderqty, ordertype, orderside, portfolio, symbol){
+    # check for current position
+    pos<-getPosQty(portoflio,symbol,timestamp)
+    # check against max position
+    PosLimit<-getPosLimit(portoflio,symbol,timestamp)
+    # check levels
+    
+    # buy long
+    if(orderqty>0 & orderside=='long'){
+        if ((orderqty+pos)<PosLimit[,"MaxPos"]) {
+            #we have room to expand the position
+            if(orderqty<=(PosLimit[,"MaxPos"]/PosLimit[,"LongLevels"]) ) {
+                orderqty=orderqty
+            } else {
+                orderqty = round(PosLimit[,"MaxPos"]/PosLimit[,"LongLevels"],0) #note no round lots
+            }
+        } else {
+            # this order would put us over the MaxPos limit
+            orderqty<-ifelse((PosLimit[,"MaxPos"]-pos)<=round(PosLimit[,"MaxPos"]/PosLimit[,"LongLevels"],0),PosLimit[,"MaxPos"]-pos, round(PosLimit[,"MaxPos"]/PosLimit[,"LongLevels"],0)) 
+            if(oderqty+pos>PosLimit[,"MaxPos"]) orderqty <- PosLimit[,"MaxPos"]-pos
+        }
+        return(orderqty)
+    }
+    
+    #sell long
+    if(orderqty<0 & orderside=='long'){
+        if ((orderqty+pos)>=0) {
+            return(orderqty)
+        } else {
+            orderqty<-pos #flatten position, don't cross through zero
+            #TODO add code to break into two orders?
+            return(orderqty)
+        }
+    }
+    
+    #sell short
+    if(orderqty<0 & orderside=='short'){
+        if ((orderqty+pos)>PosLimit[,"MinPos"]) {
+            #we have room to expand the position
+            if(orderqty<=(PosLimit[,"MinPos"]/PosLimit[,"ShortLevels"]) ) {
+                orderqty=orderqty
+            } else {
+                orderqty = round(PosLimit[,"MinPos"]/PosLimit[,"LongLevels"],0) #note no round lots
+            }
+        } else {
+            # this order would put us over the MinPos limit
+            orderqty<-ifelse((PosLimit[,"MinPos"]-pos)>=round(PosLimit[,"MinPos"]/PosLimit[,"ShortLevels"],0),PosLimit[,"MinPos"]-pos, round(PosLimit[,"MinPos"]/PosLimit[,"ShortLevels"],0)) 
+            if(oderqty+pos>PosLimit[,"MaxPos"]) orderqty <- PosLimit[,"MinPos"]-pos
+        }
+        return(orderqty)
+    }
+    
+    #buy cover short
+    if(orderqty>0 & orderside=='short'){
+        if ((orderqty+pos)<=0) {
+            return(orderqty)
+        } else {
+            orderqty<-pos #flatten position, don't cross through zero
+            #TODO add code to break into two orders?
+            return(orderqty)
+        }
+    }
+    
+    # fall through
+    return(0)
+}
+
+#TODO ruleRiskPosLimits to check for overfilled position and scale back
+
+###############################################################################
+# R (http://r-project.org/) Quantitative Strategy Model Framework
+#
+# Copyright (c) 2009-2010
+# Peter Carl, Dirk Eddelbuettel, Brian G. Peterson, Jeffrey Ryan, and Joshua Ulrich 
+#
+# This library is distributed under the terms of the GNU Public License (GPL)
+# for full details see the file COPYING
+#
+# $Id$
+#
+###############################################################################
