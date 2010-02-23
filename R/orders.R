@@ -6,8 +6,8 @@
 #' @export
 getOrderBook <- function(portfolio) #should symbol subsets be supported too?  probably not.
 { 
-    if(!grepl("order_book",portfolio)) orders<-try(get(paste("order_book",portfolio,sep='.'),envir=.strategy))
-    else orders<-try(get(portfolio,envir=.strategy))
+    if(!grepl("order_book",portfolio)) orders<-try(get(paste("order_book",portfolio,sep='.'),envir=.strategy),silent=TRUE)
+    else orders<-try(get(portfolio,envir=.strategy),silent=TRUE)
     if(inherits(orders,"try-error"))
         stop(paste("Orders for ",portfolio," not found, use initOrders() to create a new order book for this portfolio"))
     if(!inherits(orders,"order_book")) stop("Order Book for portfolio",portfolio,"does not appear to name an order book object.")
@@ -28,13 +28,14 @@ getOrderBook <- function(portfolio) #should symbol subsets be supported too?  pr
 initOrders <- function(portfolio=NULL, symbols=NULL, initDate = '1999-12-31')
 {
     # NOTE we could store all of these in one object, but I think that might get big
-    orders<- try(getOrderBook(portfolio))
+    orders<- try(getOrderBook(portfolio),silent=TRUE)
     if(inherits(orders,"order_book")) {
         stop(paste("Order Book for portfolio",portfolio,"already exists."))
     } else {
-        orders<-list(portfolio=portfolio)
+        orders<-list()
+        orders[[portfolio]]<-list()
     }
-    ordertemplate<-xts(c(0,NA,"init","long","closed",as.POSIXct(initDate)),order.by=as.POSIXct(initDate))
+    ordertemplate<-xts(as.matrix(t(c(0,NA,"init","long","closed",as.POSIXct(initDate)))),order.by=as.POSIXct(initDate))
     colnames(ordertemplate) <- c("Order.Qty","Order.Price","Order.Type","Order.Side","Order.Status","Order.StatusTime")
     
     if(is.null(symbols)) {
