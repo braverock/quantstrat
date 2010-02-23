@@ -1,15 +1,24 @@
 
-#' default rule to execute a trade on a signal
+#' default rule to generate a trade order on a signal
 #' 
-#' \code{pricemethod} may be one of 'market' and 'opside' which will either try to get the price of the market at \code{timestamp} and use this as the order price
+#' \code{pricemethod} may be one of 'market' or 'opside' 
+#' which will either try to get the price of the 'market' at \code{timestamp} and use this as the order price
+#' or 'opside' which will use the 'ask' price if you're buying and the 'bid' price if you're selling
+#' 
+#' If \code{threshold} is not numeric or \code{NULL} it should be the character string describing a function that can calculate a threshold.  
+#' Ideally this will be a column lookup on a non-path-dependent indicator calculated in advance.
+#' 
+#' If \code{orderside} is NULL, the function will attempt to calculate the side from the current position 
+#' (if any) and the order quantity.    
+#'   
 #' @param mktdata an xts object containing market data.  depending on rules, may need to be in OHLCV or BBO formats, and may include indicator and signal information
 #' @param timestamp timestamp coercible to POSIXct that will be the time the order will be inserted on 
 #' @param sigcol column name to check for signal
 #' @param sigval signal value to match against
 #' @param orderqty numeric quantity of the desired order, modified by osFUN
 #' @param ordertype one of "market","limit","stoplimit", or "stoptrailing"
-#' @param orderside one of either "long" or "short" 
-#' @param threshold numeric threshold to apply to trailing stop orders, default NULL
+#' @param orderside one of either "long" or "short", default NULL, see details 
+#' @param threshold numeric or function threshold to apply to trailing stop orders, default NULL, see Details
 #' @param replace TRUE/FALSE, whether to replace any other open order(s) on this portfolio symbol, default TRUE 
 #' @param delay what delay to add to timestamp when inserting the order into the order book, in seconds
 #' @param osFUN function or text descriptor of function to use for order sizing, default \code{\link{osNoOp}}
@@ -19,18 +28,43 @@
 #' @param ... any other passthru parameters
 #' @seealso \code{\link{osNoOp}}
 #' @export
-ruleSignal <- function(mktdata, timestamp, sigcol, sigval, orderqty=0, ordertype, orderside, threshold, replace=TRUE, delay=0.0001, osFUN='osNoOp', pricemethod=c('market','opside'), portfolio, symbol, ... ) {
+ruleSignal <- function(mktdata, timestamp, sigcol, sigval, orderqty=0, ordertype, orderside, threshold=NULL, replace=TRUE, delay=0.0001, osFUN='osNoOp', pricemethod=c('market','opside'), portfolio, symbol, ... ) {
     if(!is.function(osFUN)) osFUN<-match.fun(osFUN)
     if (mktdata[timestamp][,sigcol] == sigval) {
         #TODO add fancy formals matching for osFUN
         orderqty <- osFUN(strategy, mktdata, timestamp, orderqty, ordertype, orderside, portfolio, symbol)
-        #TODO calculate order price using pricemethod
+        #calculate order price using pricemethod
         switch(pricemethod,
-               opside = {}, #getPrice...
-               market = {}  #getPrice...
+               opside = {
+                   if (orderqty>0) 
+                       prefer='ask'  # we're buying, so pay what they're asking
+                   else
+                       prefer='bid'  # we're selling, so give it to them for what they're bidding
+                   orderprice <- try(getPrice(x=mktdata,symbol=symbol,prefer=prefer))
+               }, 
+               market = { 
+                   orderprice <- try(getPrice(x=mktdata,symbol=symbol,prefer=NULL)) 
+               }  
         )
-        if(!is.null(orderqty) & !orderqty == 0){
-            addOrder(portfolio, symbol, timestamp, orderqty, orderprice, ordertype=ordertype, side=orderside, status="open", replace=replace , delay=delay, ...)
+        if(inherits(orderprice,'try-error')) orderprice<-NULL
+        if(is.NULL(orderside) & !orderqty == 0){
+            curqty<-getPosQty(Portfolio=portfolio, Symbol=symbol, Date=timestamp)
+            if (curqty>0 ){
+                #we have a long position
+                orderside<-'long'
+            } else if (curqty<0){
+                #we have a short position
+                orderside<-'short'
+            } else {
+                # no current position, which way are we going?
+                if (orderqty>0) 
+                    orderside<-'long'
+                else
+                    orderside<-'short'
+            }
+        }
+        if(!is.null(orderqty) & !orderqty == 0 & !is.null(orderprice)){
+            addOrder(portfolio, symbol, timestamp, orderqty, orderprice, ordertype=ordertype, side=orderside, threshold=threshold, status="open", replace=replace , delay=delay, ...)
         }
     }
 }
@@ -58,6 +92,12 @@ osNoOp <- function(mktdata, timestamp, orderqty, ordertype, orderside, portfolio
 
 #' add position and level limits at timestamp
 #' 
+#' levels are a simplification of more complex (proprietary) 
+#' techniques sometimes used for order sizing.  
+#' the max orderqty returned will be the limit/levels
+#' Obviously the strategy rules could ask for smaller order sizes, 
+#' but this is the default.  If you don't want to use levels, set 
+#' them to 1.
 #' @param portfolio text name of the portfolio to place orders in
 #' @param symbol identifier of the instrument to place orders for.  The name of any associated price objects (xts prices, usually OHLC) should match these
 #' @param timestamp timestamp coercible to POSIXct that will be the time the order will be inserted on 
@@ -91,6 +131,7 @@ addPosLimit <- function(portfolio, symbol, timestamp, maxpos, longlevels=1, minp
 #' @param portfolio text name of the portfolio to place orders in
 #' @param symbol identifier of the instrument to place orders for.  The name of any associated price objects (xts prices, usually OHLC) should match these
 #' @param timestamp timestamp coercible to POSIXct that will be the time the order will be inserted on 
+#' @seealso \code{\link{addPosLimit}},\code{\link{osMaxPos}}
 getPosLimit <- function(portfolio, symbol, timestamp){
     portf<-getPortfolio(portfolio)
     # try to get on timestamp, otherwise find the most recent
@@ -115,6 +156,7 @@ getPosLimit <- function(portfolio, symbol, timestamp){
 #' @param orderside one of either "long" or "short" 
 #' @param portfolio text name of the portfolio to place orders in
 #' @param symbol identifier of the instrument to place orders for.  The name of any associated price objects (xts prices, usually OHLC) should match these
+#' @seealso \code{\link{addPosLimit}},\code{\link{getPosLimit}}
 #' @export
 osMaxPos <- function(mktdata, timestamp, orderqty, ordertype, orderside, portfolio, symbol){
     # check for current position
