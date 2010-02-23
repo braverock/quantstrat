@@ -37,7 +37,7 @@
 #' @param strategy an object of type 'strategy' to add the rule to
 #' @param name name of the rule, must correspond to an R function
 #' @param arguments default arguments to be passed to an rule function when executed
-#' @param label arbitrary text label for signal output, NULL default will be converted to '<name>.sig'
+#' @param label arbitrary text label for rule output, NULL default will be converted to '<name>.rule'
 #' @param type one of "risk","order","rebalance","exit","entry", see Details
 #' @param ... any other passthru parameters
 #' @param enabled TRUE/FALSE whether the rule is enabled for use in applying the strategy, default TRUE
@@ -54,7 +54,8 @@ add.rule <- function(strategy, name, arguments, label=NULL, type=c(NULL,"risk","
     tmp_rule$type<-type
     tmp_rule$enabled<-enabled
     if (!is.list(arguments)) stop("arguments must be passed as a named list")
-    arguments$label=label
+    if(is.null(label)) label = paste(name,"rule",sep='.')
+    tmp_rule$label<-label
     tmp_rule$arguments<-arguments
     tmp_rule$path.dep<-path.dep
     if(!hasArg(indexnum) | (hasArg(indexnum) & is.null(indexnum))) indexnum = length(strategy$rules[type])+1
