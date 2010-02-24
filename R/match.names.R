@@ -19,7 +19,9 @@ match.names <- function(data_names,match_names) {
         loc <- c(loc,grep(mname,data_names))
     }
     if ( !identical(length(loc),length(match_names)) ) {
-        warning(paste("all columns not located in",as.character(match_names),"for",as.character(data_names)))  
+        mstr<-paste(match_names,collapse=' ')
+        dstr<-paste(data_names,collapse=' ')
+        warning(paste("all columns not located in",mstr,"for",dstr))  
     }
     return(loc)
 }
