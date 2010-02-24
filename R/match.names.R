@@ -13,10 +13,12 @@
 #' @param data_names names for the data to be matched to
 #' @param match_names names to match
 #' @export
-match.names <- function(data_names,match_names) {
-    loc<-vector()
+match.names <- function(match_names,data_names) {
+    loc<-NULL
     for (mname in match_names){
-        loc <- c(loc,grep(mname,data_names))
+        t<-grep(mname,data_names)
+        if(is.null(loc)) loc<-t
+        else loc <- c(loc,t)
     }
     if ( !identical(length(loc),length(match_names)) ) {
         mstr<-paste(match_names,collapse=' ')
