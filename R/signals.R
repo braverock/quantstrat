@@ -99,7 +99,7 @@ applySignals <- function(strategy, mktdata, indicators=NULL, ...) {
         }
         #print(tmp_val)
     } #end signals loop
-    mkdata<<-mktdata
+    mktdata<<-mktdata
     if(is.null(ret)) {
         return(mktdata)
     }
@@ -126,7 +126,7 @@ sigComparison <- function(label,data, columns, relationship=c("gt","lt","eq","gt
     relationship=relationship[1] #only use the first one
     if (length(columns==2)){
         ret_sig=NULL
-        columns <- match.names(colnames(data),columns)
+        columns <- match.names(columns,colnames(data))
         switch(relationship,
                 '>'  =,
                 'gt' = {ret_sig = data[,columns[1]] > data[,columns[2]]},
@@ -179,7 +179,7 @@ sigCrossover <- function(label,data, columns, relationship=c("gt","lt","eq","gte
 #' @export
 sigPeak <- function(label,data,column, direction=c("peak","bottom")){
     #should we only do this for one column?
-    column<-match.names(colnames(data),column)
+    column<-match.names(column,colnames(data))
     direction=direction[1] # only use the first]
     #(Lag(IBM[,4],2)<Lag(IBM[,4],1)) & Lag(IBM[,4],1) >IBM[,4]
     switch(direction,
@@ -205,7 +205,7 @@ sigPeak <- function(label,data,column, direction=c("peak","bottom")){
 sigThreshold <- function(label, data, column, threshold=0, relationship=c("gt","lt","eq","gte","lte")) {
     relationship=relationship[1] #only use the first one
     ret_sig=NULL
-    column <- match.names(colnames(data),column)
+    column <- match.names(column, colnames(data))
     switch(relationship,
             '>' =,
             'gt' = {ret_sig = data[,column] > threshold},

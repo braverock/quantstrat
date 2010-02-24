@@ -44,7 +44,7 @@ initOrders <- function(portfolio=NULL, symbols=NULL, initDate = '1999-12-31')
     }
     if(!is.null(symbols)){
         for (symbol in symbols){
-            orders[[portfolio]]$symbol <- ordertemplate
+            orders[[portfolio]][[symbol]] <- ordertemplate
         }
     } else {
         stop("You must specify a symbols list or a valid portfolio to retrieve the list from.")
@@ -73,12 +73,16 @@ getOrders <- function(portfolio,symbol,status="open",timestamp=NULL,ordertype=NU
 {
     # get order book
     orderbook <- getOrderBook(portfolio)
-    if(!length(grep(symbol,names(orderbook)))==1) stop(paste("symbol",symbol,"does not exist in portfolio",portfolio,"having symbols",names(orderbook)))
+    if(!length(grep(symbol,names(orderbook[[portfolio]])))==1) stop(paste("symbol",symbol,"does not exist in portfolio",portfolio,"having symbols",names(orderbook)))
     orderset<-NULL
     
     #data quality checks
     if(!is.null(status) & !length(grep(status,c("open", "closed", "canceled","replaced")))==1) stop(paste("order status:",status,' must be one of "open", "closed", "canceled", or "replaced"'))
-    if(!is.null(ordertype) & !length(grep(ordertype,c("market","limit","stoplimit","stoptrailing")))==1) stop(paste("ordertype:",ordertype,' must be one of "market","limit","stoplimit", or "stoptrailing"'))
+    if(!is.null(ordertype)) {
+        if(!length(grep(ordertype,c("market","limit","stoplimit","stoptrailing")))==1){
+            stop(paste("ordertype:",ordertype,' must be one of "market","limit","stoplimit", or "stoptrailing"'))
+        } 
+    } 
 
     # subset by time and symbol
     if(!is.null(timestamp)){
@@ -97,13 +101,13 @@ getOrders <- function(portfolio,symbol,status="open",timestamp=NULL,ordertype=NU
     # extract
     orderset<-orderbook[[symbol]][timespan]
     if(!is.null(status)){
-        orderset<-orderset[which(orderset[,"Order.Status"==status])]
+        orderset<-orderset[which(orderset[,"Order.Status"]==status)]
     }
     if(!is.null(ordertype)) {
-        orderset<-orderset[which(orderset[,"Order.Type"==ordertype])]    
+        orderset<-orderset[which(orderset[,"Order.Type"]==ordertype)]    
     }
     if(!is.null(side)) {
-        orderset<-orderset[which(orderset[,"Order.Side"==side])]    
+        orderset<-orderset[which(orderset[,"Order.Side"]==side)]    
     }
     return(orderset)
 }
@@ -244,6 +248,7 @@ ruleOrderProc <- function(portfolio, symbol, mktdata, timestamp, ordertype=NULL,
     # get open orders
     procorders<-getOrders(portfolio=portfolio, symbol=symbol, status="open", timestamp=timestamp, ordertype=ordertype)
     freq = periodicity(mktdata)
+    if (!is.null(procorders)){ 
     if (nrow(procorders)>=1){
         # get previous bar
         prevtime=time(mktdata[mktdata[timestamp,which.i=TRUE]-1])
@@ -389,6 +394,7 @@ ruleOrderProc <- function(portfolio, symbol, mktdata, timestamp, ordertype=NULL,
             } # end higher frequency processing
         ) # end switch on freq
     } # end check for open orders
+    }
     # now put the orders back in
     updateOrderMatrix(portfolio=portfolio, symbol=symbol, updatedorders=procorders)
 }

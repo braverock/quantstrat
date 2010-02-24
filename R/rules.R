@@ -106,7 +106,7 @@ applyRules <- function(portfolio, symbol, strategy, mktdata, Dates=NULL, indicat
         nargs=NULL
     }
     
-    ruleProc <- function (ruletypelist,timestamp=NULL, ...){
+    ruleProc <- function (ruletypelist,timestamp=NULL, path.dep, ...){
         for (rule in ruletypelist){
             #TODO check to see if they've already been calculated
             if (!rule$path.dep==path.dep) next()
@@ -162,7 +162,7 @@ applyRules <- function(portfolio, symbol, strategy, mktdata, Dates=NULL, indicat
     if(!isTRUE(path.dep)) Dates=''
 
     hold=FALSE
-    holdtill=NULL
+    holdtill=first(time(Dates))-1 # TODO FIXME make holdtill default more robust?
     
     for(d in 1:length(Dates)){ # d is a date slot counter
         # I shouldn't have to do this but we lose the class for the element 
@@ -177,19 +177,19 @@ applyRules <- function(portfolio, symbol, strategy, mktdata, Dates=NULL, indicat
         for ( type in names(strategy$rules)){
             switch( type ,
                     pre = {
-                        if(length(strategy$rules[type])>=1){
-                            ruleProc(strategy$rules$pre,timestamp=timestamp)    
+                        if(length(strategy$rules[[type]])>=1){
+                            ruleProc(strategy$rules$pre,timestamp=timestamp, path.dep=path.dep)    
                         }
                     },
                     risk = {
                         if(length(strategy$rules$risk)>=1){
-                            ruleProc(strategy$rules$risk,timestamp=timestamp)    
+                            ruleProc(strategy$rules$risk,timestamp=timestamp, path.dep=path.dep)    
                         }       
                     },
                     order = {
                         if(isTRUE(hold)) next()
-                        if(length(strategy$rules[type])>=1) {
-                            ruleProc(strategy$rules[type],timestamp=timestamp)
+                        if(length(strategy$rules[[type]])>=1) {
+                            ruleProc(strategy$rules[[type]],timestamp=timestamp, path.dep=path.dep)
                         } else {
                             #(mktdata, portfolio, symbol, timestamp, slippageFUN=NULL)
                             ruleOrderProc(portfolio=portfolio, symbol=symbol, mktdata=mktdata, timestamp=timestamp)
@@ -197,14 +197,14 @@ applyRules <- function(portfolio, symbol, strategy, mktdata, Dates=NULL, indicat
                     },
                     rebalance =, exit = , enter = {
                         if(isTRUE(hold)) next()    
-                        if(length(strategy$rules[type])>=1) {
-                            ruleProc(strategy$rules$risk,timestamp=timestamp)
+                        if(length(strategy$rules[[type]])>=1) {
+                            ruleProc(strategy$rules$risk,timestamp=timestamp, path.dep=path.dep)
                         }      
                     },
                     post = {
                         #TODO do we processfor hold here, or not?
                         if(length(strategy$rules$post)>=1) {
-                            ruleProc(strategy$rules$post,timestamp=timestamp)    
+                            ruleProc(strategy$rules$post,timestamp=timestamp, path.dep=path.dep)    
                         }
                     }
             ) # end switch            

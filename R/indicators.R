@@ -94,7 +94,7 @@ applyIndicators <- function(strategy, mktdata, ...) {
         }
         #print(tmp_val)
     } #end indicators loop
-    mkdata<<-mktdata
+    mktdata<<-mktdata
     if(is.null(ret)) {
         return(mktdata)
     }

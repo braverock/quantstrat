@@ -1,3 +1,5 @@
+require(quantstrat)
+try(rm("order_book.simplestrat",pos=.strategy),silent=TRUE)
 try(rm("account.simplestrat","portfolio.simplestrat",pos=.blotter),silent=TRUE)
 try(rm("account.st","portfolio.st","IBM","s","initDate","initEq"),silent=TRUE)
 
@@ -7,7 +9,7 @@ initEq=1000000
 portfolio.st='simplestrat'
 account.st='simplestrat'
 
-initPortf(portfolio.st,'IBM', initDate=initDate)
+initPortf(portfolio.st,symbols='IBM', initDate=initDate)
 initAcct(account.st,portfolios='simplestrat', initDate=initDate)
 initOrders(portfolio=portfolio.st,initDate=initDate)
 
@@ -25,12 +27,13 @@ s <- add.indicator(strategy = s, name = "BBands", arguments = list(HLC = quote(H
 s<- add.signal(s,name="sigCrossover",arguments = list(data=quote(mktdata),columns=c("Close","up"),relationship="gt"),label="Cl.gt.UpperBand")
 s<- add.signal(s,name="sigCrossover",arguments = list(data=quote(mktdata),columns=c("Close","dn"),relationship="lt"),label="Cl.lt.LowerBand")
 
-IBM.sigs<-applySignals(s,mktdata=IBM.inds)
+#IBM.sigs<-applySignals(s,mktdata=IBM.inds)
 
 # lets add some rules
-s <- add.rule(s,name='ruleSignal', arguments = list(data=quote(mktdata),sigcol="Cl.gt.UpperBand",sigval=TRUE, orderqty=-100, ordertype='sell', orderside=NULL, threshold=NULL),type='order')
-s <- add.rule(s,name='ruleSignal', arguments = list(data=quote(mktdata),sigcol="Cl.lt.LowerBand",sigval=TRUE, orderqty= 100, ordertype='buy' , orderside=NULL, threshold=NULL),type='order')
+s 
+s <- add.rule(s,name='ruleSignal', arguments = list(data=quote(mktdata),sigcol="Cl.gt.UpperBand",sigval=TRUE, orderqty=-100, ordertype='sell', orderside=NULL, threshold=NULL),type='enter')
+s <- add.rule(s,name='ruleSignal', arguments = list(data=quote(mktdata),sigcol="Cl.lt.LowerBand",sigval=TRUE, orderqty= 100, ordertype='buy' , orderside=NULL, threshold=NULL),type='enter')
 #TODO add thresholds and stop-entry and stop-exit handling to test
 
-#getSymbols("IBM")
-# applyStrategy(strategy='s' , portfolios='simplestrat', mktdata="IBM") 
+getSymbols("IBM")
+out<-applyStrategy(strategy='s' , portfolios='simplestrat') 
