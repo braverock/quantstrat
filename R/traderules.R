@@ -30,10 +30,12 @@
 #' @export
 ruleSignal <- function(mktdata, timestamp, sigcol, sigval, orderqty=0, ordertype, orderside, threshold=NULL, replace=TRUE, delay=0.0001, osFUN='osNoOp', pricemethod=c('market','opside'), portfolio, symbol, ... ) {
     if(!is.function(osFUN)) osFUN<-match.fun(osFUN)
-    if (mktdata[timestamp][,sigcol] == sigval) {
+    if (!is.na(mktdata[timestamp][,sigcol]) & mktdata[timestamp][,sigcol] == sigval) {
         #TODO add fancy formals matching for osFUN
-        orderqty <- osFUN(strategy, mktdata, timestamp, orderqty, ordertype, orderside, portfolio, symbol)
+         
+        orderqty <- osFUN(strategy=strategy, mktdata=mktdata, timestamp=timestamp, orderqty=orderqty, ordertype=ordertype, orderside=orderside, portfolio=portfolio, symbol=symbol)
         #calculate order price using pricemethod
+        pricemethod<-pricemethod[1] #only use the first if not set by calling function
         switch(pricemethod,
                opside = {
                    if (orderqty>0) 
@@ -47,7 +49,7 @@ ruleSignal <- function(mktdata, timestamp, sigcol, sigval, orderqty=0, ordertype
                }  
         )
         if(inherits(orderprice,'try-error')) orderprice<-NULL
-        if(is.NULL(orderside) & !orderqty == 0){
+        if(is.null(orderside) & !orderqty == 0){
             curqty<-getPosQty(Portfolio=portfolio, Symbol=symbol, Date=timestamp)
             if (curqty>0 ){
                 #we have a long position
@@ -64,7 +66,7 @@ ruleSignal <- function(mktdata, timestamp, sigcol, sigval, orderqty=0, ordertype
             }
         }
         if(!is.null(orderqty) & !orderqty == 0 & !is.null(orderprice)){
-            addOrder(portfolio, symbol, timestamp, orderqty, orderprice, ordertype=ordertype, side=orderside, threshold=threshold, status="open", replace=replace , delay=delay, ...)
+            addOrder(portfolio=portfolio, symbol=symbol, timestamp=timestamp, qty=orderqty, price=orderprice, ordertype=ordertype, side=orderside, threshold=threshold, status="open", replace=replace , delay=delay, ...)
         }
     }
 }
@@ -85,7 +87,7 @@ ruleSignal <- function(mktdata, timestamp, sigcol, sigval, orderqty=0, ordertype
 #' @param portfolio text name of the portfolio to place orders in
 #' @param symbol identifier of the instrument to place orders for.  The name of any associated price objects (xts prices, usually OHLC) should match these
 #' @export
-osNoOp <- function(mktdata, timestamp, orderqty, ordertype, orderside, portfolio, symbol){
+osNoOp <- function(orderqty, ...){
     return(orderqty)
 }
 

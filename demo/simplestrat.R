@@ -1,7 +1,7 @@
 require(quantstrat)
 try(rm("order_book.simplestrat",pos=.strategy),silent=TRUE)
 try(rm("account.simplestrat","portfolio.simplestrat",pos=.blotter),silent=TRUE)
-try(rm("account.st","portfolio.st","IBM","s","initDate","initEq"),silent=TRUE)
+try(rm("account.st","portfolio.st","IBM","s","initDate","initEq",'start_t','end_t'),silent=TRUE)
 
 initDate='1997-12-31'
 initEq=1000000
@@ -31,9 +31,12 @@ s<- add.signal(s,name="sigCrossover",arguments = list(data=quote(mktdata),column
 
 # lets add some rules
 s 
-s <- add.rule(s,name='ruleSignal', arguments = list(data=quote(mktdata),sigcol="Cl.gt.UpperBand",sigval=TRUE, orderqty=-100, ordertype='sell', orderside=NULL, threshold=NULL),type='enter')
-s <- add.rule(s,name='ruleSignal', arguments = list(data=quote(mktdata),sigcol="Cl.lt.LowerBand",sigval=TRUE, orderqty= 100, ordertype='buy' , orderside=NULL, threshold=NULL),type='enter')
+s <- add.rule(s,name='ruleSignal', arguments = list(data=quote(mktdata),sigcol="Cl.gt.UpperBand",sigval=TRUE, orderqty=-100, ordertype='market', orderside=NULL, threshold=NULL),type='enter')
+s <- add.rule(s,name='ruleSignal', arguments = list(data=quote(mktdata),sigcol="Cl.lt.LowerBand",sigval=TRUE, orderqty= 100, ordertype='market' , orderside=NULL, threshold=NULL),type='enter')
 #TODO add thresholds and stop-entry and stop-exit handling to test
 
 getSymbols("IBM")
-out<-applyStrategy(strategy='s' , portfolios='simplestrat') 
+start_t<-Sys.time()
+out<-try(applyStrategy(strategy='s' , portfolios='simplestrat'))
+end_t<-Sys.time()
+end_t-start_t

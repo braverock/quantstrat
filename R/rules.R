@@ -148,20 +148,22 @@ applyRules <- function(portfolio, symbol, strategy, mktdata, Dates=NULL, indicat
             .formals$... <- NULL
             
             tmp_val<-do.call(fun,.formals)
-            if(is.null(names(tmp_val)) & ncol(tmp_val)==1) names(tmp_val)<-rule$label
-            if (nrow(mktdata)==nrow(tmp_val) | length(mktdata)==length(tmp_val)) {
-                # the rule returned a time series, so we'll name it and cbind it
-                mktdata<-cbind(mktdata,tmp_val)
-            } else {
-                # the rule returned something else, add it to the ret list
-                if(is.null(ret)) ret<-list()
-                ret[[rule$name]]<-tmp_val
+            if(!is.null(tmp_val)){
+                if(is.null(names(tmp_val)) & ncol(tmp_val)==1) names(tmp_val)<-rule$label
+                if (nrow(mktdata)==nrow(tmp_val) | length(mktdata)==length(tmp_val)) {
+                    # the rule returned a time series, so we'll name it and cbind it
+                    mktdata<-cbind(mktdata,tmp_val)
+                } else {
+                    # the rule returned something else, add it to the ret list
+                    if(is.null(ret)) ret<-list()
+                    ret[[rule$name]]<-tmp_val
+                }  
             }
+            mktdata <<- mktdata
+            ret <<- ret
+            hold <<- hold #TODO FIXME hold processing doesn't work yet
             #print(tmp_val)
         } #end rules loop
-        mktdata <<- mktdata
-        ret <<- ret
-        hold <<- hold
     } # end sub process function
 
     #TODO FIXME we should probably do something more sophisticated, but this should work
@@ -185,18 +187,18 @@ applyRules <- function(portfolio, symbol, strategy, mktdata, Dates=NULL, indicat
             switch( type ,
                     pre = {
                         if(length(strategy$rules[[type]])>=1){
-                            ruleProc(strategy$rules$pre,timestamp=timestamp, path.dep=path.dep, mktdata=mktdata)    
+                            ruleProc(strategy$rules$pre,timestamp=timestamp, path.dep=path.dep, mktdata=mktdata,portfolio=portfolio, symbol=symbol)    
                         }
                     },
                     risk = {
                         if(length(strategy$rules$risk)>=1){
-                            ruleProc(strategy$rules$risk,timestamp=timestamp, path.dep=path.dep, mktdata=mktdata)    
+                            ruleProc(strategy$rules$risk,timestamp=timestamp, path.dep=path.dep, mktdata=mktdata,portfolio=portfolio, symbol=symbol)    
                         }       
                     },
                     order = {
                         if(isTRUE(hold)) next()
                         if(length(strategy$rules[[type]])>=1) {
-                            ruleProc(strategy$rules[[type]],timestamp=timestamp, path.dep=path.dep, mktdata=mktdata)
+                            ruleProc(strategy$rules[[type]],timestamp=timestamp, path.dep=path.dep, mktdata=mktdata,portfolio=portfolio, symbol=symbol)
                         } else {
                             #(mktdata, portfolio, symbol, timestamp, slippageFUN=NULL)
                             ruleOrderProc(portfolio=portfolio, symbol=symbol, mktdata=mktdata, timestamp=timestamp)
@@ -205,13 +207,13 @@ applyRules <- function(portfolio, symbol, strategy, mktdata, Dates=NULL, indicat
                     rebalance =, exit = , enter = {
                         if(isTRUE(hold)) next()    
                         if(length(strategy$rules[[type]])>=1) {
-                            ruleProc(strategy$rules[[type]],timestamp=timestamp, path.dep=path.dep, mktdata=mktdata)
+                            ruleProc(strategy$rules[[type]],timestamp=timestamp, path.dep=path.dep, mktdata=mktdata,portfolio=portfolio, symbol=symbol)
                         }      
                     },
                     post = {
                         #TODO do we processfor hold here, or not?
                         if(length(strategy$rules$post)>=1) {
-                            ruleProc(strategy$rules$post,timestamp=timestamp, path.dep=path.dep, mktdata=mktdata)    
+                            ruleProc(strategy$rules$post,timestamp=timestamp, path.dep=path.dep, mktdata=mktdata,portfolio=portfolio, symbol=symbol)    
                         }
                     }
             ) # end switch            

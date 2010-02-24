@@ -99,7 +99,7 @@ getOrders <- function(portfolio,symbol,status="open",timestamp=NULL,ordertype=NU
     }
     
     # extract
-    orderset<-orderbook[[symbol]][timespan]
+    orderset<-orderbook[[portfolio]][[symbol]][timespan]
     if(!is.null(status)){
         orderset<-orderset[which(orderset[,"Order.Status"]==status)]
     }
@@ -148,7 +148,7 @@ addOrder <- function(portfolio, symbol, timestamp, qty, price, ordertype, side, 
 {
     # get order book
     orderbook <- getOrderBook(portfolio)
-    if(!length(grep(symbol,names(orderbook)))==1) stop(paste("symbol",symbol,"does not exist in portfolio",portfolio,"having symbols",names(orderbook)))
+    if(!length(grep(symbol,names(orderbook[[portfolio]])))==1) stop(paste("symbol",symbol,"does not exist in portfolio",portfolio,"having symbols",names(orderbook[[portfolio]])))
     
     #data quality checks
     if(!is.numeric(qty)) stop (paste("Quantity must be numeric:",qty))
