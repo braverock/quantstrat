@@ -124,6 +124,13 @@ applyRules <- function(portfolio, symbol, strategy, mktdata, Dates=NULL, indicat
             # see 'S Programming p. 67 for this matching
             fun<-match.fun(rule$name)
             
+            nargs <-list(...)
+            if(length(nargs)==0) nargs=NULL
+            if (length('...')==0 | is.null('...')) {
+                rm('...')
+                nargs=NULL
+            }
+            
             .formals  <- formals(fun)
             onames <- names(.formals)
             rule$arguments$timestamp=timestamp
@@ -178,18 +185,18 @@ applyRules <- function(portfolio, symbol, strategy, mktdata, Dates=NULL, indicat
             switch( type ,
                     pre = {
                         if(length(strategy$rules[[type]])>=1){
-                            ruleProc(strategy$rules$pre,timestamp=timestamp, path.dep=path.dep)    
+                            ruleProc(strategy$rules$pre,timestamp=timestamp, path.dep=path.dep, mktdata=mktdata)    
                         }
                     },
                     risk = {
                         if(length(strategy$rules$risk)>=1){
-                            ruleProc(strategy$rules$risk,timestamp=timestamp, path.dep=path.dep)    
+                            ruleProc(strategy$rules$risk,timestamp=timestamp, path.dep=path.dep, mktdata=mktdata)    
                         }       
                     },
                     order = {
                         if(isTRUE(hold)) next()
                         if(length(strategy$rules[[type]])>=1) {
-                            ruleProc(strategy$rules[[type]],timestamp=timestamp, path.dep=path.dep)
+                            ruleProc(strategy$rules[[type]],timestamp=timestamp, path.dep=path.dep, mktdata=mktdata)
                         } else {
                             #(mktdata, portfolio, symbol, timestamp, slippageFUN=NULL)
                             ruleOrderProc(portfolio=portfolio, symbol=symbol, mktdata=mktdata, timestamp=timestamp)
@@ -198,13 +205,13 @@ applyRules <- function(portfolio, symbol, strategy, mktdata, Dates=NULL, indicat
                     rebalance =, exit = , enter = {
                         if(isTRUE(hold)) next()    
                         if(length(strategy$rules[[type]])>=1) {
-                            ruleProc(strategy$rules$risk,timestamp=timestamp, path.dep=path.dep)
+                            ruleProc(strategy$rules[[type]],timestamp=timestamp, path.dep=path.dep, mktdata=mktdata)
                         }      
                     },
                     post = {
                         #TODO do we processfor hold here, or not?
                         if(length(strategy$rules$post)>=1) {
-                            ruleProc(strategy$rules$post,timestamp=timestamp, path.dep=path.dep)    
+                            ruleProc(strategy$rules$post,timestamp=timestamp, path.dep=path.dep, mktdata=mktdata)    
                         }
                     }
             ) # end switch            
