@@ -38,5 +38,20 @@ s <- add.rule(s,name='ruleSignal', arguments = list(data=quote(mktdata),sigcol="
 getSymbols("IBM")
 start_t<-Sys.time()
 out<-try(applyStrategy(strategy='s' , portfolios='simplestrat'))
+# look at the order book
+#getOrderBook('simplestrat')
 end_t<-Sys.time()
 end_t-start_t
+
+###############################################################################
+# R (http://r-project.org/) Quantitative Strategy Model Framework
+#
+# Copyright (c) 2009-2010
+# Peter Carl, Dirk Eddelbuettel, Brian G. Peterson, Jeffrey Ryan, and Joshua Ulrich 
+#
+# This library is distributed under the terms of the GNU Public License (GPL)
+# for full details see the file COPYING
+#
+# $Id$
+#
+###############################################################################
