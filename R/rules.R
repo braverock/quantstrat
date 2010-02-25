@@ -148,20 +148,21 @@ applyRules <- function(portfolio, symbol, strategy, mktdata, Dates=NULL, indicat
             .formals$... <- NULL
             
             tmp_val<-do.call(fun,.formals)
-            if(!is.null(tmp_val)){
-                if(is.null(names(tmp_val)) & ncol(tmp_val)==1) names(tmp_val)<-rule$label
-                if (nrow(mktdata)==nrow(tmp_val) | length(mktdata)==length(tmp_val)) {
-                    # the rule returned a time series, so we'll name it and cbind it
-                    mktdata<-cbind(mktdata,tmp_val)
-                } else {
-                    # the rule returned something else, add it to the ret list
-                    if(is.null(ret)) ret<-list()
-                    ret[[rule$name]]<-tmp_val
-                }  
-            }
+            ## if(!is.null(tmp_val)){
+            ##     if(is.null(names(tmp_val)) & ncol(tmp_val)==1) names(tmp_val)<-rule$label
+            ##     if (nrow(mktdata)==nrow(tmp_val) | length(mktdata)==length(tmp_val)) {
+            ##         # the rule returned a time series, so we'll name it and cbind it
+            ##         mktdata<-cbind(mktdata,tmp_val)
+            ##     } else {
+            ##         # the rule returned something else, add it to the ret list
+            ##         if(is.null(ret)) ret<-list()
+            ##         ret[[rule$name]]<-tmp_val
+            ##     }  
+            ## }
             mktdata <<- mktdata
             ret <<- ret
             hold <<- hold #TODO FIXME hold processing doesn't work yet
+            
             #print(tmp_val)
         } #end rules loop
     } # end sub process function

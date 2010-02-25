@@ -49,6 +49,7 @@ ruleSignal <- function(mktdata, timestamp, sigcol, sigval, orderqty=0, ordertype
                }  
         )
         if(inherits(orderprice,'try-error')) orderprice<-NULL
+        if(length(orderprice>1)) orderprice<-last(orderprice[timestamp])
         if(is.null(orderside) & !orderqty == 0){
             curqty<-getPosQty(Portfolio=portfolio, Symbol=symbol, Date=timestamp)
             if (curqty>0 ){

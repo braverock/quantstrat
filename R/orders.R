@@ -35,8 +35,8 @@ initOrders <- function(portfolio=NULL, symbols=NULL, initDate = '1999-12-31')
         orders<-list()
         orders[[portfolio]]<-list()
     }
-    ordertemplate<-xts(as.matrix(t(c(0,NA,"init","long","closed",as.POSIXct(initDate)))),order.by=as.POSIXct(initDate))
-    colnames(ordertemplate) <- c("Order.Qty","Order.Price","Order.Type","Order.Side","Order.Status","Order.StatusTime")
+    ordertemplate<-xts(as.matrix(t(c(0,NA,"init","long",0,"closed",as.POSIXct(initDate)))),order.by=as.POSIXct(initDate))
+    colnames(ordertemplate) <- c("Order.Qty","Order.Price","Order.Type","Order.Side","Order.Threshold","Order.Status","Order.StatusTime")
     
     if(is.null(symbols)) {
         pfolio<-getPortfolio(portfolio)
@@ -64,13 +64,14 @@ initOrders <- function(portfolio=NULL, symbols=NULL, initDate = '1999-12-31')
 #' @param portfolio text name of the portfolio to associate the order book with
 #' @param symbol identfier of the instrument to find orders for.  The name of any associated price objects (xts prices, usually OHLC) should match these
 #' @param status one of "open", "closed", "canceled", or "replaced", default "open"
-#' @param timestamp timestamp coercible to POSIXct that will be the period to find orders of the given status and ordertype 
+#' @param timespan xts-style character timespan to be the period to find orders of the given status and ordertype 
 #' @param ordertype one of NULL, "market","limit","stoplimit", or "stoptrailing" default NULL
 #' @param side one of NULL, "long" or "short", default NULL 
 #' @param starttime difference to current timestamp to search, in seconds(numeric) or as a POSIXct timestamp, defaults to -86400 (one day) 
 #' @export
-getOrders <- function(portfolio,symbol,status="open",timestamp=NULL,ordertype=NULL, side=NULL, starttime=-86400)
+getOrders <- function(portfolio,symbol,status="open",timespan=NULL,ordertype=NULL, side=NULL, starttime=-86400)
 {
+    if(is.null(timespan)) stop("timespan must be an xts style timestring")
     # get order book
     orderbook <- getOrderBook(portfolio)
     if(!length(grep(symbol,names(orderbook[[portfolio]])))==1) stop(paste("symbol",symbol,"does not exist in portfolio",portfolio,"having symbols",names(orderbook)))
@@ -84,30 +85,17 @@ getOrders <- function(portfolio,symbol,status="open",timestamp=NULL,ordertype=NU
         } 
     } 
 
-    # subset by time and symbol
-    if(!is.null(timestamp)){
-        if(!is.null(starttime)){
-            timespan<-paste("::",timestamp,sep='')
-        } else {
-            if(!is.timeBased(starttime) & !is.numeric(starttime)) stop("starttime is not coercible to a time stamp")
-            if(is.numeric(starttime)) starttime = starttime + timestamp
-            timespan=paste(starttime,timestamp,sep='::')
-        }
-    } else {
-        # construct the timespan of the entire series
-        timespan=paste(index(first(orderbook[[symbol]]),index(last(orderbook[[symbol]])),sep='::'))
-    }
     
     # extract
     orderset<-orderbook[[portfolio]][[symbol]][timespan]
-    if(!is.null(status)){
-        orderset<-orderset[which(orderset[,"Order.Status"]==status)]
+    if(!is.null(status) & !is.null(orderset) & nrow(orderset)>=1 ){
+        orderset<-orderset[which(orderset[,"Order.Status"]==status),]
     }
-    if(!is.null(ordertype)) {
-        orderset<-orderset[which(orderset[,"Order.Type"]==ordertype)]    
+    if(!is.null(ordertype) & !is.null(orderset) & nrow(orderset)>=1 ) {
+        orderset<-orderset[which(orderset[,"Order.Type"]==ordertype),]    
     }
-    if(!is.null(side)) {
-        orderset<-orderset[which(orderset[,"Order.Side"]==side)]    
+    if(!is.null(side) & !is.null(orderset) & nrow(orderset)>=1 ) {
+        orderset<-orderset[which(orderset[,"Order.Side"]==side),]    
     }
     return(orderset)
 }
@@ -133,7 +121,7 @@ getOrders <- function(portfolio,symbol,status="open",timestamp=NULL,ordertype=NU
 #' 
 #' @param portfolio text name of the portfolio to associate the order book with
 #' @param symbol identfier of the instrument to find orders for.  The name of any associated price objects (xts prices, usually OHLC) should match these
-#' @param timestamp timestamp coercible to POSIXct that will be the time the order will be inserted on 
+#' @param timespan xts-style character timespan to be the period to find orders of the given status and ordertype 
 #' @param qty numeric quantity of the order
 #' @param price numeric price at which the order is to be inserted
 #' @param ordertype one of "market","limit","stoplimit", or "stoptrailing"
@@ -155,16 +143,26 @@ addOrder <- function(portfolio, symbol, timestamp, qty, price, ordertype, side, 
     if(!is.numeric(price)) stop (paste("Price must be numeric:",price))
     if(!length(grep(side,c('long','short')))==1) stop(paste("side:",side," must be one of 'long' or 'short'"))
     if(!length(grep(ordertype,c("market","limit","stoplimit","stoptrailing")))==1) stop(paste("ordertype:",ordertype,' must be one of "market","limit","stoplimit", or "stoptrailing"'))
-    if(!is.null(threshold) & !is.numeric(threshold) & !length(grep(ordertype,c("stoplimit","stoptrailing")))==1){ 
-        stop(paste("Threshold may only be applied to a stop order type, and must be numeric",ordertype,threshold))
+    if(!is.null(threshold) & !length(grep(ordertype,c("stoplimit","stoptrailing")))==1){ 
+        stop(paste("Threshold may only be applied to a stop order type",ordertype,threshold))
     }
+    if(is.null(threshold)) threshold=NA #NA is not ignored byc() like NULL is
     if(!length(grep(status,c("open", "closed", "canceled","replaced")))==1) stop(paste("order status:",status,' must be one of "open", "closed", "canceled", or "replaced"'))
     # TODO do we need to check for collision, and increment timestamp?  or alternately update?
+    statustimestamp=NA # new orders don't have a status time
     
-    if(isTRUE(replace)) updateOrders(portfolio=portfolio, symbol=symbol,timestamp=timestamp, ordertype=ordertype, side=side, oldstatus="open", newstatus="replaced", statustimestamp=timestamp)
+    # subset by time and symbol
+    if(!is.null(timestamp)& length(timestamp)>=1){
+        timespan<-paste("::",timestamp,sep='')
+    } else {
+        # construct the timespan of the entire series
+        timespan=paste(index(first(orderbook),index(last(orderbook)),sep='::'))
+    }
+    
+    if(isTRUE(replace)) updateOrders(portfolio=portfolio, symbol=symbol,timespan=timespan, ordertype=ordertype, side=side, oldstatus="open", newstatus="replaced", statustimestamp=timestamp)
     # insert new order
-    order<-xts(c(qty, price, ordertype, side, threshold, status, statustimestamp),order.by=(as.POSIXct(timestamp)+delay))
-    colnames(order) <- c("Order.Qty","Order.Price","Order.Type","Order.Side", "Order.Threshold", "Order.Status","Order.StatusTime")
+    order<-xts(as.matrix(t(c(qty, price, ordertype, side, threshold, status, statustimestamp))),order.by=(as.POSIXct(timestamp)+delay))
+    colnames(order) <- c("Order.Qty","Order.Price","Order.Type","Order.Side","Order.Threshold","Order.Status","Order.StatusTime")
     orderbook[[symbol]]<-rbind(orderbook[[symbol]],order)
     
     # assign order book back into place (do we need a non-exported "put" function?)
@@ -193,7 +191,7 @@ addOrder <- function(portfolio, symbol, timestamp, qty, price, ordertype, side, 
 #' @param newstatus one of "open", "closed", "canceled", or "replaced"
 #' @param statustimestamp timestamp of a status update, will be blank when order is initiated 
 #' @export
-updateOrders <- function(portfolio, symbol, timestamp, ordertype=NULL, side=NULL, oldstatus="open", newstatus, statustimestamp) 
+updateOrders <- function(portfolio, symbol, timespan, ordertype=NULL, side=NULL, oldstatus="open", newstatus, statustimestamp) 
 { 
     #data quality checks
     if(!is.null(oldstatus) & !length(grep(oldstatus,c("open", "closed", "canceled","replaced")))==1) stop(paste("old order status:",oldstatus,' must be one of "open", "closed", "canceled", or "replaced"'))
@@ -202,22 +200,24 @@ updateOrders <- function(portfolio, symbol, timestamp, ordertype=NULL, side=NULL
     if(!is.null(ordertype) & !length(grep(ordertype,c("market","limit","stoplimit","stoptrailing")))==1) stop(paste("ordertype:",ordertype,' must be one of "market","limit","stoplimit", or "stoptrailing"'))
     
     # need the ability to pass a range like we do in blotter
-    updatedorders<-getOrders(portfolio=portfolio, symbol=symbol, status=oldstatus, timestamp=timestamp, ordertype=ordertype, side=side) 
-    
-    
-    # get order book 
-    #TODO this gets the order book again after it was already retrieved by getOrdersByStatus.  
-    # at some point, we should eliminate the double get
-    orderbook <- getOrderBook(portfolio)
-    
-    updatedorders[,"Order.Status"]<-newstatus
-    updatedorders[,"Order.StatusTime"]<-statustimestamp
-    
-    #orderbook<-merge.xts(orderbook,updatedorders,join='left')
-    orderbook[[symbol]][index(updatedorders)]<-updatedorders
-
-    # assign order book back into place (do we need a non-exported "put" function?)
-    assign(paste("order_book",portfolio,sep='.'),orderbook,envir=.strategy)
+    updatedorders<-getOrders(portfolio=portfolio, symbol=symbol, status=oldstatus, timespan=timespan, ordertype=ordertype, side=side) 
+    if(nrow(updatedorders>=1)){
+        
+        # get order book 
+        #TODO this gets the order book again after it was already retrieved by getOrdersByStatus.  
+        # at some point, we should eliminate the) double get
+        orderbook <- getOrderBook(portfolio)
+        
+        updatedorders[,"Order.Status"]<-newstatus
+        updatedorders[,"Order.StatusTime"]<-statustimestamp
+        
+        #orderbook<-merge.xts(orderbook,updatedorders,join='left')
+        orderbook[[symbol]][index(updatedorders)]<-updatedorders
+        
+        # assign order book back into place (do we need a non-exported "put" function?)
+        assign(paste("order_book",portfolio,sep='.'),orderbook,envir=.strategy)
+        
+    }
 }
 
 #' insert a block of updated orders
@@ -246,7 +246,7 @@ updateOrderMatrix<-function(portfolio, symbol, updatedorders){
 ruleOrderProc <- function(portfolio, symbol, mktdata, timestamp, ordertype=NULL, ..., slippageFUN=NULL)
 {
     # get open orders
-    procorders<-getOrders(portfolio=portfolio, symbol=symbol, status="open", timestamp=timestamp, ordertype=ordertype)
+    procorders<-getOrders(portfolio=portfolio, symbol=symbol, status="open", timespan=timestamp, ordertype=ordertype)
     freq = periodicity(mktdata)
     if (!is.null(procorders)){ 
     if (nrow(procorders)>=1){
