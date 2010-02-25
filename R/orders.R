@@ -135,8 +135,8 @@ getOrders <- function(portfolio,symbol,status="open",timespan=NULL,ordertype=NUL
 addOrder <- function(portfolio, symbol, timestamp, qty, price, ordertype, side, threshold=NULL, status="open", replace=TRUE, statustimestamp='' , delay=.00001)
 {
     # get order book
-    orderbook <- getOrderBook(portfolio)
-    if(!length(grep(symbol,names(orderbook[[portfolio]])))==1) stop(paste("symbol",symbol,"does not exist in portfolio",portfolio,"having symbols",names(orderbook[[portfolio]])))
+    #orderbook <- getOrderBook(portfolio)
+    #if(!length(grep(symbol,names(orderbook[[portfolio]])))==1) stop(paste("symbol",symbol,"does not exist in portfolio",portfolio,"having symbols",names(orderbook[[portfolio]])))
     
     #data quality checks
     if(!is.numeric(qty)) stop (paste("Quantity must be numeric:",qty))
@@ -159,16 +159,19 @@ addOrder <- function(portfolio, symbol, timestamp, qty, price, ordertype, side, 
     }
     
     if(isTRUE(replace)) updateOrders(portfolio=portfolio, symbol=symbol,timespan=timespan, ordertype=ordertype, side=side, oldstatus="open", newstatus="replaced", statustimestamp=timestamp)
+    # get order book
+    orderbook <- getOrderBook(portfolio)
     statustimestamp=NA # new orders don't have a status time
     # insert new order
     if(is.timeBased(timestamp)) ordertime<-timestamp+delay
     else ordertime<-as.POSIXct(timestamp)+delay
     order<-xts(as.matrix(t(c(qty, price, ordertype, side, threshold, status, statustimestamp))),order.by=(ordertime))
     colnames(order) <- c("Order.Qty","Order.Price","Order.Type","Order.Side","Order.Threshold","Order.Status","Order.StatusTime")
-    orderbook[[symbol]]<-rbind(orderbook[[symbol]],order)
+    orderbook[[portfolio]][[symbol]]<-rbind(orderbook[[portfolio]][[symbol]],order)
     
     # assign order book back into place (do we need a non-exported "put" function?)
     assign(paste("order_book",portfolio,sep='.'),orderbook,envir=.strategy)
+    rm(orderbook)
 }
 
 #' update an order or orders
@@ -196,10 +199,15 @@ addOrder <- function(portfolio, symbol, timestamp, qty, price, ordertype, side, 
 updateOrders <- function(portfolio, symbol, timespan, ordertype=NULL, side=NULL, oldstatus="open", newstatus, statustimestamp) 
 { 
     #data quality checks
-    if(!is.null(oldstatus) & !length(grep(oldstatus,c("open", "closed", "canceled","replaced")))==1) stop(paste("old order status:",oldstatus,' must be one of "open", "closed", "canceled", or "replaced"'))
-    if(!length(grep(newstatus,c("open", "closed", "canceled","replaced")))==1) stop(paste("new order status:",newstatus,' must be one of "open", "closed", "canceled", or "replaced"'))
-    if(!is.null(side) & !length(grep(side,c('long','short')))==1) stop(paste("side:",side," must be one of 'long' or 'short'"))
-    if(!is.null(ordertype) & !length(grep(ordertype,c("market","limit","stoplimit","stoptrailing")))==1) stop(paste("ordertype:",ordertype,' must be one of "market","limit","stoplimit", or "stoptrailing"'))
+    if(!is.null(oldstatus) & !length(grep(oldstatus,c("open", "closed", "canceled","replaced")))==1) 
+        stop(paste("old order status:",oldstatus,' must be one of "open", "closed", "canceled", or "replaced"'))
+    if(!length(grep(newstatus,c("open", "closed", "canceled","replaced")))==1) 
+        stop(paste("new order status:",newstatus,' must be one of "open", "closed", "canceled", or "replaced"'))
+    if(!is.null(side) & !length(grep(side,c('long','short')))==1) 
+        stop(paste("side:",side," must be one of 'long' or 'short'"))
+    #if(is.null(side)) side<-NA
+    if(!is.null(ordertype) & !length(grep(ordertype,c("market","limit","stoplimit","stoptrailing")))==1) 
+        stop(paste("ordertype:",ordertype,' must be one of "market","limit","stoplimit", or "stoptrailing"'))
     
     # need the ability to pass a range like we do in blotter
     updatedorders<-getOrders(portfolio=portfolio, symbol=symbol, status=oldstatus, timespan=timespan, ordertype=ordertype, side=side) 
@@ -210,15 +218,12 @@ updateOrders <- function(portfolio, symbol, timespan, ordertype=NULL, side=NULL,
         # at some point, we should eliminate the) double get
         orderbook <- getOrderBook(portfolio)
         
-        updatedorders[,"Order.Status"]<-newstatus
-        updatedorders[,"Order.StatusTime"]<-statustimestamp
-        
-        #orderbook<-merge.xts(orderbook,updatedorders,join='left')
-        orderbook[[symbol]][index(updatedorders)]<-updatedorders
+        orderbook[[portfolio]][[symbol]][index(updatedorders),"Order.Status"]<-newstatus
+        orderbook[[portfolio]][[symbol]][index(updatedorders),"Order.StatusTime"]<-statustimestamp
         
         # assign order book back into place (do we need a non-exported "put" function?)
         assign(paste("order_book",portfolio,sep='.'),orderbook,envir=.strategy)
-        
+
     }
 }
 
@@ -230,7 +235,7 @@ updateOrders <- function(portfolio, symbol, timespan, ordertype=NULL, side=NULL,
 updateOrderMatrix<-function(portfolio, symbol, updatedorders){
     orderbook <- getOrderBook(portfolio)
 
-    orderbook[[symbol]][index(updatedorders)]<-updatedorders
+    orderbook[[portfolio]][[symbol]][index(updatedorders)]<-updatedorders
     
     # assign order book back into place (do we need a non-exported "put" function?)
     assign(paste("order_book",portfolio,sep='.'),orderbook,envir=.strategy)
