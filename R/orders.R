@@ -149,7 +149,6 @@ addOrder <- function(portfolio, symbol, timestamp, qty, price, ordertype, side, 
     if(is.null(threshold)) threshold=NA #NA is not ignored byc() like NULL is
     if(!length(grep(status,c("open", "closed", "canceled","replaced")))==1) stop(paste("order status:",status,' must be one of "open", "closed", "canceled", or "replaced"'))
     # TODO do we need to check for collision, and increment timestamp?  or alternately update?
-    statustimestamp=NA # new orders don't have a status time
     
     # subset by time and symbol
     if(!is.null(timestamp)& length(timestamp)>=1){
@@ -160,8 +159,11 @@ addOrder <- function(portfolio, symbol, timestamp, qty, price, ordertype, side, 
     }
     
     if(isTRUE(replace)) updateOrders(portfolio=portfolio, symbol=symbol,timespan=timespan, ordertype=ordertype, side=side, oldstatus="open", newstatus="replaced", statustimestamp=timestamp)
+    statustimestamp=NA # new orders don't have a status time
     # insert new order
-    order<-xts(as.matrix(t(c(qty, price, ordertype, side, threshold, status, statustimestamp))),order.by=(as.POSIXct(timestamp)+delay))
+    if(is.timeBased(timestamp)) ordertime<-timestamp+delay
+    else ordertime<-as.POSIXct(timestamp)+delay
+    order<-xts(as.matrix(t(c(qty, price, ordertype, side, threshold, status, statustimestamp))),order.by=(ordertime))
     colnames(order) <- c("Order.Qty","Order.Price","Order.Type","Order.Side","Order.Threshold","Order.Status","Order.StatusTime")
     orderbook[[symbol]]<-rbind(orderbook[[symbol]],order)
     
