@@ -3,6 +3,9 @@ try(rm("order_book.simplestrat",pos=.strategy),silent=TRUE)
 try(rm("account.simplestrat","portfolio.simplestrat",pos=.blotter),silent=TRUE)
 try(rm("account.st","portfolio.st","IBM","s","initDate","initEq",'start_t','end_t'),silent=TRUE)
 
+currency('USD')
+stock('IBM',currency='USD',multiplier=1)
+
 initDate='1997-12-31'
 initEq=1000000
 
@@ -15,7 +18,7 @@ initOrders(portfolio=portfolio.st,initDate=initDate)
 
 s <- strategy("simplestrat")
 #s <- add.indicator(strategy = s, name = "SMA", arguments = list(x = quote(Cl(mktdata)), n=10), label="SMA10")
-s <- add.indicator(strategy = s, name = "BBands", arguments = list(HLC = quote(HLC(mktdata)), sd = 1.5,maType=quote(SMA)))
+s <- add.indicator(strategy = s, name = "BBands", arguments = list(HLC = quote(HLC(mktdata)), sd = 2,maType=quote(SMA)))
 
 
 #if you wanted to manually apply a signal function for demonstration

@@ -35,7 +35,7 @@ initOrders <- function(portfolio=NULL, symbols=NULL, initDate = '1999-12-31')
         orders<-list()
         orders[[portfolio]]<-list()
     }
-    ordertemplate<-xts(as.matrix(t(c(0,NA,"init","long",0,"closed",as.POSIXct(initDate)))),order.by=as.POSIXct(initDate))
+    ordertemplate<-xts(as.matrix(t(c(0,NA,"init","long",0,"closed",as.character(as.POSIXct(initDate))))),order.by=as.POSIXct(initDate))
     colnames(ordertemplate) <- c("Order.Qty","Order.Price","Order.Type","Order.Side","Order.Threshold","Order.Status","Order.StatusTime")
     
     if(is.null(symbols)) {
@@ -219,7 +219,7 @@ updateOrders <- function(portfolio, symbol, timespan, ordertype=NULL, side=NULL,
         orderbook <- getOrderBook(portfolio)
         
         orderbook[[portfolio]][[symbol]][index(updatedorders),"Order.Status"]<-newstatus
-        orderbook[[portfolio]][[symbol]][index(updatedorders),"Order.StatusTime"]<-statustimestamp
+        orderbook[[portfolio]][[symbol]][index(updatedorders),"Order.StatusTime"]<-as.character(statustimestamp)
         
         # assign order book back into place (do we need a non-exported "put" function?)
         assign(paste("order_book",portfolio,sep='.'),orderbook,envir=.strategy)
@@ -245,31 +245,31 @@ updateOrderMatrix<-function(portfolio, symbol, updatedorders){
 #' @param portfolio text name of the portfolio to associate the order book with
 #' @param symbol identfier of the instrument to find orders for.  The name of any associated price objects (xts prices, usually OHLC) should match these
 #' @param mktdata an xts object containing market data.  depending on indicators, may need to be in OHLCV or BBO formats, default NULL
-#' @param timestamp timestamp coercible to POSIXct that will be the time to search for orders before this time 
+#' @param timespan xts-style character timespan to be the period to find orders to process in
 #' @param ordertype one of NULL, "market","limit","stoplimit", or "stoptrailing" default NULL
 #' @param ... any other passthru parameters
 #' @param slippageFUN default  NULL, not yet implemented
 #' @export
-ruleOrderProc <- function(portfolio, symbol, mktdata, timestamp, ordertype=NULL, ..., slippageFUN=NULL)
+ruleOrderProc <- function(portfolio, symbol, mktdata, timespan, ordertype=NULL, ..., slippageFUN=NULL)
 {
     # get open orders
-    procorders<-getOrders(portfolio=portfolio, symbol=symbol, status="open", timespan=timestamp, ordertype=ordertype)
-    freq = periodicity(mktdata)
+    procorders<-getOrders(portfolio=portfolio, symbol=symbol, status="open", timespan=timespan, ordertype=ordertype)
     if (!is.null(procorders)){ 
     if (nrow(procorders)>=1){
         # get previous bar
-        prevtime=time(mktdata[mktdata[timestamp,which.i=TRUE]-1])
+        prevtime=time(mktdata[last(mktdata[timespan, which.i = TRUE])-1])
         #switch on frequency
+        freq = periodicity(mktdata)
         switch(freq$scale,
             yearly = ,
             quarterly = ,
             monthly = ,{
                 # first process low frequencies with look-back assumption
                 for (ii in 1:nrow(procorders) ){
-                    if(procorders[[ii]]$Order.Type=='market'){
-                        addTxn(Portfolio=portfolio, Symbol=symbol, TxnDate=prevtime, TxnQty=procorders[[ii]]$Order.Qty, TxnPrice=Cl(mktdata) ,...=...)
-                        procorders[[ii]]$Order.Status<-'closed'
-                        procorders[[ii]]$Order.StatusTime<-timestamp
+                    if(procorders[ii,]$Order.Type=='market'){
+                        addTxn(Portfolio=portfolio, Symbol=symbol, TxnDate=prevtime, TxnQty=procorders[ii,]$Order.Qty, TxnPrice=Cl(mktdata) ,...=...)
+                        procorders[ii,]$Order.Status<-'closed'
+                        procorders[ii,]$Order.StatusTime<-timestamp
                     } else {
                         stop("order types other than market not (yet?) supported for low-frequency strategies")
                     }
@@ -278,17 +278,17 @@ ruleOrderProc <- function(portfolio, symbol, mktdata, timestamp, ordertype=NULL,
             daily = { 
                 # next process daily
                 for (ii in 1:nrow(procorders) ){
-                    switch(procorders[[ii]]$Order.Type,
+                    switch(procorders[ii,]$Order.Type,
                         market = ,
                         limit = {
-                            if (procorders[[ii]]$Order.Type == 'market' ){
+                            if (procorders[ii,]$Order.Type == 'market' ){
                                 txnprice=getPrice(mktdata[prevtime], prefer='close')
                                 if(ncol(txnprice)>1) txnprice = getPrice(mktdata[timestamp], symbol=symbol, prefer='close')
                                 txntime=prevtime
                             } else {
                                 # check to see if price moved through the limit
-                                if(procorders[[ii]]$Order.Price>Lo(mktdata[timestamp]) & procorders[[ii]]$Order.Price<Hi(mktdata[timestamp]) ) {
-                                    txnprice=procorders[[ii]]$Order.Price
+                                if(procorders[ii,]$Order.Price>Lo(mktdata[timestamp]) & procorders[ii,]$Order.Price<Hi(mktdata[timestamp]) ) {
+                                    txnprice=procorders[ii,]$Order.Price
                                     txntime=timestamp
                                 } else {
                                     # price did not move through my order
@@ -300,16 +300,16 @@ ruleOrderProc <- function(portfolio, symbol, mktdata, timestamp, ordertype=NULL,
                             stop("order types other than market and limit not (yet?) supported for daily frequencies")
                         }
                     )
-                    addTxn(Portfolio=portfolio, Symbol=symbol, TxnDate=txntime, TxnQty=procorders[[ii]]$Order.Qty, TxnPrice=Cl(mktdata) ,...=...)
-                    procorders[[ii]]$Order.Status<-'closed'
-                    procorders[[ii]]$Order.StatusTime<-timestamp
+                    addTxn(Portfolio=portfolio, Symbol=symbol, TxnDate=txntime, TxnQty=procorders[ii,]$Order.Qty, TxnPrice=Cl(mktdata) ,...=...)
+                    procorders[ii,]$Order.Status<-'closed'
+                    procorders[ii,]$Order.StatusTime<-timestamp
                 } #end loop over open orders       
             }, #end daily processing
             {
                 # now do higher frequencies
                 for (ii in 1:nrow(procorders) ){
                     txnprice=NULL
-                    switch(procorders[[ii]]$Order.Type,
+                    switch(procorders[ii,]$Order.Type,
                             market = {
                                 txnprice = getPrice(mktdata[timestamp])
                                 if(ncol(txnprice)>1) txnprice = getPrice(mktdata[timestamp], symbol=symbol)
@@ -319,8 +319,8 @@ ruleOrderProc <- function(portfolio, symbol, mktdata, timestamp, ordertype=NULL,
                             stoplimit = {
                                 if (is.OHLC(mktdata)){
                                     # check to see if price moved through the limit
-                                    if(procorders[[ii]]$Order.Price>Lo(mktdata[timestamp]) & procorders[[ii]]$Order.Price<Hi(mktdata[timestamp]) ) {
-                                        txnprice = procorders[[ii]]$Order.Price
+                                    if(procorders[ii,]$Order.Price>Lo(mktdata[timestamp]) & procorders[ii,]$Order.Price<Hi(mktdata[timestamp]) ) {
+                                        txnprice = procorders[ii,]$Order.Price
                                         txntime  = timestamp
                                     } else {
                                         # price did not move through my order
@@ -328,23 +328,23 @@ ruleOrderProc <- function(portfolio, symbol, mktdata, timestamp, ordertype=NULL,
                                     }   
                                 } else if(is.BBO(mktdata)){
                                     # check side/qty
-                                    if(procorders[[ii]]$Order.Qty>0){ # positive quantity 'buy'
-                                        if(procorders[[ii]]$Order.Price>=getPrice(mktdata[timestamp],prefer='offer')){
+                                    if(procorders[ii,]$Order.Qty>0){ # positive quantity 'buy'
+                                        if(procorders[ii,]$Order.Price>=getPrice(mktdata[timestamp],prefer='offer')){
                                             # price we're willing to pay is higher than the offer price, so execute at the limit
-                                            txnprice = procorders[[ii]]$Order.Price
+                                            txnprice = procorders[ii,]$Order.Price
                                             txntime  = timestamp
                                         } else next()
                                     } else { # negative quantity 'sell'
-                                        if(getPrice(procorders[[ii]]$Order.Price<=mktdata[timestamp],prefer='bid')){
+                                        if(getPrice(procorders[ii,]$Order.Price<=mktdata[timestamp],prefer='bid')){
                                             # we're willing to sell at a better price than the bid, so execute at the limit
-                                            txnprice = procorders[[ii]]$Order.Price
+                                            txnprice = procorders[ii,]$Order.Price
                                             txntime  = timestamp
                                         } else next() 
                                     } 
                                 } else {
                                     # no depth data, either OHLC or BBO, getPrice explicitly using symbol
-                                    if(procorders[[ii]]$Order.Price==getPrice(mktdata[timestamp], symbol=symbol, prefer='Price')){
-                                        txnprice = procorders[[ii]]$Order.Price
+                                    if(procorders[ii,]$Order.Price==getPrice(mktdata[timestamp], symbol=symbol, prefer='Price')){
+                                        txnprice = procorders[ii,]$Order.Price
                                         txntime  = timestamp
                                     } else next()                                     
                                 }
@@ -352,40 +352,40 @@ ruleOrderProc <- function(portfolio, symbol, mktdata, timestamp, ordertype=NULL,
                             },
                             stoptrailing = {
                                 # if market moved through my price, execute
-                                if(procorders[[ii]]$Order.Qty>0){ # positive quantity 'buy'
-                                    if(procorders[[ii]]$Order.Price>=getPrice(mktdata[timestamp],prefer='offer')){
+                                if(procorders[ii,]$Order.Qty>0){ # positive quantity 'buy'
+                                    if(procorders[ii,]$Order.Price>=getPrice(mktdata[timestamp],prefer='offer')){
                                         # price we're willing to pay is higher than the offer price, so execute at the limit
-                                        txnprice = procorders[[ii]]$Order.Price
+                                        txnprice = procorders[ii,]$Order.Price
                                         txntime  = timestamp
                                     } 
                                 } else { # negative quantity 'sell'
-                                    if(procorders[[ii]]$Order.Price<=getPrice(mktdata[timestamp],prefer='bid')){
+                                    if(procorders[ii,]$Order.Price<=getPrice(mktdata[timestamp],prefer='bid')){
                                         # we're willing to sell at a better price than the bid, so execute at the limit
-                                        txnprice = procorders[[ii]]$Order.Price
+                                        txnprice = procorders[ii,]$Order.Price
                                         txntime  = timestamp
                                     }  
                                 } 
                                 # if market is beyond price+(-threshold), replace order
                                 if(is.null(txnprice)){ 
-                                    if(procorders[[ii]]$Order.Qty>0){
+                                    if(procorders[ii,]$Order.Qty>0){
                                         prefer='offer'
                                     } else {
                                         prefer='bid'
                                     }
                                     # we didn't trade, so check to see if we need to move the stop
-                                    if( getPrice(mktdata[timestamp],prefer=prefer)-procorders[[ii]]$Order.Threshold > procorders[[ii]]$Order.Price ){
+                                    if( getPrice(mktdata[timestamp],prefer=prefer)-procorders[ii,]$Order.Threshold > procorders[ii,]$Order.Price ){
                                         addOrder(portfolio=portfolio, 
                                                  symbol=symbol, 
                                                  timestamp=timestamp, 
-                                                 qty=procorders[[ii]]$Order.Qty, 
-                                                 price=getPrice(mktdata[timestamp],prefer=prefer)-procorders[[ii]]$Order.Threshold, 
-                                                 ordertype=procorders[[ii]]$Order.Type, 
-                                                 side=procorders[[ii]]$Order.Side, 
-                                                 threshold=procorders[[ii]]$Order.Threshold, 
+                                                 qty=procorders[ii,]$Order.Qty, 
+                                                 price=getPrice(mktdata[timestamp],prefer=prefer)-procorders[ii,]$Order.Threshold, 
+                                                 ordertype=procorders[ii,]$Order.Type, 
+                                                 side=procorders[ii,]$Order.Side, 
+                                                 threshold=procorders[ii,]$Order.Threshold, 
                                                  status="open", 
                                                  replace=TRUE)
-                                        procorders[[ii]]$Order.Status<-'replaced'
-                                        procorders[[ii]]$Order.StatusTime<-timestamp 
+                                        procorders[ii,]$Order.Status<-'replaced'
+                                        procorders[ii,]$Order.StatusTime<-timestamp 
                                         next()
                                     }
                                 }
@@ -393,17 +393,17 @@ ruleOrderProc <- function(portfolio, symbol, mktdata, timestamp, ordertype=NULL,
                             }
                     )
                     if(!is.null(txnprice)){
-                        addTxn(Portfolio=portfolio, Symbol=symbol, TxnDate=txntime, TxnQty=procorders[[ii]]$Order.Qty, TxnPrice=Cl(mktdata) ,...=...)
-                        procorders[[ii]]$Order.Status<-'closed'
-                        procorders[[ii]]$Order.StatusTime<-timestamp
+                        addTxn(Portfolio=portfolio, Symbol=symbol, TxnDate=txntime, TxnQty=procorders[ii,]$Order.Qty, TxnPrice=Cl(mktdata) ,...=...)
+                        procorders[ii,]$Order.Status<-'closed'
+                        procorders[ii,]$Order.StatusTime<-timestamp
                     }
                 } #end loop over open orders       
             } # end higher frequency processing
         ) # end switch on freq
-    } # end check for open orders
-    }
-    # now put the orders back in
-    updateOrderMatrix(portfolio=portfolio, symbol=symbol, updatedorders=procorders)
+        # now put the orders back in
+        updateOrderMatrix(portfolio=portfolio, symbol=symbol, updatedorders=procorders)
+        } # end check for open orders
+    } #end is.null check
 }
 ###############################################################################
 # R (http://r-project.org/) Quantitative Strategy Model Framework

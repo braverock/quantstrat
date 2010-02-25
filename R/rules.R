@@ -202,7 +202,8 @@ applyRules <- function(portfolio, symbol, strategy, mktdata, Dates=NULL, indicat
                             ruleProc(strategy$rules[[type]],timestamp=timestamp, path.dep=path.dep, mktdata=mktdata,portfolio=portfolio, symbol=symbol)
                         } else {
                             #(mktdata, portfolio, symbol, timestamp, slippageFUN=NULL)
-                            ruleOrderProc(portfolio=portfolio, symbol=symbol, mktdata=mktdata, timestamp=timestamp)
+                            timespan<-paste("::",timestamp,sep='')
+                            ruleOrderProc(portfolio=portfolio, symbol=symbol, mktdata=mktdata, timespan=timespan)
                         }
                     },
                     rebalance =, exit = , enter = {
