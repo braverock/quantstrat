@@ -235,7 +235,7 @@ updateOrders <- function(portfolio, symbol, timespan, ordertype=NULL, side=NULL,
 updateOrderMatrix<-function(portfolio, symbol, updatedorders){
     orderbook <- getOrderBook(portfolio)
 
-    orderbook[[portfolio]][[symbol]][index(updatedorders)]<-updatedorders
+    orderbook[[portfolio]][[symbol]][index(updatedorders),]<-updatedorders
     
     # assign order book back into place (do we need a non-exported "put" function?)
     assign(paste("order_book",portfolio,sep='.'),orderbook,envir=.strategy)
@@ -403,7 +403,7 @@ ruleOrderProc <- function(portfolio, symbol, mktdata, timespan, ordertype=NULL, 
                     if(!is.null(txnprice)){
                         addTxn(Portfolio=portfolio, Symbol=symbol, TxnDate=txntime, TxnQty=as.numeric(procorders[ii,]$Order.Qty), TxnPrice=txnprice ,...=...)
                         procorders[ii,]$Order.Status<-'closed'
-                        procorders[ii,]$Order.StatusTime<-timestamp
+                        procorders[ii,]$Order.StatusTime<-as.character(timestamp)
                     }
                 } #end loop over open orders       
             } # end higher frequency processing

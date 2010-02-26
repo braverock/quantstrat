@@ -18,7 +18,7 @@ initOrders(portfolio=portfolio.st,initDate=initDate)
 
 s <- strategy("simplestrat")
 #s <- add.indicator(strategy = s, name = "SMA", arguments = list(x = quote(Cl(mktdata)), n=10), label="SMA10")
-s <- add.indicator(strategy = s, name = "BBands", arguments = list(HLC = quote(HLC(mktdata)), sd = 2,maType=quote(SMA)))
+s <- add.indicator(strategy = s, name = "BBands", arguments = list(HLC = quote(HLC(mktdata)), sd = 2, n=20, maType=quote(SMA)))
 
 
 #if you wanted to manually apply a signal function for demonstration
@@ -47,7 +47,7 @@ end_t<-Sys.time()
 end_t-start_t
 updatePortf(Portfolio='simplestrat',Dates=paste('::',as.Date(Sys.time()),sep=''))
 chart.Posn(Portfolio='simplestrat',Symbol='IBM',theme='white')
-plot(addBBands(on=1,sd=2,n=10))
+plot(addBBands(on=1,sd=2,n=20))
 ###############################################################################
 # R (http://r-project.org/) Quantitative Strategy Model Framework
 #
