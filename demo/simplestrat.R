@@ -45,7 +45,9 @@ out<-try(applyStrategy(strategy='s' , portfolios='simplestrat'))
 #getOrderBook('simplestrat')
 end_t<-Sys.time()
 end_t-start_t
-
+updatePortf(Portfolio='simplestrat',Dates=paste('::',as.Date(Sys.time()),sep=''))
+chart.Posn(Portfolio='simplestrat',Symbol='IBM',theme='white')
+addBBands(on=1,sd=2,n=10)
 ###############################################################################
 # R (http://r-project.org/) Quantitative Strategy Model Framework
 #
