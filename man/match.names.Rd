@@ -1,7 +1,7 @@
 \name{match.names}
 \alias{match.names}
 \title{match names in data to a list of partial name matches...}
-\usage{match.names(data_names, match_names)}
+\usage{match.names(match_names, data_names)}
 \description{match names in data to a list of partial name matches}
 \details{Often, the generic definition of a signal or indicator will include 
 partial name matches.  In financial data, common partial matches include

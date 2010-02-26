@@ -21,7 +21,7 @@ Some markets and brokers recognize a stop that triggers a market order, when the
 a market order will be executed at the then-prevailing price.  We have not modeled this type of order.}
 \arguments{\item{portfolio}{text name of the portfolio to associate the order book with}
 \item{symbol}{identfier of the instrument to find orders for.  The name of any associated price objects (xts prices, usually OHLC) should match these}
-\item{timestamp}{timestamp coercible to POSIXct that will be the time the order will be inserted on}
+\item{timestamp}{timestamp coercible to POSIXct that will be the time to search for orders before this time}
 \item{qty}{numeric quantity of the order}
 \item{price}{numeric price at which the order is to be inserted}
 \item{ordertype}{one of "market","limit","stoplimit", or "stoptrailing"}

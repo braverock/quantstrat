@@ -1,7 +1,7 @@
 \name{updateOrders}
 \alias{updateOrders}
 \title{update an order or orders...}
-\usage{updateOrders(portfolio, symbol, timestamp, ordertype, side, oldstatus="open", newstatus, statustimestamp)}
+\usage{updateOrders(portfolio, symbol, timespan, ordertype, side, oldstatus="open", newstatus, statustimestamp)}
 \description{update an order or orders}
 \details{When an order gets filled, it should have its status moved to 'closed'.
 
@@ -15,7 +15,7 @@ Possibly new orders will be added to close open positions.
 Many models will also want to run a process at the close of market that will cancel all open orders.}
 \arguments{\item{portfolio}{text name of the portfolio to associate the order book with}
 \item{symbol}{identfier of the instrument to find orders for.  The name of any associated price objects (xts prices, usually OHLC) should match these}
-\item{timestamp}{timestamp coercible to POSIXct that will be the time to search for orders before this time}
+\item{timespan}{xts-style character timespan to be the period to find orders of the given status and ordertype}
 \item{ordertype}{one of NULL, "market","limit","stoplimit", or "stoptrailing" default NULL}
 \item{side}{one of NULL, "long" or "short", default NULL}
 \item{oldstatus}{one of NULL, "open", "closed", "canceled", or "replaced", default "open"}

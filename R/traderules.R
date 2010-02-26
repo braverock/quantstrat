@@ -80,13 +80,8 @@ ruleSignal <- function(mktdata, timestamp, sigcol, sigval, orderqty=0, ordertype
 #' 
 #' default function performs no operation (NoOp), returns orderqty
 #'  
-#' @param mktdata an xts object containing market data.  depending on rules, may need to be in OHLCV or BBO formats, and may include indicator and signal information
-#' @param timestamp timestamp coercible to POSIXct that will be the time the order will be inserted on 
 #' @param orderqty numeric quantity of the desired order, modified by osFUN
-#' @param ordertype one of "market","limit","stoplimit", or "stoptrailing"
-#' @param orderside one of either "long" or "short" 
-#' @param portfolio text name of the portfolio to place orders in
-#' @param symbol identifier of the instrument to place orders for.  The name of any associated price objects (xts prices, usually OHLC) should match these
+#' @param ... any other passthru parameters
 #' @export
 osNoOp <- function(orderqty, ...){
     return(orderqty)
@@ -163,9 +158,9 @@ getPosLimit <- function(portfolio, symbol, timestamp){
 #' @export
 osMaxPos <- function(mktdata, timestamp, orderqty, ordertype, orderside, portfolio, symbol){
     # check for current position
-    pos<-getPosQty(portoflio,symbol,timestamp)
+    pos<-getPosQty(portfolio,symbol,timestamp)
     # check against max position
-    PosLimit<-getPosLimit(portoflio,symbol,timestamp)
+    PosLimit<-getPosLimit(portfolio,symbol,timestamp)
     # check levels
     
     # buy long
@@ -180,7 +175,7 @@ osMaxPos <- function(mktdata, timestamp, orderqty, ordertype, orderside, portfol
         } else {
             # this order would put us over the MaxPos limit
             orderqty<-ifelse((PosLimit[,"MaxPos"]-pos)<=round(PosLimit[,"MaxPos"]/PosLimit[,"LongLevels"],0),PosLimit[,"MaxPos"]-pos, round(PosLimit[,"MaxPos"]/PosLimit[,"LongLevels"],0)) 
-            if(oderqty+pos>PosLimit[,"MaxPos"]) orderqty <- PosLimit[,"MaxPos"]-pos
+            if(orderqty+pos>PosLimit[,"MaxPos"]) orderqty <- PosLimit[,"MaxPos"]-pos
         }
         return(orderqty)
     }
@@ -208,7 +203,7 @@ osMaxPos <- function(mktdata, timestamp, orderqty, ordertype, orderside, portfol
         } else {
             # this order would put us over the MinPos limit
             orderqty<-ifelse((PosLimit[,"MinPos"]-pos)>=round(PosLimit[,"MinPos"]/PosLimit[,"ShortLevels"],0),PosLimit[,"MinPos"]-pos, round(PosLimit[,"MinPos"]/PosLimit[,"ShortLevels"],0)) 
-            if(oderqty+pos>PosLimit[,"MaxPos"]) orderqty <- PosLimit[,"MinPos"]-pos
+            if(orderqty+pos>PosLimit[,"MaxPos"]) orderqty <- PosLimit[,"MinPos"]-pos
         }
         return(orderqty)
     }

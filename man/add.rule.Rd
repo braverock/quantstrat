@@ -40,7 +40,7 @@ authors a place to start.}
 \arguments{\item{strategy}{an object of type 'strategy' to add the rule to}
 \item{name}{name of the rule, must correspond to an R function}
 \item{arguments}{default arguments to be passed to an rule function when executed}
-\item{label}{arbitrary text label for signal output, NULL default will be converted to '<name>.sig'}
+\item{label}{arbitrary text label for rule output, NULL default will be converted to '<name>.rule'}
 \item{type}{one of "risk","order","rebalance","exit","entry", see Details}
 \item{...}{any other passthru parameters}
 \item{enabled}{TRUE/FALSE whether the rule is enabled for use in applying the strategy, default TRUE}

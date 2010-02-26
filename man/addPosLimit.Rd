@@ -3,6 +3,12 @@
 \title{add position and level limits at timestamp...}
 \usage{addPosLimit(portfolio, symbol, timestamp, maxpos, longlevels=1, minpos=0, shortlevels=0)}
 \description{add position and level limits at timestamp}
+\details{levels are a simplification of more complex (proprietary) 
+techniques sometimes used for order sizing.  
+the max orderqty returned will be the limit/levels
+Obviously the strategy rules could ask for smaller order sizes, 
+but this is the default.  If you don't want to use levels, set 
+them to 1.}
 \seealso{\code{\link{osMaxPos}}
 \code{\link{getPosLimit}}}
 \arguments{\item{portfolio}{text name of the portfolio to place orders in}

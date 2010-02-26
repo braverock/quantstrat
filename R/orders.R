@@ -121,7 +121,7 @@ getOrders <- function(portfolio,symbol,status="open",timespan=NULL,ordertype=NUL
 #' 
 #' @param portfolio text name of the portfolio to associate the order book with
 #' @param symbol identfier of the instrument to find orders for.  The name of any associated price objects (xts prices, usually OHLC) should match these
-#' @param timespan xts-style character timespan to be the period to find orders of the given status and ordertype 
+#' @param timestamp timestamp coercible to POSIXct that will be the time to search for orders before this time 
 #' @param qty numeric quantity of the order
 #' @param price numeric price at which the order is to be inserted
 #' @param ordertype one of "market","limit","stoplimit", or "stoptrailing"
@@ -189,7 +189,7 @@ addOrder <- function(portfolio, symbol, timestamp, qty, price, ordertype, side, 
 #' 
 #' @param portfolio text name of the portfolio to associate the order book with
 #' @param symbol identfier of the instrument to find orders for.  The name of any associated price objects (xts prices, usually OHLC) should match these
-#' @param timestamp timestamp coercible to POSIXct that will be the time to search for orders before this time 
+#' @param timespan xts-style character timespan to be the period to find orders of the given status and ordertype 
 #' @param ordertype one of NULL, "market","limit","stoplimit", or "stoptrailing" default NULL
 #' @param side one of NULL, "long" or "short", default NULL 
 #' @param oldstatus one of NULL, "open", "closed", "canceled", or "replaced", default "open"
