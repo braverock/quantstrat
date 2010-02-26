@@ -208,6 +208,10 @@ applyRules <- function(portfolio, symbol, strategy, mktdata, Dates=NULL, indicat
                     },
                     rebalance =, exit = , enter = {
                         if(isTRUE(hold)) next()    
+                        if(type=='exit'){
+                            # must have a position for an exit rules to fire
+                            if (getPosQty(Portfolio=portfolio,Symbol=symbol,Date=timestamp)==0) next()
+                        }
                         if(length(strategy$rules[[type]])>=1) {
                             ruleProc(strategy$rules[[type]],timestamp=timestamp, path.dep=path.dep, mktdata=mktdata,portfolio=portfolio, symbol=symbol)
                         }      

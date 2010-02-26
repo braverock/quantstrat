@@ -32,7 +32,12 @@ ruleSignal <- function(mktdata, timestamp, sigcol, sigval, orderqty=0, ordertype
     if(!is.function(osFUN)) osFUN<-match.fun(osFUN)
     if (!is.na(mktdata[timestamp][,sigcol]) & mktdata[timestamp][,sigcol] == sigval) {
         #TODO add fancy formals matching for osFUN
-         
+        if(orderqty=='all'){
+            orderqty=-1*getPosQty(Portfolio=portfolio,Symbol=symbol,Date=timestamp)    
+        } 
+        if(orderqty>0 & orderqty<1){
+            # TODO add proportional order?  or should that go in order sizing function?
+        } 
         orderqty <- osFUN(strategy=strategy, mktdata=mktdata, timestamp=timestamp, orderqty=orderqty, ordertype=ordertype, orderside=orderside, portfolio=portfolio, symbol=symbol)
         #calculate order price using pricemethod
         pricemethod<-pricemethod[1] #only use the first if not set by calling function

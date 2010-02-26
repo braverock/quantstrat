@@ -114,10 +114,12 @@ applySignals <- function(strategy, mktdata, indicators=NULL, ...) {
 #' 
 #' Comparison will be applied from the first to the second column in the \code{columns} vector.
 #' 
+#' Relationship 'op' means 'opposite side.  Reasonable attempt will be made to match.
+#' 
 #' @param label text label to apply to the output
 #' @param data data to apply comparison to
 #' @param columns named columns to apply comparison to
-#' @param relationship one of c("gt","lt","eq","gte","lte") or reasonable alternatives
+#' @param relationship one of c("gt","lt","eq","gte","lte","op") or reasonable alternatives
 #' @example 
 #' getSymbols("IBM")
 #' sigComparison(label="Cl.gt.Op",data=IBM,columns=c("Close","Open"),"gt")
@@ -126,19 +128,30 @@ sigComparison <- function(label,data, columns, relationship=c("gt","lt","eq","gt
     relationship=relationship[1] #only use the first one
     if (length(columns==2)){
         ret_sig=NULL
+        if (relationship=='op'){
+            switch(columns[1],
+                    Low =, 
+                    low =, 
+                    bid = { relationship = 'lt' },
+                    Hi  =,
+                    High=,
+                    high=,
+                    ask = {relationship = 'gt'}
+            )
+        }
         columns <- match.names(columns,colnames(data))
         switch(relationship,
-                '>'  =,
-                'gt' = {ret_sig = data[,columns[1]] > data[,columns[2]]},
-                '<'  =,
-                'lt' = {ret_sig = data[,columns[1]] < data[,columns[2]]},
-                'eq'     = {ret_sig = data[,columns[1]] == data[,columns[2]]}, #FIXME any way to specify '='?
+                '>'   =,
+                'gt'  = {ret_sig = data[,columns[1]] > data[,columns[2]]},
+                '<'   ,
+                'lt'  = {ret_sig = data[,columns[1]] < data[,columns[2]]},
+                'eq'  = {ret_sig = data[,columns[1]] == data[,columns[2]]}, #FIXME any way to specify '='?
                 'gte' =,
                 'gteq'=,
-                'ge'     = {ret_sig = data[,columns[1]] >= data[,columns[2]]}, #FIXME these fail with an 'unexpected =' error if you use '>=' 
+                'ge'  = {ret_sig = data[,columns[1]] >= data[,columns[2]]}, #FIXME these fail with an 'unexpected =' error if you use '>=' 
                 'lte' =,
                 'lteq'=,
-                'le' 	 = {ret_sig = data[,columns[1]] <= data[,columns[2]]}
+                'le'  = {ret_sig = data[,columns[1]] <= data[,columns[2]]}
         )
     } else {
         stop("comparison of more than two columns not supported yet, patches welcome")
@@ -163,7 +176,12 @@ sigComparison <- function(label,data, columns, relationship=c("gt","lt","eq","gt
 #' @param relationship one of c("gt","lt","eq","gte","lte") or reasonable alternatives
 #' @export
 sigCrossover <- function(label,data, columns, relationship=c("gt","lt","eq","gte","lte")) {
-    ret_sig = ifelse(diff(sigComparison(label=label,data=data,columns=columns,relationship=relationship))==1,TRUE,NA)
+    ret_sig = NA
+    lng<-length(columns)
+    for (i in 1:(lng-1)) {
+        if (!is.na(ret_sig)) break()
+        ret_sig = ifelse(diff(sigComparison(label=label,data=data,columns=columns[c(i,lng)],relationship=relationship))==1,TRUE,NA)
+    }
     colnames(ret_sig)<-label
     return(ret_sig)
 }
