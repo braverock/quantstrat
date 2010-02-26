@@ -265,20 +265,6 @@ ruleOrderProc <- function(portfolio, symbol, mktdata, timespan, ordertype=NULL, 
             yearly = ,
             quarterly = ,
             monthly = ,
-            ## {
-            ##     # first process low frequencies with look-back assumption
-            ##     for (ii in 1:nrow(procorders) ){
-            ##         if(procorders[ii,]$Order.Type=='market'){
-            ##             txnprice=as.numeric(getPrice(mktdata[timestamp], prefer='close'))
-            ##             # if(!is.null(ncol(txnprice)) & ncol(txnprice)>1) txnprice = as.numeric(getPrice(mktdata[timestamp], symbol=symbol, prefer='close'))
-            ##             addTxn(Portfolio=portfolio, Symbol=symbol, TxnDate=prevtime, TxnQty=as.numeric(procorders[ii,]$Order.Qty), TxnPrice=txnprice ,...=...)
-            ##             procorders[ii,]$Order.Status<-'closed'
-            ##             procorders[ii,]$Order.StatusTime<-timestamp
-            ##         } else {
-            ##             stop("order types other than market not (yet?) supported for low-frequency strategies")
-            ##         }
-            ##     }
-            ## }, # end low frequency processing
             daily = { 
                 # next process daily
                 for (ii in 1:nrow(procorders) ){
@@ -287,7 +273,7 @@ ruleOrderProc <- function(portfolio, symbol, mktdata, timespan, ordertype=NULL, 
                         market = ,
                         limit = {
                             if (procorders[ii,]$Order.Type == 'market' ){
-                                txnprice=as.numeric(getPrice(mktdata[prevtime], prefer='close'))
+                                txnprice=as.numeric(getPrice(mktdata[timestamp], prefer='close'))
                                 #if(!is.null(ncol(txnprice)) & ncol(txnprice)>1) txnprice = as.numeric(getPrice(mktdata[timestamp], symbol=symbol, prefer='close'))
                                 txntime=prevtime
                             } else {
@@ -308,7 +294,7 @@ ruleOrderProc <- function(portfolio, symbol, mktdata, timespan, ordertype=NULL, 
                     if(!is.null(txnprice)){
                         addTxn(Portfolio=portfolio, Symbol=symbol, TxnDate=txntime, TxnQty=as.numeric(procorders[ii,]$Order.Qty), TxnPrice=txnprice ,...=...)
                         procorders[ii,]$Order.Status<-'closed'
-                        procorders[ii,]$Order.StatusTime<-timestamp
+                        procorders[ii,]$Order.StatusTime<-as.character(timestamp)
                     }
                 } #end loop over open orders       
             }, #end daily and lower frequency processing
@@ -393,7 +379,7 @@ ruleOrderProc <- function(portfolio, symbol, mktdata, timespan, ordertype=NULL, 
                                                  status="open", 
                                                  replace=TRUE)
                                         procorders[ii,]$Order.Status<-'replaced'
-                                        procorders[ii,]$Order.StatusTime<-timestamp 
+                                        procorders[ii,]$Order.StatusTime<-as.character(timestamp)
                                         next()
                                     }
                                 }
