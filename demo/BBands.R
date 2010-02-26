@@ -1,6 +1,6 @@
 require(quantstrat)
-try(rm("order_book.simplestrat",pos=.strategy),silent=TRUE)
-try(rm("account.simplestrat","portfolio.simplestrat",pos=.blotter),silent=TRUE)
+try(rm("order_book.bbands",pos=.strategy),silent=TRUE)
+try(rm("account.bbands","portfolio.bbands",pos=.blotter),silent=TRUE)
 try(rm("account.st","portfolio.st","IBM","s","initDate","initEq",'start_t','end_t'),silent=TRUE)
 
 currency('USD')
@@ -9,14 +9,14 @@ stock('IBM',currency='USD',multiplier=1)
 initDate='1997-12-31'
 initEq=1000000
 
-portfolio.st='simplestrat'
-account.st='simplestrat'
+portfolio.st='bbands'
+account.st='bbands'
 
 initPortf(portfolio.st,symbols='IBM', initDate=initDate)
-initAcct(account.st,portfolios='simplestrat', initDate=initDate)
+initAcct(account.st,portfolios='bbands', initDate=initDate)
 initOrders(portfolio=portfolio.st,initDate=initDate)
 
-s <- strategy("simplestrat")
+s <- strategy("bbands")
 #s <- add.indicator(strategy = s, name = "SMA", arguments = list(x = quote(Cl(mktdata)), n=10), label="SMA10")
 s <- add.indicator(strategy = s, name = "BBands", arguments = list(HLC = quote(HLC(mktdata)), sd = 2, n=20, maType=quote(SMA)))
 
@@ -40,13 +40,13 @@ s <- add.rule(s,name='ruleSignal', arguments = list(data=quote(mktdata),sigcol="
 
 getSymbols("IBM")
 start_t<-Sys.time()
-out<-try(applyStrategy(strategy='s' , portfolios='simplestrat'))
+out<-try(applyStrategy(strategy='s' , portfolios='bbands'))
 # look at the order book
-#getOrderBook('simplestrat')
+#getOrderBook('bbands')
 end_t<-Sys.time()
 end_t-start_t
-updatePortf(Portfolio='simplestrat',Dates=paste('::',as.Date(Sys.time()),sep=''))
-chart.Posn(Portfolio='simplestrat',Symbol='IBM',theme='white')
+updatePortf(Portfolio='bbands',Dates=paste('::',as.Date(Sys.time()),sep=''))
+chart.Posn(Portfolio='bbands',Symbol='IBM',theme='white')
 plot(addBBands(on=1,sd=2,n=20))
 ###############################################################################
 # R (http://r-project.org/) Quantitative Strategy Model Framework
