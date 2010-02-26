@@ -1,1 +1,1 @@
-simplestrat     Build a simple strategy using a few indicators
+BBands     Build a simple Bollinger Bands strategy using one indicator, two signals, and two trade rules
