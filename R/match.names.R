@@ -16,7 +16,7 @@
 match.names <- function(match_names,data_names) {
     loc<-NULL
     for (mname in match_names){
-        t<-grep(mname,data_names)
+        t<-grep(paste(mname,"$",sep=""),data_names)
         if(is.null(loc)) loc<-t
         else loc <- c(loc,t)
     }

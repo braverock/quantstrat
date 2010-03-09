@@ -129,6 +129,9 @@ sigComparison <- function(label,data, columns, relationship=c("gt","lt","eq","gt
     if (length(columns==2)){
         ret_sig=NULL
         if (relationship=='op'){
+            # (How) can this support "Close"? --jmu
+            if(columns[1] %in% c("Close","Cl","close"))
+                stop("Close not supported with relationship=='op'")
             switch(columns[1],
                     Low =, 
                     low =, 
@@ -139,19 +142,19 @@ sigComparison <- function(label,data, columns, relationship=c("gt","lt","eq","gt
                     ask = {relationship = 'gt'}
             )
         }
-        columns <- match.names(columns,colnames(data))
+        colNums <- match.names(columns,colnames(data))
         switch(relationship,
                 '>'   =,
-                'gt'  = {ret_sig = data[,columns[1]] > data[,columns[2]]},
+                'gt'  = {ret_sig = data[,colNums[1]] > data[,colNums[2]]},
                 '<'   ,
-                'lt'  = {ret_sig = data[,columns[1]] < data[,columns[2]]},
-                'eq'  = {ret_sig = data[,columns[1]] == data[,columns[2]]}, #FIXME any way to specify '='?
+                'lt'  = {ret_sig = data[,colNums[1]] < data[,colNums[2]]},
+                'eq'  = {ret_sig = data[,colNums[1]] == data[,colNums[2]]}, #FIXME any way to specify '='?
                 'gte' =,
                 'gteq'=,
-                'ge'  = {ret_sig = data[,columns[1]] >= data[,columns[2]]}, #FIXME these fail with an 'unexpected =' error if you use '>=' 
+                'ge'  = {ret_sig = data[,colNums[1]] >= data[,colNums[2]]}, #FIXME these fail with an 'unexpected =' error if you use '>=' 
                 'lte' =,
                 'lteq'=,
-                'le'  = {ret_sig = data[,columns[1]] <= data[,columns[2]]}
+                'le'  = {ret_sig = data[,colNums[1]] <= data[,colNums[2]]}
         )
     } else {
         stop("comparison of more than two columns not supported yet, patches welcome")
@@ -176,12 +179,12 @@ sigComparison <- function(label,data, columns, relationship=c("gt","lt","eq","gt
 #' @param relationship one of c("gt","lt","eq","gte","lte") or reasonable alternatives
 #' @export
 sigCrossover <- function(label,data, columns, relationship=c("gt","lt","eq","gte","lte")) {
-    ret_sig = NA
+    ret_sig = FALSE
     lng<-length(columns)
     for (i in 1:(lng-1)) {
-        if (!is.na(ret_sig)) break()
-        ret_sig = ifelse(diff(sigComparison(label=label,data=data,columns=columns[c(i,lng)],relationship=relationship))==1,TRUE,NA)
+        ret_sig = ret_sig | diff(sigComparison(label=label,data=data,columns=columns[c(i,lng)],relationship=relationship))==1
     }
+    is.na(ret_sig) <- which(!ret_sig)
     colnames(ret_sig)<-label
     return(ret_sig)
 }
@@ -197,12 +200,12 @@ sigCrossover <- function(label,data, columns, relationship=c("gt","lt","eq","gte
 #' @export
 sigPeak <- function(label,data,column, direction=c("peak","bottom")){
     #should we only do this for one column?
-    column<-match.names(column,colnames(data))
+    colNum<-match.names(column,colnames(data))
     direction=direction[1] # only use the first]
     #(Lag(IBM[,4],2)<Lag(IBM[,4],1)) & Lag(IBM[,4],1) >IBM[,4]
     switch(direction,
-           "peak"   = { Lag(data[,column],2) < Lag(data[,column],1) & Lag(data[,column],1) > data[,column] } ,
-           "bottom","valley" = { Lag(data[,column],2) > Lag(data[,column],1) & Lag(data[,column],1) < data[,column] }
+           "peak"   = { Lag(data[,colNum],2) < Lag(data[,colNum],1) & Lag(data[,colNum],1) > data[,colNum] } ,
+           "bottom","valley" = { Lag(data[,colNum],2) > Lag(data[,colNum],1) & Lag(data[,colNum],1) < data[,colNum] }
     )
     colnames(ret_sig)<-paste(label,direction,"sig",sep='.')
     return(ret_sig)
@@ -223,19 +226,19 @@ sigPeak <- function(label,data,column, direction=c("peak","bottom")){
 sigThreshold <- function(label, data, column, threshold=0, relationship=c("gt","lt","eq","gte","lte")) {
     relationship=relationship[1] #only use the first one
     ret_sig=NULL
-    column <- match.names(column, colnames(data))
+    colNum <- match.names(column, colnames(data))
     switch(relationship,
             '>' =,
-            'gt' = {ret_sig = data[,column] > threshold},
+            'gt' = {ret_sig = data[,colNum] > threshold},
             '<' =,
-            'lt' = {ret_sig = data[,column] < threshold},
-            'eq'     = {ret_sig = data[,column] == threshold}, #FIXME any way to specify '='?
+            'lt' = {ret_sig = data[,colNum] < threshold},
+            'eq'     = {ret_sig = data[,colNum] == threshold}, #FIXME any way to specify '='?
             'gte' =,
             'gteq'=,
-            'ge'     = {ret_sig = data[,column] >= threshold}, #FIXME these fail with an 'unexpected =' error if you use '>='
+            'ge'     = {ret_sig = data[,colNum] >= threshold}, #FIXME these fail with an 'unexpected =' error if you use '>='
             'lte' =,
             'lteq'=,
-            'le'     = {ret_sig = data[,column] <= threshold}
+            'le'     = {ret_sig = data[,colNum] <= threshold}
     )
     colnames(ret_sig)<-label
     return(ret_sig)

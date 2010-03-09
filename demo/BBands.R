@@ -6,7 +6,7 @@ try(rm("account.st","portfolio.st","IBM","s","initDate","initEq",'start_t','end_
 currency('USD')
 stock('IBM',currency='USD',multiplier=1)
 
-initDate='1997-12-31'
+initDate='2006-12-31'
 initEq=1000000
 
 portfolio.st='bbands'
@@ -17,8 +17,10 @@ initAcct(account.st,portfolios='bbands', initDate=initDate)
 initOrders(portfolio=portfolio.st,initDate=initDate)
 
 s <- strategy("bbands")
+SD = 2
+N = 20
 #s <- add.indicator(strategy = s, name = "SMA", arguments = list(x = quote(Cl(mktdata)), n=10), label="SMA10")
-s <- add.indicator(strategy = s, name = "BBands", arguments = list(HLC = quote(HLC(mktdata)), sd = 2, n=20, maType=quote(SMA)))
+s <- add.indicator(strategy = s, name = "BBands", arguments = list(HLC = quote(HLC(mktdata)), sd=SD, n=N, maType=quote(SMA)))
 
 
 #if you wanted to manually apply a signal function for demonstration
@@ -29,16 +31,21 @@ s <- add.indicator(strategy = s, name = "BBands", arguments = list(HLC = quote(H
 #s<- add.signal(s,name="sigComparison",arguments = list(data=quote(mktdata),columns=c("Close","Open"),relationship="gt"),label="Cl.gt.Op")
 s<- add.signal(s,name="sigCrossover",arguments = list(data=quote(mktdata),columns=c("Close","up"),relationship="gt"),label="Cl.gt.UpperBand")
 s<- add.signal(s,name="sigCrossover",arguments = list(data=quote(mktdata),columns=c("Close","dn"),relationship="lt"),label="Cl.lt.LowerBand")
-
+#s<- add.signal(s,name="sigCrossover",arguments = list(data=quote(mktdata),columns=c("Low","up"),  relationship="gt"),label="Lo.gt.UpperBand")
+#s<- add.signal(s,name="sigCrossover",arguments = list(data=quote(mktdata),columns=c("High","dn"), relationship="lt"),label="Hi.lt.LowerBand")
+s<- add.signal(s,name="sigCrossover",arguments = list(data=quote(mktdata),columns=c("High","Low","mavg"),relationship="op"),label="Cross.Mid")
 #IBM.sigs<-applySignals(s,mktdata=IBM.inds)
 
 # lets add some rules
 s 
 s <- add.rule(s,name='ruleSignal', arguments = list(data=quote(mktdata),sigcol="Cl.gt.UpperBand",sigval=TRUE, orderqty=-100, ordertype='market', orderside=NULL, threshold=NULL),type='enter')
-s <- add.rule(s,name='ruleSignal', arguments = list(data=quote(mktdata),sigcol="Cl.lt.LowerBand",sigval=TRUE, orderqty= 100, ordertype='market' , orderside=NULL, threshold=NULL),type='enter')
+s <- add.rule(s,name='ruleSignal', arguments = list(data=quote(mktdata),sigcol="Cl.lt.LowerBand",sigval=TRUE, orderqty= 100, ordertype='market', orderside=NULL, threshold=NULL),type='enter')
+#s <- add.rule(s,name='ruleSignal', arguments = list(data=quote(mktdata),sigcol="Lo.gt.UpperBand",sigval=TRUE, orderqty= 'all', ordertype='market', orderside=NULL, threshold=NULL),type='exit')
+#s <- add.rule(s,name='ruleSignal', arguments = list(data=quote(mktdata),sigcol="Hi.lt.LowerBand",sigval=TRUE, orderqty= 'all', ordertype='market', orderside=NULL, threshold=NULL),type='exit')
+s <- add.rule(s,name='ruleSignal', arguments = list(data=quote(mktdata),sigcol="Cross.Mid",sigval=TRUE, orderqty= 'all', ordertype='market', orderside=NULL, threshold=NULL),type='exit')
 #TODO add thresholds and stop-entry and stop-exit handling to test
 
-getSymbols("IBM")
+getSymbols("IBM",from=initDate)
 start_t<-Sys.time()
 out<-try(applyStrategy(strategy='s' , portfolios='bbands'))
 # look at the order book
@@ -47,7 +54,7 @@ end_t<-Sys.time()
 end_t-start_t
 updatePortf(Portfolio='bbands',Dates=paste('::',as.Date(Sys.time()),sep=''))
 chart.Posn(Portfolio='bbands',Symbol='IBM',theme='white')
-plot(addBBands(on=1,sd=2,n=20))
+plot(addBBands(on=1,sd=SD,n=N))
 ###############################################################################
 # R (http://r-project.org/) Quantitative Strategy Model Framework
 #
