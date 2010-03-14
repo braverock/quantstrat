@@ -1,10 +1,16 @@
 require(quantstrat)
 try(rm("order_book.bbands",pos=.strategy),silent=TRUE)
 try(rm("account.bbands","portfolio.bbands",pos=.blotter),silent=TRUE)
-try(rm("account.st","portfolio.st","IBM","s","initDate","initEq",'start_t','end_t'),silent=TRUE)
+try(rm("account.st","portfolio.st","stock.str","s","initDate","initEq",'start_t','end_t'),silent=TRUE)
+
+# some things to set up here
+stock.str='IBM' # what are we trying it on
+SD = 2 # how many standard deviations, traditionally 2
+N = 20 # how many periods for the moving average
+
 
 currency('USD')
-stock('IBM',currency='USD',multiplier=1)
+stock(stock.str,currency='USD',multiplier=1)
 
 initDate='2006-12-31'
 initEq=1000000
@@ -12,13 +18,12 @@ initEq=1000000
 portfolio.st='bbands'
 account.st='bbands'
 
-initPortf(portfolio.st,symbols='IBM', initDate=initDate)
+initPortf(portfolio.st,symbols=stock.str, initDate=initDate)
 initAcct(account.st,portfolios='bbands', initDate=initDate)
 initOrders(portfolio=portfolio.st,initDate=initDate)
 
 s <- strategy("bbands")
-SD = 2
-N = 20
+
 #s <- add.indicator(strategy = s, name = "SMA", arguments = list(x = quote(Cl(mktdata)), n=10), label="SMA10")
 s <- add.indicator(strategy = s, name = "BBands", arguments = list(HLC = quote(HLC(mktdata)), sd=SD, n=N, maType=quote(SMA)))
 
@@ -45,7 +50,7 @@ s <- add.rule(s,name='ruleSignal', arguments = list(data=quote(mktdata),sigcol="
 s <- add.rule(s,name='ruleSignal', arguments = list(data=quote(mktdata),sigcol="Cross.Mid",sigval=TRUE, orderqty= 'all', ordertype='market', orderside=NULL, threshold=NULL),type='exit')
 #TODO add thresholds and stop-entry and stop-exit handling to test
 
-getSymbols("IBM",from=initDate)
+getSymbols(stock.str,from=initDate)
 start_t<-Sys.time()
 out<-try(applyStrategy(strategy='s' , portfolios='bbands'))
 # look at the order book
@@ -53,7 +58,7 @@ out<-try(applyStrategy(strategy='s' , portfolios='bbands'))
 end_t<-Sys.time()
 end_t-start_t
 updatePortf(Portfolio='bbands',Dates=paste('::',as.Date(Sys.time()),sep=''))
-chart.Posn(Portfolio='bbands',Symbol='IBM',theme='white')
+chart.Posn(Portfolio='bbands',Symbol=stock.str,theme='white')
 plot(addBBands(on=1,sd=SD,n=N))
 ###############################################################################
 # R (http://r-project.org/) Quantitative Strategy Model Framework
