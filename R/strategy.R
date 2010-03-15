@@ -88,7 +88,10 @@ applyStrategy <- function(strategy , portfolios, mktdata=NULL , ... ) {
         sret<-list()
         for (symbol in symbols){
             ret[[portfolio]][[symbol]]<-list()
-            if(!hasArg(mktdata)) mktdata <- get(symbol)
+            #if(!hasArg(mktdata)) mktdata <- get(symbol)
+            #TODO FIXME allow passing of mktdata again?
+            mktdata <- get(symbol)
+            #print(head(mktdata))
             #loop over indicators
             sret$indicators <- applyIndicators(strategy=strategy , mktdata=mktdata , ... )
             #this should be taken care of by the mktdata<<-mktdata line in the apply* fn
