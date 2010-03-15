@@ -114,7 +114,7 @@ applySignals <- function(strategy, mktdata, indicators=NULL, ...) {
 #' 
 #' Comparison will be applied from the first to the second column in the \code{columns} vector.
 #' 
-#' Relationship 'op' means 'opposite side.  Reasonable attempt will be made to match.
+#' Relationship 'op' means 'opposite' side.  Reasonable attempt will be made to match.
 #' 
 #' @param label text label to apply to the output
 #' @param data data to apply comparison to

@@ -273,12 +273,12 @@ ruleOrderProc <- function(portfolio, symbol, mktdata, timespan, ordertype=NULL, 
                         market = ,
                         limit = {
                             if (procorders[ii,]$Order.Type == 'market' ){
-                                txnprice=as.numeric(getPrice(mktdata[timestamp], prefer='close'))
+                                txnprice=as.numeric(getPrice(mktdata[as.character(timestamp)], prefer='close'))
                                 #if(!is.null(ncol(txnprice)) & ncol(txnprice)>1) txnprice = as.numeric(getPrice(mktdata[timestamp], symbol=symbol, prefer='close'))
                                 txntime=prevtime
                             } else {
                                 # check to see if price moved through the limit
-                                if(procorders[ii,]$Order.Price>Lo(mktdata[timestamp]) & procorders[ii,]$Order.Price<Hi(mktdata[timestamp]) ) {
+                                if(procorders[ii,]$Order.Price>Lo(mktdata[as.character(timestamp)]) & procorders[ii,]$Order.Price<Hi(mktdata[as.character(timestamp)]) ) {
                                     txnprice=as.numeric(procorders[ii,]$Order.Price)
                                     txntime=timestamp
                                 } else {

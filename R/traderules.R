@@ -30,7 +30,9 @@
 #' @export
 ruleSignal <- function(mktdata, timestamp, sigcol, sigval, orderqty=0, ordertype, orderside, threshold=NULL, replace=TRUE, delay=0.0001, osFUN='osNoOp', pricemethod=c('market','opside'), portfolio, symbol, ... ) {
     if(!is.function(osFUN)) osFUN<-match.fun(osFUN)
-    if (!is.na(mktdata[timestamp][,sigcol]) & mktdata[timestamp][,sigcol] == sigval) {
+    #print(paste(symbol,timestamp))
+    #print(mktdata[timestamp][,sigcol])
+    if (!is.na(mktdata[as.character(timestamp)][,sigcol]) & mktdata[as.character(timestamp)][,sigcol] == sigval) {
         #TODO add fancy formals matching for osFUN
         if(orderqty=='all'){
             orderqty=-1*getPosQty(Portfolio=portfolio,Symbol=symbol,Date=timestamp)    
@@ -42,19 +44,19 @@ ruleSignal <- function(mktdata, timestamp, sigcol, sigval, orderqty=0, ordertype
         #calculate order price using pricemethod
         pricemethod<-pricemethod[1] #only use the first if not set by calling function
         switch(pricemethod,
-               opside = {
-                   if (orderqty>0) 
-                       prefer='ask'  # we're buying, so pay what they're asking
-                   else
-                       prefer='bid'  # we're selling, so give it to them for what they're bidding
-                   orderprice <- try(getPrice(x=mktdata,symbol=symbol,prefer=prefer))
-               }, 
-               market = { 
-                   orderprice <- try(getPrice(x=mktdata,symbol=symbol,prefer=NULL)) 
-               }  
+                opside = {
+                    if (orderqty>0) 
+                        prefer='ask'  # we're buying, so pay what they're asking
+                    else
+                        prefer='bid'  # we're selling, so give it to them for what they're bidding
+                    orderprice <- try(getPrice(x=mktdata,symbol=symbol,prefer=prefer))
+                }, 
+                market = { 
+                    orderprice <- try(getPrice(x=mktdata,symbol=symbol,prefer=NULL)) 
+                }  
         )
         if(inherits(orderprice,'try-error')) orderprice<-NULL
-        if(length(orderprice>1)) orderprice<-last(orderprice[timestamp])
+        if(length(orderprice>1)) orderprice<-last(orderprice[as.character(timestamp)])
         if(is.null(orderside) & !orderqty == 0){
             curqty<-getPosQty(Portfolio=portfolio, Symbol=symbol, Date=timestamp)
             if (curqty>0 ){
@@ -72,6 +74,7 @@ ruleSignal <- function(mktdata, timestamp, sigcol, sigval, orderqty=0, ordertype
             }
         }
         if(!is.null(orderqty) & !orderqty == 0 & !is.null(orderprice)){
+            # print(orderprice)
             addOrder(portfolio=portfolio, symbol=symbol, timestamp=timestamp, qty=orderqty, price=orderprice, ordertype=ordertype, side=orderside, threshold=threshold, status="open", replace=replace , delay=delay, ...)
         }
     }
@@ -138,7 +141,7 @@ addPosLimit <- function(portfolio, symbol, timestamp, maxpos, longlevels=1, minp
 getPosLimit <- function(portfolio, symbol, timestamp){
     portf<-getPortfolio(portfolio)
     # try to get on timestamp, otherwise find the most recent
-    toDate = paste('::', timestamp, sep="")
+    toDate = paste('::', as.character(timestamp), sep="")
     PosLimit = last(portf[[symbol]]$PosLimit[toDate])
     return(PosLimit)
 }
