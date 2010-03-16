@@ -1,1 +1,2 @@
 BBands     Build a simple Bollinger Bands strategy using one indicator, two signals, and two trade rules
+faber      A simple long term trend model using a 10-month SMA on a small portfolio of ETFs
