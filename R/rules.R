@@ -135,8 +135,7 @@ applyRules <- function(portfolio, symbol, strategy, mktdata, Dates=NULL, indicat
             onames <- names(.formals)
             rule$arguments$timestamp=timestamp
             pm <- pmatch(names(rule$arguments), onames, nomatch = 0L)
-            if (any(pm == 0L))
-                message(paste("some arguments stored for",rule$name,"do not match"))
+            # if (any(pm == 0L)) message(paste("some arguments stored for",rule$name,"do not match"))
             names(rule$arguments[pm > 0L]) <- onames[pm]
             .formals[pm] <- rule$arguments[pm > 0L]
             #now add dots

@@ -269,18 +269,18 @@ ruleOrderProc <- function(portfolio, symbol, mktdata, timespan, ordertype=NULL, 
                 # next process daily
                 for (ii in 1:nrow(procorders) ){
                     txnprice=NULL
+                    txntime=as.character(index(procorders[ii,]))
                     switch(procorders[ii,]$Order.Type,
                         market = ,
                         limit = {
                             if (procorders[ii,]$Order.Type == 'market' ){
-                                txnprice=as.numeric(getPrice(mktdata[as.character(timestamp)], prefer='close'))
+                                txnprice=as.numeric(getPrice(mktdata[txntime], prefer='close'))
                                 #if(!is.null(ncol(txnprice)) & ncol(txnprice)>1) txnprice = as.numeric(getPrice(mktdata[timestamp], symbol=symbol, prefer='close'))
-                                txntime=prevtime
                             } else {
                                 # check to see if price moved through the limit
                                 if(procorders[ii,]$Order.Price>Lo(mktdata[as.character(timestamp)]) & procorders[ii,]$Order.Price<Hi(mktdata[as.character(timestamp)]) ) {
                                     txnprice=as.numeric(procorders[ii,]$Order.Price)
-                                    txntime=timestamp
+                                    txntime=as.character(timestamp)
                                 } else {
                                     # price did not move through my order
                                     next() # should go to next order
@@ -294,7 +294,7 @@ ruleOrderProc <- function(portfolio, symbol, mktdata, timespan, ordertype=NULL, 
                     if(!is.null(txnprice)){
                         addTxn(Portfolio=portfolio, Symbol=symbol, TxnDate=txntime, TxnQty=as.numeric(procorders[ii,]$Order.Qty), TxnPrice=txnprice ,...=...)
                         procorders[ii,]$Order.Status<-'closed'
-                        procorders[ii,]$Order.StatusTime<-as.character(timestamp)
+                        procorders[ii,]$Order.StatusTime<-txntime
                     }
                 } #end loop over open orders       
             }, #end daily and lower frequency processing
