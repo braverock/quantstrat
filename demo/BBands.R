@@ -58,8 +58,8 @@ out<-try(applyStrategy(strategy='s' , portfolios='bbands'))
 end_t<-Sys.time()
 end_t-start_t
 updatePortf(Portfolio='bbands',Dates=paste('::',as.Date(Sys.time()),sep=''))
-chart.Posn(Portfolio='bbands',Symbol=stock.str,theme='white')
-plot(addBBands(on=1,sd=SD,n=N))
+chart.Posn(Portfolio='bbands',Symbol=stock.str)
+plot(add_BBands(on=1,sd=SD,n=N))
 ###############################################################################
 # R (http://r-project.org/) Quantitative Strategy Model Framework
 #

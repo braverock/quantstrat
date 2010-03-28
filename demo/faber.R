@@ -115,10 +115,14 @@ end_t<-Sys.time()
 print("trade blotter portfolio update:")
 print(end_t-start_t)
 
+# hack for new quantmod graphics, remove later
+themelist<-chart_theme()
+themelist$up.col<-'lightgreen'
+themelist$down.col<-'pink'
 for(symbol in symbols){
     dev.new()
-    chart.Posn(Portfolio='longtrend',Symbol=symbol,theme=chartTheme('white', up.col='lightgreen', dn.col='pink'), type='bar')
-    plot(addSMA(n=10,col='darkgreen', on=1))
+    chart.Posn(Portfolio='longtrend',Symbol=symbol,theme=themelist)
+    plot(add_SMA(n=10,col='darkgreen', on=1))
 }
 
 
