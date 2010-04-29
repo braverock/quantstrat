@@ -167,7 +167,7 @@ applyRules <- function(portfolio, symbol, strategy, mktdata, Dates=NULL, indicat
     } # end sub process function
 
     #TODO FIXME we should probably do something more sophisticated, but this should work
-    if(isTRUE(path.dep) & is.null(Dates)) Dates=time(mktdata) # should this be index() instead?
+    if(isTRUE(path.dep) & is.null(Dates)) Dates=unique(time(mktdata)) # should this be index() instead?
     if(!isTRUE(path.dep)) Dates=''
 
     hold=FALSE

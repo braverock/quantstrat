@@ -49,10 +49,12 @@ ruleSignal <- function(mktdata, timestamp, sigcol, sigval, orderqty=0, ordertype
                         prefer='ask'  # we're buying, so pay what they're asking
                     else
                         prefer='bid'  # we're selling, so give it to them for what they're bidding
-                    orderprice <- try(getPrice(x=mktdata,symbol=symbol,prefer=prefer))
+#                    orderprice <- try(getPrice(x=mktdata,symbol=symbol,prefer=prefer))
+                    orderprice <- try(getPrice(x=mktdata,prefer=prefer))
                 }, 
                 market = { 
-                    orderprice <- try(getPrice(x=mktdata,symbol=symbol,prefer=NULL)) 
+#                    orderprice <- try(getPrice(x=mktdata,symbol=symbol,prefer=NULL)) 
+                    orderprice <- try(getPrice(x=mktdata, prefer=NULL)) 
                 }  
         )
         if(inherits(orderprice,'try-error')) orderprice<-NULL
