@@ -1,7 +1,8 @@
 \name{ruleSignal}
 \alias{ruleSignal}
 \title{default rule to generate a trade order on a signal...}
-\usage{ruleSignal(mktdata, timestamp, sigcol, sigval, orderqty=0, ordertype, orderside, threshold, replace=TRUE, delay=1e-04, osFUN="osNoOp",
+\usage{ruleSignal(mktdata, timestamp, sigcol, sigval, orderqty=0, ordertype,
+    orderside, threshold, replace=TRUE, delay=1e-04, osFUN="osNoOp",
     pricemethod=c("market", "opside"), portfolio, symbol, ...)}
 \description{default rule to generate a trade order on a signal}
 \details{\code{pricemethod} may be one of 'market' or 'opside' 

@@ -1,7 +1,8 @@
 \name{add.indicator}
 \alias{add.indicator}
 \title{add an indicator to a strategy...}
-\usage{add.indicator(strategy, name, arguments, label, ..., enabled=TRUE, indexnum, store=FALSE)}
+\usage{add.indicator(strategy, name, arguments, label, ..., enabled=TRUE,
+    indexnum, store=FALSE)}
 \description{add an indicator to a strategy}
 \arguments{\item{strategy}{an object of type 'strategy' to add the indicator to}
 \item{name}{name of the indicator, must correspond to an R function}

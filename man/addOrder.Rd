@@ -1,7 +1,9 @@
 \name{addOrder}
 \alias{addOrder}
 \title{add an order to the order book...}
-\usage{addOrder(portfolio, symbol, timestamp, qty, price, ordertype, side, threshold, status="open", replace=TRUE, statustimestamp="", delay=1e-05)}
+\usage{addOrder(portfolio, symbol, timestamp, qty, price, ordertype, side,
+    threshold, status="open", replace=TRUE, statustimestamp="",
+    delay=1e-05)}
 \description{add an order to the order book}
 \details{By default, this function will locate and replace any 'open' order(s) 
 on the requested portfolio/symbol that have the same type and side.  

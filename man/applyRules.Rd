@@ -1,7 +1,8 @@
 \name{applyRules}
 \alias{applyRules}
 \title{apply the rules in the strategy to arbitrary market data...}
-\usage{applyRules(portfolio, symbol, strategy, mktdata, Dates, indicators, signals, ..., path.dep=TRUE)}
+\usage{applyRules(portfolio, symbol, strategy, mktdata, Dates, indicators,
+    signals, ..., path.dep=TRUE)}
 \description{apply the rules in the strategy to arbitrary market data}
 \details{In typical usage, this function will be called via \code{\link{applyStrategy}}.  
 In this mode, this function will be called twice, once with \code{path.dep=FALSE} 

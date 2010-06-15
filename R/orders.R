@@ -336,7 +336,7 @@ ruleOrderProc <- function(portfolio, symbol, mktdata, timespan, ordertype=NULL, 
                                 } else if(is.BBO(mktdata)){
                                     # check side/qty
                                     if(as.numeric(procorders[ii,]$Order.Qty)>0){ # positive quantity 'buy'
-                                        if(as.numeric(procorders[ii,]$Order.Price)>=as.numberic(getPrice(mktdata[timestamp],prefer='offer'))){
+                                        if(as.numeric(procorders[ii,]$Order.Price)>=as.numeric(getPrice(mktdata[timestamp],prefer='offer'))){
                                             # price we're willing to pay is higher than the offer price, so execute at the limit
                                             txnprice = as.numeric(procorders[ii,]$Order.Price)
                                             txntime  = as.character(timestamp)

@@ -1,7 +1,8 @@
 \name{sigThreshold}
 \alias{sigThreshold}
 \title{generate a threshold signal...}
-\usage{sigThreshold(label, data, column, threshold=0, relationship=c("gt", "lt", "eq", "gte", "lte"))}
+\usage{sigThreshold(label, data, column, threshold=0, relationship=c("gt",
+    "lt", "eq", "gte", "lte"))}
 \description{generate a threshold signal}
 \details{Many strategies, including RSI or MACD styles, make trading decisions when an indicator 
 is over or under a specific threshold.  

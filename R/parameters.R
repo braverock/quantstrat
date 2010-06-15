@@ -1,3 +1,12 @@
+#' add parameters to strategy objects: ALPHA CODE USE WITH CARE 
+#' @param strategy 
+#' @param type 
+#' @param add.to.name 
+#' @param method 
+#' @param arguments 
+#' @param label 
+#' @param ... 
+#' @param store 
 #' @export
 add.parameter <- 
 function (strategy, 
@@ -46,6 +55,13 @@ function (strategy,
 }
 
 
+#' add parameters to strategy objects: ALPHA CODE USE WITH CARE 
+#' @param strategy 
+#' @param symbol 
+#' @param type 
+#' @param name 
+#' @param parameter 
+#' @param ... 
 paramLookup <- function(strategy, symbol , type, name, parameter, ...) {
     # should take in a strategy and parameter object, and return an argument list for 'symbol'
     #as.pairlist(paramTable[,symbol]
@@ -53,6 +69,11 @@ paramLookup <- function(strategy, symbol , type, name, parameter, ...) {
     as.pairlist(paramTable[,symbol])
 }
 
+#' add parameters to strategy objects: ALPHA CODE USE WITH CARE 
+#' @param strategy 
+#' @param type 
+#' @param name 
+#' @param paramTable 
 #' @export
 add.paramLookupTable <- function(strategy, type, name, paramTable){
     assign(paste(strategy,type,name,'table',pos=.strategy),paramTable)

@@ -1,7 +1,8 @@
 \name{osMaxPos}
 \alias{osMaxPos}
 \title{order sizing function for position limits and level sizing...}
-\usage{osMaxPos(mktdata, timestamp, orderqty, ordertype, orderside, portfolio, symbol)}
+\usage{osMaxPos(mktdata, timestamp, orderqty, ordertype, orderside, portfolio,
+    symbol)}
 \description{order sizing function for position limits and level sizing}
 \details{levels are a simplification of more complex (proprietary) 
 techniques sometimes used for order sizing.  

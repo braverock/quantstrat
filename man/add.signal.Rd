@@ -1,7 +1,8 @@
 \name{add.signal}
 \alias{add.signal}
 \title{add a signal to a strategy...}
-\usage{add.signal(strategy, name, arguments, label, ..., enabled=TRUE, indexnum, store=FALSE)}
+\usage{add.signal(strategy, name, arguments, label, ..., enabled=TRUE,
+    indexnum, store=FALSE)}
 \description{add a signal to a strategy}
 \arguments{\item{strategy}{an object of type 'strategy' to add the signal to}
 \item{name}{name of the signal, must correspond to an R function}

@@ -22,14 +22,14 @@
 \section{Rules}{
     In this strategy, each signal has a corresponding entry or exit rule.  
     \describe{
-        \item{enter} \itemize{
+        \item{enter}{\itemize{
             \item type \code{\link{ruleSignal}}, enter a sell order at market on \code{Cl.gt.UpperBand} signal.
             \item type \code{\link{ruleSignal}}, enter a buy order at market on \code{Cl.lt.LowerBand} signal.
-        }
+        }}
         
-        \item{exit} \itemize{
+        \item{exit}{\itemize{
             \item type \code{\link{ruleSignal}}, enter a market order to close any open position at market on \code{Cross.mid} signal.
-        }
+        }}
     }
 }
 \section{Notes}{
