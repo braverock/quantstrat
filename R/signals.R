@@ -222,8 +222,9 @@ sigPeak <- function(label,data,column, direction=c("peak","bottom")){
 #' @param column named column to apply comparison to
 #' @param threshold numeric threhold to test for
 #' @param relationship one of c("gt","lt","eq","gte","lte") or reasonable alternatives
+#' @param cross if TRUE, will return TRUE only for the first observation to cross the threshold in a run
 #' @export
-sigThreshold <- function(label, data, column, threshold=0, relationship=c("gt","lt","eq","gte","lte")) {
+sigThreshold <- function(label, data, column, threshold=0, relationship=c("gt","lt","eq","gte","lte"),cross=FALSE) {
     relationship=relationship[1] #only use the first one
     ret_sig=NULL
     colNum <- match.names(column, colnames(data))
@@ -241,6 +242,7 @@ sigThreshold <- function(label, data, column, threshold=0, relationship=c("gt","
             'le'     = {ret_sig = data[,colNum] <= threshold}
     )
     colnames(ret_sig)<-label
+    if(isTRUE(cross)) ret_sig <- diff(ret_sig)==1
     return(ret_sig)
 }
 
