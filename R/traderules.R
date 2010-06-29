@@ -15,7 +15,7 @@
 #' @param timestamp timestamp coercible to POSIXct that will be the time the order will be inserted on 
 #' @param sigcol column name to check for signal
 #' @param sigval signal value to match against
-#' @param orderqty numeric quantity of the desired order, modified by osFUN
+#' @param orderqty numeric quantity of the desired order, or 'all', modified by osFUN
 #' @param ordertype one of "market","limit","stoplimit", or "stoptrailing"
 #' @param orderside one of either "long" or "short", default NULL, see details 
 #' @param threshold numeric or function threshold to apply to trailing stop orders, default NULL, see Details
@@ -40,7 +40,7 @@ ruleSignal <- function(mktdata, timestamp, sigcol, sigval, orderqty=0, ordertype
         if(orderqty>0 & orderqty<1){
             # TODO add proportional order?  or should that go in order sizing function?
         } 
-        orderqty <- osFUN(strategy=strategy, mktdata=mktdata, timestamp=timestamp, orderqty=orderqty, ordertype=ordertype, orderside=orderside, portfolio=portfolio, symbol=symbol)
+        orderqty <- osFUN(strategy=strategy, mktdata=mktdata, timestamp=timestamp, orderqty=orderqty, ordertype=ordertype, orderside=orderside, portfolio=portfolio, symbol=symbol,...=...)
         #calculate order price using pricemethod
         pricemethod<-pricemethod[1] #only use the first if not set by calling function
         switch(pricemethod,
