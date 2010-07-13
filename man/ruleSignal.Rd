@@ -19,7 +19,7 @@ If \code{orderside} is NULL, the function will attempt to calculate the side fro
 \item{timestamp}{timestamp coercible to POSIXct that will be the time the order will be inserted on}
 \item{sigcol}{column name to check for signal}
 \item{sigval}{signal value to match against}
-\item{orderqty}{numeric quantity of the desired order, modified by osFUN}
+\item{orderqty}{numeric quantity of the desired order, or 'all', modified by osFUN}
 \item{ordertype}{one of "market","limit","stoplimit", or "stoptrailing"}
 \item{orderside}{one of either "long" or "short", default NULL, see details}
 \item{threshold}{numeric or function threshold to apply to trailing stop orders, default NULL, see Details}

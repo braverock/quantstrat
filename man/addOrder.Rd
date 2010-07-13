@@ -5,7 +5,17 @@
     threshold, status="open", replace=TRUE, statustimestamp="",
     delay=1e-05)}
 \description{add an order to the order book}
-\details{By default, this function will locate and replace any 'open' order(s) 
+\details{It is important to understand that all the order functionality included in \code{quantstrat}
+exists to more closely model a real trading environment both in backtesting and in production.
+Many backtesting systems make a set of assumptions about instant execution, 
+and we have chosen not to do this in quantstrat, because real quantitative 
+trading systems do not have instant execution.  They make decisions 
+(the Rules) and then enter orders (the province of this function in backtesting),
+during which there is some \code{delay} between receiving the data that fires the 
+Signal and Rule, and the time the order reaches the market, and then those orders 
+MAY become transactions if market prices and liquidity cooperate.  
+
+By default, this function will locate and replace any 'open' order(s) 
 on the requested portfolio/symbol that have the same type and side.  
 This is the equivalent of what is sometimes called an 
 OCO (Order Cancels Other) order.  If you do not want the function to 
@@ -20,7 +30,24 @@ We have also modeled a 'stoptrailing' order, which may be used to model dynamic 
 The 'stoptrailing' order type is the only order type that makes use of the order \code{threshold}, which 
 is the difference either positive or negative from the current price when the order is entered.  
 Some markets and brokers recognize a stop that triggers a market order, when the stop is triggered, 
-a market order will be executed at the then-prevailing price.  We have not modeled this type of order.}
+a market order will be executed at the then-prevailing price.  We have not modeled this type of order.   
+
+If you ever wanted to move from a backtesting mode to a production mode, 
+this function (and the linked funtion \code{\link{ruleOrderProc}}) would 
+need to be replaced by functions that worked against your execution environment.  
+Basically, the execution environment must provide three interfaces in a live 
+trading environment:
+
+\enumerate{
+\item a market data interface to provide updated market data, usually accessed in an event loop
+
+\item an order interface for sending orders (and canceling or updating them) to the market
+
+\item a fill interface that reports the transaction details when an order has been filled 
+}
+
+Conversion to a live trading environment will also likely require a new version of 
+\code{\link{applyStrategy}} to provide the event loop interface and interact with \code{mktdata}.}
 \arguments{\item{portfolio}{text name of the portfolio to associate the order book with}
 \item{symbol}{identfier of the instrument to find orders for.  The name of any associated price objects (xts prices, usually OHLC) should match these}
 \item{timestamp}{timestamp coercible to POSIXct that will be the time to search for orders before this time}

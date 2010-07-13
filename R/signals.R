@@ -241,8 +241,8 @@ sigThreshold <- function(label, data, column, threshold=0, relationship=c("gt","
             'lteq'=,
             'le'     = {ret_sig = data[,colNum] <= threshold}
     )
-    colnames(ret_sig)<-label
     if(isTRUE(cross)) ret_sig <- diff(ret_sig)==1
+    colnames(ret_sig)<-label
     return(ret_sig)
 }
 

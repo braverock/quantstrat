@@ -1,5 +1,17 @@
 
 #' add an indicator to a strategy
+#'
+#' Indicators are typically standard technical or statistical analysis outputs, 
+#' such as moving averages, bands, or pricing models.
+#'
+#' Indicators are always path-independent, and should be constructed from vectorized functions where possible.
+#'
+#' Indicators are applied before signals and rules, and the output of indicators 
+#' may be used as inputs to construct signals or fire rules.
+#'
+#' 
+#'
+#'
 #' @param strategy an object of type 'strategy' to add the indicator to
 #' @param name name of the indicator, must correspond to an R function
 #' @param arguments default arguments to be passed to an indicator function when executed

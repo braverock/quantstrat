@@ -4,6 +4,9 @@
 \usage{ruleOrderProc(portfolio, symbol, mktdata, timespan, ordertype, ...,
     slippageFUN)}
 \description{process open orders at time t, generating transactions or new orders}
+\details{This function is meant to be sufficient for backtesting most strategies, 
+but would need to be replaced for production use.  It provides the interface 
+for taking the order book and determining when orders become trades.}
 \arguments{\item{portfolio}{text name of the portfolio to associate the order book with}
 \item{symbol}{identfier of the instrument to find orders for.  The name of any associated price objects (xts prices, usually OHLC) should match these}
 \item{mktdata}{an xts object containing market data.  depending on indicators, may need to be in OHLCV or BBO formats, default NULL}
