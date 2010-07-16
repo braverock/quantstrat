@@ -26,22 +26,21 @@
 #' @param portfolio text name of the portfolio to place orders in
 #' @param symbol identifier of the instrument to place orders for.  The name of any associated price objects (xts prices, usually OHLC) should match these
 #' @param ... any other passthru parameters
-#' @seealso \code{\link{osNoOp}}
+#' @param ruletype one of "risk","order","rebalance","exit","entry", see \code{\link{add.rule}}
+#' @seealso \code{\link{osNoOp}} , \code{\link{add.rule}}
 #' @export
-ruleSignal <- function(mktdata, timestamp, sigcol, sigval, orderqty=0, ordertype, orderside, threshold=NULL, replace=TRUE, delay=0.0001, osFUN='osNoOp', pricemethod=c('market','opside'), portfolio, symbol, ... ) {
+ruleSignal <- function(mktdata, timestamp, sigcol, sigval, orderqty=0, ordertype, orderside, threshold=NULL, replace=TRUE, delay=0.0001, osFUN='osNoOp', pricemethod=c('market','opside'), portfolio, symbol, ..., ruletype ) {
     if(!is.function(osFUN)) osFUN<-match.fun(osFUN)
     #print(paste(symbol,timestamp))
     #print(mktdata[timestamp][,sigcol])
     if (!is.na(mktdata[as.character(timestamp)][,sigcol]) & mktdata[as.character(timestamp)][,sigcol] == sigval) {
         #TODO add fancy formals matching for osFUN
-        if(orderqty=='all'){
-            orderqty=-1*getPosQty(Portfolio=portfolio,Symbol=symbol,Date=timestamp)    
-        } 
         if(orderqty>0 & orderqty<1){
             # TODO add proportional order?  or should that go in order sizing function?
         } 
-        orderqty <- osFUN(strategy=strategy, mktdata=mktdata, timestamp=timestamp, orderqty=orderqty, ordertype=ordertype, orderside=orderside, portfolio=portfolio, symbol=symbol,...=...)
-        #calculate order price using pricemethod
+        orderqty <- osFUN(strategy=strategy, mktdata=mktdata, timestamp=timestamp, orderqty=orderqty, ordertype=ordertype, orderside=orderside, portfolio=portfolio, symbol=symbol,...=...,ruletype=ruletype)
+
+		#calculate order price using pricemethod
         pricemethod<-pricemethod[1] #only use the first if not set by calling function
         switch(pricemethod,
                 opside = {
@@ -49,12 +48,12 @@ ruleSignal <- function(mktdata, timestamp, sigcol, sigval, orderqty=0, ordertype
                         prefer='ask'  # we're buying, so pay what they're asking
                     else
                         prefer='bid'  # we're selling, so give it to them for what they're bidding
-#                    orderprice <- try(getPrice(x=mktdata,symbol=symbol,prefer=prefer))
                     orderprice <- try(getPrice(x=mktdata,prefer=prefer))
                 }, 
-                market = { 
-#                    orderprice <- try(getPrice(x=mktdata,symbol=symbol,prefer=NULL)) 
-                    orderprice <- try(getPrice(x=mktdata, prefer=NULL)) 
+                market = {
+					if(hasArg(prefer)) prefer=match.call(expand.dots=TRUE)$prefer 
+					else prefer = NULL
+					orderprice <- try(getPrice(x=mktdata, prefer=prefer)) 
                 }  
         )
         if(inherits(orderprice,'try-error')) orderprice<-NULL
@@ -89,12 +88,26 @@ ruleSignal <- function(mktdata, timestamp, sigcol, sigval, orderqty=0, ordertype
 #' default order sizing function 
 #' 
 #' default function performs no operation (NoOp), returns orderqty
+#' 
+#' if orderqty 'all', will only work on an exit rule type, otherwize orderqty is zero.
 #'  
+#' @param timestamp timestamp coercible to POSIXct that will be the time the order will be inserted on 
 #' @param orderqty numeric quantity of the desired order, modified by osFUN
+#' @param portfolio text name of the portfolio to place orders in
+#' @param symbol identifier of the instrument to place orders for.  The name of any associated price objects (xts prices, usually OHLC) should match these
 #' @param ... any other passthru parameters
+#' @param ruletype one of "risk","order","rebalance","exit","entry", see \code{\link{add.rule}}
 #' @export
-osNoOp <- function(orderqty, ...){
-    return(orderqty)
+osNoOp <- function(timestamp, orderqty, portfolio, symbol, ruletype, ...){
+	if(orderqty=='all'){
+		if (ruletype=='exit') {
+			orderqty=-1*getPosQty(Portfolio=portfolio,Symbol=symbol,Date=timestamp)
+		} else {
+			message("orderqty 'all' would produce nonsense, maybe use osMaxPos instead?")
+			orderqty=0
+		}
+	} 
+	return(orderqty)
 }
 
 
@@ -164,9 +177,11 @@ getPosLimit <- function(portfolio, symbol, timestamp){
 #' @param orderside one of either "long" or "short" 
 #' @param portfolio text name of the portfolio to place orders in
 #' @param symbol identifier of the instrument to place orders for.  The name of any associated price objects (xts prices, usually OHLC) should match these
+#' @param ruletype one of "risk","order","rebalance","exit","entry", see \code{\link{add.rule}}
+#' @param ... any other passthru parameters
 #' @seealso \code{\link{addPosLimit}},\code{\link{getPosLimit}}
 #' @export
-osMaxPos <- function(mktdata, timestamp, orderqty, ordertype, orderside, portfolio, symbol){
+osMaxPos <- function(mktdata, timestamp, orderqty, ordertype, orderside, portfolio, symbol, ruletype, ...){
     # check for current position
     pos<-getPosQty(portfolio,symbol,timestamp)
     # check against max position

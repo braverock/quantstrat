@@ -4,6 +4,13 @@
 \usage{add.indicator(strategy, name, arguments, label, ..., enabled=TRUE,
     indexnum, store=FALSE)}
 \description{add an indicator to a strategy}
+\details{Indicators are typically standard technical or statistical analysis outputs, 
+such as moving averages, bands, or pricing models.
+
+Indicators are always path-independent, and should be constructed from vectorized functions where possible.
+
+Indicators are applied before signals and rules, and the output of indicators 
+may be used as inputs to construct signals or fire rules.}
 \arguments{\item{strategy}{an object of type 'strategy' to add the indicator to}
 \item{name}{name of the indicator, must correspond to an R function}
 \item{arguments}{default arguments to be passed to an indicator function when executed}

@@ -3,7 +3,8 @@
 \title{default rule to generate a trade order on a signal...}
 \usage{ruleSignal(mktdata, timestamp, sigcol, sigval, orderqty=0, ordertype,
     orderside, threshold, replace=TRUE, delay=1e-04, osFUN="osNoOp",
-    pricemethod=c("market", "opside"), portfolio, symbol, ...)}
+    pricemethod=c("market", "opside"), portfolio, symbol, ...,
+    ruletype)}
 \description{default rule to generate a trade order on a signal}
 \details{\code{pricemethod} may be one of 'market' or 'opside' 
 which will either try to get the price of the 'market' at \code{timestamp} and use this as the order price
@@ -14,7 +15,7 @@ Ideally this will be a column lookup on a non-path-dependent indicator calculate
 
 If \code{orderside} is NULL, the function will attempt to calculate the side from the current position 
 (if any) and the order quantity.}
-\seealso{\code{\link{osNoOp}}}
+\seealso{\code{\link{osNoOp}} , \code{\link{add.rule}}}
 \arguments{\item{mktdata}{an xts object containing market data.  depending on rules, may need to be in OHLCV or BBO formats, and may include indicator and signal information}
 \item{timestamp}{timestamp coercible to POSIXct that will be the time the order will be inserted on}
 \item{sigcol}{column name to check for signal}
@@ -29,4 +30,5 @@ If \code{orderside} is NULL, the function will attempt to calculate the side fro
 \item{pricemethod}{one of 'market' or 'opside', see Details}
 \item{portfolio}{text name of the portfolio to place orders in}
 \item{symbol}{identifier of the instrument to place orders for.  The name of any associated price objects (xts prices, usually OHLC) should match these}
-\item{...}{any other passthru parameters}}
+\item{...}{any other passthru parameters}
+\item{ruletype}{one of "risk","order","rebalance","exit","entry", see \code{\link{add.rule}}}}

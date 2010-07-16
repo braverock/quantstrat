@@ -1,8 +1,14 @@
 \name{osNoOp}
 \alias{osNoOp}
 \title{default order sizing function...}
-\usage{osNoOp(orderqty, ...)}
+\usage{osNoOp(timestamp, orderqty, portfolio, symbol, ruletype, ...)}
 \description{default order sizing function}
-\details{default function performs no operation (NoOp), returns orderqty}
-\arguments{\item{orderqty}{numeric quantity of the desired order, modified by osFUN}
-\item{...}{any other passthru parameters}}
+\details{default function performs no operation (NoOp), returns orderqty
+
+if orderqty 'all', will only work on an exit rule type, otherwize orderqty is zero.}
+\arguments{\item{timestamp}{timestamp coercible to POSIXct that will be the time the order will be inserted on}
+\item{orderqty}{numeric quantity of the desired order, modified by osFUN}
+\item{portfolio}{text name of the portfolio to place orders in}
+\item{symbol}{identifier of the instrument to place orders for.  The name of any associated price objects (xts prices, usually OHLC) should match these}
+\item{...}{any other passthru parameters}
+\item{ruletype}{one of "risk","order","rebalance","exit","entry", see \code{\link{add.rule}}}}
