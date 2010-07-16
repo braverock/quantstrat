@@ -38,14 +38,14 @@
 #' @param name name of the rule, must correspond to an R function
 #' @param arguments default arguments to be passed to an rule function when executed
 #' @param label arbitrary text label for rule output, NULL default will be converted to '<name>.rule'
-#' @param type one of "risk","order","rebalance","exit","entry", see Details
+#' @param type one of "risk","order","rebalance","exit","enter", see Details
 #' @param ... any other passthru parameters
 #' @param enabled TRUE/FALSE whether the rule is enabled for use in applying the strategy, default TRUE
 #' @param indexnum if you are updating a specific rule, the index number in the $rules[type] list to update
 #' @param path.dep TRUE/FALSE whether rule is path dependent, default TRUE, see Details 
 #' @param store TRUE/FALSE whether to store the strategy in the .strategy environment, or return it.  default FALSE
 #' @export
-add.rule <- function(strategy, name, arguments, label=NULL, type=c(NULL,"risk","order","rebalance","exit","entry"), ..., enabled=TRUE, indexnum=NULL, path.dep=TRUE, store=FALSE) {
+add.rule <- function(strategy, name, arguments, label=NULL, type=c(NULL,"risk","order","rebalance","exit","enter"), ..., enabled=TRUE, indexnum=NULL, path.dep=TRUE, store=FALSE) {
     if(!is.strategy(strategy)) stop("You must pass in a strategy object to manipulate")
     type=type[1]
     if(is.null(type)) stop("You must specify a type")
@@ -206,7 +206,7 @@ applyRules <- function(portfolio, symbol, strategy, mktdata, Dates=NULL, indicat
                             ruleOrderProc(portfolio=portfolio, symbol=symbol, mktdata=mktdata, timespan=timespan)
                         }
                     },
-                    rebalance =, exit = , enter = {
+                    rebalance =, exit = , enter = , entry = {
                         if(isTRUE(hold)) next()    
                         if(type=='exit'){
                             # must have a position for an exit rules to fire

@@ -18,5 +18,5 @@ them to 1.}
 \item{orderside}{one of either "long" or "short"}
 \item{portfolio}{text name of the portfolio to place orders in}
 \item{symbol}{identifier of the instrument to place orders for.  The name of any associated price objects (xts prices, usually OHLC) should match these}
-\item{ruletype}{one of "risk","order","rebalance","exit","entry", see \code{\link{add.rule}}}
+\item{ruletype}{one of "risk","order","rebalance","exit","enter", see \code{\link{add.rule}}}
 \item{...}{any other passthru parameters}}

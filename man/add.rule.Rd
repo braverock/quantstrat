@@ -2,7 +2,7 @@
 \alias{add.rule}
 \title{add a rule to a strategy...}
 \usage{add.rule(strategy, name, arguments, label, type=c(NULL, "risk",
-    "order", "rebalance", "exit", "entry"), ..., enabled=TRUE,
+    "order", "rebalance", "exit", "enter"), ..., enabled=TRUE,
     indexnum, path.dep=TRUE, store=FALSE)}
 \description{add a rule to a strategy}
 \details{Rules will be processed in a very particular manner, so it bears going over.
@@ -42,7 +42,7 @@ authors a place to start.}
 \item{name}{name of the rule, must correspond to an R function}
 \item{arguments}{default arguments to be passed to an rule function when executed}
 \item{label}{arbitrary text label for rule output, NULL default will be converted to '<name>.rule'}
-\item{type}{one of "risk","order","rebalance","exit","entry", see Details}
+\item{type}{one of "risk","order","rebalance","exit","enter", see Details}
 \item{...}{any other passthru parameters}
 \item{enabled}{TRUE/FALSE whether the rule is enabled for use in applying the strategy, default TRUE}
 \item{indexnum}{if you are updating a specific rule, the index number in the $rules[type] list to update}

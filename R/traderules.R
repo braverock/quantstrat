@@ -96,7 +96,7 @@ ruleSignal <- function(mktdata, timestamp, sigcol, sigval, orderqty=0, ordertype
 #' @param portfolio text name of the portfolio to place orders in
 #' @param symbol identifier of the instrument to place orders for.  The name of any associated price objects (xts prices, usually OHLC) should match these
 #' @param ... any other passthru parameters
-#' @param ruletype one of "risk","order","rebalance","exit","entry", see \code{\link{add.rule}}
+#' @param ruletype one of "risk","order","rebalance","exit","enter", see \code{\link{add.rule}}
 #' @export
 osNoOp <- function(timestamp, orderqty, portfolio, symbol, ruletype, ...){
 	if(orderqty=='all'){
@@ -177,12 +177,13 @@ getPosLimit <- function(portfolio, symbol, timestamp){
 #' @param orderside one of either "long" or "short" 
 #' @param portfolio text name of the portfolio to place orders in
 #' @param symbol identifier of the instrument to place orders for.  The name of any associated price objects (xts prices, usually OHLC) should match these
-#' @param ruletype one of "risk","order","rebalance","exit","entry", see \code{\link{add.rule}}
+#' @param ruletype one of "risk","order","rebalance","exit","enter", see \code{\link{add.rule}}
 #' @param ... any other passthru parameters
 #' @seealso \code{\link{addPosLimit}},\code{\link{getPosLimit}}
 #' @export
 osMaxPos <- function(mktdata, timestamp, orderqty, ordertype, orderside, portfolio, symbol, ruletype, ...){
-    # check for current position
+	# TODO integrate orderqty='all' into osMaxPos by combining side 
+	# check for current position
     pos<-getPosQty(portfolio,symbol,timestamp)
     # check against max position
     PosLimit<-getPosLimit(portfolio,symbol,timestamp)

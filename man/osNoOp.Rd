@@ -11,4 +11,4 @@ if orderqty 'all', will only work on an exit rule type, otherwize orderqty is ze
 \item{portfolio}{text name of the portfolio to place orders in}
 \item{symbol}{identifier of the instrument to place orders for.  The name of any associated price objects (xts prices, usually OHLC) should match these}
 \item{...}{any other passthru parameters}
-\item{ruletype}{one of "risk","order","rebalance","exit","entry", see \code{\link{add.rule}}}}
+\item{ruletype}{one of "risk","order","rebalance","exit","enter", see \code{\link{add.rule}}}}
