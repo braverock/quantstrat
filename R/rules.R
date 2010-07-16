@@ -106,7 +106,7 @@ applyRules <- function(portfolio, symbol, strategy, mktdata, Dates=NULL, indicat
         nargs=NULL
     }
     
-    ruleProc <- function (ruletypelist,timestamp=NULL, path.dep, ...){
+    ruleProc <- function (ruletypelist,timestamp=NULL, path.dep, ruletype, ...){
         for (rule in ruletypelist){
             #TODO check to see if they've already been calculated
             if (!rule$path.dep==path.dep) next()
@@ -133,7 +133,8 @@ applyRules <- function(portfolio, symbol, strategy, mktdata, Dates=NULL, indicat
             
             .formals  <- formals(fun)
             onames <- names(.formals)
-            rule$arguments$timestamp=timestamp
+            rule$arguments$timestamp = timestamp
+			rule$arguments$ruletype  = ruletype
             pm <- pmatch(names(rule$arguments), onames, nomatch = 0L)
             # if (any(pm == 0L)) message(paste("some arguments stored for",rule$name,"do not match"))
             names(rule$arguments[pm > 0L]) <- onames[pm]
@@ -187,18 +188,18 @@ applyRules <- function(portfolio, symbol, strategy, mktdata, Dates=NULL, indicat
             switch( type ,
                     pre = {
                         if(length(strategy$rules[[type]])>=1){
-                            ruleProc(strategy$rules$pre,timestamp=timestamp, path.dep=path.dep, mktdata=mktdata,portfolio=portfolio, symbol=symbol)    
+                            ruleProc(strategy$rules$pre,timestamp=timestamp, path.dep=path.dep, mktdata=mktdata,portfolio=portfolio, symbol=symbol, ruletype=type)    
                         }
                     },
                     risk = {
                         if(length(strategy$rules$risk)>=1){
-                            ruleProc(strategy$rules$risk,timestamp=timestamp, path.dep=path.dep, mktdata=mktdata,portfolio=portfolio, symbol=symbol)    
+                            ruleProc(strategy$rules$risk,timestamp=timestamp, path.dep=path.dep, mktdata=mktdata,portfolio=portfolio, symbol=symbol, ruletype=type)    
                         }       
                     },
                     order = {
                         if(isTRUE(hold)) next()
                         if(length(strategy$rules[[type]])>=1) {
-                            ruleProc(strategy$rules[[type]],timestamp=timestamp, path.dep=path.dep, mktdata=mktdata,portfolio=portfolio, symbol=symbol)
+                            ruleProc(strategy$rules[[type]],timestamp=timestamp, path.dep=path.dep, mktdata=mktdata,portfolio=portfolio, symbol=symbol, ruletype=type)
                         } else {
                             #(mktdata, portfolio, symbol, timestamp, slippageFUN=NULL)
                             timespan<-paste("::",timestamp,sep='')
@@ -212,13 +213,13 @@ applyRules <- function(portfolio, symbol, strategy, mktdata, Dates=NULL, indicat
                             if (getPosQty(Portfolio=portfolio,Symbol=symbol,Date=timestamp)==0) next()
                         }
                         if(length(strategy$rules[[type]])>=1) {
-                            ruleProc(strategy$rules[[type]],timestamp=timestamp, path.dep=path.dep, mktdata=mktdata,portfolio=portfolio, symbol=symbol)
+                            ruleProc(strategy$rules[[type]],timestamp=timestamp, path.dep=path.dep, mktdata=mktdata,portfolio=portfolio, symbol=symbol, ruletype=type)
                         }      
                     },
                     post = {
                         #TODO do we processfor hold here, or not?
                         if(length(strategy$rules$post)>=1) {
-                            ruleProc(strategy$rules$post,timestamp=timestamp, path.dep=path.dep, mktdata=mktdata,portfolio=portfolio, symbol=symbol)    
+                            ruleProc(strategy$rules$post,timestamp=timestamp, path.dep=path.dep, mktdata=mktdata,portfolio=portfolio, symbol=symbol, ruletype=type)    
                         }
                     }
             ) # end switch            
