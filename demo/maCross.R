@@ -1,7 +1,7 @@
 #########################################################################################################################################################################
 #A simple moving average strategy to evaluate trade efficiency
 #checks on SMA of 50 days and SMA of 200 days
-#Author: R. Raghuraman("raghu")
+#Author: R. Raghuraman("raghu"), Brian Peterson
 #########################################################################################################################################################################
 
 require(quantstrat)
@@ -29,6 +29,11 @@ stratMACROSS <- add.signal(strategy = stratMACROSS,name="sigCrossover",arguments
 
 stratMACROSS <- add.rule(strategy = stratMACROSS,name='ruleSignal', arguments = list(data=quote(mktdata),sigcol="ma50.gt.ma200",sigval=TRUE, orderqty=100, ordertype='market', orderside='long'),type='enter')
 stratMACROSS <- add.rule(strategy = stratMACROSS,name='ruleSignal', arguments = list(data=quote(mktdata),sigcol="ma50.lt.ma200",sigval=TRUE, orderqty=-100, ordertype='market', orderside='long'),type='exit')
+
+# if you want a long/short Stops and Reverse MA cross strategy, you'd add two more rules for the short side:
+
+# stratMACROSS <- add.rule(strategy = stratMACROSS,name='ruleSignal', arguments = list(data=quote(mktdata),sigcol="ma50.lt.ma200",sigval=TRUE, orderqty=-100, ordertype='market', orderside='short'),type='enter')
+# stratMACROSS <- add.rule(strategy = stratMACROSS,name='ruleSignal', arguments = list(data=quote(mktdata),sigcol="ma50.gt.ma200",sigval=TRUE, orderqty=100, ordertype='market', orderside='short'),type='exit')
 
 getSymbols(stock.str,from=initDate)
 start_t<-Sys.time()
