@@ -1,8 +1,8 @@
 \name{add.rule}
 \alias{add.rule}
 \title{add a rule to a strategy...}
-\usage{add.rule(strategy, name, arguments, label, type=c(NULL, "risk",
-    "order", "rebalance", "exit", "enter"), ..., enabled=TRUE,
+\usage{add.rule(strategy, name, arguments, parameters, label, type=c(NULL,
+    "risk", "order", "rebalance", "exit", "enter"), ..., enabled=TRUE,
     indexnum, path.dep=TRUE, store=FALSE)}
 \description{add a rule to a strategy}
 \details{Rules will be processed in a very particular manner, so it bears going over.
@@ -40,7 +40,8 @@ We will attempt to provide enough examples and generic rules to give strategy
 authors a place to start.}
 \arguments{\item{strategy}{an object of type 'strategy' to add the rule to}
 \item{name}{name of the rule, must correspond to an R function}
-\item{arguments}{default arguments to be passed to an rule function when executed}
+\item{arguments}{named list of default arguments to be passed to an rule function when executed}
+\item{parameters}{vector of strings naming parameters to be saved for apply-time definition}
 \item{label}{arbitrary text label for rule output, NULL default will be converted to '<name>.rule'}
 \item{type}{one of "risk","order","rebalance","exit","enter", see Details}
 \item{...}{any other passthru parameters}

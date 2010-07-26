@@ -5,8 +5,10 @@ try(rm("account.st","portfolio.st","stock.str","s","initDate","initEq",'start_t'
 
 # some things to set up here
 stock.str='IBM' # what are we trying it on
+
+# we'll pass these 
 SD = 2 # how many standard deviations, traditionally 2
-N = 20 # how many periods for the moving average
+N = 20 # how many periods for the moving average, traditionally 20
 
 
 currency('USD')
@@ -24,35 +26,32 @@ initOrders(portfolio=portfolio.st,initDate=initDate)
 
 s <- strategy("bbands")
 
-#s <- add.indicator(strategy = s, name = "SMA", arguments = list(x = quote(Cl(mktdata)), n=10), label="SMA10")
-s <- add.indicator(strategy = s, name = "BBands", arguments = list(HLC = quote(HLC(mktdata)), sd=SD, n=N, maType=quote(SMA)))
+#one indicator
+s <- add.indicator(strategy = s, name = "BBands", arguments = list(HLC = quote(HLC(mktdata)), maType='SMA'))
 
 
 #if you wanted to manually apply a signal function for demonstration
 #cbind(IBM.mod,sigComparison(label="Close.gt.Open",data=IBM.inds,columns=c("Close","Open"),">"))
 #cbind(IBM.mod,sigComparison(label="Adjusted.gt.SMA",data=IBM.inds,columns=c("Adjusted","SMA10"),">"))
 
-#do it properly and add it to the strategy:
-#s<- add.signal(s,name="sigComparison",arguments = list(data=quote(mktdata),columns=c("Close","Open"),relationship="gt"),label="Cl.gt.Op")
+#add signals:
 s<- add.signal(s,name="sigCrossover",arguments = list(data=quote(mktdata),columns=c("Close","up"),relationship="gt"),label="Cl.gt.UpperBand")
 s<- add.signal(s,name="sigCrossover",arguments = list(data=quote(mktdata),columns=c("Close","dn"),relationship="lt"),label="Cl.lt.LowerBand")
-#s<- add.signal(s,name="sigCrossover",arguments = list(data=quote(mktdata),columns=c("Low","up"),  relationship="gt"),label="Lo.gt.UpperBand")
-#s<- add.signal(s,name="sigCrossover",arguments = list(data=quote(mktdata),columns=c("High","dn"), relationship="lt"),label="Hi.lt.LowerBand")
 s<- add.signal(s,name="sigCrossover",arguments = list(data=quote(mktdata),columns=c("High","Low","mavg"),relationship="op"),label="Cross.Mid")
-#IBM.sigs<-applySignals(s,mktdata=IBM.inds)
 
 # lets add some rules
 s 
 s <- add.rule(s,name='ruleSignal', arguments = list(data=quote(mktdata),sigcol="Cl.gt.UpperBand",sigval=TRUE, orderqty=-100, ordertype='market', orderside=NULL, threshold=NULL),type='enter')
 s <- add.rule(s,name='ruleSignal', arguments = list(data=quote(mktdata),sigcol="Cl.lt.LowerBand",sigval=TRUE, orderqty= 100, ordertype='market', orderside=NULL, threshold=NULL),type='enter')
+s <- add.rule(s,name='ruleSignal', arguments = list(data=quote(mktdata),sigcol="Cross.Mid",sigval=TRUE, orderqty= 'all', ordertype='market', orderside=NULL, threshold=NULL),type='exit')
 #s <- add.rule(s,name='ruleSignal', arguments = list(data=quote(mktdata),sigcol="Lo.gt.UpperBand",sigval=TRUE, orderqty= 'all', ordertype='market', orderside=NULL, threshold=NULL),type='exit')
 #s <- add.rule(s,name='ruleSignal', arguments = list(data=quote(mktdata),sigcol="Hi.lt.LowerBand",sigval=TRUE, orderqty= 'all', ordertype='market', orderside=NULL, threshold=NULL),type='exit')
-s <- add.rule(s,name='ruleSignal', arguments = list(data=quote(mktdata),sigcol="Cross.Mid",sigval=TRUE, orderqty= 'all', ordertype='market', orderside=NULL, threshold=NULL),type='exit')
 #TODO add thresholds and stop-entry and stop-exit handling to test
 
 getSymbols(stock.str,from=initDate)
 start_t<-Sys.time()
-out<-try(applyStrategy(strategy='s' , portfolios='bbands'))
+out<-try(applyStrategy(strategy='s' , portfolios='bbands',parameters=list(sd=SD,n=N)))
+
 # look at the order book
 #getOrderBook('bbands')
 end_t<-Sys.time()

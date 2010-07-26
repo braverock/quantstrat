@@ -15,13 +15,14 @@
 #' @param strategy an object of type 'strategy' to add the indicator to
 #' @param name name of the indicator, must correspond to an R function
 #' @param arguments default arguments to be passed to an indicator function when executed
+#' @param parameters vector of strings naming parameters to be saved for apply-time definition,default NULL, only needed if you need special names to avoid argument collision
 #' @param label arbitrary text label for indicator output, NULL default will be converted to '<name>.ind'
 #' @param ... any other passthru parameters
 #' @param enabled TRUE/FALSE whether the indicator is enabled for use in applying the strategy, default TRUE
 #' @param indexnum if you are updating a specific indicator, the index number in the $indicators list to update
 #' @param store TRUE/FALSE whether to store the strategy in the .strategy environment, or return it.  default FALSE
 #' @export
-add.indicator <- function(strategy, name, arguments, label=NULL, ..., enabled=TRUE, indexnum=NULL, store=FALSE) {
+add.indicator <- function(strategy, name, arguments, parameters=NULL, label=NULL, ..., enabled=TRUE, indexnum=NULL, store=FALSE) {
     if(!is.strategy(strategy)) stop("You must pass in a strategy object to manipulate")
     tmp_indicator<-list()
     tmp_indicator$name<-name
@@ -30,8 +31,13 @@ add.indicator <- function(strategy, name, arguments, label=NULL, ..., enabled=TR
     tmp_indicator$enabled=enabled
     if (!is.list(arguments)) stop("arguments must be passed as a named list")
     tmp_indicator$arguments<-arguments
+	if(!is.null(parameters)) tmp_indicator$parameters = parameters
+	if(length(list(...))) tmp_indicator<-c(tmp_indicator,list(...))
+	
     if(!hasArg(indexnum) | (hasArg(indexnum) & is.null(indexnum))) indexnum = length(strategy$indicators)+1
     tmp_indicator$call<-match.call()
+	class(tmp_indicator)<-'strat_indicator'
+	
     strategy$indicators[[indexnum]]<-tmp_indicator
     
     if (store) assign(strategy$name,strategy,envir=as.environment(.strategy))
@@ -41,9 +47,10 @@ add.indicator <- function(strategy, name, arguments, label=NULL, ..., enabled=TR
 #' apply the indicators in the strategy to arbitrary market data
 #' @param strategy an object of type 'strategy' to add the indicator to
 #' @param mktdata an xts object containing market data.  depending on indicators, may need to be in OHLCV or BBO formats
+#' @param parameters named list of parameters to be applied during evaluation of the strategy
 #' @param ... any other passthru parameters
 #' @export
-applyIndicators <- function(strategy, mktdata, ...) {
+applyIndicators <- function(strategy, mktdata, parameters=NULL, ...) {
     #TODO add Date subsetting
     
     # TODO check for symbol name in mktdata using Josh's code:
@@ -66,7 +73,15 @@ applyIndicators <- function(strategy, mktdata, ...) {
         #TODO check to see if they've already been calculated
 
         if(!is.function(get(indicator$name))){
-            if(!is.function(get(paste("sig",indicator$name,sep='.')))){
+            if(!is.function(get(paste("sig",indicator$name,sep='.')))){		
+				# now add arguments from parameters
+				if(length(parameters)){
+					pm <- pmatch(names(parameters), onames, nomatch = 0L)
+					names(parameters[pm > 0L]) <- onames[pm]
+					.formals[pm] <- parameters[pm > 0L]
+				}
+				
+				
                 message(paste("Skipping indicator",indicator$name,"because there is no function by that name to call"))
                 next()      
             } else {
@@ -86,6 +101,14 @@ applyIndicators <- function(strategy, mktdata, ...) {
             warning(paste("some arguments stored for",indicator$name,"do not match"))
         names(indicator$arguments[pm > 0L]) <- onames[pm]
         .formals[pm] <- indicator$arguments[pm > 0L]
+		
+		# now add arguments from parameters
+		if(length(parameters)){
+			pm <- pmatch(names(parameters), onames, nomatch = 0L)
+			names(parameters[pm > 0L]) <- onames[pm]
+			.formals[pm] <- parameters[pm > 0L]
+		}
+		
         #now add arguments from dots
         if (length(nargs)) {
             pm <- pmatch(names(nargs), onames, nomatch = 0L)

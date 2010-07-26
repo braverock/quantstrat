@@ -12,9 +12,9 @@
 
     If constructed from scratch, the indicators would consist of:
     \describe{
-	\item{moving average}{a moving average parameterized by MA type (simple, expontnetial, Kalman, etc.) and MA periods to smooth over}
+	\item{moving average}{a moving average parameterized by MA type (simple, exponential, Kalman, etc.) and MA periods to smooth over}
 	\item{upper band}{ the upper band constructed classically by standard deviations from the moving average, or alternately by some other upper band generating function, and parameterized chiefly by the amplitude of the band, typically number of standard deviations from the midpoint or moving average indicator}
-	\item{lower band}{ the lower band traditionally constructed to be symetrical and opposite the upper band, but potentially constructed via a different function or parameterized differently than the upper band function}
+	\item{lower band}{ the lower band traditionally constructed to be symmetrical and opposite the upper band, but potentially constructed via a different function or parameterized differently than the upper band function}
     }
 }
 \section{Signals}{

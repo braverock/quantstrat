@@ -2,7 +2,7 @@
 \alias{applyRules}
 \title{apply the rules in the strategy to arbitrary market data...}
 \usage{applyRules(portfolio, symbol, strategy, mktdata, Dates, indicators,
-    signals, ..., path.dep=TRUE)}
+    signals, parameters, ..., path.dep=TRUE)}
 \description{apply the rules in the strategy to arbitrary market data}
 \details{In typical usage, this function will be called via \code{\link{applyStrategy}}.  
 In this mode, this function will be called twice, once with \code{path.dep=FALSE} 
@@ -18,5 +18,6 @@ variables into play.  These would be mosrt likely implemented by risk rules.}
 \item{Dates}{default NULL, list of time stamps to iterate over, ignored if \code{path.dep=FALSE}}
 \item{indicators}{if indicator output is not contained in the mktdata object, it may be passed separately as an xts object or a list.}
 \item{signals}{if signal output is not contained in the mktdata object, it may be passed separately as an xts object or a list.}
+\item{parameters}{named list of parameters to be applied during evaluation of the strategy,default NULL, only needed if you need special names to avoid argument collision}
 \item{...}{any other passthru parameters}
 \item{path.dep}{TRUE/FALSE whether rule is path dependent, default TRUE, see Details}}

@@ -68,9 +68,10 @@ strategy <- function(name, ..., assets=NULL, constraints=NULL ,store=FALSE)
 #' @param strategy an object of type 'strategy' to add the indicator to
 #' @param portfolios a list of portfolios to apply the strategy to
 #' @param mktdata an xts object containing market data.  depending on indicators, may need to be in OHLCV or BBO formats, default NULL
+#' @param parameters named list of parameters to be applied during evaluation of the strategy, default NULL
 #' @param ... any other passthru parameters
 #' @export
-applyStrategy <- function(strategy , portfolios, mktdata=NULL , ... ) {
+applyStrategy <- function(strategy , portfolios, mktdata=NULL , parameters=NULL, ... ) {
     #TODO add Date subsetting
     #TODO add saving of modified market data
     
@@ -81,8 +82,13 @@ applyStrategy <- function(strategy , portfolios, mktdata=NULL , ... ) {
         if(inherits(strategy,"try-error"))
             stop ("You must supply an object of type 'strategy'.")
     } 
+	
+	
     for (portfolio in portfolios) {
-        ret[[portfolio]]<-list() # this is slot [[i]] which we will use later
+		
+		# TODO FIXME evaluate parameter table here, add outer loop
+		
+		ret[[portfolio]]<-list() # this is slot [[i]] which we will use later
         pobj<-getPortfolio(portfolio)
         symbols<-names(pobj)
         sret<-list()
@@ -93,14 +99,14 @@ applyStrategy <- function(strategy , portfolios, mktdata=NULL , ... ) {
             mktdata <- get(symbol)
             #print(head(mktdata))
             #loop over indicators
-            sret$indicators <- applyIndicators(strategy=strategy , mktdata=mktdata , ... )
+            sret$indicators <- applyIndicators(strategy=strategy , mktdata=mktdata , parameters=parameters, ... )
             #this should be taken care of by the mktdata<<-mktdata line in the apply* fn
             if(inherits(sret$indicators,"xts") & nrow(mktdata)==nrow(sret$indicators)){
                 mktdata<-sret$indicators
             }
                 
             #loop over signal generators
-            sret$signals <- applySignals(strategy=strategy, mktdata=mktdata, ret$indicators, ... )
+            sret$signals <- applySignals(strategy=strategy, mktdata=mktdata, ret$indicators, parameters=parameters, ... )
             #this should be taken care of by the mktdata<<-mktdata line in the apply* fn
             if(inherits(sret$signals,"xts") & nrow(mktdata)==nrow(sret$signals)){
                 mktdata<-sret$signals    
@@ -109,8 +115,8 @@ applyStrategy <- function(strategy , portfolios, mktdata=NULL , ... ) {
             #loop over rules  
             # non-path-dep first
             sret$rules<-list()
-            sret$rules$nonpath<-applyRules(portfolio=portfolio, symbol=symbol, strategy=strategy, mktdata=mktdata, Dates=NULL, indicators=sret$indicators, signals=sret$signals,  ..., path.dep=FALSE)
-            sret$rules$pathdep<-applyRules(portfolio=portfolio, symbol=symbol, strategy=strategy, mktdata=mktdata, Dates=NULL, indicators=sret$indicators, signals=sret$signals,  ..., path.dep=TRUE)
+            sret$rules$nonpath<-applyRules(portfolio=portfolio, symbol=symbol, strategy=strategy, mktdata=mktdata, Dates=NULL, indicators=sret$indicators, signals=sret$signals, parameters=parameters,  ..., path.dep=FALSE)
+            sret$rules$pathdep<-applyRules(portfolio=portfolio, symbol=symbol, strategy=strategy, mktdata=mktdata, Dates=NULL, indicators=sret$indicators, signals=sret$signals, parameters=parameters,  ..., path.dep=TRUE)
         }
         ret[[portfolio]][[symbol]]<-sret
     }

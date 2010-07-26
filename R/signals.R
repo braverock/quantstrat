@@ -2,14 +2,15 @@
 #' add a signal to a strategy
 #' @param strategy an object of type 'strategy' to add the signal to
 #' @param name name of the signal, must correspond to an R function
-#' @param arguments default arguments to be passed to an signal function when executed
+#' @param arguments named list of default arguments to be passed to an signal function when executed
+#' @param parameters vector of strings naming parameters to be saved for apply-time definition,default NULL, only needed if you need special names to avoid argument collision
 #' @param label arbitrary text label for signal output, NULL default will be converted to '<name>.sig'
 #' @param ... any other passthru parameters
 #' @param enabled TRUE/FALSE whether the signal is enabled for use in applying the strategy, default TRUE
 #' @param indexnum if you are updating a specific signal, the index number in the $signals list to update
 #' @param store TRUE/FALSE whether to store the strategy in the .strategy environment, or return it.  default FALSE
 #' @export
-add.signal <- function(strategy, name, arguments, label=NULL, ..., enabled=TRUE, indexnum=NULL, store=FALSE) {
+add.signal <- function(strategy, name, arguments, parameters=NULL, label=NULL, ..., enabled=TRUE, indexnum=NULL, store=FALSE) {
     if(!is.strategy(strategy)) stop("You must pass in a strategy object to manipulate")
     tmp_signal<-list()
     tmp_signal$name<-name
@@ -17,10 +18,14 @@ add.signal <- function(strategy, name, arguments, label=NULL, ..., enabled=TRUE,
     tmp_signal$label<-label
     tmp_signal$enabled<-enabled
     if (!is.list(arguments)) stop("arguments must be passed as a named list")
-    arguments$label=label
+	arguments$label=label
     tmp_signal$arguments<-arguments
+	if(!is.null(parameters)) tmp_signal$parameters = parameters
+	if(length(list(...))) tmp_signal<-c(tmp_signal,list(...))
+	
     if(!hasArg(indexnum) | (hasArg(indexnum) & is.null(indexnum))) indexnum = length(strategy$signals)+1
     tmp_signal$call<-match.call()
+	class(tmp_signal)<-'strat_signal'
     strategy$signals[[indexnum]]<-tmp_signal
     
     if (store) assign(strategy$name,strategy,envir=as.environment(.strategy))
@@ -31,9 +36,10 @@ add.signal <- function(strategy, name, arguments, label=NULL, ..., enabled=TRUE,
 #' @param strategy an object of type 'strategy' to add the signal to
 #' @param mktdata an xts object containing market data.  depending on signals, may need to be in OHLCV or BBO formats
 #' @param indicators if indicator output is not contained in the mktdata object, it may be passed separately as an xts object or a list.
+#' @param parameters named list of parameters to be applied during evaluation of the strategy
 #' @param ... any other passthru parameters
 #' @export
-applySignals <- function(strategy, mktdata, indicators=NULL, ...) {
+applySignals <- function(strategy, mktdata, indicators=NULL, parameters=NULL, ...) {
     #TODO add Date subsetting
     
     # TODO check for symbol name in mktdata using Josh's code:
@@ -78,7 +84,15 @@ applySignals <- function(strategy, mktdata, indicators=NULL, ...) {
         if (any(pm == 0L))
             warning(paste("some arguments stored for",signal$name,"do not match"))
         names(signal$arguments[pm > 0L]) <- onames[pm]
-        .formals[pm] <- signal$arguments[pm > 0L]
+        .formals[pm] <- signal$arguments[pm > 0L]		
+		
+		# now add arguments from parameters
+		if(length(parameters)){
+			pm <- pmatch(names(parameters), onames, nomatch = 0L)
+			names(parameters[pm > 0L]) <- onames[pm]
+			.formals[pm] <- parameters[pm > 0L]
+		}
+		
         #now add dots
         if (length(nargs)) {
             pm <- pmatch(names(nargs), onames, nomatch = 0L)

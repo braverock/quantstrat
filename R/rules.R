@@ -36,7 +36,8 @@
 #'    
 #' @param strategy an object of type 'strategy' to add the rule to
 #' @param name name of the rule, must correspond to an R function
-#' @param arguments default arguments to be passed to an rule function when executed
+#' @param arguments named list of default arguments to be passed to an rule function when executed
+#' @param parameters vector of strings naming parameters to be saved for apply-time definition
 #' @param label arbitrary text label for rule output, NULL default will be converted to '<name>.rule'
 #' @param type one of "risk","order","rebalance","exit","enter", see Details
 #' @param ... any other passthru parameters
@@ -45,7 +46,7 @@
 #' @param path.dep TRUE/FALSE whether rule is path dependent, default TRUE, see Details 
 #' @param store TRUE/FALSE whether to store the strategy in the .strategy environment, or return it.  default FALSE
 #' @export
-add.rule <- function(strategy, name, arguments, label=NULL, type=c(NULL,"risk","order","rebalance","exit","enter"), ..., enabled=TRUE, indexnum=NULL, path.dep=TRUE, store=FALSE) {
+add.rule <- function(strategy, name, arguments, parameters=NULL, label=NULL, type=c(NULL,"risk","order","rebalance","exit","enter"), ..., enabled=TRUE, indexnum=NULL, path.dep=TRUE, store=FALSE) {
     if(!is.strategy(strategy)) stop("You must pass in a strategy object to manipulate")
     type=type[1]
     if(is.null(type)) stop("You must specify a type")
@@ -54,10 +55,13 @@ add.rule <- function(strategy, name, arguments, label=NULL, type=c(NULL,"risk","
     tmp_rule$type<-type
     tmp_rule$enabled<-enabled
     if (!is.list(arguments)) stop("arguments must be passed as a named list")
-    if(is.null(label)) label = paste(name,"rule",sep='.')
+	if(is.null(label)) label = paste(name,"rule",sep='.')
     tmp_rule$label<-label
     tmp_rule$arguments<-arguments
-    tmp_rule$path.dep<-path.dep
+	if(!is.null(parameters)) tmp_rule$parameters = parameters
+	tmp_rule$path.dep<-path.dep
+	if(length(list(...))) tmp_rule<-c(tmp_rule,list(...))
+	
     tmp_rule$call<-match.call()
     class(tmp_rule)<-'trade_rule'
     if(!hasArg(indexnum) | (hasArg(indexnum) & is.null(indexnum))) indexnum = length(strategy$rules[[type]])+1
@@ -83,11 +87,12 @@ add.rule <- function(strategy, name, arguments, label=NULL, type=c(NULL,"risk","
 #' @param Dates default NULL, list of time stamps to iterate over, ignored if \code{path.dep=FALSE}
 #' @param indicators if indicator output is not contained in the mktdata object, it may be passed separately as an xts object or a list.
 #' @param signals if signal output is not contained in the mktdata object, it may be passed separately as an xts object or a list.
+#' @param parameters named list of parameters to be applied during evaluation of the strategy,default NULL, only needed if you need special names to avoid argument collision
 #' @param ... any other passthru parameters
 #' @param path.dep TRUE/FALSE whether rule is path dependent, default TRUE, see Details 
 #' @seealso \code{\link{add.rule}} \code{\link{applyStrategy}} 
 #' @export
-applyRules <- function(portfolio, symbol, strategy, mktdata, Dates=NULL, indicators=NULL, signals=NULL,  ..., path.dep=TRUE) {
+applyRules <- function(portfolio, symbol, strategy, mktdata, Dates=NULL, indicators=NULL, signals=NULL, parameters=NULL,   ..., path.dep=TRUE) {
     # TODO check for symbol name in mktdata using Josh's code:
     # symbol <- strsplit(colnames(mktdata)[1],"\\.")[[1]][1]
     
@@ -139,6 +144,14 @@ applyRules <- function(portfolio, symbol, strategy, mktdata, Dates=NULL, indicat
             # if (any(pm == 0L)) message(paste("some arguments stored for",rule$name,"do not match"))
             names(rule$arguments[pm > 0L]) <- onames[pm]
             .formals[pm] <- rule$arguments[pm > 0L]
+			
+			# now add arguments from parameters
+			if(length(parameters)){
+				pm <- pmatch(names(parameters), onames, nomatch = 0L)
+				names(parameters[pm > 0L]) <- onames[pm]
+				.formals[pm] <- parameters[pm > 0L]
+			}
+			
             #now add dots
             if (length(nargs)) {
                 pm <- pmatch(names(nargs), onames, nomatch = 0L)

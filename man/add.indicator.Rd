@@ -1,8 +1,8 @@
 \name{add.indicator}
 \alias{add.indicator}
 \title{add an indicator to a strategy...}
-\usage{add.indicator(strategy, name, arguments, label, ..., enabled=TRUE,
-    indexnum, store=FALSE)}
+\usage{add.indicator(strategy, name, arguments, parameters, label, ...,
+    enabled=TRUE, indexnum, store=FALSE)}
 \description{add an indicator to a strategy}
 \details{Indicators are typically standard technical or statistical analysis outputs, 
 such as moving averages, bands, or pricing models.
@@ -14,6 +14,7 @@ may be used as inputs to construct signals or fire rules.}
 \arguments{\item{strategy}{an object of type 'strategy' to add the indicator to}
 \item{name}{name of the indicator, must correspond to an R function}
 \item{arguments}{default arguments to be passed to an indicator function when executed}
+\item{parameters}{vector of strings naming parameters to be saved for apply-time definition,default NULL, only needed if you need special names to avoid argument collision}
 \item{label}{arbitrary text label for indicator output, NULL default will be converted to '<name>.ind'}
 \item{...}{any other passthru parameters}
 \item{enabled}{TRUE/FALSE whether the indicator is enabled for use in applying the strategy, default TRUE}
