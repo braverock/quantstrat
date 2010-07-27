@@ -16,9 +16,13 @@ try(rm("account.macd","portfolio.macd",pos=.blotter),silent=TRUE)
 try(rm("account.st","portfolio.st","stock.str","s","initDate","initEq",'start_t','end_t'),silent=TRUE)
 
 stock.str='IBM' # what are we trying it on
+
+#MA parameters for MACD
 fastMA = 12 
 slowMA = 26 
 signalMA = 9
+maType="EMA"
+
 currency('USD')
 stock(stock.str,currency='USD',multiplier=1)
 
@@ -34,7 +38,7 @@ initOrders(portfolio=portfolio.st,initDate=initDate)
 
 stratMACD <- strategy(portfolio.st)
 
-stratMACD <- add.indicator(strategy = stratMACD, name = "MACD", arguments = list(x=quote(Cl(mktdata)), nFast=fastMA, nSlow=slowMA, nSig=signalMA,maType="EMA") )
+stratMACD <- add.indicator(strategy = stratMACD, name = "MACD", arguments = list(x=quote(Cl(mktdata))) )
 
 stratMACD <- add.signal(strategy = stratMACD,name="sigThreshold",arguments = list(data=quote(mktdata),column="signal",relationship="gt",threshold=0,cross=TRUE),label="signal.gt.zero")
 stratMACD <- add.signal(strategy = stratMACD,name="sigThreshold",arguments = list(data=quote(mktdata),column="signal",relationship="lt",threshold=0,cross=TRUE),label="signal.lt.zero")
@@ -44,7 +48,7 @@ stratMACD <- add.rule(strategy = stratMACD,name='ruleSignal', arguments = list(d
 
 getSymbols(stock.str,from=initDate)
 start_t<-Sys.time()
-out<-try(applyStrategy(strategy=stratMACD , portfolios=portfolio.st))
+out<-try(applyStrategy(strategy=stratMACD , portfolios=portfolio.st,parameters=list(nFast=fastMA, nSlow=slowMA, nSig=signalMA,maType=maType)))
 end_t<-Sys.time()
 end_t-start_t
 updatePortf(Portfolio='macd',Dates=paste('::',as.Date(Sys.time()),sep=''))
