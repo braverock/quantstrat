@@ -2,7 +2,7 @@
 \alias{getOrders}
 \title{get orders by time span, status, type, and side...}
 \usage{getOrders(portfolio, symbol, status="open", timespan, ordertype, side,
-    starttime=-86400)}
+    which.i=FALSE)}
 \description{get orders by time span, status, type, and side}
 \details{This function exists so that other code can find open orders, potentially to update or cancel them.
 
@@ -15,4 +15,4 @@ should this be symbols instead of symbol?}
 \item{timespan}{xts-style character timespan to be the period to find orders of the given status and ordertype}
 \item{ordertype}{one of NULL, "market","limit","stoplimit", or "stoptrailing" default NULL}
 \item{side}{one of NULL, "long" or "short", default NULL}
-\item{starttime}{difference to current timestamp to search, in seconds(numeric) or as a POSIXct timestamp, defaults to -86400 (one day)}}
+\item{which.i}{if TRUE, return the row index numbers rather than the order rows matching the criteria, default FALSE}}

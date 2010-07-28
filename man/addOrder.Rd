@@ -2,8 +2,8 @@
 \alias{addOrder}
 \title{add an order to the order book...}
 \usage{addOrder(portfolio, symbol, timestamp, qty, price, ordertype, side,
-    threshold, status="open", replace=TRUE, statustimestamp="",
-    delay=1e-05)}
+    threshold, status="open", statustimestamp="", delay=1e-05,
+    tmult=FALSE, replace=TRUE, return=FALSE)}
 \description{add an order to the order book}
 \details{It is important to understand that all the order functionality included in \code{quantstrat}
 exists to more closely model a real trading environment both in backtesting and in production.
@@ -22,13 +22,31 @@ OCO (Order Cancels Other) order.  If you do not want the function to
 behave this way, set \code{replace=FALSE}.
 
 We have modeled two types of stop orders, which should be sufficient to model most types of stops.  
+
 We have modeled the simplest type, a 'stoplimit' order, which is just a limit order used to enter 
-or exit a position at a specific price.  There is no functional different between a regular 'limit'
-order and a 'stoplimit' order, but the distinction will likely be useful for reporting on when stops
-have been triggered.
+or exit a position at a specific price.  
+Threshold multipliers have also been added for stoplimit.  These allow a threshold to be set as a multiplier 
+of the current price. For example, to set a stoplimit order at the current price 
+plus ten percent, you would set the threshold multiplier to 1.10.  The threshold multiplier (or scalar) on a 
+stoplimit order will be converted to a price at order entry.   
+There is no functional different between a regular 'limit'
+order and a 'stoplimit' order once entered into the order book, but the distinction will likely 
+be useful for reporting on when stops have been triggered.
+
 We have also modeled a 'stoptrailing' order, which may be used to model dynamic limit-based entry or exit.  
-The 'stoptrailing' order type is the only order type that makes use of the order \code{threshold}, which 
-is the difference either positive or negative from the current price when the order is entered.  
+If you set \code{tmult=TRUE} on a stoptrailing order, the size of the threshold will be set as a 
+difference between the multiplier times the price and the current price at order entry.  in this way, a 10%
+trailing entry (exit) will not change in size from the current price as the price changes.  It is effectively 
+converted to a scalar at order entry.  While this functionality could change in the future, 
+we believe this is more conservative than growing or shrinking the threshold distance from the current market price 
+in relation to the threshold, and will result in fewer unintended consequences and more understandable behavior. Comments Welcome.
+
+The 'stop*' order types are the only order type that makes use of the order \code{threshold}.   
+Scalar thresholds \code{tmult=FALSE} on stoplimit or stoptrailing
+orders will be added to the current market price to set the limit price.  In other worlds, a
+scalar threshold is the difference either positive or negative from the current price when 
+the order is entered. With a stoptrailing order, the order may be moved (via cancel/replace) frequently.
+
 Some markets and brokers recognize a stop that triggers a market order, when the stop is triggered, 
 a market order will be executed at the then-prevailing price.  We have not modeled this type of order.   
 
@@ -57,6 +75,8 @@ Conversion to a live trading environment will also likely require a new version 
 \item{side}{one of either "long" or "short"}
 \item{threshold}{numeric threshold to apply to trailing stop orders, default NULL}
 \item{status}{one of "open", "closed", "canceled", or "replaced", default "open"}
-\item{replace}{TRUE/FALSE, whether to replace any other open order(s) on this portfolio symbol, default TRUE}
 \item{statustimestamp}{timestamp of a status update, will be blank when order is initiated}
-\item{delay}{what delay to add to timestamp when inserting the order into the order book, in seconds}}
+\item{delay}{what delay to add to timestamp when inserting the order into the order book, in seconds}
+\item{tmult}{if TRUE, threshold is a percent multiplier for \code{price}, not a scalar to be added/subtracted from price.  threshold will be dynamically converted to a scalar at time of order entry}
+\item{replace}{TRUE/FALSE, whether to replace any other open order(s) on this portfolio symbol, default TRUE}
+\item{return}{if TRUE, return the row that makes up the order, default FALSE (will assign into the environment)}}
