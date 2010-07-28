@@ -50,7 +50,7 @@ s <- add.rule(s,name='ruleSignal', arguments = list(data=quote(mktdata),sigcol="
 
 getSymbols(stock.str,from=initDate)
 start_t<-Sys.time()
-out<-try(applyStrategy(strategy='s' , portfolios='bbands',parameters=list(sd=SD,n=N)))
+out<-try(applyStrategy(strategy='s' , portfolios='bbands',parameters=list(sd=SD,n=N)) )
 
 # look at the order book
 #getOrderBook('bbands')

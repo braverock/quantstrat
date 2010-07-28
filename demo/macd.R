@@ -15,7 +15,7 @@ try(rm("order_book.macd",pos=.strategy),silent=TRUE)
 try(rm("account.macd","portfolio.macd",pos=.blotter),silent=TRUE)
 try(rm("account.st","portfolio.st","stock.str","s","initDate","initEq",'start_t','end_t'),silent=TRUE)
 
-stock.str='IBM' # what are we trying it on
+stock.str='AAPL' # what are we trying it on
 
 #MA parameters for MACD
 fastMA = 12 
@@ -43,8 +43,9 @@ stratMACD <- add.indicator(strategy = stratMACD, name = "MACD", arguments = list
 stratMACD <- add.signal(strategy = stratMACD,name="sigThreshold",arguments = list(data=quote(mktdata),column="signal",relationship="gt",threshold=0,cross=TRUE),label="signal.gt.zero")
 stratMACD <- add.signal(strategy = stratMACD,name="sigThreshold",arguments = list(data=quote(mktdata),column="signal",relationship="lt",threshold=0,cross=TRUE),label="signal.lt.zero")
 
-stratMACD <- add.rule(strategy = stratMACD,name='ruleSignal', arguments = list(data=quote(mktdata),sigcol="signal.gt.zero",sigval=TRUE, orderqty=100, ordertype='market', orderside=NULL, threshold=NULL),type='enter')
-stratMACD <- add.rule(strategy = stratMACD,name='ruleSignal', arguments = list(data=quote(mktdata),sigcol="signal.lt.zero",sigval=TRUE, orderqty='all', ordertype='market', orderside=NULL, threshold=NULL),type='exit')
+stratMACD <- add.rule(strategy = stratMACD,name='ruleSignal', arguments = list(data=quote(mktdata),sigcol="signal.gt.zero",sigval=TRUE, orderqty=100, ordertype='market', orderside='long', threshold=NULL),type='enter')
+stratMACD <- add.rule(strategy = stratMACD,name='ruleSignal', arguments = list(data=quote(mktdata),sigcol="signal.gt.zero",sigval=TRUE, orderqty=-100, ordertype='stoplimit', orderside='long', threshold=.95,tmult=TRUE),type='risk')
+stratMACD <- add.rule(strategy = stratMACD,name='ruleSignal', arguments = list(data=quote(mktdata),sigcol="signal.lt.zero",sigval=TRUE, orderqty='all', ordertype='market', orderside='long', threshold=NULL),type='exit')
 
 getSymbols(stock.str,from=initDate)
 start_t<-Sys.time()

@@ -2,7 +2,7 @@
 stratRSI <- strategy("RSI")
 
 # Add an indicator
-stratRSI <- add.indicator(strategy = stratRSI, name = "RSI", arguments = list(price = quote(getPrice(mktdata)), n=2), label="RSI")
+stratRSI <- add.indicator(strategy = stratRSI, name = "RSI", arguments = list(price = quote(getPrice(mktdata))), label="RSI")
 
 # There are two signals:
 # The first is when RSI is greater than 90
@@ -51,7 +51,7 @@ print("setup completed")
 # Process the indicators and generate trades
 portfolios=c("RSISPX","RSIGDAXI","RSIboth")
 start_t<-Sys.time()
-out<-try(applyStrategy(strategy=stratRSI , portfolios=c(port.st)))
+out<-try(applyStrategy(strategy=stratRSI , portfolios=c(port.st),parameters=list(n=2) ) )
 end_t<-Sys.time()
 print("Strategy Loop:")
 print(end_t-start_t)

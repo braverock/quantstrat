@@ -46,9 +46,9 @@
 require(quantstrat)
 
 # Try to clean up in case the demo was run previously
-try(rm("account.longtrend","portfolio.longtrend",pos=.blotter),silent=TRUE)
+try(rm("account.faber","portfolio.faber",pos=.blotter),silent=TRUE)
 try(rm("ltaccount","ltportfolio","ClosePrice","CurrentDate","equity","GSPC","i","initDate","initEq","Posn","UnitSize","verbose"),silent=TRUE)
-try(rm("order_book.longtrend",pos=.strategy),silent=TRUE)
+try(rm("order_book.faber",pos=.strategy),silent=TRUE)
 
 # Set initial values
 initDate='1997-12-31'
@@ -75,14 +75,14 @@ for(symbol in symbols) {
 }
 
 # Initialize portfolio and account
-initPortf('longtrend', symbols=symbols, initDate=initDate)
-initAcct('longtrend', portfolios='longtrend', initDate=initDate)
-initOrders(portfolio='longtrend', initDate=initDate)
+initPortf('faber', symbols=symbols, initDate=initDate)
+initAcct('faber', portfolios='faber', initDate=initDate)
+initOrders(portfolio='faber', initDate=initDate)
 
 print("setup completed")
 
 # Initialize a strategy object
-s <- strategy("longtrend")
+s <- strategy("faber")
 
 # Add an indicator
 s <- add.indicator(strategy = s, name = "SMA", arguments = list(x = quote(Cl(mktdata)), n=10), label="SMA10")
@@ -101,16 +101,16 @@ s <- add.rule(s, name='ruleSignal', arguments = list(data=quote(mktdata), sigcol
 
 # Process the indicators and generate trades
 start_t<-Sys.time()
-out<-try(applyStrategy(strategy='s' , portfolios='longtrend'))
+out<-try(applyStrategy(strategy='s' , portfolios='faber'))
 end_t<-Sys.time()
 print("Strategy Loop:")
 print(end_t-start_t)
 
 # look at the order book
-#print(getOrderBook('longtrend'))
+#print(getOrderBook('faber'))
 
 start_t<-Sys.time()
-updatePortf(Portfolio='longtrend',Dates=paste('::',as.Date(Sys.time()),sep=''))
+updatePortf(Portfolio='faber',Dates=paste('::',as.Date(Sys.time()),sep=''))
 end_t<-Sys.time()
 print("trade blotter portfolio update:")
 print(end_t-start_t)
@@ -121,7 +121,7 @@ themelist$up.col<-'lightgreen'
 themelist$down.col<-'pink'
 for(symbol in symbols){
     dev.new()
-    chart.Posn(Portfolio='longtrend',Symbol=symbol,theme=themelist)
+    chart.Posn(Portfolio='faber',Symbol=symbol,theme=themelist)
     plot(add_SMA(n=10,col='darkgreen', on=1))
 }
 
