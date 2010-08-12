@@ -1,8 +1,8 @@
 \name{sigCrossover}
 \alias{sigCrossover}
 \title{generate a crossover signal...}
-\usage{sigCrossover(label, data, columns, relationship=c("gt", "lt", "eq",
-    "gte", "lte"))}
+\usage{sigCrossover(label, data=mktdata, columns, relationship=c("gt", "lt",
+    "eq", "gte", "lte"))}
 \description{generate a crossover signal}
 \details{This will generate a crossover signal, which is a dimension-reduced version 
 of a comparison signal \code{\link{sigComparison}}.

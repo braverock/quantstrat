@@ -11,7 +11,7 @@
 #' If \code{orderside} is NULL, the function will attempt to calculate the side from the current position 
 #' (if any) and the order quantity.    
 #'   
-#' @param mktdata an xts object containing market data.  depending on rules, may need to be in OHLCV or BBO formats, and may include indicator and signal information
+#' @param data an xts object containing market data.  depending on rules, may need to be in OHLCV or BBO formats, and may include indicator and signal information
 #' @param timestamp timestamp coercible to POSIXct that will be the time the order will be inserted on 
 #' @param sigcol column name to check for signal
 #' @param sigval signal value to match against
@@ -29,16 +29,16 @@
 #' @param ruletype one of "risk","order","rebalance","exit","entry", see \code{\link{add.rule}}
 #' @seealso \code{\link{osNoOp}} , \code{\link{add.rule}}
 #' @export
-ruleSignal <- function(mktdata, timestamp, sigcol, sigval, orderqty=0, ordertype, orderside, threshold=NULL, replace=TRUE, delay=0.0001, osFUN='osNoOp', pricemethod=c('market','opside'), portfolio, symbol, ..., ruletype ) {
+ruleSignal <- function(data=mktdata, timestamp, sigcol, sigval, orderqty=0, ordertype, orderside=NULL, threshold=NULL, replace=TRUE, delay=0.0001, osFUN='osNoOp', pricemethod=c('market','opside'), portfolio, symbol, ..., ruletype ) {
     if(!is.function(osFUN)) osFUN<-match.fun(osFUN)
     #print(paste(symbol,timestamp))
-    #print(mktdata[timestamp][,sigcol])
-    if (!is.na(mktdata[as.character(timestamp)][,sigcol]) & mktdata[as.character(timestamp)][,sigcol] == sigval) {
+    #print(data[timestamp][,sigcol])
+    if (!is.na(data[as.character(timestamp)][,sigcol]) & data[as.character(timestamp)][,sigcol] == sigval) {
         #TODO add fancy formals matching for osFUN
         if(orderqty>0 & orderqty<1){
             # TODO add proportional order?  or should that go in order sizing function?
         } 
-        orderqty <- osFUN(strategy=strategy, mktdata=mktdata, timestamp=timestamp, orderqty=orderqty, ordertype=ordertype, orderside=orderside, portfolio=portfolio, symbol=symbol,...=...,ruletype=ruletype)
+        orderqty <- osFUN(strategy=strategy, data=mktdata, timestamp=timestamp, orderqty=orderqty, ordertype=ordertype, orderside=orderside, portfolio=portfolio, symbol=symbol,...=...,ruletype=ruletype)
 
 		#calculate order price using pricemethod
         pricemethod<-pricemethod[1] #only use the first if not set by calling function
@@ -48,12 +48,12 @@ ruleSignal <- function(mktdata, timestamp, sigcol, sigval, orderqty=0, ordertype
                         prefer='ask'  # we're buying, so pay what they're asking
                     else
                         prefer='bid'  # we're selling, so give it to them for what they're bidding
-                    orderprice <- try(getPrice(x=mktdata,prefer=prefer))
+                    orderprice <- try(getPrice(x=data,prefer=prefer))
                 }, 
                 market = {
 					if(hasArg(prefer)) prefer=match.call(expand.dots=TRUE)$prefer 
 					else prefer = NULL
-					orderprice <- try(getPrice(x=mktdata, prefer=prefer)) 
+					orderprice <- try(getPrice(x=data, prefer=prefer)) 
                 }  
         )
         if(inherits(orderprice,'try-error')) orderprice<-NULL
@@ -170,7 +170,7 @@ getPosLimit <- function(portfolio, symbol, timestamp){
 #' but this is the default.  If you don't want to use levels, set 
 #' them to 1.
 #' 
-#' @param mktdata an xts object containing market data.  depending on rules, may need to be in OHLCV or BBO formats, and may include indicator and signal information
+#' @param data an xts object containing market data.  depending on rules, may need to be in OHLCV or BBO formats, and may include indicator and signal information
 #' @param timestamp timestamp coercible to POSIXct that will be the time the order will be inserted on 
 #' @param orderqty numeric quantity of the desired order, modified by osFUN
 #' @param ordertype one of "market","limit","stoplimit", or "stoptrailing"
@@ -181,7 +181,7 @@ getPosLimit <- function(portfolio, symbol, timestamp){
 #' @param ... any other passthru parameters
 #' @seealso \code{\link{addPosLimit}},\code{\link{getPosLimit}}
 #' @export
-osMaxPos <- function(mktdata, timestamp, orderqty, ordertype, orderside, portfolio, symbol, ruletype, ...){
+osMaxPos <- function(data, timestamp, orderqty, ordertype, orderside, portfolio, symbol, ruletype, ...){
 	# TODO integrate orderqty='all' into osMaxPos by combining side 
 	# check for current position
     pos<-getPosQty(portfolio,symbol,timestamp)

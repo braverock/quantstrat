@@ -89,15 +89,15 @@ s <- add.indicator(strategy = s, name = "SMA", arguments = list(x = quote(Cl(mkt
 
 # There are two signals:
 # The first is when monthly price crosses over the 10-month SMA
-s<- add.signal(s,name="sigCrossover",arguments = list(data=quote(mktdata),columns=c("Close","SMA10"),relationship="gt"),label="Cl.gt.SMA")
+s<- add.signal(s,name="sigCrossover",arguments = list(columns=c("Close","SMA10"),relationship="gt"),label="Cl.gt.SMA")
 # The second is when the monthly price crosses under the 10-month SMA
-s<- add.signal(s,name="sigCrossover",arguments = list(data=quote(mktdata),columns=c("Close","SMA10"),relationship="lt"),label="Cl.lt.SMA")
+s<- add.signal(s,name="sigCrossover",arguments = list(columns=c("Close","SMA10"),relationship="lt"),label="Cl.lt.SMA")
 
 # There are two rules:
 # The first is to buy when the price crosses above the SMA
-s <- add.rule(s, name='ruleSignal', arguments = list(data=quote(mktdata), sigcol="Cl.gt.SMA", sigval=TRUE, orderqty=1000, ordertype='market', orderside='long', pricemethod='market'), type='enter', path.dep=TRUE)
+s <- add.rule(s, name='ruleSignal', arguments = list(sigcol="Cl.gt.SMA", sigval=TRUE, orderqty=1000, ordertype='market', orderside='long', pricemethod='market'), type='enter', path.dep=TRUE)
 # The second is to sell when the price crosses below the SMA
-s <- add.rule(s, name='ruleSignal', arguments = list(data=quote(mktdata), sigcol="Cl.lt.SMA", sigval=TRUE, orderqty='all', ordertype='market', orderside='long', pricemethod='market'), type='exit', path.dep=TRUE)
+s <- add.rule(s, name='ruleSignal', arguments = list(sigcol="Cl.lt.SMA", sigval=TRUE, orderqty='all', ordertype='market', orderside='long', pricemethod='market'), type='exit', path.dep=TRUE)
 
 # Process the indicators and generate trades
 start_t<-Sys.time()

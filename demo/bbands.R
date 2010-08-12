@@ -30,20 +30,16 @@ s <- strategy("bbands")
 s <- add.indicator(strategy = s, name = "BBands", arguments = list(HLC = quote(HLC(mktdata)), maType='SMA'))
 
 
-#if you wanted to manually apply a signal function for demonstration
-#cbind(IBM.mod,sigComparison(label="Close.gt.Open",data=IBM.inds,columns=c("Close","Open"),">"))
-#cbind(IBM.mod,sigComparison(label="Adjusted.gt.SMA",data=IBM.inds,columns=c("Adjusted","SMA10"),">"))
-
 #add signals:
-s<- add.signal(s,name="sigCrossover",arguments = list(data=quote(mktdata),columns=c("Close","up"),relationship="gt"),label="Cl.gt.UpperBand")
-s<- add.signal(s,name="sigCrossover",arguments = list(data=quote(mktdata),columns=c("Close","dn"),relationship="lt"),label="Cl.lt.LowerBand")
-s<- add.signal(s,name="sigCrossover",arguments = list(data=quote(mktdata),columns=c("High","Low","mavg"),relationship="op"),label="Cross.Mid")
+s<- add.signal(s,name="sigCrossover",arguments = list(columns=c("Close","up"),relationship="gt"),label="Cl.gt.UpperBand")
+s<- add.signal(s,name="sigCrossover",arguments = list(columns=c("Close","dn"),relationship="lt"),label="Cl.lt.LowerBand")
+s<- add.signal(s,name="sigCrossover",arguments = list(columns=c("High","Low","mavg"),relationship="op"),label="Cross.Mid")
 
 # lets add some rules
 s 
-s <- add.rule(s,name='ruleSignal', arguments = list(data=quote(mktdata),sigcol="Cl.gt.UpperBand",sigval=TRUE, orderqty=-100, ordertype='market', orderside=NULL, threshold=NULL),type='enter')
-s <- add.rule(s,name='ruleSignal', arguments = list(data=quote(mktdata),sigcol="Cl.lt.LowerBand",sigval=TRUE, orderqty= 100, ordertype='market', orderside=NULL, threshold=NULL),type='enter')
-s <- add.rule(s,name='ruleSignal', arguments = list(data=quote(mktdata),sigcol="Cross.Mid",sigval=TRUE, orderqty= 'all', ordertype='market', orderside=NULL, threshold=NULL),type='exit')
+s <- add.rule(s,name='ruleSignal', arguments = list(sigcol="Cl.gt.UpperBand",sigval=TRUE, orderqty=-100, ordertype='market', orderside=NULL, threshold=NULL),type='enter')
+s <- add.rule(s,name='ruleSignal', arguments = list(sigcol="Cl.lt.LowerBand",sigval=TRUE, orderqty= 100, ordertype='market', orderside=NULL, threshold=NULL),type='enter')
+s <- add.rule(s,name='ruleSignal', arguments = list(sigcol="Cross.Mid",sigval=TRUE, orderqty= 'all', ordertype='market', orderside=NULL, threshold=NULL),type='exit')
 #s <- add.rule(s,name='ruleSignal', arguments = list(data=quote(mktdata),sigcol="Lo.gt.UpperBand",sigval=TRUE, orderqty= 'all', ordertype='market', orderside=NULL, threshold=NULL),type='exit')
 #s <- add.rule(s,name='ruleSignal', arguments = list(data=quote(mktdata),sigcol="Hi.lt.LowerBand",sigval=TRUE, orderqty= 'all', ordertype='market', orderside=NULL, threshold=NULL),type='exit')
 #TODO add thresholds and stop-entry and stop-exit handling to test

@@ -331,17 +331,12 @@ ruleOrderProc <- function(portfolio, symbol, mktdata, timespan, ordertype=NULL, 
 {
 	orderbook <- getOrderBook(portfolio)
 	orderset <- orderbook[[portfolio]][[symbol]]
-#
-#    orderbook[[portfolio]][[symbol]][index(updatedorders),]<-updatedorders
-#    
-#    # assign order book back into place (do we need a non-exported "put" function?)
-#    assign(paste("order_book",portfolio,sep='.'),orderbook,envir=.strategy)
 	
     # get open orders
 	procorders=NULL
     procorders<-getOrders(portfolio=portfolio, symbol=symbol, status="open", timespan=timespan, ordertype=ordertype,which.i=TRUE)
-    if (!is.null(procorders)){ 
-    if (length(procorders)>=1){
+    # check for open orders
+	if (length(procorders)>=1){
         # get previous bar
         prevtime  <- time(mktdata[last(mktdata[timespan, which.i = TRUE])-1])
         timestamp <- time(last(mktdata[timespan]))
@@ -449,13 +444,21 @@ ruleOrderProc <- function(portfolio, symbol, mktdata, timespan, ordertype=NULL, 
                                     }  
                                 } 
                                 # if market is beyond price+(-threshold), replace order
-                                if(is.null(txnprice)){ 
-                                    if(as.numeric(orderset[ii,]$Order.Qty)>0){
-                                        prefer='offer'
-                                    } else {
-                                        prefer='bid'
-                                    }
-                                    # we didn't trade, so check to see if we need to move the stop
+                                if(is.null(txnprice)) { 
+									# we didn't trade, so check to see if we need to move the stop
+									
+									# first figure out how to find a price
+									if (is.OHLC(mktdata)){
+										prefer='close'
+									} else if(is.BBO(mktdata)) {
+										if(as.numeric(orderset[ii,]$Order.Qty)>0){
+											prefer='offer'
+										} else {
+											prefer='bid'
+										}
+									} else {
+										prefer=NULL # see if getPrice can figure it out
+									}
                                     if( getPrice(mktdata[timestamp],prefer=prefer)+orderset[ii,]$Order.Threshold > orderset[ii,]$Order.Price ){
                                         neworder<-addOrder(portfolio=portfolio, 
                                                  symbol=symbol, 
@@ -486,13 +489,12 @@ ruleOrderProc <- function(portfolio, symbol, mktdata, timespan, ordertype=NULL, 
 				
             } # end higher frequency processing
         ) # end switch on freq
+		
         # now put the orders back in
 		# assign order book back into place (do we need a non-exported "put" function?)
 		orderbook[[portfolio]][[symbol]] <- orderset
 		assign(paste("order_book",portfolio,sep='.'),orderbook,envir=.strategy)
-
-        } # end check for open orders
-    } #end is.null check
+    } # end check for open orders
 }
 ###############################################################################
 # R (http://r-project.org/) Quantitative Strategy Model Framework

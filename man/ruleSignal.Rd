@@ -1,10 +1,10 @@
 \name{ruleSignal}
 \alias{ruleSignal}
 \title{default rule to generate a trade order on a signal...}
-\usage{ruleSignal(mktdata, timestamp, sigcol, sigval, orderqty=0, ordertype,
-    orderside, threshold, replace=TRUE, delay=1e-04, osFUN="osNoOp",
-    pricemethod=c("market", "opside"), portfolio, symbol, ...,
-    ruletype)}
+\usage{ruleSignal(data=mktdata, timestamp, sigcol, sigval, orderqty=0,
+    ordertype, orderside, threshold, replace=TRUE, delay=1e-04,
+    osFUN="osNoOp", pricemethod=c("market", "opside"), portfolio,
+    symbol, ..., ruletype)}
 \description{default rule to generate a trade order on a signal}
 \details{\code{pricemethod} may be one of 'market' or 'opside' 
 which will either try to get the price of the 'market' at \code{timestamp} and use this as the order price
@@ -16,7 +16,7 @@ Ideally this will be a column lookup on a non-path-dependent indicator calculate
 If \code{orderside} is NULL, the function will attempt to calculate the side from the current position 
 (if any) and the order quantity.}
 \seealso{\code{\link{osNoOp}} , \code{\link{add.rule}}}
-\arguments{\item{mktdata}{an xts object containing market data.  depending on rules, may need to be in OHLCV or BBO formats, and may include indicator and signal information}
+\arguments{\item{data}{an xts object containing market data.  depending on rules, may need to be in OHLCV or BBO formats, and may include indicator and signal information}
 \item{timestamp}{timestamp coercible to POSIXct that will be the time the order will be inserted on}
 \item{sigcol}{column name to check for signal}
 \item{sigval}{signal value to match against}

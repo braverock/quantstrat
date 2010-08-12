@@ -134,11 +134,8 @@ applySignals <- function(strategy, mktdata, indicators=NULL, parameters=NULL, ..
 #' @param data data to apply comparison to
 #' @param columns named columns to apply comparison to
 #' @param relationship one of c("gt","lt","eq","gte","lte","op") or reasonable alternatives
-#' @example 
-#' getSymbols("IBM")
-#' sigComparison(label="Cl.gt.Op",data=IBM,columns=c("Close","Open"),"gt")
 #' @export
-sigComparison <- function(label,data, columns, relationship=c("gt","lt","eq","gte","lte")) {
+sigComparison <- function(label,data=mktdata, columns, relationship=c("gt","lt","eq","gte","lte")) {
     relationship=relationship[1] #only use the first one
     if (length(columns==2)){
         ret_sig=NULL
@@ -192,7 +189,7 @@ sigComparison <- function(label,data, columns, relationship=c("gt","lt","eq","gt
 #' @param columns named columns to apply crossover of the first against the second
 #' @param relationship one of c("gt","lt","eq","gte","lte") or reasonable alternatives
 #' @export
-sigCrossover <- function(label,data, columns, relationship=c("gt","lt","eq","gte","lte")) {
+sigCrossover <- function(label,data=mktdata, columns, relationship=c("gt","lt","eq","gte","lte")) {
     ret_sig = FALSE
     lng<-length(columns)
     for (i in 1:(lng-1)) {
@@ -238,7 +235,7 @@ sigPeak <- function(label,data,column, direction=c("peak","bottom")){
 #' @param relationship one of c("gt","lt","eq","gte","lte") or reasonable alternatives
 #' @param cross if TRUE, will return TRUE only for the first observation to cross the threshold in a run
 #' @export
-sigThreshold <- function(label, data, column, threshold=0, relationship=c("gt","lt","eq","gte","lte"),cross=FALSE) {
+sigThreshold <- function(label, data=mktdata, column, threshold=0, relationship=c("gt","lt","eq","gte","lte"),cross=FALSE) {
     relationship=relationship[1] #only use the first one
     ret_sig=NULL
     colNum <- match.names(column, colnames(data))
@@ -258,6 +255,22 @@ sigThreshold <- function(label, data, column, threshold=0, relationship=c("gt","
     if(isTRUE(cross)) ret_sig <- diff(ret_sig)==1
     colnames(ret_sig)<-label
     return(ret_sig)
+}
+
+#' generate a signal from a formula
+#' @param label text label to apply to the output
+#' @param data data to apply formula to
+#' @param formula a logical expression like that used in an if statement, will typically reference column names in \code{mktdata}
+#' @param cross if TRUE, will return TRUE only for the first observation to match the formula in a run
+#' @export
+sigFormula <- function(label, data=mktdata, formula ,cross=FALSE){
+	# Vijay's PAST/AAII/SIPRO example
+	# fieldVals <- try(eval(parse(text=expression), al, parent.frame()))
+	ret_sig=NULL
+	ret_sig <- try(eval(parse(text=formula), data, parent.frame()))
+	if(isTRUE(cross)) ret_sig <- diff(ret_sig)==1
+	colnames(ret_sig)<-label
+	return(ret_sig)
 }
 
 #TODO Going Up/Going Down maybe better implemented as slope/diff() indicator, then coupled with threshold signal 

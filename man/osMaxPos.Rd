@@ -1,7 +1,7 @@
 \name{osMaxPos}
 \alias{osMaxPos}
 \title{order sizing function for position limits and level sizing...}
-\usage{osMaxPos(mktdata, timestamp, orderqty, ordertype, orderside, portfolio,
+\usage{osMaxPos(data, timestamp, orderqty, ordertype, orderside, portfolio,
     symbol, ruletype, ...)}
 \description{order sizing function for position limits and level sizing}
 \details{levels are a simplification of more complex (proprietary) 
@@ -11,7 +11,7 @@ Obviously the strategy rules could ask for smaller order sizes,
 but this is the default.  If you don't want to use levels, set 
 them to 1.}
 \seealso{\code{\link{addPosLimit}},\code{\link{getPosLimit}}}
-\arguments{\item{mktdata}{an xts object containing market data.  depending on rules, may need to be in OHLCV or BBO formats, and may include indicator and signal information}
+\arguments{\item{data}{an xts object containing market data.  depending on rules, may need to be in OHLCV or BBO formats, and may include indicator and signal information}
 \item{timestamp}{timestamp coercible to POSIXct that will be the time the order will be inserted on}
 \item{orderqty}{numeric quantity of the desired order, modified by osFUN}
 \item{ordertype}{one of "market","limit","stoplimit", or "stoptrailing"}
