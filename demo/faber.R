@@ -85,19 +85,19 @@ print("setup completed")
 stratFaber <- strategy("faber")
 
 # Add an indicator
-stratFaber <- add.indicator(strategy = s, name = "SMA", arguments = list(x = quote(Cl(mktdata)), n=10), label="SMA10")
+stratFaber <- add.indicator(strategy = stratFaber, name = "SMA", arguments = list(x = quote(Cl(mktdata)), n=10), label="SMA10")
 
 # There are two signals:
 # The first is when monthly price crosses over the 10-month SMA
-stratFaber <- add.signal(s,name="sigCrossover",arguments = list(columns=c("Close","SMA10"),relationship="gt"),label="Cl.gt.SMA")
+stratFaber <- add.signal(stratFaber,name="sigCrossover",arguments = list(columns=c("Close","SMA10"),relationship="gt"),label="Cl.gt.SMA")
 # The second is when the monthly price crosses under the 10-month SMA
-stratFaber <- add.signal(s,name="sigCrossover",arguments = list(columns=c("Close","SMA10"),relationship="lt"),label="Cl.lt.SMA")
+stratFaber <- add.signal(stratFaber,name="sigCrossover",arguments = list(columns=c("Close","SMA10"),relationship="lt"),label="Cl.lt.SMA")
 
 # There are two rules:
 # The first is to buy when the price crosses above the SMA
-stratFaber <- add.rule(s, name='ruleSignal', arguments = list(sigcol="Cl.gt.SMA", sigval=TRUE, orderqty=1000, ordertype='market', orderside='long', pricemethod='market'), type='enter', path.dep=TRUE)
+stratFaber <- add.rule(stratFaber, name='ruleSignal', arguments = list(sigcol="Cl.gt.SMA", sigval=TRUE, orderqty=1000, ordertype='market', orderside='long', pricemethod='market'), type='enter', path.dep=TRUE)
 # The second is to sell when the price crosses below the SMA
-stratFaber <- add.rule(s, name='ruleSignal', arguments = list(sigcol="Cl.lt.SMA", sigval=TRUE, orderqty='all', ordertype='market', orderside='long', pricemethod='market'), type='exit', path.dep=TRUE)
+stratFaber <- add.rule(stratFaber, name='ruleSignal', arguments = list(sigcol="Cl.lt.SMA", sigval=TRUE, orderqty='all', ordertype='market', orderside='long', pricemethod='market'), type='exit', path.dep=TRUE)
 
 # Process the indicators and generate trades
 start_t<-Sys.time()

@@ -84,6 +84,6 @@ for(symbol in symbols){
 # This library is distributed under the terms of the GNU Public License (GPL)
 # for full details see the file COPYING
 #
-# $Id: faber.R 369 2010-08-12 11:44:00Z braverock $
+# $Id$
 #
 ###############################################################################
