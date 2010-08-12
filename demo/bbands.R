@@ -1,7 +1,7 @@
 require(quantstrat)
 try(rm("order_book.bbands",pos=.strategy),silent=TRUE)
 try(rm("account.bbands","portfolio.bbands",pos=.blotter),silent=TRUE)
-try(rm("account.st","portfolio.st","stock.str","s","initDate","initEq",'start_t','end_t'),silent=TRUE)
+try(rm("account.st","portfolio.st","stock.str","stratBBands","initDate","initEq",'start_t','end_t'),silent=TRUE)
 
 # some things to set up here
 stock.str='IBM' # what are we trying it on
@@ -24,29 +24,31 @@ initPortf(portfolio.st,symbols=stock.str, initDate=initDate)
 initAcct(account.st,portfolios='bbands', initDate=initDate)
 initOrders(portfolio=portfolio.st,initDate=initDate)
 
-s <- strategy("bbands")
+stratBBands <- strategy("bbands")
 
 #one indicator
-s <- add.indicator(strategy = s, name = "BBands", arguments = list(HLC = quote(HLC(mktdata)), maType='SMA'))
+stratBBands <- add.indicator(strategy = s, name = "BBands", arguments = list(HLC = quote(HLC(mktdata)), maType='SMA'))
 
 
 #add signals:
-s<- add.signal(s,name="sigCrossover",arguments = list(columns=c("Close","up"),relationship="gt"),label="Cl.gt.UpperBand")
-s<- add.signal(s,name="sigCrossover",arguments = list(columns=c("Close","dn"),relationship="lt"),label="Cl.lt.LowerBand")
-s<- add.signal(s,name="sigCrossover",arguments = list(columns=c("High","Low","mavg"),relationship="op"),label="Cross.Mid")
+stratBBands <- add.signal(s,name="sigCrossover",arguments = list(columns=c("Close","up"),relationship="gt"),label="Cl.gt.UpperBand")
+stratBBands <- add.signal(s,name="sigCrossover",arguments = list(columns=c("Close","dn"),relationship="lt"),label="Cl.lt.LowerBand")
+stratBBands <- add.signal(s,name="sigCrossover",arguments = list(columns=c("High","Low","mavg"),relationship="op"),label="Cross.Mid")
 
 # lets add some rules
-s 
-s <- add.rule(s,name='ruleSignal', arguments = list(sigcol="Cl.gt.UpperBand",sigval=TRUE, orderqty=-100, ordertype='market', orderside=NULL, threshold=NULL),type='enter')
-s <- add.rule(s,name='ruleSignal', arguments = list(sigcol="Cl.lt.LowerBand",sigval=TRUE, orderqty= 100, ordertype='market', orderside=NULL, threshold=NULL),type='enter')
-s <- add.rule(s,name='ruleSignal', arguments = list(sigcol="Cross.Mid",sigval=TRUE, orderqty= 'all', ordertype='market', orderside=NULL, threshold=NULL),type='exit')
-#s <- add.rule(s,name='ruleSignal', arguments = list(data=quote(mktdata),sigcol="Lo.gt.UpperBand",sigval=TRUE, orderqty= 'all', ordertype='market', orderside=NULL, threshold=NULL),type='exit')
-#s <- add.rule(s,name='ruleSignal', arguments = list(data=quote(mktdata),sigcol="Hi.lt.LowerBand",sigval=TRUE, orderqty= 'all', ordertype='market', orderside=NULL, threshold=NULL),type='exit')
+stratBBands <- add.rule(s,name='ruleSignal', arguments = list(sigcol="Cl.gt.UpperBand",sigval=TRUE, orderqty=-100, ordertype='market', orderside=NULL, threshold=NULL),type='enter')
+stratBBands <- add.rule(s,name='ruleSignal', arguments = list(sigcol="Cl.lt.LowerBand",sigval=TRUE, orderqty= 100, ordertype='market', orderside=NULL, threshold=NULL),type='enter')
+stratBBands <- add.rule(s,name='ruleSignal', arguments = list(sigcol="Cross.Mid",sigval=TRUE, orderqty= 'all', ordertype='market', orderside=NULL, threshold=NULL),type='exit')
+
+#alternately, to exit at the opposite band, the rules would be...
+#stratBBands <- add.rule(s,name='ruleSignal', arguments = list(data=quote(mktdata),sigcol="Lo.gt.UpperBand",sigval=TRUE, orderqty= 'all', ordertype='market', orderside=NULL, threshold=NULL),type='exit')
+#stratBBands <- add.rule(s,name='ruleSignal', arguments = list(data=quote(mktdata),sigcol="Hi.lt.LowerBand",sigval=TRUE, orderqty= 'all', ordertype='market', orderside=NULL, threshold=NULL),type='exit')
+
 #TODO add thresholds and stop-entry and stop-exit handling to test
 
 getSymbols(stock.str,from=initDate)
 start_t<-Sys.time()
-out<-try(applyStrategy(strategy='s' , portfolios='bbands',parameters=list(sd=SD,n=N)) )
+out<-try(applyStrategy(strategy=stratBBands , portfolios='bbands',parameters=list(sd=SD,n=N)) )
 
 # look at the order book
 #getOrderBook('bbands')
@@ -55,6 +57,7 @@ end_t-start_t
 updatePortf(Portfolio='bbands',Dates=paste('::',as.Date(Sys.time()),sep=''))
 chart.Posn(Portfolio='bbands',Symbol=stock.str)
 plot(add_BBands(on=1,sd=SD,n=N))
+
 ###############################################################################
 # R (http://r-project.org/) Quantitative Strategy Model Framework
 #

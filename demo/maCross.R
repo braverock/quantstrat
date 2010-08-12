@@ -45,3 +45,15 @@ chart.Posn(Portfolio='macross',Symbol=stock.str)
 add_SMA(n=50 , on=1,col='blue')
 add_SMA(n=200, on=1)
 
+###############################################################################
+# R (http://r-project.org/) Quantitative Strategy Model Framework
+#
+# Copyright (c) 2009-2010
+# Peter Carl, Dirk Eddelbuettel, Brian G. Peterson, Jeffrey Ryan, and Joshua Ulrich 
+#
+# This library is distributed under the terms of the GNU Public License (GPL)
+# for full details see the file COPYING
+#
+# $Id: faber.R 369 2010-08-12 11:44:00Z braverock $
+#
+###############################################################################

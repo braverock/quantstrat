@@ -6,18 +6,18 @@ stratRSI <- add.indicator(strategy = stratRSI, name = "RSI", arguments = list(pr
 
 # There are two signals:
 # The first is when RSI is greater than 90
-stratRSI <- add.signal(strategy = stratRSI, name="sigThreshold",arguments = list(data=quote(mktdata),threshold=90, column="RSI",relationship="gt", cross=TRUE),label="RSI.gt.90")
+stratRSI <- add.signal(strategy = stratRSI, name="sigThreshold",arguments = list(threshold=70, column="RSI",relationship="gt", cross=TRUE),label="RSI.gt.70")
 # The second is when RSI is less than 10
-stratRSI <- add.signal(strategy = stratRSI, name="sigThreshold",arguments = list(data=quote(mktdata),threshold=10, column="RSI",relationship="lt",cross=TRUE),label="RSI.lt.10")
+stratRSI <- add.signal(strategy = stratRSI, name="sigThreshold",arguments = list(threshold=30, column="RSI",relationship="lt",cross=TRUE),label="RSI.lt.30")
 
 # There are two rules:
 #'## we would Use osMaxPos to put trade on in layers, or to a maximum position. 
 # The first is to sell when the RSI crosses above the threshold
-stratRSI <- add.rule(strategy = stratRSI, name='ruleSignal', arguments = list(data=quote(mktdata), sigcol="RSI.gt.90", sigval=TRUE, orderqty=-1000, ordertype='market', orderside='short', pricemethod='market'), type='enter', path.dep=TRUE)
-stratRSI <- add.rule(strategy = stratRSI, name='ruleSignal', arguments = list(data=quote(mktdata), sigcol="RSI.lt.10", sigval=TRUE, orderqty='all', ordertype='market', orderside='short', pricemethod='market'), type='exit', path.dep=TRUE)
+stratRSI <- add.rule(strategy = stratRSI, name='ruleSignal', arguments = list(sigcol="RSI.gt.70", sigval=TRUE, orderqty=-1000, ordertype='market', orderside='short', pricemethod='market', replace=FALSE), type='enter', path.dep=TRUE)
+stratRSI <- add.rule(strategy = stratRSI, name='ruleSignal', arguments = list(sigcol="RSI.lt.30", sigval=TRUE, orderqty='all', ordertype='market', orderside='short', pricemethod='market', replace=FALSE), type='exit', path.dep=TRUE)
 # The second is to buy when the RSI crosses below the threshold
-stratRSI <- add.rule(strategy = stratRSI, name='ruleSignal', arguments = list(data=quote(mktdata), sigcol="RSI.lt.10", sigval=TRUE, orderqty= 1000, ordertype='market', orderside='long', pricemethod='market'), type='enter', path.dep=TRUE)
-stratRSI <- add.rule(strategy = stratRSI, name='ruleSignal', arguments = list(data=quote(mktdata), sigcol="RSI.gt.90", sigval=TRUE, orderqty='all', ordertype='market', orderside='long', pricemethod='market'), type='enter', path.dep=TRUE)
+stratRSI <- add.rule(strategy = stratRSI, name='ruleSignal', arguments = list(sigcol="RSI.lt.30", sigval=TRUE, orderqty= 1000, ordertype='market', orderside='long', pricemethod='market', replace=FALSE), type='enter', path.dep=TRUE)
+stratRSI <- add.rule(strategy = stratRSI, name='ruleSignal', arguments = list(sigcol="RSI.gt.70", sigval=TRUE, orderqty='all', ordertype='market', orderside='long', pricemethod='market', replace=FALSE), type='exit', path.dep=TRUE)
 
 #add changeable parameters
 # add level in/out
@@ -31,6 +31,7 @@ currency("EUR")
 symbols = c("XLF", "XLP", "XLE", "XLY", "XLV", "XLI", "XLB", "XLK", "XLU")
 for(symbol in symbols){ # establish trade-able instruments
     stock(symbol, currency="USD",multiplier=1)
+	getSymbols(symbol)
 }
 
 
@@ -38,9 +39,9 @@ for(symbol in symbols){ # establish trade-able instruments
 # applySignals(strategy=stratRSI, mktdata=applyIndicators(strategy=stratRSI, mktdata=symbols[1]))
 
 
-initDate='2009-02-06'
+initDate='1997-12-31'
 initEq=100000
-port.st<-'RSISPX' #use a string here for easier changing of parameters and re-trying
+port.st<-'RSI' #use a string here for easier changing of parameters and re-trying
 
 initPortf(port.st, symbols=symbols, initDate=initDate)
 initAcct(port.st, portfolios=port.st, initDate=initDate)
@@ -49,9 +50,8 @@ initOrders(portfolio=port.st, initDate=initDate)
 print("setup completed")
 
 # Process the indicators and generate trades
-portfolios=c("RSISPX","RSIGDAXI","RSIboth")
 start_t<-Sys.time()
-out<-try(applyStrategy(strategy=stratRSI , portfolios=c(port.st),parameters=list(n=2) ) )
+out<-try(applyStrategy(strategy=stratRSI , portfolios=port.st, parameters=list(n=2) ) )
 end_t<-Sys.time()
 print("Strategy Loop:")
 print(end_t-start_t)
@@ -74,3 +74,16 @@ for(symbol in symbols){
     chart.Posn(Portfolio=port.st,Symbol=symbol,theme=themelist)
     plot(add_RSI(n=2))
 }
+
+###############################################################################
+# R (http://r-project.org/) Quantitative Strategy Model Framework
+#
+# Copyright (c) 2009-2010
+# Peter Carl, Dirk Eddelbuettel, Brian G. Peterson, Jeffrey Ryan, and Joshua Ulrich 
+#
+# This library is distributed under the terms of the GNU Public License (GPL)
+# for full details see the file COPYING
+#
+# $Id: faber.R 369 2010-08-12 11:44:00Z braverock $
+#
+###############################################################################

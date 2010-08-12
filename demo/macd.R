@@ -56,4 +56,15 @@ updatePortf(Portfolio=portfolio.st,Dates=paste('::',as.Date(Sys.time()),sep=''))
 chart.Posn(Portfolio=portfolio.st,Symbol=stock.str)
 plot(add_MACD(fast=fastMA, slow=slowMA, signal=signalMA,maType="EMA"))
 
-
+###############################################################################
+# R (http://r-project.org/) Quantitative Strategy Model Framework
+#
+# Copyright (c) 2009-2010
+# Peter Carl, Dirk Eddelbuettel, Brian G. Peterson, Jeffrey Ryan, and Joshua Ulrich 
+#
+# This library is distributed under the terms of the GNU Public License (GPL)
+# for full details see the file COPYING
+#
+# $Id: faber.R 369 2010-08-12 11:44:00Z braverock $
+#
+##############################################################################

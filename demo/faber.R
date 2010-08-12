@@ -47,7 +47,7 @@ require(quantstrat)
 
 # Try to clean up in case the demo was run previously
 try(rm("account.faber","portfolio.faber",pos=.blotter),silent=TRUE)
-try(rm("ltaccount","ltportfolio","ClosePrice","CurrentDate","equity","GSPC","i","initDate","initEq","Posn","UnitSize","verbose"),silent=TRUE)
+try(rm("ltaccount","ltportfolio","ClosePrice","CurrentDate","equity","GSPC","stratFaber","initDate","initEq","Posn","UnitSize","verbose"),silent=TRUE)
 try(rm("order_book.faber",pos=.strategy),silent=TRUE)
 
 # Set initial values
@@ -82,26 +82,26 @@ initOrders(portfolio='faber', initDate=initDate)
 print("setup completed")
 
 # Initialize a strategy object
-s <- strategy("faber")
+stratFaber <- strategy("faber")
 
 # Add an indicator
-s <- add.indicator(strategy = s, name = "SMA", arguments = list(x = quote(Cl(mktdata)), n=10), label="SMA10")
+stratFaber <- add.indicator(strategy = s, name = "SMA", arguments = list(x = quote(Cl(mktdata)), n=10), label="SMA10")
 
 # There are two signals:
 # The first is when monthly price crosses over the 10-month SMA
-s<- add.signal(s,name="sigCrossover",arguments = list(columns=c("Close","SMA10"),relationship="gt"),label="Cl.gt.SMA")
+stratFaber <- add.signal(s,name="sigCrossover",arguments = list(columns=c("Close","SMA10"),relationship="gt"),label="Cl.gt.SMA")
 # The second is when the monthly price crosses under the 10-month SMA
-s<- add.signal(s,name="sigCrossover",arguments = list(columns=c("Close","SMA10"),relationship="lt"),label="Cl.lt.SMA")
+stratFaber <- add.signal(s,name="sigCrossover",arguments = list(columns=c("Close","SMA10"),relationship="lt"),label="Cl.lt.SMA")
 
 # There are two rules:
 # The first is to buy when the price crosses above the SMA
-s <- add.rule(s, name='ruleSignal', arguments = list(sigcol="Cl.gt.SMA", sigval=TRUE, orderqty=1000, ordertype='market', orderside='long', pricemethod='market'), type='enter', path.dep=TRUE)
+stratFaber <- add.rule(s, name='ruleSignal', arguments = list(sigcol="Cl.gt.SMA", sigval=TRUE, orderqty=1000, ordertype='market', orderside='long', pricemethod='market'), type='enter', path.dep=TRUE)
 # The second is to sell when the price crosses below the SMA
-s <- add.rule(s, name='ruleSignal', arguments = list(sigcol="Cl.lt.SMA", sigval=TRUE, orderqty='all', ordertype='market', orderside='long', pricemethod='market'), type='exit', path.dep=TRUE)
+stratFaber <- add.rule(s, name='ruleSignal', arguments = list(sigcol="Cl.lt.SMA", sigval=TRUE, orderqty='all', ordertype='market', orderside='long', pricemethod='market'), type='exit', path.dep=TRUE)
 
 # Process the indicators and generate trades
 start_t<-Sys.time()
-out<-try(applyStrategy(strategy='s' , portfolios='faber'))
+out<-try(applyStrategy(strategy=stratFaber , portfolios='faber'))
 end_t<-Sys.time()
 print("Strategy Loop:")
 print(end_t-start_t)
