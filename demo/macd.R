@@ -13,7 +13,7 @@
 require(quantstrat)
 try(rm("order_book.macd",pos=.strategy),silent=TRUE)
 try(rm("account.macd","portfolio.macd",pos=.blotter),silent=TRUE)
-try(rm("account.st","portfolio.st","stock.str","s","initDate","initEq",'start_t','end_t'),silent=TRUE)
+try(rm("account.st","portfolio.st","stock.str","stratMACD","initDate","initEq",'start_t','end_t'),silent=TRUE)
 
 stock.str='AAPL' # what are we trying it on
 
@@ -51,8 +51,14 @@ getSymbols(stock.str,from=initDate)
 start_t<-Sys.time()
 out<-try(applyStrategy(strategy=stratMACD , portfolios=portfolio.st,parameters=list(nFast=fastMA, nSlow=slowMA, nSig=signalMA,maType=maType)))
 end_t<-Sys.time()
-end_t-start_t
+print(end_t-start_t)
+
+start_t<-Sys.time()
 updatePortf(Portfolio=portfolio.st,Dates=paste('::',as.Date(Sys.time()),sep=''))
+end_t<-Sys.time()
+print("trade blotter portfolio update:")
+print(end_t-start_t)
+
 chart.Posn(Portfolio=portfolio.st,Symbol=stock.str)
 plot(add_MACD(fast=fastMA, slow=slowMA, signal=signalMA,maType="EMA"))
 

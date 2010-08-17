@@ -7,7 +7,7 @@
 require(quantstrat)
 try(rm("order_book.macross",pos=.strategy),silent=TRUE)
 try(rm("account.macross","portfolio.macross",pos=.blotter),silent=TRUE)
-try(rm("account.st","portfolio.st","stock.str","macross","initDate","initEq",'start_t','end_t'),silent=TRUE)
+try(rm("account.st","portfolio.st","stock.str","stratMACROSS","initDate","initEq",'start_t','end_t'),silent=TRUE)
 stock.str='AAPL' # what are we trying it on
 currency('USD')
 stock(stock.str,currency='USD',multiplier=1)
@@ -39,8 +39,14 @@ getSymbols(stock.str,from=initDate)
 start_t<-Sys.time()
 out<-try(applyStrategy(strategy=stratMACROSS , portfolios=portfolio.st))
 end_t<-Sys.time()
-end_t-start_t
+print(end_t-start_t)
+
+start_t<-Sys.time()
 updatePortf(Portfolio='macross',Dates=paste('::',as.Date(Sys.time()),sep=''))
+end_t<-Sys.time()
+print("trade blotter portfolio update:")
+print(end_t-start_t)
+
 chart.Posn(Portfolio='macross',Symbol=stock.str)
 add_SMA(n=50 , on=1,col='blue')
 add_SMA(n=200, on=1)
