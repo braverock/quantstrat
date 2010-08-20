@@ -133,16 +133,16 @@ osNoOp <- function(timestamp, orderqty, portfolio, symbol, ruletype, ...){
 addPosLimit <- function(portfolio, symbol, timestamp, maxpos, longlevels=1, minpos=0, shortlevels=0){
     portf<-getPortfolio(portfolio)
     newrow <- xts(c(maxpos, longlevels, minpos, shortlevels),order.by=as.POSIXct(timestamp))
-    if(is.null(portf[[symbol]]$PosLimit)) {
-        portf[[symbol]]$PosLimit <- newrow 
-        colnames(portf[[symbol]]$PosLimit)<-c("MaxPos","LongLevels","MinPos","ShortLevels")
+    if(is.null(portf$symbols[[symbol]]$PosLimit)) {
+        portf$symbols[[symbol]]$PosLimit <- newrow 
+        colnames(portf$symbols[[symbol]]$PosLimit)<-c("MaxPos","LongLevels","MinPos","ShortLevels")
     } else {
         if(!is.null(portf[[symbol]]$PosLimit[timestamp])){
             # it exists already, so replace
-            portf[[symbol]]$PosLimit[timestamp]<-newrow
+            portf$symbols[[symbol]]$PosLimit[timestamp]<-newrow
         } else {
             # add a new row on timestamp
-            portf[[symbol]]$PosLimit <- rbind(portf[[symbol]]$PosLimit,newrow)
+            portf$symbols[[symbol]]$PosLimit <- rbind(portf[[symbol]]$PosLimit,newrow)
         }
     }
     assign(paste("portfolio",portfolio,sep='.'),portf,envir=.blotter)
@@ -157,7 +157,7 @@ getPosLimit <- function(portfolio, symbol, timestamp){
     portf<-getPortfolio(portfolio)
     # try to get on timestamp, otherwise find the most recent
     toDate = paste('::', as.character(timestamp), sep="")
-    PosLimit = last(portf[[symbol]]$PosLimit[toDate])
+    PosLimit = last(portf$symbols[[symbol]]$PosLimit[toDate])
     return(PosLimit)
 }
 

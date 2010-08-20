@@ -40,7 +40,7 @@ initOrders <- function(portfolio=NULL, symbols=NULL, initDate = '1999-12-31')
     
     if(is.null(symbols)) {
         pfolio<-getPortfolio(portfolio)
-        symbols<-names(pfolio)
+        symbols<-names(pfolio$symbols)
     }
     if(!is.null(symbols)){
         for (symbol in symbols){
