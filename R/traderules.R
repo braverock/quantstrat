@@ -1,15 +1,19 @@
 
 #' default rule to generate a trade order on a signal
 #' 
-#' \code{pricemethod} may be one of 'market' or 'opside' 
+#' \code{pricemethod} may be one of 'market', 'opside', or 'maker' 
 #' which will either try to get the price of the 'market' at \code{timestamp} and use this as the order price
-#' or 'opside' which will use the 'ask' price if you're buying and the 'bid' price if you're selling
+#' or 'opside' which will use the 'ask' price if you're buying and the 'bid' price if you're selling, crossing 
+#' the market at the time of order entry to attempt to set an aggressive price to get the trade.  
+#' The 'maker' \code{pricemethod} will create a pair of orders for both bid and offer, modeling market making 
+#' activities by having orders on both sides.  This will then create an Order.Set, and use the threshold to
+#' set the prices for these orders.
 #' 
 #' If \code{threshold} is not numeric or \code{NULL} it should be the character string describing a function that can calculate a threshold.  
 #' Ideally this will be a column lookup on a non-path-dependent indicator calculated in advance.
 #' 
 #' If \code{orderside} is NULL, the function will attempt to calculate the side from the current position 
-#' (if any) and the order quantity.    
+#' (if any), the order quantity, and the order type.    
 #'   
 #' @param data an xts object containing market data.  depending on rules, may need to be in OHLCV or BBO formats, and may include indicator and signal information
 #' @param timestamp timestamp coercible to POSIXct that will be the time the order will be inserted on 
@@ -22,14 +26,14 @@
 #' @param replace TRUE/FALSE, whether to replace any other open order(s) on this portfolio symbol, default TRUE 
 #' @param delay what delay to add to timestamp when inserting the order into the order book, in seconds
 #' @param osFUN function or text descriptor of function to use for order sizing, default \code{\link{osNoOp}}
-#' @param pricemethod one of 'market' or 'opside', see Details
+#' @param pricemethod one of 'market', 'opside', or 'maker', see Details
 #' @param portfolio text name of the portfolio to place orders in
 #' @param symbol identifier of the instrument to place orders for.  The name of any associated price objects (xts prices, usually OHLC) should match these
 #' @param ... any other passthru parameters
 #' @param ruletype one of "risk","order","rebalance","exit","entry", see \code{\link{add.rule}}
 #' @seealso \code{\link{osNoOp}} , \code{\link{add.rule}}
 #' @export
-ruleSignal <- function(data=mktdata, timestamp, sigcol, sigval, orderqty=0, ordertype, orderside=NULL, threshold=NULL, replace=TRUE, delay=0.0001, osFUN='osNoOp', pricemethod=c('market','opside'), portfolio, symbol, ..., ruletype ) {
+ruleSignal <- function(data=mktdata, timestamp, sigcol, sigval, orderqty=0, ordertype, orderside=NULL, threshold=NULL, replace=TRUE, delay=0.0001, osFUN='osNoOp', pricemethod=c('market','opside','maker'), portfolio, symbol, ..., ruletype ) {
     if(!is.function(osFUN)) osFUN<-match.fun(osFUN)
     #print(paste(symbol,timestamp))
     #print(data[timestamp][,sigcol])
@@ -42,23 +46,60 @@ ruleSignal <- function(data=mktdata, timestamp, sigcol, sigval, orderqty=0, orde
 
 		#calculate order price using pricemethod
         pricemethod<-pricemethod[1] #only use the first if not set by calling function
-        switch(pricemethod,
+		
+		if(hasArg(prefer)) prefer=match.call(expand.dots=TRUE)$prefer 
+		else prefer = NULL
+		
+		switch(pricemethod,
                 opside = {
                     if (orderqty>0) 
                         prefer='ask'  # we're buying, so pay what they're asking
                     else
                         prefer='bid'  # we're selling, so give it to them for what they're bidding
-                    orderprice <- try(getPrice(x=data,prefer=prefer))
-                }, 
+                    orderprice <- try(getPrice(x=data, prefer=prefer))[as.character(timestamp)]
+				}, 
                 market = {
-					if(hasArg(prefer)) prefer=match.call(expand.dots=TRUE)$prefer 
-					else prefer = NULL
-					orderprice <- try(getPrice(x=data, prefer=prefer)) 
-                }  
+					orderprice <- try(getPrice(x=data, prefer=prefer))[as.character(timestamp)] 
+				},
+				maker = {
+					if(hasArg(price) & length(match.call(expand.dots=TRUE)$price)>1) {
+						# we have prices, just use them
+						orderprice <- try(match.call(expand.dots=TRUE)$price)
+					} else {
+						if(!is.null(threshold)) {
+							baseprice<- last(getPrice(x=data)[as.character(timestamp)]) # this should get either the last trade price or the Close
+							if(hasArg(tmult) & isTRUE(match.call(expand.dots=TRUE)$tmult)) {
+								baseprice<- last(getPrice(x=data)[as.character(timestamp)]) # this should get either the last trade price or the Close
+								# threshold is a multiplier of current price
+								if (length(threshold)>1){
+									orderprice <- baseprice * threshold # assume the user has set proper threshold multipliers for each side
+								} else {
+									orderprice <- c(baseprice*threshold,baseprice*(1+1-threshold)) #just bracket on both sides
+								}
+							} else {
+								# tmult is FALSE or NULL, threshold is numeric
+								if (length(threshold)>1){
+									orderprice <- baseprice + threshold # assume the user has set proper threshold numerical offsets for each order
+								} else {
+									orderprice <- c(baseprice+threshold,baseprice+(-threshold)) #just bracket on both sides
+								}
+							}
+						} else{
+							# no threshold, put it on the averages?
+							stop('maker orders without specified prices and without threholds not (yet?) supported')
+							if(is.BBO(data)){
+								
+							} else {
+								
+							}
+						}
+					}
+					if(length(orderqty)==1) orderqty <- c(orderqty,-orderqty) #create paired market maker orders at the same size
+				}
         )
         if(inherits(orderprice,'try-error')) orderprice<-NULL
-        if(length(orderprice>1)) orderprice<-last(orderprice[as.character(timestamp)])
-        if(is.null(orderside) & !orderqty == 0){
+        if(length(orderprice>1) & !ordertype=='maker') orderprice<-last(orderprice[as.character(timestamp)])
+        if(is.null(orderside) & !isTRUE(orderqty == 0)){
             curqty<-getPosQty(Portfolio=portfolio, Symbol=symbol, Date=timestamp)
             if (curqty>0 ){
                 #we have a long position
@@ -75,7 +116,6 @@ ruleSignal <- function(data=mktdata, timestamp, sigcol, sigval, orderqty=0, orde
             }
         }
         if(!is.null(orderqty) & !orderqty == 0 & !is.null(orderprice)){
-            # print(orderprice)
             addOrder(portfolio=portfolio, symbol=symbol, timestamp=timestamp, qty=orderqty, price=orderprice, ordertype=ordertype, side=orderside, threshold=threshold, status="open", replace=replace , delay=delay, ...)
         }
     }
@@ -83,6 +123,7 @@ ruleSignal <- function(data=mktdata, timestamp, sigcol, sigval, orderqty=0, orde
 
 #TODO ruleORSignal
 #TODO ruleANDSingnal
+# perhaps this could be done using the approach of sigFormula, or perhaps we should advise users to use sigFormula to create a signal you can use ruleSignal on.  Thoughts?
 
 
 #' default order sizing function 
