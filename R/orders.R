@@ -238,7 +238,7 @@ addOrder <- function(portfolio, symbol, timestamp, qty, price, ordertype, side, 
 	
 	#handle order sets
 	#get the order set if length(price)>1
-	if(length(prices)>1) {
+	if(length(price)>1) {
 		order.set<-max(getOrders(portfolio=portfolio, symbol=symbol, status='open', timespan=timespan, ordertype=NULL, side=NULL,which.i=FALSE)$Order.Set)
 		if(is.na(order.set)) order.set<-1
 	} else {	
