@@ -137,7 +137,7 @@ applySignals <- function(strategy, mktdata, indicators=NULL, parameters=NULL, ..
 #' @export
 sigComparison <- function(label,data=mktdata, columns, relationship=c("gt","lt","eq","gte","lte")) {
     relationship=relationship[1] #only use the first one
-    if (length(columns==2)){
+    if (length(columns)==2){
         ret_sig=NULL
         if (relationship=='op'){
             # (How) can this support "Close"? --jmu
@@ -153,20 +153,19 @@ sigComparison <- function(label,data=mktdata, columns, relationship=c("gt","lt",
                     ask = {relationship = 'gt'}
             )
         }
+		
         colNums <- match.names(columns,colnames(data))
-        switch(relationship,
-                '>'   =,
-                'gt'  = {ret_sig = data[,colNums[1]] > data[,colNums[2]]},
-                '<'   ,
-                'lt'  = {ret_sig = data[,colNums[1]] < data[,colNums[2]]},
-                'eq'  = {ret_sig = data[,colNums[1]] == data[,colNums[2]]}, #FIXME any way to specify '='?
-                'gte' =,
-                'gteq'=,
-                'ge'  = {ret_sig = data[,colNums[1]] >= data[,colNums[2]]}, #FIXME these fail with an 'unexpected =' error if you use '>=' 
-                'lte' =,
-                'lteq'=,
-                'le'  = {ret_sig = data[,colNums[1]] <= data[,colNums[2]]}
-        )
+		
+		opr <- switch( relationship,
+					 gt = , '>'='>', 
+					 lt =, '<'='<', 
+					 eq =, "=="=, "=" = "==",
+					 gte=, gteq=, ge=, ">=" = ">=",
+					 lte=, lteq=, le=, "<=" = "<="
+					)
+					
+		ret_sig <- do.call( opr, list(data[,colNums[1]], data[,colNums[2]]))
+
     } else {
         stop("comparison of more than two columns not supported yet, patches welcome")
     }
