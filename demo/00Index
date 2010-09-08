@@ -1,5 +1,6 @@
 bbands     Build a simple Bollinger Bands strategy using one indicator, three signals, and three trade rules
 faber      demonstrate a simple long term trend model using a 10-month SMA on a small portfolio of ETFs based on Mebane Faber paper
+faberMC    apply the Faber 10-month SMA strategy to a three-currency index portfolio
 macd       example of Moving Average Convergence/Divergence (MACD) used as a trend indicator
 maCross    classic 'Golden Cross' 50/200 period moving average cross strategy, long only, with long/short extra rules commented out
 rsi        Relative Strength Index (RSI) strategy demonstrating long-only threshold actions
