@@ -93,12 +93,9 @@ applyStrategy <- function(strategy , portfolios, mktdata=NULL , parameters=NULL,
         symbols<-names(pobj$symbols)
         sret<-list()
         for (symbol in symbols){
-            ret[[portfolio]][[symbol]]<-list()
-            #if(!hasArg(mktdata)) mktdata <- get(symbol)
-            #TODO FIXME allow passing of mktdata again?
             mktdata <- get(symbol)
-            #print(head(mktdata))
-            #loop over indicators
+
+			#loop over indicators
             sret$indicators <- applyIndicators(strategy=strategy , mktdata=mktdata , parameters=parameters, ... )
             #this should be taken care of by the mktdata<<-mktdata line in the apply* fn
             if(inherits(sret$indicators,"xts") & nrow(mktdata)==nrow(sret$indicators)){
@@ -106,7 +103,7 @@ applyStrategy <- function(strategy , portfolios, mktdata=NULL , parameters=NULL,
             }
                 
             #loop over signal generators
-            sret$signals <- applySignals(strategy=strategy, mktdata=mktdata, ret$indicators, parameters=parameters, ... )
+            sret$signals <- applySignals(strategy=strategy, mktdata=mktdata, sret$indicators, parameters=parameters, ... )
             #this should be taken care of by the mktdata<<-mktdata line in the apply* fn
             if(inherits(sret$signals,"xts") & nrow(mktdata)==nrow(sret$signals)){
                 mktdata<-sret$signals    
@@ -117,9 +114,10 @@ applyStrategy <- function(strategy , portfolios, mktdata=NULL , parameters=NULL,
             sret$rules<-list()
             sret$rules$nonpath<-applyRules(portfolio=portfolio, symbol=symbol, strategy=strategy, mktdata=mktdata, Dates=NULL, indicators=sret$indicators, signals=sret$signals, parameters=parameters,  ..., path.dep=FALSE)
             sret$rules$pathdep<-applyRules(portfolio=portfolio, symbol=symbol, strategy=strategy, mktdata=mktdata, Dates=NULL, indicators=sret$indicators, signals=sret$signals, parameters=parameters,  ..., path.dep=TRUE)
-        }
-        ret[[portfolio]][[symbol]]<-sret
-    }
+
+			ret[[portfolio]][[symbol]]<-sret
+		}
+	}
     
     return(ret)
 }
