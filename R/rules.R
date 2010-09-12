@@ -136,7 +136,7 @@ applyRules <- function(portfolio, symbol, strategy, mktdata, Dates=NULL, indicat
                 rm('...')
                 nargs=NULL
             }
-            
+
             .formals  <- formals(fun)
             onames <- names(.formals)
             rule$arguments$timestamp = timestamp
@@ -145,14 +145,14 @@ applyRules <- function(portfolio, symbol, strategy, mktdata, Dates=NULL, indicat
             # if (any(pm == 0L)) message(paste("some arguments stored for",rule$name,"do not match"))
             names(rule$arguments[pm > 0L]) <- onames[pm]
             .formals[pm] <- rule$arguments[pm > 0L]
-			
+
 			# now add arguments from parameters
 			if(length(parameters)){
 				pm <- pmatch(names(parameters), onames, nomatch = 0L)
 				names(parameters[pm > 0L]) <- onames[pm]
 				.formals[pm] <- parameters[pm > 0L]
 			}
-			
+
             #now add dots
             if (length(nargs)) {
                 pm <- pmatch(names(nargs), onames, nomatch = 0L)
@@ -160,7 +160,7 @@ applyRules <- function(portfolio, symbol, strategy, mktdata, Dates=NULL, indicat
                 .formals[pm] <- nargs[pm > 0L]
             }
             .formals$... <- NULL
-            
+
             tmp_val<-do.call(fun,.formals)
             ## if(!is.null(tmp_val)){
             ##     if(is.null(names(tmp_val)) & ncol(tmp_val)==1) names(tmp_val)<-rule$label
@@ -176,7 +176,7 @@ applyRules <- function(portfolio, symbol, strategy, mktdata, Dates=NULL, indicat
             mktdata <<- mktdata
             ret <<- ret
             hold <<- hold #TODO FIXME hold processing doesn't work yet
-            
+
             #print(tmp_val)
         } #end rules loop
     } # end sub process function
@@ -187,12 +187,12 @@ applyRules <- function(portfolio, symbol, strategy, mktdata, Dates=NULL, indicat
 
     hold=FALSE
     holdtill=first(time(Dates))-1 # TODO FIXME make holdtill default more robust?
-    
+
     for(d in 1:length(Dates)){ # d is a date slot counter
         # I shouldn't have to do this but we lose the class for the element 
         # when we do for(date in Dates)
         timestamp=Dates[d]    
-        
+
         # check to see if we need to release a hold
         if(isTRUE(hold) & holdtill<timestamp){
             hold=FALSE
@@ -202,44 +202,44 @@ applyRules <- function(portfolio, symbol, strategy, mktdata, Dates=NULL, indicat
             switch( type ,
                     pre = {
                         if(length(strategy$rules[[type]])>=1){
-                            ruleProc(strategy$rules$pre,timestamp=timestamp, path.dep=path.dep, mktdata=mktdata,portfolio=portfolio, symbol=symbol, ruletype=type)    
+                            ruleProc(strategy$rules$pre,timestamp=timestamp, path.dep=path.dep, mktdata=mktdata,portfolio=portfolio, symbol=symbol, ruletype=type, ...)
                         }
                     },
                     risk = {
                         if(length(strategy$rules$risk)>=1){
-                            ruleProc(strategy$rules$risk,timestamp=timestamp, path.dep=path.dep, mktdata=mktdata,portfolio=portfolio, symbol=symbol, ruletype=type)    
-                        }       
+                            ruleProc(strategy$rules$risk,timestamp=timestamp, path.dep=path.dep, mktdata=mktdata,portfolio=portfolio, symbol=symbol, ruletype=type,...)
+                        }
                     },
                     order = {
                         if(isTRUE(hold)) next()
                         if(length(strategy$rules[[type]])>=1) {
-                            ruleProc(strategy$rules[[type]],timestamp=timestamp, path.dep=path.dep, mktdata=mktdata,portfolio=portfolio, symbol=symbol, ruletype=type)
+                            ruleProc(strategy$rules[[type]],timestamp=timestamp, path.dep=path.dep, mktdata=mktdata,portfolio=portfolio, symbol=symbol, ruletype=type,...)
                         } else {
                             #(mktdata, portfolio, symbol, timestamp, slippageFUN=NULL)
                             timespan<-paste("::",timestamp,sep='')
-                            ruleOrderProc(portfolio=portfolio, symbol=symbol, mktdata=mktdata, timespan=timespan)
+                            ruleOrderProc(portfolio=portfolio, symbol=symbol, mktdata=mktdata, timespan=timespan,...)
                         }
                     },
                     rebalance =, exit = , enter = , entry = {
-                        if(isTRUE(hold)) next()    
+                        if(isTRUE(hold)) next()
                         if(type=='exit'){
                             # must have a position for an exit rules to fire
                             if (getPosQty(Portfolio=portfolio,Symbol=symbol,Date=timestamp)==0) next()
                         }
                         if(length(strategy$rules[[type]])>=1) {
-                            ruleProc(strategy$rules[[type]],timestamp=timestamp, path.dep=path.dep, mktdata=mktdata,portfolio=portfolio, symbol=symbol, ruletype=type)
-                        }      
+                            ruleProc(strategy$rules[[type]],timestamp=timestamp, path.dep=path.dep, mktdata=mktdata,portfolio=portfolio, symbol=symbol, ruletype=type,...)
+                        }
                     },
                     post = {
                         #TODO do we processfor hold here, or not?
                         if(length(strategy$rules$post)>=1) {
-                            ruleProc(strategy$rules$post,timestamp=timestamp, path.dep=path.dep, mktdata=mktdata,portfolio=portfolio, symbol=symbol, ruletype=type)    
+                            ruleProc(strategy$rules$post,timestamp=timestamp, path.dep=path.dep, mktdata=mktdata,portfolio=portfolio, symbol=symbol, ruletype=type,...)
                         }
                     }
-            ) # end switch            
+            ) # end switch
         } #end type loop
     } # end dates loop
-    
+
     mkdata<<-mktdata
     if(is.null(ret)) {
         return(mktdata)

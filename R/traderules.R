@@ -33,7 +33,8 @@
 #' @param ruletype one of "risk","order","rebalance","exit","entry", see \code{\link{add.rule}}
 #' @seealso \code{\link{osNoOp}} , \code{\link{add.rule}}
 #' @export
-ruleSignal <- function(data=mktdata, timestamp, sigcol, sigval, orderqty=0, ordertype, orderside=NULL, threshold=NULL, replace=TRUE, delay=0.0001, osFUN='osNoOp', pricemethod=c('market','opside','maker'), portfolio, symbol, ..., ruletype ) {
+ruleSignal <- function(data=mktdata, timestamp, sigcol, sigval, orderqty=0, ordertype, orderside=NULL, threshold=NULL, replace=TRUE, delay=0.0001, osFUN='osNoOp', pricemethod=c('market','opside','maker'), portfolio, symbol, ..., ruletype, TxnFees=0 )
+{
     if(!is.function(osFUN)) osFUN<-match.fun(osFUN)
     #print(paste(symbol,timestamp))
     #print(data[timestamp][,sigcol])
@@ -46,10 +47,13 @@ ruleSignal <- function(data=mktdata, timestamp, sigcol, sigval, orderqty=0, orde
 
 		#calculate order price using pricemethod
         pricemethod<-pricemethod[1] #only use the first if not set by calling function
-		
-		if(hasArg(prefer)) prefer=match.call(expand.dots=TRUE)$prefer 
+
+		if(hasArg(prefer)) prefer=match.call(expand.dots=TRUE)$prefer
 		else prefer = NULL
-		
+
+		#if(hasArg(TxnFees)) TxnFees=match.call(expand.dots=TRUE)$TxnFees
+		#else TxnFees=0
+
 		switch(pricemethod,
                 opside = {
                     if (orderqty>0) 
@@ -88,9 +92,9 @@ ruleSignal <- function(data=mktdata, timestamp, sigcol, sigval, orderqty=0, orde
 							# no threshold, put it on the averages?
 							stop('maker orders without specified prices and without threholds not (yet?) supported')
 							if(is.BBO(data)){
-								
+
 							} else {
-								
+
 							}
 						}
 					}
@@ -116,7 +120,7 @@ ruleSignal <- function(data=mktdata, timestamp, sigcol, sigval, orderqty=0, orde
             }
         }
         if(!is.null(orderqty) & !orderqty == 0 & !is.null(orderprice)){
-            addOrder(portfolio=portfolio, symbol=symbol, timestamp=timestamp, qty=orderqty, price=orderprice, ordertype=ordertype, side=orderside, threshold=threshold, status="open", replace=replace , delay=delay, ...)
+            addOrder(portfolio=portfolio, symbol=symbol, timestamp=timestamp, qty=orderqty, price=orderprice, ordertype=ordertype, side=orderside, threshold=threshold, status="open", replace=replace , delay=delay, ...=..., TxnFees=TxnFees)
         }
     }
 }

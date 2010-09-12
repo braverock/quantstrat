@@ -35,9 +35,9 @@ initOrders <- function(portfolio=NULL, symbols=NULL, initDate = '1999-12-31')
         orders<-list()
         orders[[portfolio]]<-list()
     }
-    ordertemplate<-xts(as.matrix(t(c(0,NA,"init","long",0,"closed",as.character(as.POSIXct(initDate)),1))),order.by=as.POSIXct(initDate))
-    colnames(ordertemplate) <- c("Order.Qty","Order.Price","Order.Type","Order.Side","Order.Threshold","Order.Status","Order.StatusTime","Order.Set")
-    
+    ordertemplate<-xts(as.matrix(t(c(0,NA,"init","long",0,"closed",as.character(as.POSIXct(initDate)),1,0))),order.by=as.POSIXct(initDate))
+    colnames(ordertemplate) <- c("Order.Qty","Order.Price","Order.Type","Order.Side","Order.Threshold","Order.Status","Order.StatusTime","Order.Set","Txn.Fees")
+
     if(is.null(symbols)) {
         pfolio<-getPortfolio(portfolio)
         symbols<-names(pfolio$symbols)
@@ -76,21 +76,21 @@ getOrders <- function(portfolio,symbol,status="open",timespan=NULL,ordertype=NUL
     orderbook <- getOrderBook(portfolio)
     if(!length(grep(symbol,names(orderbook[[portfolio]])))==1) stop(paste("symbol",symbol,"does not exist in portfolio",portfolio,"having symbols",names(orderbook)))
     ordersubset<-orderbook[[portfolio]][[symbol]]
-    
+
     #data quality checks
     if(!is.null(status) & !length(grep(status,c("open", "closed", "canceled","replaced")))==1) stop(paste("order status:",status,' must be one of "open", "closed", "canceled", or "replaced"'))
     if(!is.null(ordertype)) {
         if(is.na(charmatch(ordertype,c("market","limit","stoplimit","stoptrailing")))){
             stop(paste("ordertype:",ordertype,' must be one of "market","limit","stoplimit", or "stoptrailing"'))
-        } 
-    } 
+        }
+    }
 
 	indices <- which(#if(!is.null(timespan)) ordersubset[timespan,which.i=TRUE] else TRUE &
 					 if(!is.null(status)) ordersubset[,"Order.Status"]==status else TRUE &
 					 if(!is.null(ordertype)) ordersubset[,"Order.Type"]==ordertype else TRUE &
 			         if(!is.null(status)) ordersubset[,"Order.Side"]==side else TRUE
 					)
-							
+
 	if(isTRUE(which.i)){
 		return(indices)
 	} else {
@@ -178,13 +178,15 @@ getOrders <- function(portfolio,symbol,status="open",timespan=NULL,ordertype=NUL
 #' @param tmult if TRUE, threshold is a percent multiplier for \code{price}, not a scalar to be added/subtracted from price.  threshold will be dynamically converted to a scalar at time of order entry
 #' @param replace TRUE/FALSE, whether to replace any other open order(s) on this portfolio symbol, default TRUE 
 #' @param return if TRUE, return the row that makes up the order, default FALSE (will assign into the environment)
+#' @param dots any other passthru parameters
+#' @param TxnFees numeric fees (usually negative) or function name for calculating TxnFees (processing happens later, not in this function)
 #' @export
-addOrder <- function(portfolio, symbol, timestamp, qty, price, ordertype, side, threshold=NULL, status="open", statustimestamp='' , delay=.00001, tmult=FALSE, replace=TRUE, return=FALSE)
+addOrder <- function(portfolio, symbol, timestamp, qty, price, ordertype, side, threshold=NULL, status="open", statustimestamp='' , delay=.00001, tmult=FALSE, replace=TRUE, return=FALSE, ..., TxnFees=0)
 {
     # get order book
     #orderbook <- getOrderBook(portfolio)
     #if(!length(grep(symbol,names(orderbook[[portfolio]])))==1) stop(paste("symbol",symbol,"does not exist in portfolio",portfolio,"having symbols",names(orderbook[[portfolio]])))
-    
+
     #data quality checks
     if(!is.numeric(qty)) stop (paste("Quantity must be numeric:",qty))
     if(qty==0) stop("qty",qty,"must be positive or negative")
@@ -194,7 +196,7 @@ addOrder <- function(portfolio, symbol, timestamp, qty, price, ordertype, side, 
     if(price==0) stop("price",price,"must be positive or negative")
     if(is.null(price)) stop("price",price,"must not be NULL")
     if(is.na(price)) stop("price",price,"must not be NA")
-    
+
     if(!is.null(side) & !length(grep(side,c('long','short')))==1) stop(paste("side:",side," must be one of 'long' or 'short'"))
     if(is.na(charmatch(ordertype,c("market","limit","stoplimit","stoptrailing")))) stop(paste("ordertype:",ordertype,' must be one of "market","limit","stoplimit",or "stoptrailing"'))
     if(!is.null(threshold) & length(price)>1 ) {
@@ -213,19 +215,19 @@ addOrder <- function(portfolio, symbol, timestamp, qty, price, ordertype, side, 
 						if(isTRUE(tmult)){
 							#get the difference between the threshold*price and the price
 							threshold = (price*threshold)-price
-						} 
+						}
 					}
 			) #end type switch
-		} else { 
+		} else {
 			stop(paste("Threshold may only be applied to a stop order type",ordertype,threshold))
     	}
-	} 
-	
+	}
+
 	if(is.null(threshold)) threshold=NA  #NA is not ignored like NULL is 
-    
+
 	if(!length(grep(status,c("open", "closed", "canceled","replaced")))==1) stop(paste("order status:",status,' must be one of "open", "closed", "canceled", or "replaced"'))
     # TODO do we need to check for collision, and increment timestamp?  or alternately update?
-    
+
     # subset by time and symbol
     if(!is.null(timestamp)& length(timestamp)>=1){
         timespan<-paste("::",timestamp,sep='')
@@ -233,9 +235,9 @@ addOrder <- function(portfolio, symbol, timestamp, qty, price, ordertype, side, 
         # construct the timespan of the entire series
         timespan=paste(index(first(orderbook),index(last(orderbook)),sep='::'))
     }
- 
+
 	statustimestamp=NA # new orders don't have a status time
-	
+
 	#handle order sets
 	#get the order set if length(price)>1
 	if(length(price)>1) {
@@ -254,20 +256,20 @@ addOrder <- function(portfolio, symbol, timestamp, qty, price, ordertype, side, 
     # insert new order
     if(is.timeBased(timestamp)) ordertime<-timestamp+delay
     else ordertime<-as.POSIXct(timestamp)+delay
-	
+
 	order<-NULL
 	for (i in 1:length(price)){
-		neworder<-xts(as.matrix(t(c(qty[i], price[i], ordertype[i], side, threshold[i], status, statustimestamp, order.set))),order.by=(ordertime))
+		neworder<-xts(as.matrix(t(c(qty[i], price[i], ordertype[i], side, threshold[i], status, statustimestamp, order.set,TxnFees))),order.by=(ordertime))
 		if(is.null(order)) order<-neworder
 		else order <- rbind(order,neworder)
 	}
 
-	if(ncol(order)!=8) {
+	if(ncol(order)!=9) {
         print("bad order(s):")
 		print(order)
         next()
     }
-	
+
 	if(!isTRUE(return)){
 		if(isTRUE(replace)) updateOrders(portfolio=portfolio, symbol=symbol,timespan=timespan, ordertype=ordertype, side=side, oldstatus="open", newstatus="replaced", statustimestamp=timestamp)
 		# get order book
@@ -279,7 +281,7 @@ addOrder <- function(portfolio, symbol, timestamp, qty, price, ordertype, side, 
 		return()
 	} else {
 		return(order)
-	}    
+	}
 }
 
 #' update an order or orders
@@ -371,6 +373,7 @@ ruleOrderProc <- function(portfolio, symbol, mktdata, timespan, ordertype=NULL, 
                 for (ii in procorders ){
                     txnprice=NULL
                     txntime=as.character(index(ordersubset[ii,]))
+                    txnfees=ordersubset[ii, ]$Txn.Fees
                     switch(ordersubset[ii,]$Order.Type,
                         market = {
                                 txnprice=as.numeric(getPrice(mktdata[txntime], prefer='close'))
@@ -394,7 +397,7 @@ ruleOrderProc <- function(portfolio, symbol, mktdata, timespan, ordertype=NULL, 
                         }
                     )
                     if(!is.null(txnprice)){
-                        addTxn(Portfolio=portfolio, Symbol=symbol, TxnDate=txntime, TxnQty=as.numeric(ordersubset[ii,]$Order.Qty), TxnPrice=txnprice ,...=...)
+                        addTxn(Portfolio=portfolio, Symbol=symbol, TxnDate=txntime, TxnQty=as.numeric(ordersubset[ii,]$Order.Qty), TxnPrice=txnprice , ...=..., TxnFees=txnfees)
                         ordersubset[ii,]$Order.Status<-'closed'
                         ordersubset[ii,]$Order.StatusTime<-txntime
                     }
@@ -406,6 +409,7 @@ ruleOrderProc <- function(portfolio, symbol, mktdata, timespan, ordertype=NULL, 
                 for (ii in procorders ){
                     #browser()
                     txnprice=NULL
+                    txnfees=ordersubset[ii, ]$Txn.Fees
                     switch(ordersubset[ii,]$Order.Type,
                             market = {
                                 txnprice = as.numeric(getPrice(mktdata[timestamp]))
@@ -423,7 +427,7 @@ ruleOrderProc <- function(portfolio, symbol, mktdata, timespan, ordertype=NULL, 
                                     } else {
                                         # price did not move through my order
                                         next() # should go to next order
-                                    }   
+                                    }
                                 } else if(is.BBO(mktdata)){
                                     # check side/qty
                                     if(as.numeric(ordersubset[ii,]$Order.Qty)>0){ # positive quantity 'buy'
@@ -437,16 +441,16 @@ ruleOrderProc <- function(portfolio, symbol, mktdata, timespan, ordertype=NULL, 
                                             # we're willing to sell at a better price than the bid, so execute at the limit
                                             txnprice = as.numeric(ordersubset[ii,]$Order.Price)
                                             txntime  = as.character(timestamp)
-                                        } else next() 
-                                    } 
+                                        } else next()
+                                    }
                                 } else {
                                     # no depth data, either OHLC or BBO, getPrice explicitly using symbol ?
                                     if(ordersubset[ii,]$Order.Price==getPrice(mktdata[timestamp], symbol=symbol, prefer='price')){
                                         txnprice = as.numeric(ordersubset[ii,]$Order.Price)
                                         txntime  = as.character(timestamp)
-                                    } else next()                                     
+                                    } else next()
                                 }
-                                
+
                             },
                             stoptrailing = {
                                 # if market moved through my price, execute
@@ -466,7 +470,7 @@ ruleOrderProc <- function(portfolio, symbol, mktdata, timespan, ordertype=NULL, 
                                 # if market is beyond price+(-threshold), replace order
                                 if(is.null(txnprice)) { 
 									# we didn't trade, so check to see if we need to move the stop
-									
+
 									# first figure out how to find a price
 									if (is.OHLC(mktdata)){
 										prefer='close'
@@ -480,17 +484,18 @@ ruleOrderProc <- function(portfolio, symbol, mktdata, timespan, ordertype=NULL, 
 										prefer=NULL # see if getPrice can figure it out
 									}
                                     if( getPrice(mktdata[timestamp],prefer=prefer)+ordersubset[ii,]$Order.Threshold > ordersubset[ii,]$Order.Price ){
-                                        neworder<-addOrder(portfolio=portfolio, 
-                                                 symbol=symbol, 
-                                                 timestamp=timestamp, 
-                                                 qty=as.numeric(ordersubset[ii,]$Order.Qty), 
+                                        neworder<-addOrder(portfolio=portfolio,
+                                                 symbol=symbol,
+                                                 timestamp=timestamp,
+                                                 qty=as.numeric(ordersubset[ii,]$Order.Qty),
                                                  price=getgetPrice(mktdata[timestamp],prefer=prefer)+ordersubset[ii,]$Order.Threshold, 
-                                                 ordertype=ordersubset[ii,]$Order.Type, 
-                                                 side=ordersubset[ii,]$Order.Side, 
-                                                 threshold=ordersubset[ii,]$Order.Threshold, 
-                                                 status="open", 
-                                                 replace=FALSE, return=TRUE)
-										if (is.null(neworders)) neworders=neworder else neworders = rbind(neworders,neworder) 
+                                                 ordertype=ordersubset[ii,]$Order.Type,
+                                                 side=ordersubset[ii,]$Order.Side,
+                                                 threshold=ordersubset[ii,]$Order.Threshold,
+                                                 status="open",
+                                                 replace=FALSE, return=TRUE,
+                                                 ,...=..., TxnFees=ordersubset[ii,]$TxnFees)
+										if (is.null(neworders)) neworders=neworder else neworders = rbind(neworders,neworder)
                                         ordersubset[ii,]$Order.Status<-'replaced'
                                         ordersubset[ii,]$Order.StatusTime<-as.character(timestamp)
                                         next()
@@ -500,13 +505,13 @@ ruleOrderProc <- function(portfolio, symbol, mktdata, timespan, ordertype=NULL, 
                             }
                     )
                     if(!is.null(txnprice)& !is.na(txnprice)){
-                        addTxn(Portfolio=portfolio, Symbol=symbol, TxnDate=txntime, TxnQty=as.numeric(ordersubset[ii,]$Order.Qty), TxnPrice=txnprice ,...=...)
+                        addTxn(Portfolio=portfolio, Symbol=symbol, TxnDate=txntime, TxnQty=as.numeric(ordersubset[ii,]$Order.Qty), TxnPrice=txnprice , ...=..., TxnFees=txnfees)
                         ordersubset[ii,]$Order.Status<-'closed'
                         ordersubset[ii,]$Order.StatusTime<-as.character(timestamp)
                     }
                 } #end loop over open orders  
 				if(!is.null(neworders)) ordersubset=rbind(ordersubset,neworders)
-				
+
             } # end higher frequency processing
         ) # end switch on freq
 		

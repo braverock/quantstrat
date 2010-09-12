@@ -22,12 +22,12 @@ add.signal <- function(strategy, name, arguments, parameters=NULL, label=NULL, .
     tmp_signal$arguments<-arguments
 	if(!is.null(parameters)) tmp_signal$parameters = parameters
 	if(length(list(...))) tmp_signal<-c(tmp_signal,list(...))
-	
+
     if(!hasArg(indexnum) | (hasArg(indexnum) & is.null(indexnum))) indexnum = length(strategy$signals)+1
     tmp_signal$call<-match.call()
 	class(tmp_signal)<-'strat_signal'
     strategy$signals[[indexnum]]<-tmp_signal
-    
+
     if (store) assign(strategy$name,strategy,envir=as.environment(.strategy))
     else return(strategy)
 }
@@ -41,12 +41,12 @@ add.signal <- function(strategy, name, arguments, parameters=NULL, label=NULL, .
 #' @export
 applySignals <- function(strategy, mktdata, indicators=NULL, parameters=NULL, ...) {
     #TODO add Date subsetting
-    
+
     # TODO check for symbol name in mktdata using Josh's code:
     # symbol <- strsplit(colnames(mktdata)[1],"\\.")[[1]][1]
-    
+
     # TODO handle indicator lists as well as indicators that were cbound to mktdata
-    
+
     if (!is.strategy(strategy)) {
         strategy<-try(getStrategy(strategy))
         if(inherits(strategy,"try-error"))
@@ -153,9 +153,9 @@ sigComparison <- function(label,data=mktdata, columns, relationship=c("gt","lt",
                     ask = {relationship = 'gt'}
             )
         }
-		
+
         colNums <- match.names(columns,colnames(data))
-		
+
 		opr <- switch( relationship,
 					 gt = , '>'='>', 
 					 lt =, '<'='<', 
@@ -163,7 +163,7 @@ sigComparison <- function(label,data=mktdata, columns, relationship=c("gt","lt",
 					 gte=, gteq=, ge=, ">=" = ">=",
 					 lte=, lteq=, le=, "<=" = "<="
 					)
-					
+
 		ret_sig <- do.call( opr, list(data[,colNums[1]], data[,colNums[2]]))
 
     } else {
