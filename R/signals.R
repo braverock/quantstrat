@@ -157,17 +157,17 @@ sigComparison <- function(label,data=mktdata, columns, relationship=c("gt","lt",
         colNums <- match.names(columns,colnames(data))
 
 		opr <- switch( relationship,
-					 gt = , '>'='>', 
-					 lt =, '<'='<', 
-					 eq =, "=="=, "=" = "==",
-					 gte=, gteq=, ge=, ">=" = ">=",
-					 lte=, lteq=, le=, "<=" = "<="
-					)
+					   	gt = , '>' = '>', 
+					 	lt =, '<' = '<', 
+					 	eq =, "==" =, "=" = "==",
+					 	gte =, gteq =, ge =, ">=" = ">=",
+					 	lte =, lteq =, le =, "<=" = "<="
+					 )
 
 		ret_sig <- do.call( opr, list(data[,colNums[1]], data[,colNums[2]]))
 
     } else {
-        stop("comparison of more than two columns not supported yet, patches welcome")
+        stop("comparison of more than two columns not supported, see sigFormula")
     }
     colnames(ret_sig)<-label
     return(ret_sig)
@@ -257,6 +257,13 @@ sigThreshold <- function(label, data=mktdata, column, threshold=0, relationship=
 }
 
 #' generate a signal from a formula
+#' 
+#' This code takes advantage of some base R functionality that can treat an R object (in this case the internal mktdata object in quantstrat) as an enfironment or 'frame' using \code{\link{parent.frame}}.  
+#' This allows the columns of the data to be addressed without any major manipulation, simply by column name.  In most cases in quantstrat, this will be either the price/return columns, or columns added by indicators or prior signals.
+#' The formula will return TRUE/FALSE for each row comparison as a time series column which can then be used for rule execution.  The \code{formula} will be evaluated using \code{\link{eval}} as though in an if statement. 
+#' 
+#' This code is adapted from the approach used by Vijay Vaidyanthan in his PAST/AAII/SIPRO code to construct arbitrary, formulaic, comparisons.  Many thanks to Vijay for sharing his expertise.
+#'  
 #' @param label text label to apply to the output
 #' @param data data to apply formula to
 #' @param formula a logical expression like that used in an if statement, will typically reference column names in \code{mktdata}

@@ -374,6 +374,7 @@ ruleOrderProc <- function(portfolio, symbol, mktdata, timespan, ordertype=NULL, 
                     txnprice=NULL
                     txntime=as.character(index(ordersubset[ii,]))
                     txnfees=ordersubset[ii, ]$Txn.Fees
+					if(is.null(txnfees)) txnfees=0
                     switch(ordersubset[ii,]$Order.Type,
                         market = {
                                 txnprice=as.numeric(getPrice(mktdata[txntime], prefer='close'))
@@ -494,7 +495,7 @@ ruleOrderProc <- function(portfolio, symbol, mktdata, timespan, ordertype=NULL, 
                                                  threshold=ordersubset[ii,]$Order.Threshold,
                                                  status="open",
                                                  replace=FALSE, return=TRUE,
-                                                 ,...=..., TxnFees=ordersubset[ii,]$TxnFees)
+                                                 ,...=..., TxnFees=ordersubset[ii,]$Txn.Fees)
 										if (is.null(neworders)) neworders=neworder else neworders = rbind(neworders,neworder)
                                         ordersubset[ii,]$Order.Status<-'replaced'
                                         ordersubset[ii,]$Order.StatusTime<-as.character(timestamp)

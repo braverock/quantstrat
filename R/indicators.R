@@ -9,7 +9,7 @@
 #' Indicators are applied before signals and rules, and the output of indicators 
 #' may be used as inputs to construct signals or fire rules.
 #'
-#' \code{arguments} and \code{parameters} are named lists that describe the arguments to be passed to nthe indicator function.
+#' \code{arguments} and \code{parameters} are named lists that describe the arguments to be passed to the indicator function.
 #' \code{arguments} is for defining any non-default arguments to be passed to the function named in the \code{name} of the indicator.  
 #' For example, the \code{x} argument to a moving average function may be defined as \code{x=quote(Cl(mktdata))}
 #' 

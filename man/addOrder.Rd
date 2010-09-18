@@ -3,7 +3,7 @@
 \title{add an order to the order book...}
 \usage{addOrder(portfolio, symbol, timestamp, qty, price, ordertype, side,
     threshold, status="open", statustimestamp="", delay=1e-05,
-    tmult=FALSE, replace=TRUE, return=FALSE)}
+    tmult=FALSE, replace=TRUE, return=FALSE, ..., TxnFees=0)}
 \description{add an order to the order book}
 \details{It is important to understand that all the order functionality included in \code{quantstrat}
 exists to more closely model a real trading environment both in backtesting and in production.
@@ -79,4 +79,6 @@ Conversion to a live trading environment will also likely require a new version 
 \item{delay}{what delay to add to timestamp when inserting the order into the order book, in seconds}
 \item{tmult}{if TRUE, threshold is a percent multiplier for \code{price}, not a scalar to be added/subtracted from price.  threshold will be dynamically converted to a scalar at time of order entry}
 \item{replace}{TRUE/FALSE, whether to replace any other open order(s) on this portfolio symbol, default TRUE}
-\item{return}{if TRUE, return the row that makes up the order, default FALSE (will assign into the environment)}}
+\item{return}{if TRUE, return the row that makes up the order, default FALSE (will assign into the environment)}
+\item{dots}{any other passthru parameters}
+\item{TxnFees}{numeric fees (usually negative) or function name for calculating TxnFees (processing happens later, not in this function)}}
