@@ -86,9 +86,9 @@ getOrders <- function(portfolio,symbol,status="open",timespan=NULL,ordertype=NUL
     }
 
 	indices <- which(#if(!is.null(timespan)) ordersubset[timespan,which.i=TRUE] else TRUE &
-					 if(!is.null(status)) ordersubset[,"Order.Status"]==status else TRUE &
-					 if(!is.null(ordertype)) ordersubset[,"Order.Type"]==ordertype else TRUE &
-			         if(!is.null(status)) ordersubset[,"Order.Side"]==side else TRUE
+					 (if(!is.null(status)) ordersubset[,"Order.Status"]==status else TRUE) &
+					 (if(!is.null(ordertype)) ordersubset[,"Order.Type"]==ordertype else TRUE) &
+			         (if(!is.null(side)) ordersubset[,"Order.Side"]==side else TRUE)
 					)
 
 	if(isTRUE(which.i)){
