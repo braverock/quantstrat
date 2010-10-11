@@ -177,7 +177,7 @@ osNoOp <- function(timestamp, orderqty, portfolio, symbol, ruletype, ...){
 #' @export
 addPosLimit <- function(portfolio, symbol, timestamp, maxpos, longlevels=1, minpos=0, shortlevels=0){
     portf<-getPortfolio(portfolio)
-    newrow <- xts(c(maxpos, longlevels, minpos, shortlevels),order.by=as.POSIXct(timestamp))
+    newrow <- xts(cbind(maxpos, longlevels, minpos, shortlevels),order.by=as.POSIXct(timestamp))
     if(is.null(portf$symbols[[symbol]]$PosLimit)) {
         portf$symbols[[symbol]]$PosLimit <- newrow 
         colnames(portf$symbols[[symbol]]$PosLimit)<-c("MaxPos","LongLevels","MinPos","ShortLevels")

@@ -259,7 +259,7 @@ addOrder <- function(portfolio, symbol, timestamp, qty, price, ordertype, side, 
 
 	order<-NULL
 	for (i in 1:length(price)){
-		neworder<-xts(as.matrix(t(c(qty[i], price[i], ordertype[i], side, threshold[i], status, statustimestamp, order.set,TxnFees))),order.by=(ordertime))
+		neworder<-xts(as.matrix(t(c(as.numeric(qty[i]), price[i], ordertype[i], side, threshold[i], status, statustimestamp, order.set,TxnFees))),order.by=(ordertime))
 		if(is.null(order)) order<-neworder
 		else order <- rbind(order,neworder)
 	}
