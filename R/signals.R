@@ -262,7 +262,7 @@ sigThreshold <- function(label, data=mktdata, column, threshold=0, relationship=
 #' This allows the columns of the data to be addressed without any major manipulation, simply by column name.  In most cases in quantstrat, this will be either the price/return columns, or columns added by indicators or prior signals.
 #' The formula will return TRUE/FALSE for each row comparison as a time series column which can then be used for rule execution.  The \code{formula} will be evaluated using \code{\link{eval}} as though in an if statement. 
 #' 
-#' This code is adapted from the approach used by Vijay Vaidyanthan in his PAST/AAII/SIPRO code to construct arbitrary, formulaic, comparisons.  Many thanks to Vijay for sharing his expertise.
+#' This code is adapted from the approach used by Vijay Vaidyanthan in his PAST(AAII/SIPRO) code to construct arbitrary, formulaic, comparisons.  Many thanks to Vijay for sharing his expertise.
 #'  
 #' @param label text label to apply to the output
 #' @param data data to apply formula to
@@ -271,11 +271,13 @@ sigThreshold <- function(label, data=mktdata, column, threshold=0, relationship=
 #' @export
 sigFormula <- function(label, data=mktdata, formula ,cross=FALSE){
 	# Vijay's PAST/AAII/SIPRO example
-	# fieldVals <- try(eval(parse(text=expression), al, parent.frame()))
+	# fieldVals <- try(eval(parse(text=expression), data))
 	ret_sig=NULL
-	ret_sig <- try(eval(parse(text=formula), data, parent.frame()))
-	if(isTRUE(cross)) ret_sig <- diff(ret_sig)==1
-	colnames(ret_sig)<-label
+	ret_sig <- try(xts(eval(parse(text=formula), as.data.frame(data)),order.by=index(data)))
+	if(is.xts(ret_sig)){
+		if(isTRUE(cross)) ret_sig <- diff(ret_sig)==1
+		colnames(ret_sig)<-label
+	}
 	return(ret_sig)
 }
 

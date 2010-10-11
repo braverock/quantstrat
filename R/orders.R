@@ -178,7 +178,7 @@ getOrders <- function(portfolio,symbol,status="open",timespan=NULL,ordertype=NUL
 #' @param tmult if TRUE, threshold is a percent multiplier for \code{price}, not a scalar to be added/subtracted from price.  threshold will be dynamically converted to a scalar at time of order entry
 #' @param replace TRUE/FALSE, whether to replace any other open order(s) on this portfolio symbol, default TRUE 
 #' @param return if TRUE, return the row that makes up the order, default FALSE (will assign into the environment)
-#' @param dots any other passthru parameters
+#' @param \dots any other passthru parameters
 #' @param TxnFees numeric fees (usually negative) or function name for calculating TxnFees (processing happens later, not in this function)
 #' @export
 addOrder <- function(portfolio, symbol, timestamp, qty, price, ordertype, side, threshold=NULL, status="open", statustimestamp='' , delay=.00001, tmult=FALSE, replace=TRUE, return=FALSE, ..., TxnFees=0)

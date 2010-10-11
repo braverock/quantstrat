@@ -7,7 +7,7 @@
 #' @param label 
 #' @param ... 
 #' @param store 
-#' @export
+# @export
 add.parameter <- 
 function (strategy, 
           type = c('indicator','signal'), 
@@ -74,7 +74,7 @@ paramLookup <- function(strategy, symbol , type, name, parameter, ...) {
 #' @param type 
 #' @param name 
 #' @param paramTable 
-#' @export
+# @export
 add.paramLookupTable <- function(strategy, type, name, paramTable){
     assign(paste(strategy,type,name,'table',pos=.strategy),paramTable)
 }

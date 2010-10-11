@@ -31,6 +31,7 @@
 #' @param symbol identifier of the instrument to place orders for.  The name of any associated price objects (xts prices, usually OHLC) should match these
 #' @param ... any other passthru parameters
 #' @param ruletype one of "risk","order","rebalance","exit","entry", see \code{\link{add.rule}}
+#' @param TxnFees numeric fees (usually negative) or function name for calculating TxnFees (processing happens later, not in this function)
 #' @seealso \code{\link{osNoOp}} , \code{\link{add.rule}}
 #' @export
 ruleSignal <- function(data=mktdata, timestamp, sigcol, sigval, orderqty=0, ordertype, orderside=NULL, threshold=NULL, replace=TRUE, delay=0.0001, osFUN='osNoOp', pricemethod=c('market','opside','maker'), portfolio, symbol, ..., ruletype, TxnFees=0 )
