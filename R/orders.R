@@ -199,7 +199,7 @@ addOrder <- function(portfolio, symbol, timestamp, qty, price, ordertype, side, 
 
     if(!is.null(side) & !length(grep(side,c('long','short')))==1) stop(paste("side:",side," must be one of 'long' or 'short'"))
     if(is.na(charmatch(ordertype,c("market","limit","stoplimit","stoptrailing")))) stop(paste("ordertype:",ordertype,' must be one of "market","limit","stoplimit",or "stoptrailing"'))
-    if(!is.null(threshold) & length(price)>1 ) {
+    if(!is.null(threshold) & length(price)>=1 ) {
 	    if(length(grep(ordertype,c("stoplimit","stoptrailing")))==1) {
 			#we have a threshold set on a stop* order, process it
 			switch(ordertype,
