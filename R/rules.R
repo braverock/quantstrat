@@ -188,6 +188,8 @@ applyRules <- function(portfolio, symbol, strategy, mktdata, Dates=NULL, indicat
     hold=FALSE
     holdtill=first(time(Dates))-1 # TODO FIXME make holdtill default more robust?
 
+	mktinstr<-getInstrument(symbol)
+	
     for(d in 1:length(Dates)){ # d is a date slot counter
         # I shouldn't have to do this but we lose the class for the element 
         # when we do for(date in Dates)
@@ -202,22 +204,22 @@ applyRules <- function(portfolio, symbol, strategy, mktdata, Dates=NULL, indicat
             switch( type ,
                     pre = {
                         if(length(strategy$rules[[type]])>=1){
-                            ruleProc(strategy$rules$pre,timestamp=timestamp, path.dep=path.dep, mktdata=mktdata,portfolio=portfolio, symbol=symbol, ruletype=type, ...)
+                            ruleProc(strategy$rules$pre,timestamp=timestamp, path.dep=path.dep, mktdata=mktdata,portfolio=portfolio, symbol=symbol, ruletype=type, mktinstr=mktinstr, ...)
                         }
                     },
                     risk = {
                         if(length(strategy$rules$risk)>=1){
-                            ruleProc(strategy$rules$risk,timestamp=timestamp, path.dep=path.dep, mktdata=mktdata,portfolio=portfolio, symbol=symbol, ruletype=type,...)
+                            ruleProc(strategy$rules$risk,timestamp=timestamp, path.dep=path.dep, mktdata=mktdata,portfolio=portfolio, symbol=symbol, ruletype=type, mktinstr=mktinstr, ...)
                         }
                     },
                     order = {
                         if(isTRUE(hold)) next()
                         if(length(strategy$rules[[type]])>=1) {
-                            ruleProc(strategy$rules[[type]],timestamp=timestamp, path.dep=path.dep, mktdata=mktdata,portfolio=portfolio, symbol=symbol, ruletype=type,...)
+                            ruleProc(strategy$rules[[type]],timestamp=timestamp, path.dep=path.dep, mktdata=mktdata,portfolio=portfolio, symbol=symbol, ruletype=type, mktinstr=mktinstr, ...)
                         } else {
                             #(mktdata, portfolio, symbol, timestamp, slippageFUN=NULL)
                             timespan<-paste("::",timestamp,sep='')
-                            ruleOrderProc(portfolio=portfolio, symbol=symbol, mktdata=mktdata, timespan=timespan,...)
+                            ruleOrderProc(portfolio=portfolio, symbol=symbol, mktdata=mktdata, timespan=timespan, ...)
                         }
                     },
                     rebalance =, exit = , enter = , entry = {
@@ -227,13 +229,13 @@ applyRules <- function(portfolio, symbol, strategy, mktdata, Dates=NULL, indicat
                             if (getPosQty(Portfolio=portfolio,Symbol=symbol,Date=timestamp)==0) next()
                         }
                         if(length(strategy$rules[[type]])>=1) {
-                            ruleProc(strategy$rules[[type]],timestamp=timestamp, path.dep=path.dep, mktdata=mktdata,portfolio=portfolio, symbol=symbol, ruletype=type,...)
+                            ruleProc(strategy$rules[[type]],timestamp=timestamp, path.dep=path.dep, mktdata=mktdata,portfolio=portfolio, symbol=symbol, ruletype=type, mktinstr=mktinstr, ...)
                         }
                     },
                     post = {
                         #TODO do we processfor hold here, or not?
                         if(length(strategy$rules$post)>=1) {
-                            ruleProc(strategy$rules$post,timestamp=timestamp, path.dep=path.dep, mktdata=mktdata,portfolio=portfolio, symbol=symbol, ruletype=type,...)
+                            ruleProc(strategy$rules$post,timestamp=timestamp, path.dep=path.dep, mktdata=mktdata,portfolio=portfolio, symbol=symbol, ruletype=type, mktinstr=mktinstr, ...)
                         }
                     }
             ) # end switch
