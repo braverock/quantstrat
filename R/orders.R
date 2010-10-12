@@ -372,14 +372,13 @@ ruleOrderProc <- function(portfolio, symbol, mktdata, timespan, ordertype=NULL, 
                 # next process daily
                 for (ii in procorders ){
                     txnprice=NULL
-					#txntime=as.character(index(ordersubset[ii,])) #wrong if order time and txn time are different
-					txntime=as.character(timestamp)
 					txnfees=ordersubset[ii, ]$Txn.Fees
 					if(is.null(txnfees)) txnfees=0
                     switch(ordersubset[ii,]$Order.Type,
                         market = {
-                                txnprice=as.numeric(getPrice(last(mktdata[timestamp]), prefer='close'))
-                                #if(!is.null(ncol(txnprice)) & ncol(txnprice)>1) txnprice = as.numeric(getPrice(mktdata[timestamp], symbol=symbol, prefer='close'))
+								txntime=as.character(index(ordersubset[ii,])) # transacts on this bar, e.g. in the intraday cross, or leading into the end of month, quarter, etc.
+								# txntime=as.character(timestamp) # use this if you wanted to transact on the close of the next bar
+								txnprice=as.numeric(getPrice(last(mktdata[txntime]), prefer='close'))
                         },
                         limit = ,
 						stoplimit = {
@@ -409,14 +408,12 @@ ruleOrderProc <- function(portfolio, symbol, mktdata, timespan, ordertype=NULL, 
                 # now do higher frequencies
 				neworders<-NULL
                 for (ii in procorders ){
-                    #browser()
                     txnprice=NULL
                     txnfees=ordersubset[ii, ]$Txn.Fees
                     switch(ordersubset[ii,]$Order.Type,
                             market = {
                                 txnprice = as.numeric(getPrice(mktdata[timestamp]))
                                 #TODO extend this to figure out which side to prefer
-                                #if(!is.null(ncol(txnprice)) & ncol(txnprice)>1) txnprice = as.numeric(getPrice(mktdata[timestamp], symbol=symbol))
                                 txntime  = as.character(timestamp)
                             },
                             limit= ,
