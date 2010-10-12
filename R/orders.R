@@ -372,20 +372,21 @@ ruleOrderProc <- function(portfolio, symbol, mktdata, timespan, ordertype=NULL, 
                 # next process daily
                 for (ii in procorders ){
                     txnprice=NULL
-                    txntime=as.character(index(ordersubset[ii,]))
-                    txnfees=ordersubset[ii, ]$Txn.Fees
+					#txntime=as.character(index(ordersubset[ii,])) #wrong if order time and txn time are different
+					txntime=as.character(timestamp)
+					txnfees=ordersubset[ii, ]$Txn.Fees
 					if(is.null(txnfees)) txnfees=0
                     switch(ordersubset[ii,]$Order.Type,
                         market = {
-                                txnprice=as.numeric(getPrice(mktdata[txntime], prefer='close'))
+                                txnprice=as.numeric(getPrice(last(mktdata[timestamp]), prefer='close'))
                                 #if(!is.null(ncol(txnprice)) & ncol(txnprice)>1) txnprice = as.numeric(getPrice(mktdata[timestamp], symbol=symbol, prefer='close'))
                         },
                         limit = ,
 						stoplimit = {
 		                                # check to see if price moved through the limit
 										tmpprices<-last(mktdata[timestamp])
-		                                if ( isTRUE(ordersubset[ii, ]$Order.Price > getPrice(tmpprices, prefer = "Lo")) &  
-										     isTRUE(ordersubset[ii, ]$Order.Price < getPrice(tmpprices, prefer = "Hi")) ) {
+		                                if ( as.numeric(ordersubset[ii, ]$Order.Price) > getPrice(tmpprices, prefer = "Lo") &  
+										     as.numeric(ordersubset[ii, ]$Order.Price) < getPrice(tmpprices, prefer = "Hi"))  {
 		                                    txnprice=as.numeric(ordersubset[ii,]$Order.Price)
 		                                    txntime=as.character(timestamp)
 		                                } else {

@@ -242,7 +242,7 @@ applyRules <- function(portfolio, symbol, strategy, mktdata, Dates=NULL, indicat
         } #end type loop
     } # end dates loop
 
-    mkdata<<-mktdata
+    mktdata<<-mktdata
     if(is.null(ret)) {
         return(mktdata)
     }
