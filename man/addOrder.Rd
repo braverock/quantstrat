@@ -41,7 +41,7 @@ converted to a scalar at order entry.  While this functionality could change in 
 we believe this is more conservative than growing or shrinking the threshold distance from the current market price 
 in relation to the threshold, and will result in fewer unintended consequences and more understandable behavior. Comments Welcome.
 
-The 'stop*' order types are the only order type that makes use of the order \code{threshold}.   
+The 'stop*' or 'iceberg' order types are the only order type that makes use of the order \code{threshold}.   
 Scalar thresholds \code{tmult=FALSE} on stoplimit or stoptrailing
 orders will be added to the current market price to set the limit price.  In other worlds, a
 scalar threshold is the difference either positive or negative from the current price when 
@@ -49,6 +49,17 @@ the order is entered. With a stoptrailing order, the order may be moved (via can
 
 Some markets and brokers recognize a stop that triggers a market order, when the stop is triggered, 
 a market order will be executed at the then-prevailing price.  We have not modeled this type of order.   
+
+We have also added the 'iceberg' order type.  This order type should
+most often be paired with \code{delay} and \code{\link{osMaxPos}}.  The 
+iceberg order will enter when initially entered is treated like a limit 
+order, with an optional threshold (which is applied at initial order 
+entry, so be careful).  Right now, they will enter a new order at price+threshold
+upon any execution of the prior iceberg order.  This process could 
+be infinite if \code{\link{osMaxPos}} or an equivalent order sizing 
+function is not used to limit total position size. An order \code{delay}
+is also advisable to model the delay that occurs between getting the trade 
+confirmation of the previous trade and entering the new order into the order book.
 
 If you ever wanted to move from a backtesting mode to a production mode, 
 this function (and the linked funtion \code{\link{ruleOrderProc}}) would 
@@ -71,7 +82,7 @@ Conversion to a live trading environment will also likely require a new version 
 \item{timestamp}{timestamp coercible to POSIXct that will be the time to search for orders before this time}
 \item{qty}{numeric quantity of the order}
 \item{price}{numeric price at which the order is to be inserted}
-\item{ordertype}{one of "market","limit","stoplimit", or "stoptrailing"}
+\item{ordertype}{one of "market","limit","stoplimit", "stoptrailing",or "iceberg"}
 \item{side}{one of either "long" or "short"}
 \item{threshold}{numeric threshold to apply to trailing stop orders, default NULL}
 \item{status}{one of "open", "closed", "canceled", or "replaced", default "open"}
@@ -80,5 +91,5 @@ Conversion to a live trading environment will also likely require a new version 
 \item{tmult}{if TRUE, threshold is a percent multiplier for \code{price}, not a scalar to be added/subtracted from price.  threshold will be dynamically converted to a scalar at time of order entry}
 \item{replace}{TRUE/FALSE, whether to replace any other open order(s) on this portfolio symbol, default TRUE}
 \item{return}{if TRUE, return the row that makes up the order, default FALSE (will assign into the environment)}
-\item{dots}{any other passthru parameters}
+\item{\dots}{any other passthru parameters}
 \item{TxnFees}{numeric fees (usually negative) or function name for calculating TxnFees (processing happens later, not in this function)}}

@@ -7,7 +7,7 @@
 This allows the columns of the data to be addressed without any major manipulation, simply by column name.  In most cases in quantstrat, this will be either the price/return columns, or columns added by indicators or prior signals.
 The formula will return TRUE/FALSE for each row comparison as a time series column which can then be used for rule execution.  The \code{formula} will be evaluated using \code{\link{eval}} as though in an if statement. 
 
-This code is adapted from the approach used by Vijay Vaidyanthan in his PAST/AAII/SIPRO code to construct arbitrary, formulaic, comparisons.  Many thanks to Vijay for sharing his expertise.}
+This code is adapted from the approach used by Vijay Vaidyanthan in his PAST(AAII/SIPRO) code to construct arbitrary, formulaic, comparisons.  Many thanks to Vijay for sharing his expertise.}
 \arguments{\item{label}{text label to apply to the output}
 \item{data}{data to apply formula to}
 \item{formula}{a logical expression like that used in an if statement, will typically reference column names in \code{mktdata}}

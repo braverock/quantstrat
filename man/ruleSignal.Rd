@@ -2,9 +2,9 @@
 \alias{ruleSignal}
 \title{default rule to generate a trade order on a signal...}
 \usage{ruleSignal(data=mktdata, timestamp, sigcol, sigval, orderqty=0,
-    ordertype, orderside, threshold, replace=TRUE, delay=1e-04,
-    osFUN="osNoOp", pricemethod=c("market", "opside", "maker"),
-    portfolio, symbol, ..., ruletype, TxnFees=0)}
+    ordertype, orderside, threshold, tmult=FALSE, replace=TRUE,
+    delay=1e-04, osFUN="osNoOp", pricemethod=c("market", "opside",
+    "maker"), portfolio, symbol, ..., ruletype, TxnFees=0)}
 \description{default rule to generate a trade order on a signal}
 \details{\code{pricemethod} may be one of 'market', 'opside', or 'maker' 
 which will either try to get the price of the 'market' at \code{timestamp} and use this as the order price
@@ -28,6 +28,7 @@ If \code{orderside} is NULL, the function will attempt to calculate the side fro
 \item{ordertype}{one of "market","limit","stoplimit", or "stoptrailing"}
 \item{orderside}{one of either "long" or "short", default NULL, see details}
 \item{threshold}{numeric or function threshold to apply to trailing stop orders, default NULL, see Details}
+\item{tmult}{if TRUE, threshold is a percent multiplier for \code{price}, not a scalar to be added/subtracted from price.  threshold will be dynamically converted to a scalar at time of order entry}
 \item{replace}{TRUE/FALSE, whether to replace any other open order(s) on this portfolio symbol, default TRUE}
 \item{delay}{what delay to add to timestamp when inserting the order into the order book, in seconds}
 \item{osFUN}{function or text descriptor of function to use for order sizing, default \code{\link{osNoOp}}}
@@ -35,4 +36,5 @@ If \code{orderside} is NULL, the function will attempt to calculate the side fro
 \item{portfolio}{text name of the portfolio to place orders in}
 \item{symbol}{identifier of the instrument to place orders for.  The name of any associated price objects (xts prices, usually OHLC) should match these}
 \item{...}{any other passthru parameters}
-\item{ruletype}{one of "risk","order","rebalance","exit","entry", see \code{\link{add.rule}}}}
+\item{ruletype}{one of "risk","order","rebalance","exit","entry", see \code{\link{add.rule}}}
+\item{TxnFees}{numeric fees (usually negative) or function name for calculating TxnFees (processing happens later, not in this function)}}

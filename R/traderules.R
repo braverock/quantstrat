@@ -20,9 +20,10 @@
 #' @param sigcol column name to check for signal
 #' @param sigval signal value to match against
 #' @param orderqty numeric quantity of the desired order, or 'all', modified by osFUN
-#' @param ordertype one of "market","limit","stoplimit", or "stoptrailing"
+#' @param ordertype one of "market","limit","stoplimit", "stoptrailing", or "iceberg"
 #' @param orderside one of either "long" or "short", default NULL, see details 
 #' @param threshold numeric or function threshold to apply to trailing stop orders, default NULL, see Details
+#' @param tmult if TRUE, threshold is a percent multiplier for \code{price}, not a scalar to be added/subtracted from price.  threshold will be dynamically converted to a scalar at time of order entry
 #' @param replace TRUE/FALSE, whether to replace any other open order(s) on this portfolio symbol, default TRUE 
 #' @param delay what delay to add to timestamp when inserting the order into the order book, in seconds
 #' @param osFUN function or text descriptor of function to use for order sizing, default \code{\link{osNoOp}}
@@ -34,7 +35,7 @@
 #' @param TxnFees numeric fees (usually negative) or function name for calculating TxnFees (processing happens later, not in this function)
 #' @seealso \code{\link{osNoOp}} , \code{\link{add.rule}}
 #' @export
-ruleSignal <- function(data=mktdata, timestamp, sigcol, sigval, orderqty=0, ordertype, orderside=NULL, threshold=NULL, replace=TRUE, delay=0.0001, osFUN='osNoOp', pricemethod=c('market','opside','maker'), portfolio, symbol, ..., ruletype, TxnFees=0 )
+ruleSignal <- function(data=mktdata, timestamp, sigcol, sigval, orderqty=0, ordertype, orderside=NULL, threshold=NULL, tmult=FALSE, replace=TRUE, delay=0.0001, osFUN='osNoOp', pricemethod=c('market','opside','maker'), portfolio, symbol, ..., ruletype, TxnFees=0)
 {
     if(!is.function(osFUN)) osFUN<-match.fun(osFUN)
     #print(paste(symbol,timestamp))
@@ -103,7 +104,7 @@ ruleSignal <- function(data=mktdata, timestamp, sigcol, sigval, orderqty=0, orde
 				}
         )
         if(inherits(orderprice,'try-error')) orderprice<-NULL
-        if(length(orderprice>1) & !ordertype=='maker') orderprice<-last(orderprice[as.character(timestamp)])
+        if(length(orderprice>1) & !pricemethod=='maker') orderprice<-last(orderprice[as.character(timestamp)])
         if(is.null(orderside) & !isTRUE(orderqty == 0)){
             curqty<-getPosQty(Portfolio=portfolio, Symbol=symbol, Date=timestamp)
             if (curqty>0 ){
@@ -121,7 +122,7 @@ ruleSignal <- function(data=mktdata, timestamp, sigcol, sigval, orderqty=0, orde
             }
         }
         if(!is.null(orderqty) & !orderqty == 0 & !is.null(orderprice)){
-            addOrder(portfolio=portfolio, symbol=symbol, timestamp=timestamp, qty=orderqty, price=orderprice, ordertype=ordertype, side=orderside, threshold=threshold, status="open", replace=replace , delay=delay, ...=..., TxnFees=TxnFees)
+            addOrder(portfolio=portfolio, symbol=symbol, timestamp=timestamp, qty=orderqty, price=orderprice, ordertype=ordertype, side=orderside, threshold=threshold, status="open", replace=replace , delay=delay, tmult=tmult, ...=..., TxnFees=TxnFees)
         }
     }
 }
@@ -233,9 +234,29 @@ osMaxPos <- function(data, timestamp, orderqty, ordertype, orderside, portfolio,
     pos<-getPosQty(portfolio,symbol,timestamp)
     # check against max position
     PosLimit<-getPosLimit(portfolio,symbol,timestamp)
-    # check levels
-    
-    # buy long
+	
+	#TODO add handling for orderqty='all', and handle risk ruletype separately
+	
+	#check order side
+	if(is.null(orderside) & !isTRUE(orderqty == 0)){
+		curqty<-pos
+		if (curqty>0 ){
+			#we have a long position
+			orderside<-'long'
+		} else if (curqty<0){
+			#we have a short position
+			orderside<-'short'
+		} else {
+			# no current position, which way are we going?
+			if (orderqty>0) 
+				orderside<-'long'
+			else
+				orderside<-'short'
+		}
+	}
+	
+	# check levels
+	# buy long
     if(orderqty>0 & orderside=='long'){
         if ((orderqty+pos)<PosLimit[,"MaxPos"]) {
             #we have room to expand the position
@@ -270,7 +291,7 @@ osMaxPos <- function(data, timestamp, orderqty, ordertype, orderside, portfolio,
             if(orderqty<=(PosLimit[,"MinPos"]/PosLimit[,"ShortLevels"]) ) {
                 orderqty=orderqty
             } else {
-                orderqty = round(PosLimit[,"MinPos"]/PosLimit[,"LongLevels"],0) #note no round lots
+                orderqty = round(PosLimit[,"MinPos"]/PosLimit[,"ShortLevels"],0) #note no round lots
             }
         } else {
             # this order would put us over the MinPos limit

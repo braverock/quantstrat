@@ -65,7 +65,7 @@ initOrders <- function(portfolio=NULL, symbols=NULL, initDate = '1999-12-31')
 #' @param symbol identfier of the instrument to find orders for.  The name of any associated price objects (xts prices, usually OHLC) should match these
 #' @param status one of "open", "closed", "canceled", or "replaced", default "open"
 #' @param timespan xts-style character timespan to be the period to find orders of the given status and ordertype 
-#' @param ordertype one of NULL, "market","limit","stoplimit", or "stoptrailing" default NULL
+#' @param ordertype one of NULL, "market","limit","stoplimit", "stoptrailing", or "iceberg" default NULL
 #' @param side one of NULL, "long" or "short", default NULL 
 #' @param which.i if TRUE, return the row index numbers rather than the order rows matching the criteria, default FALSE
 #' @export
@@ -80,8 +80,8 @@ getOrders <- function(portfolio,symbol,status="open",timespan=NULL,ordertype=NUL
     #data quality checks
     if(!is.null(status) & !length(grep(status,c("open", "closed", "canceled","replaced")))==1) stop(paste("order status:",status,' must be one of "open", "closed", "canceled", or "replaced"'))
     if(!is.null(ordertype)) {
-        if(is.na(charmatch(ordertype,c("market","limit","stoplimit","stoptrailing")))){
-            stop(paste("ordertype:",ordertype,' must be one of "market","limit","stoplimit", or "stoptrailing"'))
+        if(is.na(charmatch(ordertype,c("market","limit","stoplimit","stoptrailing","iceberg")))){
+            stop(paste("ordertype:",ordertype,' must be one of "market","limit","stoplimit", "stoptrailing", or "iceberg"'))
         }
     }
 
@@ -138,7 +138,7 @@ getOrders <- function(portfolio,symbol,status="open",timespan=NULL,ordertype=NUL
 #' we believe this is more conservative than growing or shrinking the threshold distance from the current market price 
 #' in relation to the threshold, and will result in fewer unintended consequences and more understandable behavior. Comments Welcome.
 #' 
-#' The 'stop*' order types are the only order type that makes use of the order \code{threshold}.   
+#' The 'stop*' or 'iceberg' order types are the only order type that makes use of the order \code{threshold}.   
 #' Scalar thresholds \code{tmult=FALSE} on stoplimit or stoptrailing
 #' orders will be added to the current market price to set the limit price.  In other worlds, a
 #' scalar threshold is the difference either positive or negative from the current price when 
@@ -147,6 +147,17 @@ getOrders <- function(portfolio,symbol,status="open",timespan=NULL,ordertype=NUL
 #' Some markets and brokers recognize a stop that triggers a market order, when the stop is triggered, 
 #' a market order will be executed at the then-prevailing price.  We have not modeled this type of order.   
 #' 
+#' We have also added the 'iceberg' order type.  This order type should
+#' most often be paired with \code{delay} and \code{\link{osMaxPos}}.  The 
+#' iceberg order will enter when initially entered is treated like a limit 
+#' order, with an optional threshold (which is applied at initial order 
+#' entry, so be careful).  Right now, they will enter a new order at price+threshold
+#' upon any execution of the prior iceberg order.  This process could 
+#' be infinite if \code{\link{osMaxPos}} or an equivalent order sizing 
+#' function is not used to limit total position size. An order \code{delay}
+#' is also advisable to model the delay that occurs between getting the trade 
+#' confirmation of the previous trade and entering the new order into the order book.
+#'  
 #' If you ever wanted to move from a backtesting mode to a production mode, 
 #' this function (and the linked funtion \code{\link{ruleOrderProc}}) would 
 #' need to be replaced by functions that worked against your execution environment.  
@@ -169,7 +180,7 @@ getOrders <- function(portfolio,symbol,status="open",timespan=NULL,ordertype=NUL
 #' @param timestamp timestamp coercible to POSIXct that will be the time to search for orders before this time 
 #' @param qty numeric quantity of the order
 #' @param price numeric price at which the order is to be inserted
-#' @param ordertype one of "market","limit","stoplimit", or "stoptrailing"
+#' @param ordertype one of "market","limit","stoplimit", "stoptrailing",or "iceberg"
 #' @param side one of either "long" or "short" 
 #' @param threshold numeric threshold to apply to trailing stop orders, default NULL
 #' @param status one of "open", "closed", "canceled", or "replaced", default "open"
@@ -198,12 +209,13 @@ addOrder <- function(portfolio, symbol, timestamp, qty, price, ordertype, side, 
     if(is.na(price)) stop("price",price,"must not be NA")
 
     if(!is.null(side) & !length(grep(side,c('long','short')))==1) stop(paste("side:",side," must be one of 'long' or 'short'"))
-    if(is.na(charmatch(ordertype,c("market","limit","stoplimit","stoptrailing")))) stop(paste("ordertype:",ordertype,' must be one of "market","limit","stoplimit",or "stoptrailing"'))
+    if(is.na(charmatch(ordertype,c("market","limit","stoplimit","stoptrailing","iceberg")))) stop(paste("ordertype:",ordertype,' must be one of "market","limit","stoplimit","stoptrailing", or"iceberg"'))
     if(!is.null(threshold) & length(price)>=1 ) {
-	    if(length(grep(ordertype,c("stoplimit","stoptrailing")))==1) {
+	    if(length(grep(ordertype,c("stoplimit","stoptrailing","iceberg")))==1) {
 			#we have a threshold set on a stop* order, process it
 			switch(ordertype,
-					stoplimit = {
+					stoplimit =, 
+					iceberg = {
 						# handle setting the stop limit price
 						if(isTRUE(tmult)){
 							price = price*threshold
@@ -219,7 +231,7 @@ addOrder <- function(portfolio, symbol, timestamp, qty, price, ordertype, side, 
 					}
 			) #end type switch
 		} else {
-			stop(paste("Threshold may only be applied to a stop order type",ordertype,threshold))
+			stop(paste("Threshold may only be applied to a stop or iceberg order type",ordertype,threshold))
     	}
 	}
 
@@ -316,8 +328,8 @@ updateOrders <- function(portfolio, symbol, timespan, ordertype=NULL, side=NULL,
     if(!is.null(side) & !length(grep(side,c('long','short')))==1) 
         stop(paste("side:",side," must be one of 'long' or 'short'"))
     #if(is.null(side)) side<-NA
-    if(!is.null(ordertype) & is.na(charmatch(ordertype,c("market","limit","stoplimit","stoptrailing")))) 
-        stop(paste("ordertype:",ordertype,' must be one of "market","limit","stoplimit", or "stoptrailing"'))
+    if(!is.null(ordertype) & is.na(charmatch(ordertype,c("market","limit","stoplimit","stoptrailing","iceberg")))) 
+        stop(paste("ordertype:",ordertype,' must be one of "market","limit","stoplimit","stoptrailing", or "iceberg"'))
     
     # need the ability to pass a range like we do in blotter
     updatedorders<-getOrders(portfolio=portfolio, symbol=symbol, status=oldstatus, timespan=timespan, ordertype=ordertype, side=side,which.i=TRUE) 
@@ -417,8 +429,12 @@ ruleOrderProc <- function(portfolio, symbol, mktdata, timespan, ordertype=NULL, 
                                 txntime  = as.character(timestamp)
                             },
                             limit= ,
-                            stoplimit = {
+                            stoplimit =,
+							iceberg = {
                                 if (is.OHLC(mktdata)){
+									if( ordersubset[ii,]$Order.Type == 'iceberg'){
+										stop("iceberg orders not supported for OHLC data")
+									} 
                                     # check to see if price moved through the limit
                                     if( as.numeric(ordersubset[ii,]$Order.Price)>as.numeric(Lo(mktdata[timestamp])) 
 										& as.numeric(ordersubset[ii,]$Order.Price)< as.numeric(Hi(mktdata[timestamp])) ) 
@@ -444,7 +460,25 @@ ruleOrderProc <- function(portfolio, symbol, mktdata, timespan, ordertype=NULL, 
                                             txntime  = as.character(timestamp)
                                         } else next()
                                     }
-                                } else {
+									if( ordersubset[ii,]$Order.Type == 'iceberg'){
+										#we've transacted, so the old order was closed, put in a new one
+										neworder<-addOrder(portfolio=portfolio,
+												symbol=symbol,
+												timestamp=timestamp,
+												qty=as.numeric(ordersubset[ii,]$Order.Qty),
+												price=getPrice(mktdata[timestamp],prefer=prefer)+as.numeric(ordersubset[ii,]$Order.Threshold), 
+												ordertype=ordersubset[ii,]$Order.Type,
+												side=ordersubset[ii,]$Order.Side,
+												threshold=ordersubset[ii,]$Order.Threshold,
+												status="open",
+												replace=FALSE, return=TRUE,
+												,...=..., TxnFees=ordersubset[ii,]$Txn.Fees)
+										if (is.null(neworders)) neworders=neworder else neworders = rbind(neworders,neworder)
+										ordersubset[ii,]$Order.Status<-'replaced'
+										ordersubset[ii,]$Order.StatusTime<-as.character(timestamp)
+										next()
+									} 
+								} else {
                                     # no depth data, either OHLC or BBO, getPrice explicitly using symbol ?
                                     if(as.numeric(ordersubset[ii,]$Order.Price)==getPrice(mktdata[timestamp], symbol=symbol, prefer='price')){
                                         txnprice = as.numeric(ordersubset[ii,]$Order.Price)
