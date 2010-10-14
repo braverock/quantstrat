@@ -446,7 +446,7 @@ ruleOrderProc <- function(portfolio, symbol, mktdata, timespan, ordertype=NULL, 
                                     }
                                 } else {
                                     # no depth data, either OHLC or BBO, getPrice explicitly using symbol ?
-                                    if(ordersubset[ii,]$Order.Price==getPrice(mktdata[timestamp], symbol=symbol, prefer='price')){
+                                    if(as.numeric(ordersubset[ii,]$Order.Price)==getPrice(mktdata[timestamp], symbol=symbol, prefer='price')){
                                         txnprice = as.numeric(ordersubset[ii,]$Order.Price)
                                         txntime  = as.character(timestamp)
                                     } else next()
@@ -456,13 +456,13 @@ ruleOrderProc <- function(portfolio, symbol, mktdata, timespan, ordertype=NULL, 
                             stoptrailing = {
                                 # if market moved through my price, execute
                                 if(as.numeric(ordersubset[ii,]$Order.Qty)>0){ # positive quantity 'buy'
-                                    if(ordersubset[ii,]$Order.Price>=getPrice(mktdata[timestamp],prefer='offer')){
+                                    if(as.numeric(ordersubset[ii,]$Order.Price)>=getPrice(mktdata[timestamp],prefer='offer')){ #TODO maybe use last(getPrice) to catch multiple prints on timestamp?
                                         # price we're willing to pay is higher than the offer price, so execute at the limit
                                         txnprice = as.numeric(ordersubset[ii,]$Order.Price)
                                         txntime  = as.character(timestamp)
                                     } 
                                 } else { # negative quantity 'sell'
-                                    if(ordersubset[ii,]$Order.Price<=getPrice(mktdata[timestamp],prefer='bid')){
+                                    if(as.numeric(ordersubset[ii,]$Order.Price)<=getPrice(mktdata[timestamp],prefer='bid')){
                                         # we're willing to sell at a better price than the bid, so execute at the limit
                                         txnprice = as.numeric(ordersubset[ii,]$Order.Price)
                                         txntime  = as.character(timestamp)
@@ -484,12 +484,12 @@ ruleOrderProc <- function(portfolio, symbol, mktdata, timespan, ordertype=NULL, 
 									} else {
 										prefer=NULL # see if getPrice can figure it out
 									}
-                                    if( getPrice(mktdata[timestamp],prefer=prefer)+ordersubset[ii,]$Order.Threshold > ordersubset[ii,]$Order.Price ){
+                                    if( last(getPrice(mktdata[timestamp],prefer=prefer))+as.numeric(ordersubset[ii,]$Order.Threshold) > as.numeric(ordersubset[ii,]$Order.Price) ){
                                         neworder<-addOrder(portfolio=portfolio,
                                                  symbol=symbol,
                                                  timestamp=timestamp,
                                                  qty=as.numeric(ordersubset[ii,]$Order.Qty),
-                                                 price=getgetPrice(mktdata[timestamp],prefer=prefer)+ordersubset[ii,]$Order.Threshold, 
+                                                 price=last(getPrice(mktdata[timestamp],prefer=prefer))+as.numeric(ordersubset[ii,]$Order.Threshold), 
                                                  ordertype=ordersubset[ii,]$Order.Type,
                                                  side=ordersubset[ii,]$Order.Side,
                                                  threshold=ordersubset[ii,]$Order.Threshold,
@@ -505,7 +505,7 @@ ruleOrderProc <- function(portfolio, symbol, mktdata, timespan, ordertype=NULL, 
                                 # else next
                             }
                     )
-                    if(!is.null(txnprice)& !is.na(txnprice)){
+                    if(!is.null(txnprice) & !isTRUE(is.na(txnprice))){
                         addTxn(Portfolio=portfolio, Symbol=symbol, TxnDate=txntime, TxnQty=as.numeric(ordersubset[ii,]$Order.Qty), TxnPrice=txnprice , ...=..., TxnFees=txnfees)
                         ordersubset[ii,]$Order.Status<-'closed'
                         ordersubset[ii,]$Order.StatusTime<-as.character(timestamp)
