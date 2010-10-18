@@ -275,10 +275,11 @@ osMaxPos <- function(data, timestamp, orderqty, ordertype, orderside, portfolio,
     
     #sell long
     if(orderqty<0 & orderside=='long'){
-        if ((orderqty+pos)>=0) {
+		if(ruletype=='risk') return(orderqty)
+		if ((orderqty+pos)>=0) {
             return(orderqty)
         } else {
-            orderqty<-pos #flatten position, don't cross through zero
+			orderqty<-pos #flatten position, don't cross through zero
             #TODO add code to break into two orders?
             return(orderqty)
         }
@@ -303,7 +304,8 @@ osMaxPos <- function(data, timestamp, orderqty, ordertype, orderside, portfolio,
     
     #buy cover short
     if(orderqty>0 & orderside=='short'){
-        if ((orderqty+pos)<=0) {
+		if(ruletype=='risk') return(orderqty)
+		if ((orderqty+pos)<=0) {
             return(orderqty)
         } else {
             orderqty<-pos #flatten position, don't cross through zero

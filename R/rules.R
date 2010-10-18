@@ -28,6 +28,13 @@
 #' orders to rebalance the portfolio, and would hold other strategy processing 
 #' until the rebalancing period was over.
 #' 
+#' The \code{timespan} parameter will limit rule execution by time of day using 
+#' time based subsetting.  See ISO-8601 specification and xts documentation for 
+#' more details.  Note that these are only applicable to intra-day execution, 
+#' and will remain that way barring patches (tests and documentatioon) from 
+#' interested parties.  The subsetting may (will likely) work with normal 
+#' ISO/xts subset ranges, but consider it unsupported. 
+#' 
 #' We anticipate that rules will be the portion of a strategy most likely to 
 #' not have suitable template code included with this package, as every strategy 
 #' and environment are different, especially in this respect.  
@@ -44,9 +51,10 @@
 #' @param enabled TRUE/FALSE whether the rule is enabled for use in applying the strategy, default TRUE
 #' @param indexnum if you are updating a specific rule, the index number in the $rules[type] list to update
 #' @param path.dep TRUE/FALSE whether rule is path dependent, default TRUE, see Details 
+#' @param timespan an xts/ISO-8601 style \emph{time} subset, like "T08:00/T15:00", see Details
 #' @param store TRUE/FALSE whether to store the strategy in the .strategy environment, or return it.  default FALSE
 #' @export
-add.rule <- function(strategy, name, arguments, parameters=NULL, label=NULL, type=c(NULL,"risk","order","rebalance","exit","enter"), ..., enabled=TRUE, indexnum=NULL, path.dep=TRUE, store=FALSE) {
+add.rule <- function(strategy, name, arguments, parameters=NULL, label=NULL, type=c(NULL,"risk","order","rebalance","exit","enter"), ..., enabled=TRUE, indexnum=NULL, path.dep=TRUE, timespan=NULL, store=FALSE) {
     if(!is.strategy(strategy)) stop("You must pass in a strategy object to manipulate")
     type=type[1]
     if(is.null(type)) stop("You must specify a type")
@@ -60,6 +68,7 @@ add.rule <- function(strategy, name, arguments, parameters=NULL, label=NULL, typ
     tmp_rule$label<-label
     tmp_rule$arguments<-arguments
 	if(!is.null(parameters)) tmp_rule$parameters = parameters
+	if(!is.null(timespan)) tmp_rule$timespan = timespan
 	tmp_rule$path.dep<-path.dep
 	if(length(list(...))) tmp_rule<-c(tmp_rule,list(...))
 	
@@ -127,7 +136,10 @@ applyRules <- function(portfolio, symbol, strategy, mktdata, Dates=NULL, indicat
             
             if(!isTRUE(rule$enabled)) next()
             
-            # see 'S Programming p. 67 for this matching
+			# check to see if we should run in this timepan
+			if(!is.null(rule$timespan) & nrow(mktdata[rule$timespan]==0)) next()
+			
+            # see 'S Programming' p. 67 for this matching
             fun<-match.fun(rule$name)
             
             nargs <-list(...)

@@ -3,7 +3,7 @@
 \title{add a rule to a strategy...}
 \usage{add.rule(strategy, name, arguments, parameters, label, type=c(NULL,
     "risk", "order", "rebalance", "exit", "enter"), ..., enabled=TRUE,
-    indexnum, path.dep=TRUE, store=FALSE)}
+    indexnum, path.dep=TRUE, timespan, store=FALSE)}
 \description{add a rule to a strategy}
 \details{Rules will be processed in a very particular manner, so it bears going over.
 
@@ -33,6 +33,13 @@ Another example would be a rebalancing rule function that would enter
 orders to rebalance the portfolio, and would hold other strategy processing 
 until the rebalancing period was over.
 
+The \code{timespan} parameter will limit rule execution by time of day using 
+time based subsetting.  See ISO-8601 specification and xts documentation for 
+more details.  Note that these are only applicable to intra-day execution, 
+and will remain that way barring patches (tests and documentatioon) from 
+interested parties.  The subsetting may (will likely) work with normal 
+ISO/xts subset ranges, but consider it unsupported. 
+
 We anticipate that rules will be the portion of a strategy most likely to 
 not have suitable template code included with this package, as every strategy 
 and environment are different, especially in this respect.  
@@ -48,4 +55,5 @@ authors a place to start.}
 \item{enabled}{TRUE/FALSE whether the rule is enabled for use in applying the strategy, default TRUE}
 \item{indexnum}{if you are updating a specific rule, the index number in the $rules[type] list to update}
 \item{path.dep}{TRUE/FALSE whether rule is path dependent, default TRUE, see Details}
+\item{timespan}{an xts/ISO-8601 style \emph{time} subset, like "T08:00/T15:00", see Details}
 \item{store}{TRUE/FALSE whether to store the strategy in the .strategy environment, or return it.  default FALSE}}

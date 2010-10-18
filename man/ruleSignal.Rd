@@ -25,7 +25,7 @@ If \code{orderside} is NULL, the function will attempt to calculate the side fro
 \item{sigcol}{column name to check for signal}
 \item{sigval}{signal value to match against}
 \item{orderqty}{numeric quantity of the desired order, or 'all', modified by osFUN}
-\item{ordertype}{one of "market","limit","stoplimit", or "stoptrailing"}
+\item{ordertype}{one of "market","limit","stoplimit", "stoptrailing", or "iceberg"}
 \item{orderside}{one of either "long" or "short", default NULL, see details}
 \item{threshold}{numeric or function threshold to apply to trailing stop orders, default NULL, see Details}
 \item{tmult}{if TRUE, threshold is a percent multiplier for \code{price}, not a scalar to be added/subtracted from price.  threshold will be dynamically converted to a scalar at time of order entry}
