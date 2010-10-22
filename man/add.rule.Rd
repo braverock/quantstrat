@@ -40,6 +40,13 @@ and will remain that way barring patches (tests and documentatioon) from
 interested parties.  The subsetting may (will likely) work with normal 
 ISO/xts subset ranges, but consider it unsupported. 
 
+The \code{name} parameter should be a character string naming the function
+to be called in the \code{\link{applyRules}} loop. The \code{add.rule} 
+function will then call \code{\link{match.fun}}, ands store the actual function 
+in your strategy object.  
+This will avoid lookups via \code{\link{match.fun}} at \code{\link{applyRules}} time, 
+and may provide a significant speed increase on higher frequency data (20\% or more).
+
 We anticipate that rules will be the portion of a strategy most likely to 
 not have suitable template code included with this package, as every strategy 
 and environment are different, especially in this respect.  

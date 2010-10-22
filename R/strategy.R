@@ -40,7 +40,7 @@ strategy <- function(name, ..., assets=NULL, constraints=NULL ,store=FALSE)
     rules$order<-list()
     rules$rebalance<-list()
     rules$exit<-list()
-    rules$entry<-list()
+    rules$enter<-list()
     
     ## now structure and return
     strat<-structure(
@@ -78,9 +78,9 @@ applyStrategy <- function(strategy , portfolios, mktdata=NULL , parameters=NULL,
     ret<-list()
     
 	if (!is.strategy(strategy)) {
-        strategy<-try(getStrategy(strategy))
-        if(inherits(strategy,"try-error"))
-            stop ("You must supply an object of type 'strategy'.")
+    	strategy<-try(getStrategy(strategy))
+    	if(inherits(strategy,"try-error"))
+    	    stop ("You must supply an object of type 'strategy'.")
     } 
 	
 	
@@ -95,20 +95,20 @@ applyStrategy <- function(strategy , portfolios, mktdata=NULL , parameters=NULL,
         for (symbol in symbols){
             mktdata <- get(symbol)
 
-			#loop over indicators
+            #loop over indicators
             sret$indicators <- applyIndicators(strategy=strategy , mktdata=mktdata , parameters=parameters, ... )
             #this should be taken care of by the mktdata<<-mktdata line in the apply* fn
             if(inherits(sret$indicators,"xts") & nrow(mktdata)==nrow(sret$indicators)){
                 mktdata<-sret$indicators
             }
-                
+            
             #loop over signal generators
             sret$signals <- applySignals(strategy=strategy, mktdata=mktdata, sret$indicators, parameters=parameters, ... )
             #this should be taken care of by the mktdata<<-mktdata line in the apply* fn
             if(inherits(sret$signals,"xts") & nrow(mktdata)==nrow(sret$signals)){
                 mktdata<-sret$signals    
             }
-                
+            
             #loop over rules  
             # non-path-dep first
             sret$rules<-list()

@@ -9,7 +9,7 @@ In this mode, this function will be called twice, once with \code{path.dep=FALSE
 and then again in stepping over the time indexes of the mktdata object.
 
 Individual rule functions may need to use <<- to place \code{hold} and \code{holdtill}
-variables into play.  These would be mosrt likely implemented by risk rules.}
+variables into play.  These would be most likely implemented by risk rules.}
 \seealso{\code{\link{add.rule}} \code{\link{applyStrategy}}}
 \arguments{\item{portfolio}{text name of the portfolio to associate the order book with}
 \item{symbol}{identfier of the instrument to find orders for.  The name of any associated price objects (xts prices, usually OHLC) should match these}

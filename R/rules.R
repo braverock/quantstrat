@@ -35,6 +35,13 @@
 #' interested parties.  The subsetting may (will likely) work with normal 
 #' ISO/xts subset ranges, but consider it unsupported. 
 #' 
+#' The \code{name} parameter should be a character string naming the function
+#' to be called in the \code{\link{applyRules}} loop. The \code{add.rule} 
+#' function will then call \code{\link{match.fun}}, ands store the actual function 
+#' in your strategy object.  
+#' This will avoid lookups via \code{\link{match.fun}} at \code{\link{applyRules}} time, 
+#' and may provide a significant speed increase on higher frequency data (20\% or more).
+#' 
 #' We anticipate that rules will be the portion of a strategy most likely to 
 #' not have suitable template code included with this package, as every strategy 
 #' and environment are different, especially in this respect.  
@@ -60,7 +67,21 @@ add.rule <- function(strategy, name, arguments, parameters=NULL, label=NULL, typ
     if(is.null(type)) stop("You must specify a type")
 	if(is.na(charmatch(type,c("risk","order","rebalance","exit","enter")))) stop(paste("type:",type,' must be one of "risk", "order", "rebalance", "exit", or "enter"'))
     tmp_rule<-list()
-    tmp_rule$name<-name
+    if(!is.function(name)) {
+        if(!is.function(get(name))){
+            if(!is.function(get(paste("sig",name,sep='.')))){
+                message(paste("Skipping rule",name,"because there is no function by that name to call"))
+                next()      
+            } else {
+                name<-paste("sig",rule$name,sep='.')
+            }
+        }
+        fn<-match.fun(name)
+    } else {
+        fn <- name
+    }
+    
+    tmp_rule$name<-fn
     tmp_rule$type<-type
     tmp_rule$enabled<-enabled
     if (!is.list(arguments)) stop("arguments must be passed as a named list")
@@ -88,7 +109,7 @@ add.rule <- function(strategy, name, arguments, parameters=NULL, label=NULL, typ
 #' and then again in stepping over the time indexes of the mktdata object.
 #' 
 #' Individual rule functions may need to use <<- to place \code{hold} and \code{holdtill}
-#' variables into play.  These would be mosrt likely implemented by risk rules.
+#' variables into play.  These would be most likely implemented by risk rules.
 #' 
 #' @param portfolio text name of the portfolio to associate the order book with
 #' @param symbol identfier of the instrument to find orders for.  The name of any associated price objects (xts prices, usually OHLC) should match these
@@ -125,13 +146,15 @@ applyRules <- function(portfolio, symbol, strategy, mktdata, Dates=NULL, indicat
         for (rule in ruletypelist){
             #TODO check to see if they've already been calculated
             if (!rule$path.dep==path.dep) next()
-            if(!is.function(get(rule$name))){
-                if(!is.function(get(paste("sig",rule$name,sep='.')))){
-                    message(paste("Skipping rule",rule$name,"because there is no function by that name to call"))
-                    next()      
-                } else {
-                    rule$name<-paste("sig",rule$name,sep='.')
-                }
+            if(!is.function(rule$name)) {
+                if(!is.function(get(rule$name))){
+                    if(!is.function(get(paste("sig",rule$name,sep='.')))){
+                        message(paste("Skipping rule",rule$name,"because there is no function by that name to call"))
+                        next()      
+                    } else {
+                        rule$name<-paste("sig",rule$name,sep='.')
+                    }
+                }   
             }
             
             if(!isTRUE(rule$enabled)) next()
@@ -140,7 +163,8 @@ applyRules <- function(portfolio, symbol, strategy, mktdata, Dates=NULL, indicat
 			if(!is.null(rule$timespan) & nrow(mktdata[rule$timespan]==0)) next()
 			
             # see 'S Programming' p. 67 for this matching
-            fun<-match.fun(rule$name)
+            if(is.function(rule$name)) fun <- rule$name
+            else fun<-match.fun(rule$name)
             
             nargs <-list(...)
             if(length(nargs)==0) nargs=NULL
