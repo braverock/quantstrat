@@ -580,8 +580,8 @@ ruleOrderProc <- function(portfolio, symbol, mktdata, timespan, ordertype=NULL, 
 						pos<-getPosQty(portfolio,symbol,timestamp)
 						side=ordersubset[ii,]$Order.Side
 						TxnQty=as.numeric(ordersubset[ii,]$Order.Qty)
+						remqty<-TxnQty+pos
 						if(side=="long"){
-							remqty<-TxnQty+pos
 							if (remqty<0){
 								newqty<-TxnQty-remqty
 								warning("TxnQTy of",TxnQty,"would cross through zero, reducing qty to",newqty)

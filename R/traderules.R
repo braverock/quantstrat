@@ -180,9 +180,10 @@ osNoOp <- function(timestamp, orderqty, portfolio, symbol, ruletype, ...){
 addPosLimit <- function(portfolio, symbol, timestamp, maxpos, longlevels=1, minpos=0, shortlevels=0){
     portf<-getPortfolio(portfolio)
     newrow <- xts(cbind(maxpos, longlevels, minpos, shortlevels),order.by=as.POSIXct(timestamp))
+	colnames(newrow)<-c("MaxPos","LongLevels","MinPos","ShortLevels")
+	
     if(is.null(portf$symbols[[symbol]]$PosLimit)) {
-        portf$symbols[[symbol]]$PosLimit <- newrow 
-        colnames(portf$symbols[[symbol]]$PosLimit)<-c("MaxPos","LongLevels","MinPos","ShortLevels")
+        portf$symbols[[symbol]]$PosLimit <- newrow         
     } else {
         if(!is.null(portf[[symbol]]$PosLimit[timestamp])){
             # it exists already, so replace
