@@ -5,7 +5,7 @@ Version: 0.3
 Date: $Date$
 Author: Peter Carl, Dirk Eddelbuettel, Brian G. Peterson, Jeffrey A.
     Ryan, Joshua Ulrich
-Depends: xts(>= 0.7-0),TTR(>= 0.2),blotter(>= 0.7),
+Depends: xts(>= 0.7-6.1),TTR(>= 0.2),blotter(>= 0.7),
     FinancialInstrument, quantmod (>= 0.3-14)
 Suggests: PerformanceAnalytics,PortfolioAnalytics
 Maintainer: Jeffrey A. Ryan <jeff.a.ryan@gmail.com>
