@@ -351,6 +351,7 @@ updateOrders <- function(portfolio, symbol, timespan, ordertype=NULL, side=NULL,
 
 #' process open orders at time \emph{t}, generating transactions or new orders
 #' 
+#' The ruleOrderProc function is effectively the default fill simulator for quantstrat. 
 #' This function is meant to be sufficient for backtesting most strategies, 
 #' but would need to be replaced for production use.  It provides the interface 
 #' for taking the order book and determining when orders become trades.
@@ -363,12 +364,25 @@ updateOrders <- function(portfolio, symbol, timespan, ordertype=NULL, side=NULL,
 #' system, first stop (flatten), and then reverse (initiate a new position).
 #' 
 #' This function would need to be revised or replaced for connection to a live trading infrastructure.
+#' In a production mode, you would replace the \code{\link{addOrder}} function 
+#' with a custom function to connect to your market infrastructure.  
+#' In that case, you might need to add additional code to your strategy, 
+#' or overload functions for checking position.  
+#'   
+#' Note that this function is called by default in the 'orders' slot of the 
+#' \code{\link{applyRules}} processing.  If you have defined another order 
+#' processing rule, it with \emph{replace} this function.  If you want your 
+#' custom order rule and ruleOrderProc to both be called, you will need
+#' explicitly add a rule to call ruleOrderProc either before or after your 
+#' custom order processing function. 
 #' 
 #' We would like to model slippage here via \code{slippageFUN}.  Code contributions, suggestions, 
 #' and requests appreciated. 
-#'    
+#'
+#' @concept fill simulator
+#' @concept orders  
 #' @param portfolio text name of the portfolio to associate the order book with
-#' @param symbol identfier of the instrument to find orders for.  The name of any associated price objects (xts prices, usually OHLC) should match these
+#' @param symbol identfier of the instrument to find orders for.  The name of any associated price objects (xts prices, usually OHLC or BBO) should match these
 #' @param mktdata an xts object containing market data.  depending on indicators, may need to be in OHLCV or BBO formats, default NULL
 #' @param timespan xts-style character timespan to be the period to find orders to process in
 #' @param ordertype one of NULL, "market","limit","stoplimit", or "stoptrailing" default NULL

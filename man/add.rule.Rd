@@ -36,7 +36,7 @@ until the rebalancing period was over.
 The \code{timespan} parameter will limit rule execution by time of day using 
 time based subsetting.  See ISO-8601 specification and xts documentation for 
 more details.  Note that these are only applicable to intra-day execution, 
-and will remain that way barring patches (tests and documentatioon) from 
+and will remain that way barring patches (tests and documentation) from 
 interested parties.  The subsetting may (will likely) work with normal 
 ISO/xts subset ranges, but consider it unsupported. 
 

@@ -31,7 +31,7 @@
 #' The \code{timespan} parameter will limit rule execution by time of day using 
 #' time based subsetting.  See ISO-8601 specification and xts documentation for 
 #' more details.  Note that these are only applicable to intra-day execution, 
-#' and will remain that way barring patches (tests and documentatioon) from 
+#' and will remain that way barring patches (tests and documentation) from 
 #' interested parties.  The subsetting may (will likely) work with normal 
 #' ISO/xts subset ranges, but consider it unsupported. 
 #' 
@@ -174,6 +174,9 @@ applyRules <- function(portfolio, symbol, strategy, mktdata, Dates=NULL, indicat
             }
 
             .formals  <- formals(fun)
+            
+            if(hasArg(prefer)) .formals$prefer=match.call(expand.dots=TRUE)$prefer
+            
             onames <- names(.formals)
             rule$arguments$timestamp = timestamp
 			rule$arguments$ruletype  = ruletype
@@ -196,7 +199,7 @@ applyRules <- function(portfolio, symbol, strategy, mktdata, Dates=NULL, indicat
                 .formals[pm] <- nargs[pm > 0L]
             }
             .formals$... <- NULL
-
+            
             tmp_val<-do.call(fun,.formals)
             ## if(!is.null(tmp_val)){
             ##     if(is.null(names(tmp_val)) & ncol(tmp_val)==1) names(tmp_val)<-rule$label
