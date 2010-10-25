@@ -471,19 +471,19 @@ ruleOrderProc <- function(portfolio, symbol, mktdata, timespan, ordertype=NULL, 
                             stoplimit =,
                             iceberg = {
                                 if (isOHLCmktdata){
-                                    #if( ordersubset[ii,"Order.Type"] == 'iceberg'){ # switch takes care of this
+                                    if( ordersubset[ii,"Order.Type"] == 'iceberg'){ # switch takes care of this
                                         stop("iceberg orders not supported for OHLC data")
-                                    #} 
+                                    } 
                                     # check to see if price moved through the limit
-                                    #if( orderPrice > as.numeric(Lo(mktdataTimestamp)) &
-                                    #    orderPrice < as.numeric(Hi(mktdataTimestamp)) ) 
-                                    #{
-                                    #    txnprice = orderPrice
-                                    #    txntime  = as.character(timestamp)
-                                    #} else {
+                                    if( orderPrice > as.numeric(Lo(mktdataTimestamp)) &
+                                        orderPrice < as.numeric(Hi(mktdataTimestamp)) ) 
+                                    {
+                                        txnprice = orderPrice
+                                        txntime  = as.character(timestamp)
+                                    } else {
                                         # price did not move through my order
-                                    #    next() # should go to next order
-                                    #}
+                                        next() # should go to next order
+                                    }
                                 } else if(isBBOmktdata){
                                     # check side/qty
                                     if(orderQty > 0){ # positive quantity 'buy'
@@ -499,7 +499,7 @@ ruleOrderProc <- function(portfolio, symbol, mktdata, timespan, ordertype=NULL, 
                                             txntime  = as.character(timestamp)
                                         } else next()
                                     }
-                                    #if( ordersubset[ii,"Order.Type"] == 'iceberg'){
+                                    if( ordersubset[ii,"Order.Type"] == 'iceberg'){
                                         #we've transacted, so the old order was closed, put in a new one
                                         neworder<-addOrder(portfolio=portfolio,
                                                 symbol=symbol,
@@ -516,7 +516,7 @@ ruleOrderProc <- function(portfolio, symbol, mktdata, timespan, ordertype=NULL, 
                                         ordersubset[ii,"Order.Status"]<-'replaced'
                                         ordersubset[ii,"Order.StatusTime"]<-as.character(timestamp)
                                         next()
-                                    #} 
+                                    } 
                                 } else {
                                     # no depth data, either OHLC or BBO, getPrice explicitly using symbol ?
                                     if(orderPrice == getPrice(mktdataTimestamp, symbol=symbol, prefer='price')){
