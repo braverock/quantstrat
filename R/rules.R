@@ -65,7 +65,7 @@ add.rule <- function(strategy, name, arguments, parameters=NULL, label=NULL, typ
     if(!is.strategy(strategy)) stop("You must pass in a strategy object to manipulate")
     type=type[1]
     if(is.null(type)) stop("You must specify a type")
-	if(is.na(charmatch(type,c("risk","order","rebalance","exit","enter")))) stop(paste("type:",type,' must be one of "risk", "order", "rebalance", "exit", or "enter"'))
+	if(is.na(charmatch(type,c("risk","order","rebalance","exit","enter","pre","post")))) stop(paste("type:",type,' must be one of "risk", "order", "rebalance", "exit", "enter", "pre", or "post"'))
     tmp_rule<-list()
     if(!is.function(name)) {
         if(!is.function(get(name))){

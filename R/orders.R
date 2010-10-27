@@ -71,7 +71,7 @@ initOrders <- function(portfolio=NULL, symbols=NULL, initDate = '1999-12-31')
 #' @export
 getOrders <- function(portfolio,symbol,status="open",timespan=NULL,ordertype=NULL, side=NULL, which.i=FALSE)
 {
-    if(is.null(timespan)) stop("timespan must be an xts style timestring")
+    #if(is.null(timespan)) stop("timespan must be an xts style timestring")
     # get order book
     orderbook <- getOrderBook(portfolio)
     if(!length(grep(symbol,names(orderbook[[portfolio]])))==1) stop(paste("symbol",symbol,"does not exist in portfolio",portfolio,"having symbols",names(orderbook)))

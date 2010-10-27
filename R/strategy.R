@@ -110,10 +110,19 @@ applyStrategy <- function(strategy , portfolios, mktdata=NULL , parameters=NULL,
             }
             
             #loop over rules  
-            # non-path-dep first
             sret$rules<-list()
+			
+			## only fire nonpath/pathdep when true 
+			## TODO make this more elegant
+			pd <- FALSE
+			for(i in 1:length(strategy$rules)){	if(length(strategy$rules[[i]])!=0){z <- strategy$rules[[i]]; if(z[[1]]$path.dep==TRUE){pd <- TRUE}}}
+				
             sret$rules$nonpath<-applyRules(portfolio=portfolio, symbol=symbol, strategy=strategy, mktdata=mktdata, Dates=NULL, indicators=sret$indicators, signals=sret$signals, parameters=parameters,  ..., path.dep=FALSE)
-            sret$rules$pathdep<-applyRules(portfolio=portfolio, symbol=symbol, strategy=strategy, mktdata=mktdata, Dates=NULL, indicators=sret$indicators, signals=sret$signals, parameters=parameters,  ..., path.dep=TRUE)
+			
+			## Check for open orders
+			rem.orders <- getOrders(portfolio=portfolio, symbol=symbol, status="open") #, timespan=timespan, ordertype=ordertype,which.i=TRUE)
+			if(nrow(rem.orders)>0){pd <- TRUE}
+            if(pd==TRUE){sret$rules$pathdep<-applyRules(portfolio=portfolio, symbol=symbol, strategy=strategy, mktdata=mktdata, Dates=NULL, indicators=sret$indicators, signals=sret$signals, parameters=parameters,  ..., path.dep=TRUE)}
 
 			ret[[portfolio]][[symbol]]<-sret
 		}
