@@ -13,7 +13,7 @@ trading systems do not have instant execution.  They make decisions
 (the Rules) and then enter orders (the province of this function in backtesting),
 during which there is some \code{delay} between receiving the data that fires the 
 Signal and Rule, and the time the order reaches the market, and then those orders 
-MAY become transactions if market prices and liquidity cooperate.  
+\emph{MAY} become transactions if market prices and liquidity cooperate.  
 
 By default, this function will locate and replace any 'open' order(s) 
 on the requested portfolio/symbol that have the same type and side.  
@@ -52,7 +52,7 @@ a market order will be executed at the then-prevailing price.  We have not model
 
 We have also added the 'iceberg' order type.  This order type should
 most often be paired with \code{delay} and \code{\link{osMaxPos}}.  The 
-iceberg order will enter when initially entered is treated like a limit 
+iceberg order when initially entered is treated like a limit 
 order, with an optional threshold (which is applied at initial order 
 entry, so be careful).  Right now, they will enter a new order at price+threshold
 upon any execution of the prior iceberg order.  This process could 

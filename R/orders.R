@@ -64,7 +64,7 @@ initOrders <- function(portfolio=NULL, symbols=NULL, initDate = '1999-12-31')
 #' @param portfolio text name of the portfolio to associate the order book with
 #' @param symbol identfier of the instrument to find orders for.  The name of any associated price objects (xts prices, usually OHLC) should match these
 #' @param status one of "open", "closed", "canceled", or "replaced", default "open"
-#' @param timespan xts-style character timespan to be the period to find orders of the given status and ordertype 
+#' @param timespan xts-style character timespan to be the period to find orders of the given status and ordertype, not yet used here
 #' @param ordertype one of NULL, "market","limit","stoplimit", "stoptrailing", or "iceberg" default NULL
 #' @param side one of NULL, "long" or "short", default NULL 
 #' @param which.i if TRUE, return the row index numbers rather than the order rows matching the criteria, default FALSE

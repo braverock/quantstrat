@@ -51,7 +51,15 @@ We anticipate that rules will be the portion of a strategy most likely to
 not have suitable template code included with this package, as every strategy 
 and environment are different, especially in this respect.  
 We will attempt to provide enough examples and generic rules to give strategy
-authors a place to start.}
+authors a place to start.
+
+For quantstrat to be able to (largly) vectorize the execution of path-dependent 
+rule evaluation, the rule function is presumed to have a function signature 
+like that of \code{\link{ruleSignal}}, specifically the arguments \code{sigcol} 
+and \code{sigval}.  If these are present and function in a way similar to 
+\code{\link{ruleSignal}} we can do some preprocessing to significantly reduce the 
+dimensionality of the index we need to loop over.  The speedup is the ratio of 
+(symbols*total observations)/signal observations, so it can be significant for many strategies.}
 \arguments{\item{strategy}{an object of type 'strategy' to add the rule to}
 \item{name}{name of the rule, must correspond to an R function}
 \item{arguments}{named list of default arguments to be passed to an rule function when executed}

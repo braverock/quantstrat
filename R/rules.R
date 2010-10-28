@@ -47,6 +47,14 @@
 #' and environment are different, especially in this respect.  
 #' We will attempt to provide enough examples and generic rules to give strategy
 #' authors a place to start.
+#' 
+#' For quantstrat to be able to (largly) vectorize the execution of path-dependent 
+#' rule evaluation, the rule function is presumed to have a function signature 
+#' like that of \code{\link{ruleSignal}}, specifically the arguments \code{sigcol} 
+#' and \code{sigval}.  If these are present and function in a way similar to 
+#' \code{\link{ruleSignal}} we can do some preprocessing to significantly reduce the 
+#' dimensionality of the index we need to loop over.  The speedup is the ratio of 
+#' (symbols*total observations)/signal observations, so it can be significant for many strategies.
 #'    
 #' @param strategy an object of type 'strategy' to add the rule to
 #' @param name name of the rule, must correspond to an R function
@@ -214,25 +222,71 @@ applyRules <- function(portfolio, symbol, strategy, mktdata, Dates=NULL, indicat
             ## }
             mktdata <<- mktdata
             ret <<- ret
-            hold <<- hold #TODO FIXME hold processing doesn't work yet
+            hold <<- hold #TODO FIXME hold processing doesn't work unless custom rule has set it with <<-
 
             #print(tmp_val)
         } #end rules loop
     } # end sub process function
 
-    #TODO FIXME we should probably do something more sophisticated, but this should work
-    if(isTRUE(path.dep) & is.null(Dates)) Dates=unique(time(mktdata)) # should this be index() instead?
-    if(!isTRUE(path.dep)) Dates=''
+    #we could maybe do something more sophisticated, but this should work
+    if(isTRUE(path.dep)){
+        Dates=unique(time(mktdata)) # should this be index() instead?  
+    } else {
+        Dates=''
+    }
+    
 
     hold=FALSE
     holdtill=first(time(Dates))-1 # TODO FIXME make holdtill default more robust?
 
 	mktinstr<-getInstrument(symbol)
 	
-    for(d in 1:length(Dates)){ # d is a date slot counter
+    dindex<-vector()
+    #pre-process for dimension reduction here
+    for ( type in names(strategy$rules)){
+        # check if there's anything to do
+        if(length(strategy$rules[[type]])>=1){
+            for (rule in strategy$rules[[type]]){
+                if(isTRUE(rule$path.dep)){ # only apply to path dependent rule
+                    # check for sigcol, sigval, otherwise use all
+                    if(is.null(rule$arguments$sigcol) | is.null(rule$arguments$sigval) ){
+                        dindex<-1:length(Dates)
+                    } else {
+                        dindex<-c(dindex,which(mktdata[,rule$arguments$sigcol] == rule$arguments$sigval))   
+                    }
+                }
+            }
+        }    
+    }
+    dindex<-sort(unique(dindex))
+    if(length(dindex)==0) dindex=1
+    
+    # TODO change this to a while?
+    curIndex<-1
+
+    nextIndex<-function(curIndex,...){
+        if (!isTRUE(path.dep)){
+            curIndex = FALSE
+            return(curIndex)
+        } 
+        
+        #check for open orders at curIndex
+        rem.orders <- getOrders(portfolio=portfolio, symbol=symbol, status="open") #, timespan=timespan, ordertype=ordertype,which.i=TRUE)
+        if(nrow(rem.orders)==0){
+            curIndex<-dindex[first(which(dindex>curIndex))]
+            if(is.na(curIndex)) curIndex=FALSE
+        } else { # open orders, set to curIndex+1
+            curIndex<-curIndex+1
+        }
+        if (curIndex > length(Dates)) curIndex=FALSE
+        return(curIndex)
+    }
+        
+    while(curIndex){
+    #for(d in 1:length(Dates)){ # d is a date slot counter
         # I shouldn't have to do this but we lose the class for the element 
         # when we do for(date in Dates)
-        timestamp=Dates[d]    
+        timestamp=Dates[curIndex]    
 
         # check to see if we need to release a hold
         if(isTRUE(hold) & holdtill<timestamp){
@@ -272,13 +326,15 @@ applyRules <- function(portfolio, symbol, strategy, mktdata, Dates=NULL, indicat
                         }
                     },
                     post = {
-                        #TODO do we processfor hold here, or not?
+                        #TODO do we process for hold here, or not?
                         if(length(strategy$rules$post)>=1) {
                             ruleProc(strategy$rules$post,timestamp=timestamp, path.dep=path.dep, mktdata=mktdata,portfolio=portfolio, symbol=symbol, ruletype=type, mktinstr=mktinstr, ...)
                         }
                     }
             ) # end switch
         } #end type loop
+        curIndex<-nextIndex(curIndex, ...)
+        if(!isTRUE(path.dep)) curIndex=FALSE
     } # end dates loop
 
     mktdata<<-mktdata

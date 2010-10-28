@@ -36,12 +36,7 @@ strategy <- function(name, ..., assets=NULL, constraints=NULL ,store=FALSE)
         # if assets is a named vector, we'll assume it is current weights
     }
     rules<-list()
-    rules$risk<-list()
     rules$order<-list()
-    rules$rebalance<-list()
-    rules$exit<-list()
-    rules$enter<-list()
-    
     ## now structure and return
     strat<-structure(
                     list(
