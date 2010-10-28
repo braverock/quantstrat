@@ -110,7 +110,7 @@ getOrders <- function(portfolio,symbol,status="open",timespan=NULL,ordertype=NUL
 #' (the Rules) and then enter orders (the province of this function in backtesting),
 #' during which there is some \code{delay} between receiving the data that fires the 
 #' Signal and Rule, and the time the order reaches the market, and then those orders 
-#' MAY become transactions if market prices and liquidity cooperate.  
+#' \emph{MAY} become transactions if market prices and liquidity cooperate.  
 #' 
 #' By default, this function will locate and replace any 'open' order(s) 
 #' on the requested portfolio/symbol that have the same type and side.  
@@ -149,7 +149,7 @@ getOrders <- function(portfolio,symbol,status="open",timespan=NULL,ordertype=NUL
 #' 
 #' We have also added the 'iceberg' order type.  This order type should
 #' most often be paired with \code{delay} and \code{\link{osMaxPos}}.  The 
-#' iceberg order will enter when initially entered is treated like a limit 
+#' iceberg order when initially entered is treated like a limit 
 #' order, with an optional threshold (which is applied at initial order 
 #' entry, so be careful).  Right now, they will enter a new order at price+threshold
 #' upon any execution of the prior iceberg order.  This process could 
@@ -404,234 +404,187 @@ ruleOrderProc <- function(portfolio, symbol, mktdata, timespan, ordertype=NULL, 
         timestamp <- time(last(mktdata[timespan]))
         #switch on frequency
         freq = periodicity(mktdata)
-        switch(freq$scale,
-            yearly = ,
-            quarterly = ,
-            monthly = ,
-            daily = { 
-                # next process daily
-                for (ii in procorders ){
-                    txnprice=NULL
-                    txnfees=ordersubset[ii,"Txn.Fees"]
-                    orderPrice <- as.numeric(ordersubset[ii,"Order.Price"])
-                    orderQty <- as.numeric(ordersubset[ii,"Order.Qty"])
-                    if(is.null(txnfees)) txnfees=0
-                    switch(ordersubset[ii,"Order.Type"],
-                        market = {
-                                txntime=as.character(index(ordersubset[ii,])) # transacts on this bar, e.g. in the intraday cross, or leading into the end of month, quarter, etc.
-                                # txntime=as.character(timestamp) # use this if you wanted to transact on the close of the next bar
-                                txnprice=as.numeric(getPrice(last(mktdata[txntime]), prefer='close'))
-                        },
-                        limit = ,
-                        stoplimit = {
-                                        # check to see if price moved through the limit
-                                        tmpprices<-last(mktdata[timestamp])
-                                        if ( orderPrice > getPrice(tmpprices, prefer = "Lo") &  
-                                             orderPrice < getPrice(tmpprices, prefer = "Hi"))  {
-                                            txnprice=orderPrice
-                                            txntime=as.character(timestamp)
-                                        } else {
-                                            # price did not move through my order
-                                            next() # should go to next order
-                                        }         
-                        },
-                        {
-                            stop("order types other than market and (stop)limit not (yet?) supported for low-frequency strategies")
-                        }
-                    )
-                    if(!is.null(txnprice)){
-                        addTxn(Portfolio=portfolio, Symbol=symbol, TxnDate=txntime, TxnQty=orderQty, TxnPrice=txnprice , ...=..., TxnFees=txnfees)
-                        ordersubset[ii,"Order.Status"]<-'closed'
-                        ordersubset[ii,"Order.StatusTime"]<-txntime
-                    }
-                } #end loop over open orders       
-            }, #end daily and lower frequency processing
-            {
-                # now do higher frequencies
-                neworders<-NULL
-                for (ii in procorders ){
-                    txnprice=NULL
-                    txnfees=ordersubset[ii,"Txn.Fees"]
-                    orderPrice <- as.numeric(ordersubset[ii,"Order.Price"])
-                    orderQty <- as.numeric(ordersubset[ii,"Order.Qty"])
-                    orderThreshold <- as.numeric(ordersubset[ii,"Order.Threshold"])
-                    mktdataTimestamp <- mktdata[timestamp]
-                    # Should we only keep the last observation per time stamp?
-                    if( NROW(mktdataTimestamp) > 1 ) mktdataTimestamp <- last(mktdataTimestamp)
-                    isOHLCmktdata <- is.OHLC(mktdata)
-                    isBBOmktdata  <- is.BBO(mktdata)
+        neworders<-NULL
+        for (ii in procorders ){
+            txnprice=NULL
+            txnfees=ordersubset[ii,"Txn.Fees"]
+            orderPrice <- as.numeric(ordersubset[ii,"Order.Price"])
+            orderQty <- as.numeric(ordersubset[ii,"Order.Qty"])
+            orderThreshold <- as.numeric(ordersubset[ii,"Order.Threshold"])
+            mktdataTimestamp <- mktdata[timestamp]
+            # Should we only keep the last observation per time stamp?
+            if( NROW(mktdataTimestamp) > 1 ) mktdataTimestamp <- last(mktdataTimestamp)
+            isOHLCmktdata <- is.OHLC(mktdata)
+            isBBOmktdata  <- is.BBO(mktdata)
 
-                    switch(ordersubset[ii,"Order.Type"],
-                            market = {
-                                txnprice = as.numeric(getPrice(mktdataTimestamp))
-                                #TODO extend this to figure out which side to prefer
+            switch(ordersubset[ii,"Order.Type"],
+                    market = {
+                        txnprice = as.numeric(getPrice(mktdataTimestamp))
+                        #TODO extend this to figure out which side to prefer
+                        txntime  = as.character(timestamp)
+                    },
+                    limit= ,
+                    stoplimit =,
+                    iceberg = {
+                        if (isOHLCmktdata){
+                            if( ordersubset[ii,"Order.Type"] == 'iceberg'){ # switch takes care of this
+                                stop("iceberg orders not supported for OHLC data")
+                            } 
+                            # check to see if price moved through the limit
+                            if( orderPrice > as.numeric(Lo(mktdataTimestamp)) &
+                                orderPrice < as.numeric(Hi(mktdataTimestamp)) ) 
+                            {
+                                txnprice = orderPrice
                                 txntime  = as.character(timestamp)
-                            },
-                            limit= ,
-                            stoplimit =,
-                            iceberg = {
-                                if (isOHLCmktdata){
-                                    if( ordersubset[ii,"Order.Type"] == 'iceberg'){ # switch takes care of this
-                                        stop("iceberg orders not supported for OHLC data")
-                                    } 
-                                    # check to see if price moved through the limit
-                                    if( orderPrice > as.numeric(Lo(mktdataTimestamp)) &
-                                        orderPrice < as.numeric(Hi(mktdataTimestamp)) ) 
-                                    {
-                                        txnprice = orderPrice
-                                        txntime  = as.character(timestamp)
-                                    } else {
-                                        # price did not move through my order
-                                        next() # should go to next order
-                                    }
-                                } else if(isBBOmktdata){
-                                    # check side/qty
-                                    if(orderQty > 0){ # positive quantity 'buy'
-                                        if(orderPrice >= as.numeric(getPrice(mktdataTimestamp,prefer='offer'))){
-                                            # price we're willing to pay is higher than the offer price, so execute at the limit
-                                            txnprice = orderPrice
-                                            txntime  = as.character(timestamp)
-                                        } else next()
-                                    } else { # negative quantity 'sell'
-                                        if(orderPrice <= as.numeric(getPrice(mktdataTimestamp,prefer='bid'))){
-                                            # we're willing to sell at a better price than the bid, so execute at the limit
-                                            txnprice = orderPrice
-                                            txntime  = as.character(timestamp)
-                                        } else next()
-                                    }
-                                    if( ordersubset[ii,"Order.Type"] == 'iceberg'){
-                                        #we've transacted, so the old order was closed, put in a new one
-                                        neworder<-addOrder(portfolio=portfolio,
-                                                symbol=symbol,
-                                                timestamp=timestamp,
-                                                qty=orderQty,
-                                                price=as.numeric(getPrice(mktdataTimestamp,prefer=prefer)), 
-                                                ordertype=ordersubset[ii,"Order.Type"],
-                                                side=ordersubset[ii,"Order.Side"],
-                                                threshold=orderThreshold,
-                                                status="open",
-                                                replace=FALSE, return=TRUE,
-                                                ,...=..., TxnFees=ordersubset[ii,"Txn.Fees"])
-                                        if (is.null(neworders)) neworders=neworder else neworders = rbind(neworders,neworder)
-                                        ordersubset[ii,"Order.Status"]<-'replaced'
-                                        ordersubset[ii,"Order.StatusTime"]<-as.character(timestamp)
-                                        next()
-                                    } 
-                                } else {
-                                    # no depth data, either OHLC or BBO, getPrice explicitly using symbol ?
-                                    if(orderPrice == getPrice(mktdataTimestamp, symbol=symbol, prefer='price')){
-                                        txnprice = orderPrice
-                                        txntime  = as.character(timestamp)
-                                    } else next()
-                                }
-
-                            },
-                            stoptrailing = {
-                                # if market moved through my price, execute
-                                if(orderQty > 0){ # positive quantity 'buy'
-                                    if(isBBOmktdata){
-                                        prefer='offer'
-                                        if(orderPrice >= getPrice(mktdataTimestamp,prefer=prefer)){ #TODO maybe use last(getPrice) to catch multiple prints on timestamp?
-                                            # price we're willing to pay is higher than the offer price, so execute at the limit
-                                            txnprice = orderPrice
-                                            txntime  = as.character(timestamp)
-                                        } 
-                                    } 
-                                } else { # negative quantity 'sell'
-                                    if(isBBOmktdata){
-                                        prefer='bid'
-                                        if(orderPrice <= getPrice(mktdataTimestamp,prefer=prefer)){
-                                            # we're willing to sell at a better price than the bid, so execute at the limit
-                                            txnprice = orderPrice
-                                            txntime  = as.character(timestamp)
-                                        }  
-                                    } 
-                                } 
-                                if(isOHLCmktdata){
-                                    # check to see if price moved through the limit
-                                    if( orderPrice > as.numeric(Lo(mktdataTimestamp)) &
-                                        orderPrice < as.numeric(Hi(mktdataTimestamp)) ) 
-                                    {
-                                        txnprice = orderPrice
-                                        txntime  = as.character(timestamp)
-                                    } 
-                                }
-                                # if market is beyond price+(-threshold), replace order
-                                if(is.null(txnprice)) { 
-                                    #print("here")
-                                    # we didn't trade, so check to see if we need to move the stop
-                                    # first figure out how to find a price
-                                    if (isOHLCmktdata){
-                                        prefer='close'
-                                    } else if(isBBOmktdata) {
-                                        if(orderQty > 0){
-                                            prefer='offer'
-                                        } else {
-                                            prefer='bid'
-                                        }
-                                    } else {
-                                        prefer=NULL # see if getPrice can figure it out
-                                    }
-                                    # check if we need to move the stop
-                                    mvstop=FALSE
-                                    if(orderQty > 0){ # positive quantity 'buy'
-                                        if( as.numeric(last(getPrice(x=mktdataTimestamp,prefer=prefer)))+orderThreshold < orderPrice ) mvstop=TRUE
-                                    } else {  # negative quantity 'sell'
-                                        if( as.numeric(last(getPrice(x=mktdataTimestamp,prefer=prefer)))+orderThreshold > orderPrice ) mvstop=TRUE
-                                        
-                                    }
-                                    if( isTRUE(mvstop) ){
-                                        neworder<-addOrder(portfolio=portfolio,
-                                                 symbol=symbol,
-                                                 timestamp=timestamp,
-                                                 qty=orderQty,
-                                                 price=as.numeric(getPrice(mktdataTimestamp,prefer=prefer)), 
-                                                 ordertype=ordersubset[ii,"Order.Type"],
-                                                 side=ordersubset[ii,"Order.Side"],
-                                                 threshold=orderThreshold,
-                                                 status="open",
-                                                 replace=FALSE, return=TRUE,
-                                                 ,...=..., TxnFees=ordersubset[ii,"Txn.Fees"])
-                                        if (is.null(neworders)) neworders=neworder else neworders = rbind(neworders,neworder)
-                                        ordersubset[ii,"Order.Status"]<-'replaced'
-                                        ordersubset[ii,"Order.StatusTime"]<-as.character(timestamp)
-                                        next()
-                                    }
-                                }
-                                # else next
+                            } else {
+                                # price did not move through my order
+                                next() # should go to next order
                             }
-                    )
-                    #if(!is.null(txnprice) & !isTRUE(is.na(txnprice)))
-                    if(ifelse(is.null(txnprice),FALSE,!is.na(txnprice))) {  # eliminate warning for is.na(NULL) -- jmu
-                        #make sure we don't cross through zero
-                        pos<-getPosQty(portfolio,symbol,timestamp)
-                        side=ordersubset[ii,"Order.Side"]
-                        remqty<-orderQty+pos
-                        if(side=="long"){
-                            if (remqty<0){
-                                newqty<-orderQty-remqty
-                                warning("orderQty of",orderQty,"would cross through zero, reducing qty to",newqty)
-                                orderQty<-newqty
+                        } else if(isBBOmktdata){
+                            # check side/qty
+                            if(orderQty > 0){ # positive quantity 'buy'
+                                if(orderPrice >= as.numeric(getPrice(mktdataTimestamp,prefer='offer'))){
+                                    # price we're willing to pay is higher than the offer price, so execute at the limit
+                                    txnprice = orderPrice
+                                    txntime  = as.character(timestamp)
+                                } else next()
+                            } else { # negative quantity 'sell'
+                                if(orderPrice <= as.numeric(getPrice(mktdataTimestamp,prefer='bid'))){
+                                    # we're willing to sell at a better price than the bid, so execute at the limit
+                                    txnprice = orderPrice
+                                    txntime  = as.character(timestamp)
+                                } else next()
                             }
+                            if( ordersubset[ii,"Order.Type"] == 'iceberg'){
+                                #we've transacted, so the old order was closed, put in a new one
+                                neworder<-addOrder(portfolio=portfolio,
+                                        symbol=symbol,
+                                        timestamp=timestamp,
+                                        qty=orderQty,
+                                        price=as.numeric(getPrice(mktdataTimestamp,prefer=prefer)), 
+                                        ordertype=ordersubset[ii,"Order.Type"],
+                                        side=ordersubset[ii,"Order.Side"],
+                                        threshold=orderThreshold,
+                                        status="open",
+                                        replace=FALSE, return=TRUE,
+                                        ,...=..., TxnFees=ordersubset[ii,"Txn.Fees"])
+                                if (is.null(neworders)) neworders=neworder else neworders = rbind(neworders,neworder)
+                                ordersubset[ii,"Order.Status"]<-'replaced'
+                                ordersubset[ii,"Order.StatusTime"]<-as.character(timestamp)
+                                next()
+                            } 
                         } else {
-                            if (remqty>0){
-                                newqty<-orderQty-remqty
-                                warning("orderQty of",orderQty,"would cross through zero, reducing qty to",newqty)
-                                orderQty<-newqty
+                            # no depth data, either OHLC or BBO, getPrice explicitly using symbol ?
+                            if(orderPrice == getPrice(mktdataTimestamp, symbol=symbol, prefer='price')){
+                                txnprice = orderPrice
+                                txntime  = as.character(timestamp)
+                            } else next()
+                        }
+
+                    },
+                    stoptrailing = {
+                        # if market moved through my price, execute
+                        if(orderQty > 0){ # positive quantity 'buy'
+                            if(isBBOmktdata){
+                                prefer='offer'
+                                if(orderPrice >= getPrice(mktdataTimestamp,prefer=prefer)){ #TODO maybe use last(getPrice) to catch multiple prints on timestamp?
+                                    # price we're willing to pay is higher than the offer price, so execute at the limit
+                                    txnprice = orderPrice
+                                    txntime  = as.character(timestamp)
+                                } 
+                            } 
+                        } else { # negative quantity 'sell'
+                            if(isBBOmktdata){
+                                prefer='bid'
+                                if(orderPrice <= getPrice(mktdataTimestamp,prefer=prefer)){
+                                    # we're willing to sell at a better price than the bid, so execute at the limit
+                                    txnprice = orderPrice
+                                    txntime  = as.character(timestamp)
+                                }  
+                            } 
+                        } 
+                        if(isOHLCmktdata){
+                            # check to see if price moved through the limit
+                            if( orderPrice > as.numeric(Lo(mktdataTimestamp)) &
+                                orderPrice < as.numeric(Hi(mktdataTimestamp)) ) 
+                            {
+                                txnprice = orderPrice
+                                txntime  = as.character(timestamp)
+                            } 
+                        }
+                        # if market is beyond price+(-threshold), replace order
+                        if(is.null(txnprice)) { 
+                            #print("here")
+                            # we didn't trade, so check to see if we need to move the stop
+                            # first figure out how to find a price
+                            if (isOHLCmktdata){
+                                prefer='close'
+                            } else if(isBBOmktdata) {
+                                if(orderQty > 0){
+                                    prefer='offer'
+                                } else {
+                                    prefer='bid'
+                                }
+                            } else {
+                                prefer=NULL # see if getPrice can figure it out
+                            }
+                            # check if we need to move the stop
+                            mvstop=FALSE
+                            if(orderQty > 0){ # positive quantity 'buy'
+                                if( as.numeric(last(getPrice(x=mktdataTimestamp,prefer=prefer)))+orderThreshold < orderPrice ) mvstop=TRUE
+                            } else {  # negative quantity 'sell'
+                                if( as.numeric(last(getPrice(x=mktdataTimestamp,prefer=prefer)))+orderThreshold > orderPrice ) mvstop=TRUE
+                                
+                            }
+                            if( isTRUE(mvstop) ){
+                                neworder<-addOrder(portfolio=portfolio,
+                                         symbol=symbol,
+                                         timestamp=timestamp,
+                                         qty=orderQty,
+                                         price=as.numeric(getPrice(mktdataTimestamp,prefer=prefer)), 
+                                         ordertype=ordersubset[ii,"Order.Type"],
+                                         side=ordersubset[ii,"Order.Side"],
+                                         threshold=orderThreshold,
+                                         status="open",
+                                         replace=FALSE, return=TRUE,
+                                         ,...=..., TxnFees=ordersubset[ii,"Txn.Fees"])
+                                if (is.null(neworders)) neworders=neworder else neworders = rbind(neworders,neworder)
+                                ordersubset[ii,"Order.Status"]<-'replaced'
+                                ordersubset[ii,"Order.StatusTime"]<-as.character(timestamp)
+                                next()
                             }
                         }
-                        if(orderQty!=0){
-                            #now add the transaction
-                            addTxn(Portfolio=portfolio, Symbol=symbol, TxnDate=txntime, TxnQty=orderQty, TxnPrice=txnprice , ...=..., TxnFees=txnfees)
-                            ordersubset[ii,"Order.Status"]<-'closed'
-                            ordersubset[ii,"Order.StatusTime"]<-as.character(timestamp)
-                        } 
+                        # else next
                     }
-                } #end loop over open orders  
-                if(!is.null(neworders)) ordersubset=rbind(ordersubset,neworders)
-
-            } # end higher frequency processing
-        ) # end switch on freq
+            )
+            #if(!is.null(txnprice) & !isTRUE(is.na(txnprice)))
+            if(ifelse(is.null(txnprice),FALSE,!is.na(txnprice))) {  # eliminate warning for is.na(NULL) -- jmu
+                #make sure we don't cross through zero
+                pos<-getPosQty(portfolio,symbol,timestamp)
+                side=ordersubset[ii,"Order.Side"]
+                remqty<-orderQty+pos
+                if(side=="long"){
+                    if (remqty<0){
+                        newqty<-orderQty-remqty
+                        warning("orderQty of",orderQty,"would cross through zero, reducing qty to",newqty)
+                        orderQty<-newqty
+                    }
+                } else {
+                    if (remqty>0){
+                        newqty<-orderQty-remqty
+                        warning("orderQty of",orderQty,"would cross through zero, reducing qty to",newqty)
+                        orderQty<-newqty
+                    }
+                }
+                if(orderQty!=0){
+                    #now add the transaction
+                    addTxn(Portfolio=portfolio, Symbol=symbol, TxnDate=txntime, TxnQty=orderQty, TxnPrice=txnprice , ...=..., TxnFees=txnfees)
+                    ordersubset[ii,"Order.Status"]<-'closed'
+                    ordersubset[ii,"Order.StatusTime"]<-as.character(timestamp)
+                } 
+            }
+        } #end loop over open orders  
+        if(!is.null(neworders)) ordersubset=rbind(ordersubset,neworders)
         
         # now put the orders back in
         # assign order book back into place (do we need a non-exported "put" function?)
