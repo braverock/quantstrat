@@ -65,8 +65,9 @@ strategy <- function(name, ..., assets=NULL, constraints=NULL ,store=FALSE)
 #' @param mktdata an xts object containing market data.  depending on indicators, may need to be in OHLCV or BBO formats, default NULL
 #' @param parameters named list of parameters to be applied during evaluation of the strategy, default NULL
 #' @param ... any other passthru parameters
+#' @param verbose if TRUE, return output list
 #' @export
-applyStrategy <- function(strategy , portfolios, mktdata=NULL , parameters=NULL, ... ) {
+applyStrategy <- function(strategy , portfolios, mktdata=NULL , parameters=NULL, ..., verbose=TRUE ) {
     #TODO add Date subsetting
     #TODO add saving of modified market data
     
@@ -123,7 +124,7 @@ applyStrategy <- function(strategy , portfolios, mktdata=NULL , parameters=NULL,
 		}
 	}
     
-    return(ret)
+    if(verbose) return(ret)
 }
 
 #' test to see if object is of type 'strategy'
