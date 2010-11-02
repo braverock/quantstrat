@@ -261,7 +261,6 @@ applyRules <- function(portfolio, symbol, strategy, mktdata, Dates=NULL, indicat
     dindex<-sort(unique(dindex))
     if(length(dindex)==0) dindex=1
     
-    # TODO change this to a while?
     curIndex<-1
 
     nextIndex<-function(curIndex,...){
@@ -269,23 +268,79 @@ applyRules <- function(portfolio, symbol, strategy, mktdata, Dates=NULL, indicat
             curIndex = FALSE
             return(curIndex)
         } 
+        tidx=FALSE
+        nidx=FALSE
         
         #check for open orders at curIndex
         rem.orders <- getOrders(portfolio=portfolio, symbol=symbol, status="open") #, timespan=timespan, ordertype=ordertype,which.i=TRUE)
         if(nrow(rem.orders)==0){
-            curIndex<-dindex[first(which(dindex>curIndex))]
+            curIndex<-dindex[first(which(dindex>curIndex))] #this worked
+            #this may be faster and more accurate if index insn't sorted
+            #curIndex<-min(dindex[which(dindex>curIndex)])        
             if(is.na(curIndex)) curIndex=FALSE
-        } else { # open orders, set to curIndex+1
-            curIndex<-curIndex+1
+        } else { # open orders, 
+            #if any type is market
+            if(!length(grep('market',rem.orders$Order.Type))==0 || hasArg('prefer')) {
+                # set to curIndex+1
+                curIndex<-curIndex+1
+                nidx<-TRUE
+            } else if (!length(grep('limit',rem.orders$Order.Type))==0){
+                #else limit
+                timespan<-paste(timestamp,"::",sep='')
+                limitorders<-grep('limit',rem.orders$Order.Type)
+                for (order in limitorders){
+                    tmpqty<-as.numeric(rem.orders[order,"Order.Qty"])
+                    tmpprice<-rem.orders[order,"Order.Price"]
+                    if(tmpqty>0){
+                        #buying
+                        relationship="gt"
+                        if(has.Ask(mktdata)) {
+                            col<-first(colnames(mktdata)[has.Ask(mktdata,which=TRUE)])
+                        } else if (is.OHLC(mktdata)) {
+                            col<-first(colnames(mktdata)[has.Lo(mktdata,which=TRUE)])
+                        } else {
+                            stop("no price discernable in applyRules")
+                        }
+                    } else {
+                        #selling
+                        relationship="lt"
+                        if(has.Bid(mktdata)) {
+                            col<-first(colnames(mktdata)[has.Bid(mktdata,which=TRUE)])
+                        } else if (is.OHLC(mktdata)) {
+                            col<-first(colnames(mktdata)[has.Hi(mktdata,which=TRUE)])
+                        } else {
+                            stop("no price discernable in applyRules")
+                        }
+                    }
+                    # use sigthreshold
+                    cross<-sigThreshold(label='tmplimit',column=col,threshold=tmpprice,relationship=relationship)
+                    # find first index that would cross after this index
+                    newidx<-curIndex+which(cross[timespan])[1] #curIndex/timestamp was 1 in the subset, so is this correct, or do we need a +/-1 offset?
+                    # insert that into dindex
+                    dindex<-c(dindex,newidx)                  
+                }
+                tidx<-TRUE
+            } else if (!length(grep('trailing',rem.orders$Order.Type))==0){
+                #TODO FIXME add loop jumping magic for trailing orders too
+                curIndex<-curIndex+1
+                nidx<-TRUE
+                #else process trailing
+                # ifelse from current index forward that would move the order
+                # find first index that would cross (if any) after this index
+                #insert that into dindex
+                #tidx<-TRUE
+            }
+        }
+        if(isTRUE(tidx)){
+            #push a modified dindex back up to the calling frame
+            dindex <<- sort(unique(dindex))
+            curIndex<-dindex[first(which(dindex>curIndex))] #check for faster formulation using min?
         }
         if (curIndex > length(Dates)) curIndex=FALSE
         return(curIndex)
     }
         
     while(curIndex){
-    #for(d in 1:length(Dates)){ # d is a date slot counter
-        # I shouldn't have to do this but we lose the class for the element 
-        # when we do for(date in Dates)
         timestamp=Dates[curIndex]    
 
         # check to see if we need to release a hold
@@ -335,7 +390,7 @@ applyRules <- function(portfolio, symbol, strategy, mktdata, Dates=NULL, indicat
         } #end type loop
         curIndex<-nextIndex(curIndex, ...)
         if(!isTRUE(path.dep)) curIndex=FALSE
-    } # end dates loop
+    } # end Dates while loop
 
     mktdata<<-mktdata
     if(is.null(ret)) {
