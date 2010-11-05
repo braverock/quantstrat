@@ -405,19 +405,21 @@ ruleOrderProc <- function(portfolio, symbol, mktdata, timespan, ordertype=NULL, 
         #switch on frequency
         freq = periodicity(mktdata)
         neworders<-NULL
+        mktdataTimestamp <- mktdata[timestamp]
+        #str(mktdataTimestamp)
+        # Should we only keep the last observation per time stamp?
+        if( NROW(mktdataTimestamp) > 1 ) mktdataTimestamp <- last(mktdataTimestamp)
+        isOHLCmktdata <- is.OHLC(mktdata)
+        isBBOmktdata  <- is.BBO(mktdata)
         for (ii in procorders ){
             txnprice=NULL
             txnfees=ordersubset[ii,"Txn.Fees"]
             orderPrice <- as.numeric(ordersubset[ii,"Order.Price"])
             orderQty <- as.numeric(ordersubset[ii,"Order.Qty"])
             orderThreshold <- as.numeric(ordersubset[ii,"Order.Threshold"])
-            mktdataTimestamp <- mktdata[timestamp]
-            # Should we only keep the last observation per time stamp?
-            if( NROW(mktdataTimestamp) > 1 ) mktdataTimestamp <- last(mktdataTimestamp)
-            isOHLCmktdata <- is.OHLC(mktdata)
-            isBBOmktdata  <- is.BBO(mktdata)
+            orderType <- ordersubset[ii,"Order.Type"]
 
-            switch(ordersubset[ii,"Order.Type"],
+            switch(orderType,
                     market = {
                         txnprice = as.numeric(getPrice(mktdataTimestamp))
                         #TODO extend this to figure out which side to prefer
@@ -427,7 +429,7 @@ ruleOrderProc <- function(portfolio, symbol, mktdata, timespan, ordertype=NULL, 
                     stoplimit =,
                     iceberg = {
                         if (isOHLCmktdata){
-                            if( ordersubset[ii,"Order.Type"] == 'iceberg'){ # switch takes care of this
+                            if( orderType == 'iceberg'){
                                 stop("iceberg orders not supported for OHLC data")
                             } 
                             # check to see if price moved through the limit
@@ -455,19 +457,19 @@ ruleOrderProc <- function(portfolio, symbol, mktdata, timespan, ordertype=NULL, 
                                     txntime  = as.character(timestamp)
                                 } else next()
                             }
-                            if( ordersubset[ii,"Order.Type"] == 'iceberg'){
+                            if( orderType == 'iceberg'){
                                 #we've transacted, so the old order was closed, put in a new one
                                 neworder<-addOrder(portfolio=portfolio,
                                         symbol=symbol,
                                         timestamp=timestamp,
                                         qty=orderQty,
                                         price=as.numeric(getPrice(mktdataTimestamp,prefer=prefer)), 
-                                        ordertype=ordersubset[ii,"Order.Type"],
+                                        ordertype=orderType,
                                         side=ordersubset[ii,"Order.Side"],
                                         threshold=orderThreshold,
                                         status="open",
                                         replace=FALSE, return=TRUE,
-                                        ,...=..., TxnFees=ordersubset[ii,"Txn.Fees"])
+                                        ,...=..., TxnFees=txnfees)
                                 if (is.null(neworders)) neworders=neworder else neworders = rbind(neworders,neworder)
                                 ordersubset[ii,"Order.Status"]<-'replaced'
                                 ordersubset[ii,"Order.StatusTime"]<-as.character(timestamp)
@@ -542,12 +544,12 @@ ruleOrderProc <- function(portfolio, symbol, mktdata, timespan, ordertype=NULL, 
                                          timestamp=timestamp,
                                          qty=orderQty,
                                          price=as.numeric(getPrice(mktdataTimestamp,prefer=prefer)), 
-                                         ordertype=ordersubset[ii,"Order.Type"],
+                                         ordertype=orderType,
                                          side=ordersubset[ii,"Order.Side"],
                                          threshold=orderThreshold,
                                          status="open",
                                          replace=FALSE, return=TRUE,
-                                         ,...=..., TxnFees=ordersubset[ii,"Txn.Fees"])
+                                         ,...=..., TxnFees=txnfees)
                                 if (is.null(neworders)) neworders=neworder else neworders = rbind(neworders,neworder)
                                 ordersubset[ii,"Order.Status"]<-'replaced'
                                 ordersubset[ii,"Order.StatusTime"]<-as.character(timestamp)
