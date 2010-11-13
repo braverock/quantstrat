@@ -117,8 +117,8 @@ print(end_t-start_t)
 
 # hack for new quantmod graphics, remove later
 themelist<-chart_theme()
-themelist$up.col<-'lightgreen'
-themelist$down.col<-'pink'
+themelist$col$up.col<-'lightgreen'
+themelist$col$dn.col<-'pink'
 for(symbol in symbols){
     dev.new()
     chart.Posn(Portfolio='faber',Symbol=symbol,theme=themelist)

@@ -26,6 +26,12 @@ maType="EMA"
 currency('USD')
 stock(stock.str,currency='USD',multiplier=1)
 
+#or use fake data
+#stock.str='sample_matrix' # what are we trying it on
+#data(sample_matrix)                 # data included in package xts
+#sample_matrix<-as.xts(sample_matrix)
+
+
 initDate='2006-12-31'
 initEq=1000000
 portfolio.st='macd'
@@ -45,6 +51,8 @@ stratMACD <- add.signal(strategy = stratMACD,name="sigThreshold",arguments = lis
 
 stratMACD <- add.rule(strategy = stratMACD,name='ruleSignal', arguments = list(sigcol="signal.gt.zero",sigval=TRUE, orderqty=100, ordertype='market', orderside='long', threshold=NULL),type='enter')
 stratMACD <- add.rule(strategy = stratMACD,name='ruleSignal', arguments = list(sigcol="signal.gt.zero",sigval=TRUE, orderqty=-100, ordertype='stoplimit', orderside='long', threshold=.85,tmult=TRUE),type='risk')
+# alternately, use a trailing order
+# stratMACD <- add.rule(strategy = stratMACD,name='ruleSignal', arguments = list(sigcol="signal.gt.zero",sigval=TRUE, orderqty=-100, ordertype='stoptrailing', orderside='long', threshold=.9,tmult=TRUE),type='risk')
 stratMACD <- add.rule(strategy = stratMACD,name='ruleSignal', arguments = list(sigcol="signal.lt.zero",sigval=TRUE, orderqty='all', ordertype='market', orderside='long', threshold=NULL),type='exit')
 
 getSymbols(stock.str,from=initDate)
@@ -61,6 +69,9 @@ print(end_t-start_t)
 
 chart.Posn(Portfolio=portfolio.st,Symbol=stock.str)
 plot(add_MACD(fast=fastMA, slow=slowMA, signal=signalMA,maType="EMA"))
+
+#look at the order book
+getOrderBook('macd')
 
 ###############################################################################
 # R (http://r-project.org/) Quantitative Strategy Model Framework
