@@ -51,7 +51,7 @@
 #' For quantstrat to be able to (largly) vectorize the execution of path-dependent 
 #' rule evaluation, the rule function is presumed to have a function signature 
 #' like that of \code{\link{ruleSignal}}, specifically the arguments \code{sigcol} 
-#' and \code{sigval}.  If these are present and function in a way similar to 
+#' and \code{sigval}.  If these are present and function in a manner similar to 
 #' \code{\link{ruleSignal}} we can do some preprocessing to significantly reduce the 
 #' dimensionality of the index we need to loop over.  The speedup is the ratio of 
 #' (symbols*total observations)/signal observations, so it can be significant for many strategies.
@@ -119,6 +119,59 @@ add.rule <- function(strategy, name, arguments, parameters=NULL, label=NULL, typ
 #' Individual rule functions may need to use <<- to place \code{hold} and \code{holdtill}
 #' variables into play.  These would be most likely implemented by risk rules.
 #' 
+#' \code{quantstrat} has a significant amount of logic devoted to handling 
+#' path-dependent rule execution.  Most of that code/logic resides in this
+#' function.  
+#' 
+#' This function, along with \code{\link{ruleOrderProc}}, \code{\link{addOrder}}, and 
+#' \code{\link{applyStrategy}} will likely need to be replaced to connect to a live 
+#' market infrastructure. 
+#' 
+#' \section{Dimension Reduction for Performance}{
+#' In evaluation of path-dependent rules, the simplest method, 
+#' and the one we used initially, is to check the rules on every observation 
+#' in the time series of market data.  
+#' There are cases where this will still be required, but we hope to limit them as much as possible.
+#' Looping in \R is generally discouraged, and on high frequency data for 
+#' strategy evaluation it can produce completely unacceptable results.
+#' 
+#' The solution we've employed makes use of what we know about the strategy and
+#' the orders the strategy places (or may place) to reduce the dimensionality of the problem.
+#' 
+#' As discussed in \code{\link{add.rule}}, the first step in this dimension 
+#' reduction is to look for places in the time series where signals may cause the strategy to 
+#' enter or change orders.  This creates an index of timestamps that must be evaluated.
+#' This index should be significantly shorter than the full number of observations.    
+#' \code{quantstrat} will always run \code{applyRules} on each of these indices
+#' where we've previously figured out that the strategy might want to do something.
+#' 
+#' The next step in dimension reduction works on the order book.  
+#' If there are open orders, we need to figure out when they might get filled.  
+#' For market orders, this is the next observation.  For limit orders, we can 
+#' locate the index timestamps after the order is placed to see when the
+#' order might cross.  We will add this index to the list of indices to be 
+#' evaluated.  There is of course no guarantee that the order will still be 
+#' open at that time, that trading will not be on \code{hold} because of a risk rule, 
+#' or that something else hasn't interfered.  Adding the index to the list only tells
+#' the loop inside \code{applyRules} that rules (including order processing rules) 
+#' need to be checked at that index, to see if anything needs to happen.
+#' 
+#' For trailing orders, the picture is somewhat more complicated.  Trailing orders
+#' \emph{may} move on each new observation, per the method described in 
+#' \code{\link{addOrder}}. To speed up evaluation of when such an
+#' order may cross, we need to combine the possible crossing logic for 
+#' the limit orders, above, with some additional logic to handle the 
+#' trailing orders. We begin by evaluating when the order price might 
+#' be moved. We then examine the market data between the current index and 
+#' the point at which the order may move. if there is a (possible) cross, 
+#' we insert that index into the indices for examination.  If not, we repeat 
+#' the process until we reach either a possible cross point, or the next index 
+#' already marked to be to be evaluated.
+#' 
+#' It should be noted that this dimension reduction methodology does 'look ahead'
+#' in the data.  This 'look ahead' is only done \emph{after} the order has been 
+#' entered in the normal path-dependent process, and so should not introduce biases.     
+#' }
 #' @param portfolio text name of the portfolio to associate the order book with
 #' @param symbol identfier of the instrument to find orders for.  The name of any associated price objects (xts prices, usually OHLC) should match these
 #' @param strategy an object of type 'strategy' to add the rule to
@@ -136,6 +189,22 @@ applyRules <- function(portfolio, symbol, strategy, mktdata, Dates=NULL, indicat
     # symbol <- strsplit(colnames(mktdata)[1],"\\.")[[1]][1]
     
     # TODO handle indicator and signal lists as well as indicators/signals that were cbound to mktdata
+
+    # ported from IBrokers thanks to Jeff
+    # environment for data to be stored/accessed during applyRules execution
+    # an example of this functionality is for the "symbols" variable
+    # that can be set (by default) to display contract names
+    .Data <- new.env()
+    #get.Data <- function(x) get(x,.Data)
+    #assign.Data <- function(x, value) assign(x, value, .Data)
+    #remove.Data <- function(x) remove(x, .Data)
+    get.dindex <- function() get("dindex",pos=.Data) # inherits=TRUE)
+    assign.dindex <- function(dindex) {
+        dindex<-sort(unique(dindex))
+        print(dindex)
+        assign("dindex", dindex, .Data)
+    }
+    
     
     if (!is.strategy(strategy)) {
         strategy<-try(getStrategy(strategy))
@@ -209,17 +278,7 @@ applyRules <- function(portfolio, symbol, strategy, mktdata, Dates=NULL, indicat
             .formals$... <- NULL
             
             tmp_val<-do.call(fun,.formals)
-            ## if(!is.null(tmp_val)){
-            ##     if(is.null(names(tmp_val)) & ncol(tmp_val)==1) names(tmp_val)<-rule$label
-            ##     if (nrow(mktdata)==nrow(tmp_val) | length(mktdata)==length(tmp_val)) {
-            ##         # the rule returned a time series, so we'll name it and cbind it
-            ##         mktdata<-cbind(mktdata,tmp_val)
-            ##     } else {
-            ##         # the rule returned something else, add it to the ret list
-            ##         if(is.null(ret)) ret<-list()
-            ##         ret[[rule$name]]<-tmp_val
-            ##     }  
-            ## }
+
             mktdata <<- mktdata
             ret <<- ret
             hold <<- hold #TODO FIXME hold processing doesn't work unless custom rule has set it with <<-
@@ -231,112 +290,280 @@ applyRules <- function(portfolio, symbol, strategy, mktdata, Dates=NULL, indicat
     #we could maybe do something more sophisticated, but this should work
     if(isTRUE(path.dep)){
         Dates=unique(time(mktdata)) # should this be index() instead?  
+        
+        dindex<-vector()
+        assign.dindex(dindex)
+        #pre-process for dimension reduction here
+        for ( type in names(strategy$rules)){
+            # check if there's anything to do
+            if(length(strategy$rules[[type]])>=1){
+                for (rule in strategy$rules[[type]]){
+                    if(isTRUE(rule$path.dep)){ # only apply to path dependent rule
+                        # check for sigcol, sigval, otherwise use all
+                        if(is.null(rule$arguments$sigcol) | is.null(rule$arguments$sigval) ){
+                            assign.dindex(1:length(Dates))
+                        } else {
+                            assign.dindex(c(get.dindex(),which(mktdata[,rule$arguments$sigcol] == rule$arguments$sigval)))   
+                        }
+                    }
+                }
+            }    
+        }
+        dindex<-get.dindex()
+        if(length(dindex)==0) dindex=1
+        
     } else {
         Dates=''
+        dindex=1
     }
     
-
     hold=FALSE
     holdtill=first(time(Dates))-1 # TODO FIXME make holdtill default more robust?
 
 	mktinstr<-getInstrument(symbol)
-	
-    dindex<-vector()
-    #pre-process for dimension reduction here
-    for ( type in names(strategy$rules)){
-        # check if there's anything to do
-        if(length(strategy$rules[[type]])>=1){
-            for (rule in strategy$rules[[type]]){
-                if(isTRUE(rule$path.dep)){ # only apply to path dependent rule
-                    # check for sigcol, sigval, otherwise use all
-                    if(is.null(rule$arguments$sigcol) | is.null(rule$arguments$sigval) ){
-                        dindex<-1:length(Dates)
-                    } else {
-                        dindex<-c(dindex,which(mktdata[,rule$arguments$sigcol] == rule$arguments$sigval))   
-                    }
-                }
-            }
-        }    
-    }
-    dindex<-sort(unique(dindex))
-    if(length(dindex)==0) dindex=1
     
     curIndex<-1
 
+    
     nextIndex<-function(curIndex,...){
         if (!isTRUE(path.dep)){
             curIndex = FALSE
             return(curIndex)
         } 
+
+        dindex<-get.dindex()
         tidx=FALSE
         nidx=FALSE
+        neworders=NULL
         
-        #check for open orders at curIndex
-        rem.orders <- getOrders(portfolio=portfolio, symbol=symbol, status="open") #, timespan=timespan, ordertype=ordertype,which.i=TRUE)
-        if(nrow(rem.orders)==0){
+        orderbook <- getOrderBook(portfolio)
+        ordersubset <- orderbook[[portfolio]][[symbol]]
+        
+        oo.idx <- getOrders(portfolio=portfolio, symbol=symbol, status="open",which.i=TRUE) #, timespan=timespan, ordertype=ordertype,which.i=TRUE)
+        if(length(oo.idx)==0){
+            print(curIndex)
             curIndex<-dindex[first(which(dindex>curIndex))] #this worked
-            #this may be faster and more accurate if index insn't sorted
+            print(curIndex)
+            #this ??may?? be faster and more accurate if index insn't sorted
             #curIndex<-min(dindex[which(dindex>curIndex)])        
-            if(is.na(curIndex)) curIndex=FALSE
+        
+            if(is.na(curIndex) || curIndex > length(index(mktdata))) curIndex=FALSE
         } else { # open orders, 
-            #if any type is market
-            if(!length(grep('market',rem.orders$Order.Type))==0 || hasArg('prefer')) {
-                # set to curIndex+1
-                curIndex<-curIndex+1
-                nidx<-TRUE
-            } else if (!length(grep('limit',rem.orders$Order.Type))==0){
-                #else limit
-                timespan<-paste(timestamp,"::",sep='')
-                limitorders<-grep('limit',rem.orders$Order.Type)
-                for (order in limitorders){
-                    tmpqty<-as.numeric(rem.orders[order,"Order.Qty"])
-                    tmpprice<-rem.orders[order,"Order.Price"]
-                    if(tmpqty>0){
-                        #buying
-                        relationship="gt"
-                        if(has.Ask(mktdata)) {
-                            col<-first(colnames(mktdata)[has.Ask(mktdata,which=TRUE)])
-                        } else if (is.OHLC(mktdata)) {
-                            col<-first(colnames(mktdata)[has.Lo(mktdata,which=TRUE)])
+            isOHLCmktdata <- is.OHLC(mktdata)
+            isBBOmktdata  <- is.BBO(mktdata)
+            #check for open orders at curIndex
+            timespan<-paste(timestamp,"::",sep='')
+            #print(timespan)
+            if(nrow(ordersubset[oo.idx,][timespan])==0){
+                # no open orders between now and the next index
+                curIndex<-dindex[first(which(dindex>curIndex))]
+                if (curIndex > length(index(mktdata))) curIndex=FALSE
+                return(curIndex) # no open orders, skip ahead
+            } else {
+                if(!length(grep('market',ordersubset[oo.idx,'Order.Type']))==0 || hasArg('prefer')) {
+                    #if any type is market
+                    #TODO right now, 'prefer' arguments loop through all observations.  we could probably change the code below on finding price to handle prefer, but not sure it matters
+                    # set to curIndex+1
+                    curIndex<-curIndex+1
+                    if (curIndex > length(index(mktdata))) curIndex=FALSE
+                    return(curIndex) # move to next index, a market order in this index would have trumped any other open order
+                } 
+                if (!length(grep('limit',ordersubset[oo.idx,'Order.Type']))==0){ # process limit orders
+                    #else limit
+                    print("limit")
+                    limitorders<-grep('limit',ordersubset[oo.idx,'Order.Type'])
+                    for (lorder in limitorders){
+                        dindex<-get.dindex()
+                        tmpqty<-as.numeric(ordersubset[oo.idx[lorder],'Order.Qty'])
+                        tmpprice<-as.numeric(ordersubset[oo.idx[lorder],'Order.Price'])
+                        if(tmpqty>0){
+                            #buying
+                            relationship="gte"
+                            if(isBBOmktdata) {
+                                col<-first(colnames(mktdata)[has.Ask(mktdata,which=TRUE)])
+                            } else if (isOHLCmktdata) {
+                                col<-first(colnames(mktdata)[has.Lo(mktdata,which=TRUE)])
+                            } else {
+                                # We should never hit this code, but it should help us find any edge cases
+                                # like perhaps we need a has.Price check
+                                stop("no price discernable in applyRules")
+                            }
                         } else {
-                            stop("no price discernable in applyRules")
+                            #selling
+                            relationship="lte"
+                            if(isBBOmktdata) {
+                                col<-first(colnames(mktdata)[has.Bid(mktdata,which=TRUE)])
+                            } else if (isOHLCmktdata) {
+                                col<-first(colnames(mktdata)[has.Hi(mktdata,which=TRUE)])
+                            } else {
+                                # We should never hit this code, but it should help us find any edge cases
+                                stop("no price discernable in applyRules")
+                            }
                         }
-                    } else {
-                        #selling
-                        relationship="lt"
-                        if(has.Bid(mktdata)) {
-                            col<-first(colnames(mktdata)[has.Bid(mktdata,which=TRUE)])
-                        } else if (is.OHLC(mktdata)) {
-                            col<-first(colnames(mktdata)[has.Hi(mktdata,which=TRUE)])
-                        } else {
-                            stop("no price discernable in applyRules")
+                        # use sigThreshold
+                        cross<-sigThreshold(label='tmplimit',column=col,threshold=tmpprice,relationship=relationship)
+                        if(any(cross[timespan])){
+                            # find first index that would cross after this index
+                            newidx <- curIndex + which(cross[timespan])[1] - 1  #curIndex/timestamp was 1 in the subset, we need a -1 offset?
+                            # insert that into dindex
+                            assign.dindex(c(dindex,newidx))                  
+                        } else{
+                            # no cross, move ahead
+                            nidx=TRUE
                         }
-                    }
-                    # use sigthreshold
-                    cross<-sigThreshold(label='tmplimit',column=col,threshold=tmpprice,relationship=relationship)
-                    # find first index that would cross after this index
-                    newidx<-curIndex+which(cross[timespan])[1] #curIndex/timestamp was 1 in the subset, so is this correct, or do we need a +/-1 offset?
-                    # insert that into dindex
-                    dindex<-c(dindex,newidx)                  
-                }
-                tidx<-TRUE
-            } else if (!length(grep('trailing',rem.orders$Order.Type))==0){
-                #TODO FIXME add loop jumping magic for trailing orders too
-                curIndex<-curIndex+1
-                nidx<-TRUE
-                #else process trailing
-                # ifelse from current index forward that would move the order
-                # find first index that would cross (if any) after this index
-                #insert that into dindex
-                #tidx<-TRUE
-            }
+                    } # end loop over open limit orders
+                    #tidx<-TRUE
+                } 
+                if (!length(grep('trailing',ordersubset[oo.idx,'Order.Type']))==0){ # process trailing orders
+                    print("trailing")
+                    #else process trailing
+                    trailorders<-grep('trailing',ordersubset[oo.idx,'Order.Type'])
+                    print(curIndex)
+                    for (torder in trailorders){
+                        dindex<-get.dindex()
+                        firsttime<-NULL
+                        neworders<-NULL
+                        onum<-oo.idx[torder]
+                        orderThreshold <- as.numeric(ordersubset[onum,'Order.Threshold'])
+                        tmpqty<-as.numeric(ordersubset[onum,'Order.Qty'])
+                        tmpprice<-as.numeric(ordersubset[onum,'Order.Price'])
+                        tmpidx<-as.character(index(ordersubset[onum,])) #this is the time the order was entered
+                        print(tmpidx)
+                        if(isBBOmktdata) {
+                            if(tmpqty > 0){ # positive quantity 'buy'
+                                prefer='offer'
+                            } else {
+                                prefer='bid'
+                            }
+                        } else if (isOHLCmktdata) {
+                            prefer='close'
+                        } 
+#                        orderloop<-TRUE
+#                        tidx<-FALSE
+#                        while(orderloop){
+                            dindex<-get.dindex()
+                            if(is.null(firsttime)) firsttime<-timestamp
+                            nextidx<-dindex[first(which(dindex>curIndex))]
+                            if(length(nextidx)){
+                                nextstamp<-(as.character(index(mktdata[nextidx,])))
+                                print(nextstamp)
+                                timespan<-paste(firsttime,"::",nextstamp,sep='')
+                                #get the subset of prices
+                                mkt_price_series <-getPrice(mktdata[timespan],prefer=prefer)
+                                col<-first(colnames(mkt_price_series))
+                                orderloop<-TRUE
+                            } else {
+                                orderloop<-FALSE
+                            }
+                            if(tmpqty > 0){ # positive quantity 'buy'
+                                move_order <- ifelse( (mkt_price_series+orderThreshold) < tmpprice, TRUE, FALSE )
+                                #this ifelse creates a logical xts vector 
+                                relationship="gte"
+                            } else {  # negative quantity 'sell'
+                                move_order <- ifelse( (mkt_price_series+orderThreshold) > tmpprice, TRUE, FALSE )
+                                relationship="lte"
+                            }
+                            tmpidx<-NULL
+                            if(any(move_order)){
+                                dindex<-get.dindex()
+                                print(firsttime)
+                                # find first index where we would move an order
+                                orderidx<-first(which(move_order)) 
+                                if(is.null(tmpidx)) tmpidx<-as.character(index(move_order[orderidx,]))
+                                trailspan<-paste(firsttime,"::",tmpidx,sep='')
+                                #make sure we don't cross before then 
+                                # use sigThreshold
+                                cross<-sigThreshold(data=mkt_price_series, label='tmptrail',column=col,threshold=tmpprice,relationship=relationship)
+                                # find first index that would cross after this index
+                                if (any(cross[trailspan])){
+                                    newidx <- curIndex + which(cross[trailspan])[1] - 1  #curIndex/firsttime was 1 in the subset, we need a -1 offset?
+                                    newidx <- index(mktdata[index(which(cross[trailspan])[1]),which.i=TRUE])
+                                    # insert that into dindex
+                                    assign.dindex(c(dindex,newidx))
+                                    #orderloop <- FALSE # no more processing on this order
+#                                    move_order<-FALSE
+#                                    tidx<-TRUE
+                                } else {
+                                    #if we don't cross, do this
+                                    moveidx<-index(mktdata[index(move_order[orderidx,]),which.i=TRUE])
+                                    assign.dindex(c(dindex,moveidx))
+#                                    tmpprice<-as.numeric(mkt_price_series[tmpidx,])
+#                                    neworder<-addOrder(portfolio=portfolio,
+#                                            symbol=symbol,
+#                                            timestamp=tmpidx,
+#                                            qty=tmpqty,
+#                                            price=tmpprice, 
+#                                            ordertype=ordersubset[onum,"Order.Type"],
+#                                            side=ordersubset[onum,"Order.Side"],
+#                                            threshold=orderThreshold,
+#                                            status="open",
+#                                            replace=FALSE, return=TRUE,
+#                                            ,...=..., TxnFees=ordersubset[onum,"Txn.Fees"])
+#                                    if (is.null(neworders)) neworders=neworder else neworders = rbind(neworders,neworder)
+#                                    #set the next price to check for cross
+#                                    crossprice<-tmpprice+orderThreshold
+#                                    #replace the original order
+#                                    ordersubset[onum,'Order.Status']<-'replaced'
+#                                    ordersubset[onum,'Order.StatusTime']<-tmpidx
+#                                    # TODO figure out how to change all the other neworders if more than one to 'replaced' too
+#                                    if(nrow(neworders)>1){
+#                                        colnames(neworders)<-colnames(ordersubset)
+#                                        neworders[,'Order.Status']<-'replaced'
+#                                        neworders[,'Order.StatusTime']<-lag(xts(as.character(index(neworders)),index(neworders)),-1) #NOTE this may break when/if lag changes...
+#                                        neworders[nrow(neworders),'Order.Status']<-'open'
+#                                    }
+#                                    #we've entered the moved order, now see if we need to do it again
+#                                    if(tmpqty > 0){ # positive quantity 'buy'
+#                                        move_order <- ifelse( (mkt_price_series+orderThreshold) < crossprice, TRUE, FALSE )
+#                                        #this ifelse creates a logical xts vector 
+#                                        relationship="gte"
+#                                    } else {  # negative quantity 'sell'
+#                                        move_order <- ifelse( (mkt_price_series+orderThreshold) > crossprice, TRUE, FALSE )
+#                                        relationship="lte"
+#                                    }
+#                                    #change the start time
+#                                    firsttime<-tmpidx
+#                                    #subset for the new range
+#                                    move_order<-move_order[paste(tmpidx,"::",nextstamp,sep='')]
+#                                    if(nrow(move_order)==0 || !any(move_order)) {
+#                                        move_order=FALSE
+#                                        orderloop=FALSE
+#                                        firsttime=nextstamp
+#                                        tidx<-TRUE
+#                                    } else{
+#                                        # find first index that would cross after this index
+#                                        newidx<-index(mktdata[index(which(move_order[trailspan])[1]),which.i=TRUE])    
+#                                        #newidx <- curIndex + which(move_order[timespan])[1] - 1  #curIndex/timestamp was 1 in the subset, we need a -1 offset?
+#                                        # insert that into dindex
+#                                        assign.dindex(c(dindex,newidx))                  
+#                                        tidx<-TRUE
+#                                    }
+#                                }
+                            } # end while move_order                            
+                            #assign.dindex(dindex)
+                        } # end while orderloop for single trailing order
+#                        if(isTRUE(tidx)){
+#                            #push a modified dindex back up to the calling frame
+#                            dindex<-get.dindex()
+#                            curIndex <- dindex[first(which(dindex>curIndex))] #check for faster formulation using min?
+#                            if(!is.null(neworders)) {
+#                                # assign order book back into place
+#                                ordersubset<-rbind(ordersubset,neworders)
+#                                orderbook[[portfolio]][[symbol]] <- ordersubset
+#                                assign(paste("order_book",portfolio,sep='.'),orderbook,envir=.strategy)
+#                            }
+#                        }
+                    } # end loop over open trailing orders
+                } # end else for trailing orders
+            } # end else clause for open orders in this timespan    
+        } # end any open orders closure
+        if(nidx) {
+            curIndex <- curIndex+1
+        } else {
+            dindex<-get.dindex()
+            curIndex<-dindex[first(which(dindex>curIndex))]
         }
-        if(isTRUE(tidx)){
-            #push a modified dindex back up to the calling frame
-            dindex <<- sort(unique(dindex))
-            curIndex<-dindex[first(which(dindex>curIndex))] #check for faster formulation using min?
-        }
-        if (curIndex > length(Dates)) curIndex=FALSE
+        if (curIndex > length(index(mktdata))) curIndex=FALSE
         return(curIndex)
     }
         
@@ -366,7 +593,9 @@ applyRules <- function(portfolio, symbol, strategy, mktdata, Dates=NULL, indicat
                             ruleProc(strategy$rules[[type]],timestamp=timestamp, path.dep=path.dep, mktdata=mktdata,portfolio=portfolio, symbol=symbol, ruletype=type, mktinstr=mktinstr, ...)
                         } else {
                             #(mktdata, portfolio, symbol, timestamp, slippageFUN=NULL)
-                            timespan<-paste("::",timestamp,sep='')
+                            if (isTRUE(path.dep)){
+                                timespan<-paste("::",timestamp,sep='')
+                            } else timespan=FALSE
                             ruleOrderProc(portfolio=portfolio, symbol=symbol, mktdata=mktdata, timespan=timespan, ...)
                         }
                     },
@@ -388,8 +617,8 @@ applyRules <- function(portfolio, symbol, strategy, mktdata, Dates=NULL, indicat
                     }
             ) # end switch
         } #end type loop
-        curIndex<-nextIndex(curIndex, ...)
-        if(!isTRUE(path.dep)) curIndex=FALSE
+        if(isTRUE(path.dep)) curIndex<-nextIndex(curIndex, ...)
+        else curIndex=FALSE
     } # end Dates while loop
 
     mktdata<<-mktdata
