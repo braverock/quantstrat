@@ -164,9 +164,8 @@ add.rule <- function(strategy, name, arguments, parameters=NULL, label=NULL, typ
 #' trailing orders. We begin by evaluating when the order price might 
 #' be moved. We then examine the market data between the current index and 
 #' the point at which the order may move. if there is a (possible) cross, 
-#' we insert that index into the indices for examination.  If not, we repeat 
-#' the process until we reach either a possible cross point, or the next index 
-#' already marked to be to be evaluated.
+#' we insert that index into the indices for examination.  If not, we insert 
+#' the index of the next probably move.
 #' 
 #' It should be noted that this dimension reduction methodology does 'look ahead'
 #' in the data.  This 'look ahead' is only done \emph{after} the order has been 
@@ -353,7 +352,6 @@ applyRules <- function(portfolio, symbol, strategy, mktdata, Dates=NULL, indicat
             isBBOmktdata  <- is.BBO(mktdata)
             #check for open orders at curIndex
             timespan<-paste(timestamp,"::",sep='')
-            #print(timespan)
             if(nrow(ordersubset[oo.idx,][timespan])==0){
                 # no open orders between now and the next index
                 curIndex<-dindex[first(which(dindex>curIndex))]
@@ -438,121 +436,51 @@ applyRules <- function(portfolio, symbol, strategy, mktdata, Dates=NULL, indicat
                         } else if (isOHLCmktdata) {
                             prefer='close'
                         } 
-#                        orderloop<-TRUE
-#                        tidx<-FALSE
-#                        while(orderloop){
+                        dindex<-get.dindex()
+                        if(is.null(firsttime)) firsttime<-timestamp
+                        nextidx<-dindex[first(which(dindex>curIndex))]
+                        if(length(nextidx)){
+                            nextstamp<-(as.character(index(mktdata[nextidx,])))
+                            print(nextstamp)
+                            timespan<-paste(firsttime,"::",nextstamp,sep='')
+                            #get the subset of prices
+                            mkt_price_series <-getPrice(mktdata[timespan],prefer=prefer)
+                            col<-first(colnames(mkt_price_series))
+                            orderloop<-TRUE
+                        } else {
+                            orderloop<-FALSE
+                        }
+                        if(tmpqty > 0){ # positive quantity 'buy'
+                            move_order <- ifelse( (mkt_price_series+orderThreshold) < tmpprice, TRUE, FALSE )
+                            #this ifelse creates a logical xts vector 
+                            relationship="gte"
+                        } else {  # negative quantity 'sell'
+                            move_order <- ifelse( (mkt_price_series+orderThreshold) > tmpprice, TRUE, FALSE )
+                            relationship="lte"
+                        }
+                        tmpidx<-NULL
+                        if(any(move_order)){
                             dindex<-get.dindex()
-                            if(is.null(firsttime)) firsttime<-timestamp
-                            nextidx<-dindex[first(which(dindex>curIndex))]
-                            if(length(nextidx)){
-                                nextstamp<-(as.character(index(mktdata[nextidx,])))
-                                print(nextstamp)
-                                timespan<-paste(firsttime,"::",nextstamp,sep='')
-                                #get the subset of prices
-                                mkt_price_series <-getPrice(mktdata[timespan],prefer=prefer)
-                                col<-first(colnames(mkt_price_series))
-                                orderloop<-TRUE
+                            print(firsttime)
+                            # find first index where we would move an order
+                            orderidx<-first(which(move_order)) 
+                            if(is.null(tmpidx)) tmpidx<-as.character(index(move_order[orderidx,]))
+                            trailspan<-paste(firsttime,"::",tmpidx,sep='')
+                            #make sure we don't cross before then 
+                            # use sigThreshold
+                            cross<-sigThreshold(data=mkt_price_series, label='tmptrail',column=col,threshold=tmpprice,relationship=relationship)
+                            # find first index that would cross after this index
+                            if (any(cross[trailspan])){
+                                newidx <- curIndex + which(cross[trailspan])[1] - 1  #curIndex/firsttime was 1 in the subset, we need a -1 offset?
+                                newidx <- index(mktdata[index(which(cross[trailspan])[1]),which.i=TRUE])
+                                # insert that into dindex
+                                assign.dindex(c(dindex,newidx))
                             } else {
-                                orderloop<-FALSE
-                            }
-                            if(tmpqty > 0){ # positive quantity 'buy'
-                                move_order <- ifelse( (mkt_price_series+orderThreshold) < tmpprice, TRUE, FALSE )
-                                #this ifelse creates a logical xts vector 
-                                relationship="gte"
-                            } else {  # negative quantity 'sell'
-                                move_order <- ifelse( (mkt_price_series+orderThreshold) > tmpprice, TRUE, FALSE )
-                                relationship="lte"
-                            }
-                            tmpidx<-NULL
-                            if(any(move_order)){
-                                dindex<-get.dindex()
-                                print(firsttime)
-                                # find first index where we would move an order
-                                orderidx<-first(which(move_order)) 
-                                if(is.null(tmpidx)) tmpidx<-as.character(index(move_order[orderidx,]))
-                                trailspan<-paste(firsttime,"::",tmpidx,sep='')
-                                #make sure we don't cross before then 
-                                # use sigThreshold
-                                cross<-sigThreshold(data=mkt_price_series, label='tmptrail',column=col,threshold=tmpprice,relationship=relationship)
-                                # find first index that would cross after this index
-                                if (any(cross[trailspan])){
-                                    newidx <- curIndex + which(cross[trailspan])[1] - 1  #curIndex/firsttime was 1 in the subset, we need a -1 offset?
-                                    newidx <- index(mktdata[index(which(cross[trailspan])[1]),which.i=TRUE])
-                                    # insert that into dindex
-                                    assign.dindex(c(dindex,newidx))
-                                    #orderloop <- FALSE # no more processing on this order
-#                                    move_order<-FALSE
-#                                    tidx<-TRUE
-                                } else {
-                                    #if we don't cross, do this
-                                    moveidx<-index(mktdata[index(move_order[orderidx,]),which.i=TRUE])
-                                    assign.dindex(c(dindex,moveidx))
-#                                    tmpprice<-as.numeric(mkt_price_series[tmpidx,])
-#                                    neworder<-addOrder(portfolio=portfolio,
-#                                            symbol=symbol,
-#                                            timestamp=tmpidx,
-#                                            qty=tmpqty,
-#                                            price=tmpprice, 
-#                                            ordertype=ordersubset[onum,"Order.Type"],
-#                                            side=ordersubset[onum,"Order.Side"],
-#                                            threshold=orderThreshold,
-#                                            status="open",
-#                                            replace=FALSE, return=TRUE,
-#                                            ,...=..., TxnFees=ordersubset[onum,"Txn.Fees"])
-#                                    if (is.null(neworders)) neworders=neworder else neworders = rbind(neworders,neworder)
-#                                    #set the next price to check for cross
-#                                    crossprice<-tmpprice+orderThreshold
-#                                    #replace the original order
-#                                    ordersubset[onum,'Order.Status']<-'replaced'
-#                                    ordersubset[onum,'Order.StatusTime']<-tmpidx
-#                                    # TODO figure out how to change all the other neworders if more than one to 'replaced' too
-#                                    if(nrow(neworders)>1){
-#                                        colnames(neworders)<-colnames(ordersubset)
-#                                        neworders[,'Order.Status']<-'replaced'
-#                                        neworders[,'Order.StatusTime']<-lag(xts(as.character(index(neworders)),index(neworders)),-1) #NOTE this may break when/if lag changes...
-#                                        neworders[nrow(neworders),'Order.Status']<-'open'
-#                                    }
-#                                    #we've entered the moved order, now see if we need to do it again
-#                                    if(tmpqty > 0){ # positive quantity 'buy'
-#                                        move_order <- ifelse( (mkt_price_series+orderThreshold) < crossprice, TRUE, FALSE )
-#                                        #this ifelse creates a logical xts vector 
-#                                        relationship="gte"
-#                                    } else {  # negative quantity 'sell'
-#                                        move_order <- ifelse( (mkt_price_series+orderThreshold) > crossprice, TRUE, FALSE )
-#                                        relationship="lte"
-#                                    }
-#                                    #change the start time
-#                                    firsttime<-tmpidx
-#                                    #subset for the new range
-#                                    move_order<-move_order[paste(tmpidx,"::",nextstamp,sep='')]
-#                                    if(nrow(move_order)==0 || !any(move_order)) {
-#                                        move_order=FALSE
-#                                        orderloop=FALSE
-#                                        firsttime=nextstamp
-#                                        tidx<-TRUE
-#                                    } else{
-#                                        # find first index that would cross after this index
-#                                        newidx<-index(mktdata[index(which(move_order[trailspan])[1]),which.i=TRUE])    
-#                                        #newidx <- curIndex + which(move_order[timespan])[1] - 1  #curIndex/timestamp was 1 in the subset, we need a -1 offset?
-#                                        # insert that into dindex
-#                                        assign.dindex(c(dindex,newidx))                  
-#                                        tidx<-TRUE
-#                                    }
-#                                }
-                            } # end while move_order                            
-                            #assign.dindex(dindex)
-                        } # end while orderloop for single trailing order
-#                        if(isTRUE(tidx)){
-#                            #push a modified dindex back up to the calling frame
-#                            dindex<-get.dindex()
-#                            curIndex <- dindex[first(which(dindex>curIndex))] #check for faster formulation using min?
-#                            if(!is.null(neworders)) {
-#                                # assign order book back into place
-#                                ordersubset<-rbind(ordersubset,neworders)
-#                                orderbook[[portfolio]][[symbol]] <- ordersubset
-#                                assign(paste("order_book",portfolio,sep='.'),orderbook,envir=.strategy)
-#                            }
-#                        }
+                                #if we don't cross, do this
+                                moveidx<-index(mktdata[index(move_order[orderidx,]),which.i=TRUE])
+                                assign.dindex(c(dindex,moveidx))
+                            }    
+                        } # end any(move_order) check                            
                     } # end loop over open trailing orders
                 } # end else for trailing orders
             } # end else clause for open orders in this timespan    
