@@ -1,7 +1,7 @@
 #' constructor for objects of type 'strategy'
 #' @param name character string naming the strategy
 #' @param ... any other passthru parameters
-#' @param assets optional list of assets to apply the strategy to
+#' @param assets optional list of assets to apply the strategy to, should normally be defined in the portfolio, not here
 #' @param constraints optional portfolio constraints object matching assets
 #' @param store TRUE/FALSE whether to store the strategy in the .strategy environment, or return it.  default FALSE
 #' @export
