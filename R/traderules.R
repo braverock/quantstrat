@@ -123,7 +123,7 @@ ruleSignal <- function(data=mktdata, timestamp, sigcol, sigval, orderqty=0, orde
             }
         }
         if(!is.null(orderqty) & !orderqty == 0 & !is.null(orderprice)){
-            addOrder(portfolio=portfolio, symbol=symbol, timestamp=timestamp, qty=orderqty, price=orderprice, ordertype=ordertype, side=orderside, threshold=threshold, status="open", replace=replace , delay=delay, tmult=tmult, ...=..., TxnFees=TxnFees)
+            addOrder(portfolio=portfolio, symbol=symbol, timestamp=timestamp, qty=orderqty, price=as.numeric(orderprice), ordertype=ordertype, side=orderside, threshold=threshold, status="open", replace=replace , delay=delay, tmult=tmult, ...=..., TxnFees=TxnFees)
         }
     }
 }
@@ -202,6 +202,7 @@ addPosLimit <- function(portfolio, symbol, timestamp, maxpos, longlevels=1, minp
 #' @param symbol identifier of the instrument to place orders for.  The name of any associated price objects (xts prices, usually OHLC) should match these
 #' @param timestamp timestamp coercible to POSIXct that will be the time the order will be inserted on 
 #' @seealso \code{\link{addPosLimit}},\code{\link{osMaxPos}}
+#' @export
 getPosLimit <- function(portfolio, symbol, timestamp){
     portf<-getPortfolio(portfolio)
     # try to get on timestamp, otherwise find the most recent
