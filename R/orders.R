@@ -64,7 +64,7 @@ initOrders <- function(portfolio=NULL, symbols=NULL, initDate = '1999-12-31')
 #' @param portfolio text name of the portfolio to associate the order book with
 #' @param symbol identfier of the instrument to find orders for.  The name of any associated price objects (xts prices, usually OHLC) should match these
 #' @param status one of "open", "closed", "canceled", or "replaced", default "open"
-#' @param timespan xts-style character timespan to be the period to find orders of the given status and ordertype, not yet used here
+#' @param timespan xts-style character timespan to be the period to find orders of the given status and ordertype, not yet used 
 #' @param ordertype one of NULL, "market","limit","stoplimit", "stoptrailing", or "iceberg" default NULL
 #' @param side one of NULL, "long" or "short", default NULL 
 #' @param which.i if TRUE, return the row index numbers rather than the order rows matching the criteria, default FALSE
@@ -175,6 +175,7 @@ getOrders <- function(portfolio,symbol,status="open",timespan=NULL,ordertype=NUL
 #' Conversion to a live trading environment will also likely require a new version of 
 #' \code{\link{applyStrategy}} to provide the event loop interface and interact with \code{mktdata}.
 #' 
+#' @concept backtest
 #' @param portfolio text name of the portfolio to associate the order book with
 #' @param symbol identfier of the instrument to find orders for.  The name of any associated price objects (xts prices, usually OHLC) should match these
 #' @param timestamp timestamp coercible to POSIXct that will be the time to search for orders before this time 
@@ -227,9 +228,10 @@ addOrder <- function(portfolio, symbol, timestamp, qty, price, ordertype, side, 
                         if(isTRUE(tmult)){
                             #get the difference between the threshold*price and the price
                             threshold = (price*threshold)-price
-                        } else {
-                            price = price+threshold
-                        }
+                            tmult=FALSE
+                            #this sets the threshold as a fixed number for later trailing orders 
+                        } 
+                        price = price+threshold                        
                     }
             ) #end type switch
         } else {
@@ -371,7 +373,7 @@ updateOrders <- function(portfolio, symbol, timespan, ordertype=NULL, side=NULL,
 #'   
 #' Note that this function is called by default in the 'orders' slot of the 
 #' \code{\link{applyRules}} processing.  If you have defined another order 
-#' processing rule, it with \emph{replace} this function.  If you want your 
+#' processing rule, it will \emph{replace} this function.  If you want your 
 #' custom order rule and ruleOrderProc to both be called, you will need
 #' explicitly add a rule to call ruleOrderProc either before or after your 
 #' custom order processing function. 
@@ -381,6 +383,7 @@ updateOrders <- function(portfolio, symbol, timespan, ordertype=NULL, side=NULL,
 #'
 #' @concept fill simulator
 #' @concept orders  
+#' @concept backtest
 #' @param portfolio text name of the portfolio to associate the order book with
 #' @param symbol identfier of the instrument to find orders for.  The name of any associated price objects (xts prices, usually OHLC or BBO) should match these
 #' @param mktdata an xts object containing market data.  depending on indicators, may need to be in OHLCV or BBO formats, default NULL
@@ -389,8 +392,9 @@ updateOrders <- function(portfolio, symbol, timespan, ordertype=NULL, side=NULL,
 #' @param ... any other passthru parameters
 #' @param slippageFUN default  NULL, not yet implemented
 #' @export
-ruleOrderProc <- function(portfolio, symbol, mktdata, timespan, ordertype=NULL, ..., slippageFUN=NULL)
+ruleOrderProc <- function(portfolio, symbol, mktdata, timespan=NULL, ordertype=NULL, ..., slippageFUN=NULL)
 {
+    if(is.null(timespan)) return()
     orderbook <- getOrderBook(portfolio)
     ordersubset <- orderbook[[portfolio]][[symbol]]
     
@@ -417,6 +421,9 @@ ruleOrderProc <- function(portfolio, symbol, mktdata, timespan, ordertype=NULL, 
             orderPrice <- as.numeric(ordersubset[ii,"Order.Price"])
             orderQty <- as.numeric(ordersubset[ii,"Order.Qty"])
             orderThreshold <- as.numeric(ordersubset[ii,"Order.Threshold"])
+            # mktdataTimestamp <- mktdata[timestamp]
+            #FIXME Should we only keep the last observation per time stamp?
+            #if( NROW(mktdataTimestamp) > 1 ) mktdataTimestamp <- last(mktdataTimestamp)
             orderType <- ordersubset[ii,"Order.Type"]
 
             switch(orderType,
