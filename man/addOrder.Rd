@@ -77,6 +77,7 @@ trading environment:
 
 Conversion to a live trading environment will also likely require a new version of 
 \code{\link{applyStrategy}} to provide the event loop interface and interact with \code{mktdata}.}
+\concept{backtest}
 \arguments{\item{portfolio}{text name of the portfolio to associate the order book with}
 \item{symbol}{identfier of the instrument to find orders for.  The name of any associated price objects (xts prices, usually OHLC) should match these}
 \item{timestamp}{timestamp coercible to POSIXct that will be the time to search for orders before this time}

@@ -24,7 +24,7 @@ or overload functions for checking position.
 
 Note that this function is called by default in the 'orders' slot of the 
 \code{\link{applyRules}} processing.  If you have defined another order 
-processing rule, it with \emph{replace} this function.  If you want your 
+processing rule, it will \emph{replace} this function.  If you want your 
 custom order rule and ruleOrderProc to both be called, you will need
 explicitly add a rule to call ruleOrderProc either before or after your 
 custom order processing function. 
@@ -33,6 +33,7 @@ We would like to model slippage here via \code{slippageFUN}.  Code contributions
 and requests appreciated.}
 \concept{fill simulator}
 \concept{orders}
+\concept{backtest}
 \arguments{\item{portfolio}{text name of the portfolio to associate the order book with}
 \item{symbol}{identfier of the instrument to find orders for.  The name of any associated price objects (xts prices, usually OHLC or BBO) should match these}
 \item{mktdata}{an xts object containing market data.  depending on indicators, may need to be in OHLCV or BBO formats, default NULL}

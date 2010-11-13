@@ -56,7 +56,7 @@ authors a place to start.
 For quantstrat to be able to (largly) vectorize the execution of path-dependent 
 rule evaluation, the rule function is presumed to have a function signature 
 like that of \code{\link{ruleSignal}}, specifically the arguments \code{sigcol} 
-and \code{sigval}.  If these are present and function in a way similar to 
+and \code{sigval}.  If these are present and function in a manner similar to 
 \code{\link{ruleSignal}} we can do some preprocessing to significantly reduce the 
 dimensionality of the index we need to loop over.  The speedup is the ratio of 
 (symbols*total observations)/signal observations, so it can be significant for many strategies.}
