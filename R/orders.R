@@ -428,9 +428,20 @@ ruleOrderProc <- function(portfolio, symbol, mktdata, timespan=NULL, ordertype=N
 
             switch(orderType,
                     market = {
-                        txnprice = as.numeric(getPrice(mktdataTimestamp))
-                        #TODO extend this to figure out which side to prefer
-                        txntime  = as.character(timestamp)
+                        switch(freq$scale,
+                                yearly = ,
+                                quarterly = ,
+                                monthly = ,
+                                daily = {
+                                    txntime=as.character(index(ordersubset[ii,])) # transacts on this bar, e.g. in the intraday cross, or leading into the end of month, quarter, etc.
+                                    # txntime=as.character(timestamp) # use this if you wanted to transact on the close of the next bar
+                                    txnprice=as.numeric(getPrice(last(mktdata[txntime]), ...=...))
+                                }, #end daily and lower frequency processing
+                                {
+                                    txnprice = as.numeric(getPrice(mktdataTimestamp))
+                                    #TODO extend this to figure out which side to prefer
+                                    txntime  = as.character(timestamp)
+                                }) # end switch on frequency
                     },
                     limit= ,
                     stoplimit =,

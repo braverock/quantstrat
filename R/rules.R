@@ -200,7 +200,7 @@ applyRules <- function(portfolio, symbol, strategy, mktdata, Dates=NULL, indicat
     get.dindex <- function() get("dindex",pos=.Data) # inherits=TRUE)
     assign.dindex <- function(dindex) {
         dindex<-sort(unique(dindex))
-        print(dindex)
+        #print(dindex)
         assign("dindex", dindex, .Data)
     }
     
@@ -340,9 +340,9 @@ applyRules <- function(portfolio, symbol, strategy, mktdata, Dates=NULL, indicat
         
         oo.idx <- getOrders(portfolio=portfolio, symbol=symbol, status="open",which.i=TRUE) #, timespan=timespan, ordertype=ordertype,which.i=TRUE)
         if(length(oo.idx)==0){
-            print(curIndex)
+            #print(curIndex)
             curIndex<-dindex[first(which(dindex>curIndex))] #this worked
-            print(curIndex)
+            #print(curIndex)
             #this ??may?? be faster and more accurate if index insn't sorted
             #curIndex<-min(dindex[which(dindex>curIndex)])        
         
@@ -355,7 +355,7 @@ applyRules <- function(portfolio, symbol, strategy, mktdata, Dates=NULL, indicat
             if(nrow(ordersubset[oo.idx,][timespan])==0){
                 # no open orders between now and the next index
                 curIndex<-dindex[first(which(dindex>curIndex))]
-                if (curIndex > length(index(mktdata))) curIndex=FALSE
+                if (is.na(curIndex) || curIndex > length(index(mktdata))) curIndex=FALSE
                 return(curIndex) # no open orders, skip ahead
             } else {
                 if(!length(grep('market',ordersubset[oo.idx,'Order.Type']))==0 || hasArg('prefer')) {
@@ -363,12 +363,12 @@ applyRules <- function(portfolio, symbol, strategy, mktdata, Dates=NULL, indicat
                     #TODO right now, 'prefer' arguments loop through all observations.  we could probably change the code below on finding price to handle prefer, but not sure it matters
                     # set to curIndex+1
                     curIndex<-curIndex+1
-                    if (curIndex > length(index(mktdata))) curIndex=FALSE
+                    if (is.na(curIndex) || curIndex > length(index(mktdata))) curIndex=FALSE
                     return(curIndex) # move to next index, a market order in this index would have trumped any other open order
                 } 
                 if (!length(grep('limit',ordersubset[oo.idx,'Order.Type']))==0){ # process limit orders
                     #else limit
-                    print("limit")
+                    #print("limit")
                     limitorders<-grep('limit',ordersubset[oo.idx,'Order.Type'])
                     for (lorder in limitorders){
                         dindex<-get.dindex()
@@ -413,10 +413,10 @@ applyRules <- function(portfolio, symbol, strategy, mktdata, Dates=NULL, indicat
                     #tidx<-TRUE
                 } 
                 if (!length(grep('trailing',ordersubset[oo.idx,'Order.Type']))==0){ # process trailing orders
-                    print("trailing")
+                    #print("trailing")
                     #else process trailing
                     trailorders<-grep('trailing',ordersubset[oo.idx,'Order.Type'])
-                    print(curIndex)
+                    #print(curIndex)
                     for (torder in trailorders){
                         dindex<-get.dindex()
                         firsttime<-NULL
@@ -426,7 +426,7 @@ applyRules <- function(portfolio, symbol, strategy, mktdata, Dates=NULL, indicat
                         tmpqty<-as.numeric(ordersubset[onum,'Order.Qty'])
                         tmpprice<-as.numeric(ordersubset[onum,'Order.Price'])
                         tmpidx<-as.character(index(ordersubset[onum,])) #this is the time the order was entered
-                        print(tmpidx)
+                        #print(tmpidx)
                         if(isBBOmktdata) {
                             if(tmpqty > 0){ # positive quantity 'buy'
                                 prefer='offer'
@@ -441,7 +441,7 @@ applyRules <- function(portfolio, symbol, strategy, mktdata, Dates=NULL, indicat
                         nextidx<-dindex[first(which(dindex>curIndex))]
                         if(length(nextidx)){
                             nextstamp<-(as.character(index(mktdata[nextidx,])))
-                            print(nextstamp)
+                            #print(nextstamp)
                             timespan<-paste(firsttime,"::",nextstamp,sep='')
                             #get the subset of prices
                             mkt_price_series <-getPrice(mktdata[timespan],prefer=prefer)
@@ -461,7 +461,7 @@ applyRules <- function(portfolio, symbol, strategy, mktdata, Dates=NULL, indicat
                         tmpidx<-NULL
                         if(any(move_order)){
                             dindex<-get.dindex()
-                            print(firsttime)
+                            #print(firsttime)
                             # find first index where we would move an order
                             orderidx<-first(which(move_order)) 
                             if(is.null(tmpidx)) tmpidx<-as.character(index(move_order[orderidx,]))
@@ -491,7 +491,7 @@ applyRules <- function(portfolio, symbol, strategy, mktdata, Dates=NULL, indicat
             dindex<-get.dindex()
             curIndex<-dindex[first(which(dindex>curIndex))]
         }
-        if (curIndex > length(index(mktdata))) curIndex=FALSE
+        if (is.na(curIndex) || curIndex > length(index(mktdata))) curIndex=FALSE
         return(curIndex)
     }
         
@@ -523,7 +523,7 @@ applyRules <- function(portfolio, symbol, strategy, mktdata, Dates=NULL, indicat
                             #(mktdata, portfolio, symbol, timestamp, slippageFUN=NULL)
                             if (isTRUE(path.dep)){
                                 timespan<-paste("::",timestamp,sep='')
-                            } else timespan=FALSE
+                            } else timespan=NULL
                             ruleOrderProc(portfolio=portfolio, symbol=symbol, mktdata=mktdata, timespan=timespan, ...)
                         }
                     },
