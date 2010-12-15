@@ -74,7 +74,7 @@ getOrders <- function(portfolio,symbol,status="open",timespan=NULL,ordertype=NUL
     #if(is.null(timespan)) stop("timespan must be an xts style timestring")
     # get order book
     orderbook <- getOrderBook(portfolio)
-    if(!length(grep(symbol,names(orderbook[[portfolio]])))==1) stop(paste("symbol",symbol,"does not exist in portfolio",portfolio,"having symbols",names(orderbook)))
+    if(!length(grep(symbol,names(orderbook[[portfolio]])))>=1) stop(paste("symbol",symbol,"does not exist in portfolio",portfolio,"having symbols",names(orderbook)))
     ordersubset<-orderbook[[portfolio]][[symbol]]
 
     #data quality checks
@@ -131,7 +131,8 @@ getOrders <- function(portfolio,symbol,status="open",timespan=NULL,ordertype=NUL
 #' be useful for reporting on when stops have been triggered.
 #' 
 #' We have also modeled a 'stoptrailing' order, which may be used to model dynamic limit-based entry or exit.  
-#' If you set \code{tmult=TRUE} on a stoptrailing order, the size of the threshold will be set as a 
+#' If you set \code{tmult=TRUE} on a stoptrailing 
+order, the size of the threshold will be set as a 
 #' difference between the multiplier times the price and the current price at order entry.  in this way, a 10%
 #' trailing entry (exit) will not change in size from the current price as the price changes.  It is effectively 
 #' converted to a scalar at order entry.  While this functionality could change in the future, 
