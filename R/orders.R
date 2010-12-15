@@ -74,7 +74,8 @@ getOrders <- function(portfolio,symbol,status="open",timespan=NULL,ordertype=NUL
     #if(is.null(timespan)) stop("timespan must be an xts style timestring")
     # get order book
     orderbook <- getOrderBook(portfolio)
-    if(!length(grep(symbol,names(orderbook[[portfolio]])))>=1) stop(paste("symbol",symbol,"does not exist in portfolio",portfolio,"having symbols",names(orderbook)))
+    #if(!length(grep(symbol,names(orderbook[[portfolio]])))>=1) stop(paste("symbol",symbol,"does not exist in portfolio",portfolio,"having symbols",names(orderbook)))
+    if(!any(names(orderbook[[portfolio]]) == symbol)) stop(paste("symbol",symbol,"does not exist in portfolio",portfolio,"having symbols",names(orderbook[[portfolio]])))
     ordersubset<-orderbook[[portfolio]][[symbol]]
 
     #data quality checks
