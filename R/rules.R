@@ -127,7 +127,8 @@ add.rule <- function(strategy, name, arguments, parameters=NULL, label=NULL, typ
 #' \code{\link{applyStrategy}} will likely need to be replaced to connect to a live 
 #' market infrastructure. 
 #' 
-#' \section{Dimension Reduction for Performance}{
+#' 
+#' } \section{Dimension Reduction for Performance}{ %roxygen requires that we stop the prior section before we add a new one
 #' In evaluation of path-dependent rules, the simplest method, 
 #' and the one we used initially, is to check the rules on every observation 
 #' in the time series of market data.  
@@ -170,7 +171,7 @@ add.rule <- function(strategy, name, arguments, parameters=NULL, label=NULL, typ
 #' It should be noted that this dimension reduction methodology does 'look ahead'
 #' in the data.  This 'look ahead' is only done \emph{after} the order has been 
 #' entered in the normal path-dependent process, and so should not introduce biases.     
-#' }
+#' 
 #' @param portfolio text name of the portfolio to associate the order book with
 #' @param symbol identfier of the instrument to find orders for.  The name of any associated price objects (xts prices, usually OHLC) should match these
 #' @param strategy an object of type 'strategy' to add the rule to
@@ -217,6 +218,8 @@ applyRules <- function(portfolio, symbol, strategy, mktdata, Dates=NULL, indicat
         rm('...')
         nargs=NULL
     }
+    
+    Dates=unique(index(mktdata)) # should this be index() instead?  
     
     ruleProc <- function (ruletypelist,timestamp=NULL, path.dep, ruletype, ...){
         for (rule in ruletypelist){
@@ -284,13 +287,11 @@ applyRules <- function(portfolio, symbol, strategy, mktdata, Dates=NULL, indicat
 
             #print(tmp_val)
         } #end rules loop
-    } # end sub process function
+    } # end sub process function ruleProc
 
     #we could maybe do something more sophisticated, but this should work
     if(isTRUE(path.dep)){
-        Dates=unique(time(mktdata)) # should this be index() instead?  
-        
-        dindex<-vector()
+        dindex<-vector() # set the dimension reduction/loop jumping index vector
         assign.dindex(dindex)
         #pre-process for dimension reduction here
         for ( type in names(strategy$rules)){
@@ -302,7 +303,7 @@ applyRules <- function(portfolio, symbol, strategy, mktdata, Dates=NULL, indicat
                         if(is.null(rule$arguments$sigcol) | is.null(rule$arguments$sigval) ){
                             assign.dindex(1:length(Dates))
                         } else {
-                            assign.dindex(c(get.dindex(),which(mktdata[,rule$arguments$sigcol] == rule$arguments$sigval)))   
+                            assign.dindex(sort(unique(c(get.dindex(),which(mktdata[,rule$arguments$sigcol] == rule$arguments$sigval)))))   
                         }
                     }
                 }
@@ -311,18 +312,13 @@ applyRules <- function(portfolio, symbol, strategy, mktdata, Dates=NULL, indicat
         dindex<-get.dindex()
         if(length(dindex)==0) dindex=1
         
+        #for debugging, set dindex to all index values:
+        #assign.dindex(1:length(index(mktdata)))
+        
     } else {
         Dates=''
         dindex=1
-    }
-    
-    hold=FALSE
-    holdtill=first(time(Dates))-1 # TODO FIXME make holdtill default more robust?
-
-	mktinstr<-getInstrument(symbol)
-    
-    curIndex<-1
-
+    } # end dindex initialization
     
     nextIndex<-function(curIndex,...){
         if (!isTRUE(path.dep)){
@@ -331,7 +327,8 @@ applyRules <- function(portfolio, symbol, strategy, mktdata, Dates=NULL, indicat
         } 
 
         dindex<-get.dindex()
-        tidx=FALSE
+        #message(dindex," in nextIndex(), at ",curIndex)
+
         nidx=FALSE
         neworders=NULL
         
@@ -340,13 +337,7 @@ applyRules <- function(portfolio, symbol, strategy, mktdata, Dates=NULL, indicat
         
         oo.idx <- getOrders(portfolio=portfolio, symbol=symbol, status="open",which.i=TRUE) #, timespan=timespan, ordertype=ordertype,which.i=TRUE)
         if(length(oo.idx)==0){
-            #print(curIndex)
-            curIndex<-dindex[first(which(dindex>curIndex))] #this worked
-            #print(curIndex)
-            #this ??may?? be faster and more accurate if index insn't sorted
-            #curIndex<-min(dindex[which(dindex>curIndex)])        
-        
-            if(is.na(curIndex) || curIndex > length(index(mktdata))) curIndex=FALSE
+            nidx=FALSE
         } else { # open orders, 
             isOHLCmktdata <- is.OHLC(mktdata)
             isBBOmktdata  <- is.BBO(mktdata)
@@ -354,9 +345,7 @@ applyRules <- function(portfolio, symbol, strategy, mktdata, Dates=NULL, indicat
             timespan<-paste(timestamp,"::",sep='')
             if(nrow(ordersubset[oo.idx,][timespan])==0){
                 # no open orders between now and the next index
-                curIndex<-dindex[first(which(dindex>curIndex))]
-                if (is.na(curIndex) || curIndex > length(index(mktdata))) curIndex=FALSE
-                return(curIndex) # no open orders, skip ahead
+                nidx=FALSE
             } else {
                 if(!length(grep('market',ordersubset[oo.idx,'Order.Type']))==0 || hasArg('prefer')) {
                     #if any type is market
@@ -404,14 +393,13 @@ applyRules <- function(portfolio, symbol, strategy, mktdata, Dates=NULL, indicat
                             # find first index that would cross after this index
                             newidx <- curIndex + which(cross[timespan])[1] - 1  #curIndex/timestamp was 1 in the subset, we need a -1 offset?
                             # insert that into dindex
-                            assign.dindex(c(dindex,newidx))                  
+                            assign.dindex(c(get.dindex(),newidx))                  
                         } else{
                             # no cross, move ahead
                             nidx=TRUE
                         }
                     } # end loop over open limit orders
-                    #tidx<-TRUE
-                } 
+                } # end if for limit order handling
                 if (!length(grep('trailing',ordersubset[oo.idx,'Order.Type']))==0){ # process trailing orders
                     #print("trailing")
                     #else process trailing
@@ -438,7 +426,7 @@ applyRules <- function(portfolio, symbol, strategy, mktdata, Dates=NULL, indicat
                         } 
                         dindex<-get.dindex()
                         if(is.null(firsttime)) firsttime<-timestamp
-                        nextidx<-dindex[first(which(dindex>curIndex))]
+                        nextidx<-min(dindex[dindex>curIndex])
                         if(length(nextidx)){
                             nextstamp<-(as.character(index(mktdata[nextidx,])))
                             #print(nextstamp)
@@ -474,27 +462,35 @@ applyRules <- function(portfolio, symbol, strategy, mktdata, Dates=NULL, indicat
                                 newidx <- curIndex + which(cross[trailspan])[1] - 1  #curIndex/firsttime was 1 in the subset, we need a -1 offset?
                                 newidx <- index(mktdata[index(which(cross[trailspan])[1]),which.i=TRUE])
                                 # insert that into dindex
-                                assign.dindex(c(dindex,newidx))
+                                assign.dindex(c(get.dindex(),newidx))
                             } else {
                                 #if we don't cross, do this
                                 moveidx<-index(mktdata[index(move_order[orderidx,]),which.i=TRUE])
-                                assign.dindex(c(dindex,moveidx))
+                                assign.dindex(c(get.dindex(),moveidx))
                             }    
                         } # end any(move_order) check                            
                     } # end loop over open trailing orders
-                } # end else for trailing orders
-            } # end else clause for open orders in this timespan    
+                } # end if for trailing orders
+            } # end else clause for any open orders in this timespan    
         } # end any open orders closure
         if(nidx) {
             curIndex <- curIndex+1
+            dindex<-get.dindex()
         } else {
             dindex<-get.dindex()
-            curIndex<-dindex[first(which(dindex>curIndex))]
+            curIndex<-min(dindex[dindex>curIndex])
         }
         if (is.na(curIndex) || curIndex > length(index(mktdata))) curIndex=FALSE
         return(curIndex)
-    }
+    } # end function nextIndex
         
+    hold=FALSE
+    holdtill=first(time(Dates))-1 # TODO FIXME make holdtill default more robust?
+    
+    mktinstr<-getInstrument(symbol)
+    
+    curIndex<-1
+    
     while(curIndex){
         timestamp=Dates[curIndex]    
 
@@ -547,7 +543,7 @@ applyRules <- function(portfolio, symbol, strategy, mktdata, Dates=NULL, indicat
         } #end type loop
         if(isTRUE(path.dep)) curIndex<-nextIndex(curIndex, ...)
         else curIndex=FALSE
-    } # end Dates while loop
+    } # end index while loop
 
     mktdata<<-mktdata
     if(is.null(ret)) {
