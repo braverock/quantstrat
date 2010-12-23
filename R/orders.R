@@ -24,8 +24,9 @@ getOrderBook <- function(portfolio) #should symbol subsets be supported too?  pr
 #' @param portfolio text name of the portfolio to associate the order book with
 #' @param symbols a list of identfiers of the instruments to be contained in the Portfolio.  The name of any associated price objects (xts prices, usually OHLC) should match these
 #' @param initDate date (ISO8601) prior to the first close price given in mktdata, used to initialize the order book with a dummy order
+#' @param \dots any other passthrough parameters
 #' @export
-initOrders <- function(portfolio=NULL, symbols=NULL, initDate = '1999-12-31')
+initOrders <- function(portfolio=NULL, symbols=NULL, initDate = '1999-12-31', ...)
 {
     # NOTE we could store all of these in one object, but I think that might get big
     orders<- try(getOrderBook(portfolio),silent=TRUE)
@@ -35,7 +36,7 @@ initOrders <- function(portfolio=NULL, symbols=NULL, initDate = '1999-12-31')
         orders<-list()
         orders[[portfolio]]<-list()
     }
-    ordertemplate<-xts(as.matrix(t(c(0,NA,"init","long",0,"closed",as.character(as.POSIXct(initDate)),1,0))),order.by=as.POSIXct(initDate))
+    ordertemplate<-xts(as.matrix(t(c(0,NA,"init","long",0,"closed",as.character(as.POSIXct(initDate)),1,0))),order.by=as.POSIXct(initDate), ...=...)
     colnames(ordertemplate) <- c("Order.Qty","Order.Price","Order.Type","Order.Side","Order.Threshold","Order.Status","Order.StatusTime","Order.Set","Txn.Fees")
 
     if(is.null(symbols)) {
@@ -74,7 +75,6 @@ getOrders <- function(portfolio,symbol,status="open",timespan=NULL,ordertype=NUL
     #if(is.null(timespan)) stop("timespan must be an xts style timestring")
     # get order book
     orderbook <- getOrderBook(portfolio)
-    #if(!length(grep(symbol,names(orderbook[[portfolio]])))>=1) stop(paste("symbol",symbol,"does not exist in portfolio",portfolio,"having symbols",names(orderbook)))
     if(!any(names(orderbook[[portfolio]]) == symbol)) stop(paste("symbol",symbol,"does not exist in portfolio",portfolio,"having symbols",names(orderbook[[portfolio]])))
     ordersubset<-orderbook[[portfolio]][[symbol]]
 
