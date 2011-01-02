@@ -291,7 +291,7 @@ applyRules <- function(portfolio, symbol, strategy, mktdata, Dates=NULL, indicat
 
     #we could maybe do something more sophisticated, but this should work
     if(isTRUE(path.dep)){
-        dindex<-vector() # set the dimension reduction/loop jumping index vector
+        dindex<-c(1,length(Dates)) # set the dimension reduction/loop jumping index vector
         assign.dindex(dindex)
         #pre-process for dimension reduction here
         for ( type in names(strategy$rules)){
@@ -555,7 +555,7 @@ applyRules <- function(portfolio, symbol, strategy, mktdata, Dates=NULL, indicat
 ###############################################################################
 # R (http://r-project.org/) Quantitative Strategy Model Framework
 #
-# Copyright (c) 2009-2010
+# Copyright (c) 2009-2011
 # Peter Carl, Dirk Eddelbuettel, Brian G. Peterson, Jeffrey Ryan, and Joshua Ulrich 
 #
 # This library is distributed under the terms of the GNU Public License (GPL)
