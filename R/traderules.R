@@ -34,9 +34,10 @@
 #' @param ruletype one of "risk","order","rebalance","exit","entry", see \code{\link{add.rule}}
 #' @param TxnFees numeric fees (usually negative) or function name for calculating TxnFees (processing happens later, not in this function)
 #' @param prefer price method for getPrice
+#' @param sethold boolean, puts entry Rule processing on hold, default FALSE
 #' @seealso \code{\link{osNoOp}} , \code{\link{add.rule}}
 #' @export
-ruleSignal <- function(data=mktdata, timestamp, sigcol, sigval, orderqty=0, ordertype, orderside=NULL, threshold=NULL, tmult=FALSE, replace=TRUE, delay=0.0001, osFUN='osNoOp', pricemethod=c('market','opside','maker'), portfolio, symbol, ..., ruletype, TxnFees=0, prefer=NULL)
+ruleSignal <- function(data=mktdata, timestamp, sigcol, sigval, orderqty=0, ordertype, orderside=NULL, threshold=NULL, tmult=FALSE, replace=TRUE, delay=0.0001, osFUN='osNoOp', pricemethod=c('market','opside','maker'), portfolio, symbol, ..., ruletype, TxnFees=0, prefer=NULL, sethold=FALSE)
 {
     if(!is.function(osFUN)) osFUN<-match.fun(osFUN)
     #print(paste(symbol,timestamp))
@@ -126,6 +127,7 @@ ruleSignal <- function(data=mktdata, timestamp, sigcol, sigval, orderqty=0, orde
             addOrder(portfolio=portfolio, symbol=symbol, timestamp=timestamp, qty=orderqty, price=as.numeric(orderprice), ordertype=ordertype, side=orderside, threshold=threshold, status="open", replace=replace , delay=delay, tmult=tmult, ...=..., TxnFees=TxnFees)
         }
     }
+    if(sethold) hold <<- TRUE
 }
 
 #TODO ruleORSignal

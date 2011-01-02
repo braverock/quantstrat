@@ -1,10 +1,8 @@
 \name{ruleSignal}
 \alias{ruleSignal}
 \title{default rule to generate a trade order on a signal...}
-\usage{ruleSignal(data=mktdata, timestamp, sigcol, sigval, orderqty=0,
-    ordertype, orderside, threshold, tmult=FALSE, replace=TRUE,
-    delay=1e-04, osFUN="osNoOp", pricemethod=c("market", "opside",
-    "maker"), portfolio, symbol, ..., ruletype, TxnFees=0, prefer)}
+\usage{ruleSignal(data=mktdata, timestamp, sigcol, sigval, orderqty=0, ordertype, orderside, threshold, tmult=FALSE, replace=TRUE, delay=1e-04,
+    osFUN="osNoOp", pricemethod=c("market", "opside", "maker"), portfolio, symbol, ..., ruletype, TxnFees=0, prefer, sethold=FALSE)}
 \description{default rule to generate a trade order on a signal}
 \details{\code{pricemethod} may be one of 'market', 'opside', or 'maker' 
 which will either try to get the price of the 'market' at \code{timestamp} and use this as the order price
@@ -38,4 +36,5 @@ If \code{orderside} is NULL, the function will attempt to calculate the side fro
 \item{...}{any other passthru parameters}
 \item{ruletype}{one of "risk","order","rebalance","exit","entry", see \code{\link{add.rule}}}
 \item{TxnFees}{numeric fees (usually negative) or function name for calculating TxnFees (processing happens later, not in this function)}
-\item{prefer}{price method for getPrice}}
+\item{prefer}{price method for getPrice}
+\item{sethold}{boolean, puts entry Rule processing on hold, default FALSE}}

@@ -1,8 +1,7 @@
 \name{applyRules}
 \alias{applyRules}
 \title{apply the rules in the strategy to arbitrary market data...}
-\usage{applyRules(portfolio, symbol, strategy, mktdata, Dates, indicators,
-    signals, parameters, ..., path.dep=TRUE)}
+\usage{applyRules(portfolio, symbol, strategy, mktdata, Dates, indicators, signals, parameters, ..., path.dep=TRUE)}
 \description{apply the rules in the strategy to arbitrary market data}
 \details{In typical usage, this function will be called via \code{\link{applyStrategy}}.  
 In this mode, this function will be called twice, once with \code{path.dep=FALSE} 
@@ -19,7 +18,8 @@ This function, along with \code{\link{ruleOrderProc}}, \code{\link{addOrder}}, a
 \code{\link{applyStrategy}} will likely need to be replaced to connect to a live 
 market infrastructure. 
 
-\section{Dimension Reduction for Performance}{
+
+} \section{Dimension Reduction for Performance}{ %roxygen requires that we stop the prior section before we add a new one
 In evaluation of path-dependent rules, the simplest method, 
 and the one we used initially, is to check the rules on every observation 
 in the time series of market data.  
@@ -61,8 +61,7 @@ the index of the next probably move.
 
 It should be noted that this dimension reduction methodology does 'look ahead'
 in the data.  This 'look ahead' is only done \emph{after} the order has been 
-entered in the normal path-dependent process, and so should not introduce biases.     
-}}
+entered in the normal path-dependent process, and so should not introduce biases.}
 \seealso{\code{\link{add.rule}} \code{\link{applyStrategy}}}
 \arguments{\item{portfolio}{text name of the portfolio to associate the order book with}
 \item{symbol}{identfier of the instrument to find orders for.  The name of any associated price objects (xts prices, usually OHLC) should match these}

@@ -1,8 +1,7 @@
 \name{applyStrategy}
 \alias{applyStrategy}
 \title{apply the strategy to arbitrary market data...}
-\usage{applyStrategy(strategy, portfolios, mktdata, parameters, ...,
-    verbose=TRUE)}
+\usage{applyStrategy(strategy, portfolios, mktdata, parameters, ..., verbose=TRUE)}
 \description{apply the strategy to arbitrary market data}
 \details{if \code{mktdata} is NULL, the default, the mktdata variable will be populated 
 for each symbol via a call to get (getSymbols??, not yet)}

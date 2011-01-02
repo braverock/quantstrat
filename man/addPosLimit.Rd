@@ -1,8 +1,7 @@
 \name{addPosLimit}
 \alias{addPosLimit}
 \title{add position and level limits at timestamp...}
-\usage{addPosLimit(portfolio, symbol, timestamp, maxpos, longlevels=1,
-    minpos=0, shortlevels=0)}
+\usage{addPosLimit(portfolio, symbol, timestamp, maxpos, longlevels=1, minpos=0, shortlevels=0)}
 \description{add position and level limits at timestamp}
 \details{levels are a simplification of more complex (proprietary) 
 techniques sometimes used for order sizing.  

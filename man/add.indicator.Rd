@@ -1,8 +1,7 @@
 \name{add.indicator}
 \alias{add.indicator}
 \title{add an indicator to a strategy...}
-\usage{add.indicator(strategy, name, arguments, parameters, label, ...,
-    enabled=TRUE, indexnum, store=FALSE)}
+\usage{add.indicator(strategy, name, arguments, parameters, label, ..., enabled=TRUE, indexnum, store=FALSE)}
 \description{add an indicator to a strategy}
 \details{Indicators are typically standard technical or statistical analysis outputs, 
 such as moving averages, bands, or pricing models.

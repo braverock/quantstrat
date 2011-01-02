@@ -1,8 +1,7 @@
 \name{getOrders}
 \alias{getOrders}
 \title{get orders by time span, status, type, and side...}
-\usage{getOrders(portfolio, symbol, status="open", timespan, ordertype, side,
-    which.i=FALSE)}
+\usage{getOrders(portfolio, symbol, status="open", timespan, ordertype, side, which.i=FALSE)}
 \description{get orders by time span, status, type, and side}
 \details{This function exists so that other code can find open orders, potentially to update or cancel them.
 

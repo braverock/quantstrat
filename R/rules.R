@@ -8,7 +8,7 @@
 #' and will be applied after indicators and signals, and before path-dependent rules are processed.
 #' 
 #' All rules have a \code{type}.  These may be any of:
-#' \itemize{
+#' \describe{
 #'   \item{risk}{ rules that check and react to risk of positions, may stop all other rule execution temporarily or permanently}
 #'   \item{order}{ rules for order processing of any open orders at time t, always path-dependent}
 #'   \item{rebalance}{ rules executed specifically in a portfolio context, unnecessary in univariate strategies}
