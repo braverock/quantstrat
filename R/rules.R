@@ -499,7 +499,10 @@ applyRules <- function(portfolio, symbol, strategy, mktdata, Dates=NULL, indicat
             hold=FALSE
             holdtill=NULL
         }
-        for ( type in names(strategy$rules)){
+        # evaluate the rule types in the order listed in the documentation
+        # thanks to Aleksandr Rudnev for tracking this down (R-SIG-Finance, 2011-01-25)
+        types <- sort(factor(names(strategy$rules), levels=c("pre","risk","order","rebalance","exit","enter","entry","post")))
+        for ( type in types ) {
             switch( type ,
                     pre = {
                         if(length(strategy$rules[[type]])>=1){
