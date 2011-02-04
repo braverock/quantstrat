@@ -65,7 +65,7 @@ initOrders <- function(portfolio=NULL, symbols=NULL, initDate = '1999-12-31', ..
 #' @param portfolio text name of the portfolio to associate the order book with
 #' @param symbol identfier of the instrument to find orders for.  The name of any associated price objects (xts prices, usually OHLC) should match these
 #' @param status one of "open", "closed", "canceled", or "replaced", default "open"
-#' @param timespan xts-style character timespan to be the period to find orders of the given status and ordertype, not yet used 
+#' @param timespan xts-style character timespan to be the period to find orders of the given status and ordertype
 #' @param ordertype one of NULL, "market","limit","stoplimit", "stoptrailing", or "iceberg" default NULL
 #' @param side one of NULL, "long" or "short", default NULL 
 #' @param which.i if TRUE, return the row index numbers rather than the order rows matching the criteria, default FALSE
@@ -97,6 +97,8 @@ getOrders <- function(portfolio,symbol,status="open",timespan=NULL,ordertype=NUL
     } else {
         # extract
         ordersubset<-orderbook[[portfolio]][[symbol]][indices,]
+        #subset by time
+        if(nrow(ordersubset)>1) ordersubset<-ordersubset[timespan]
         return(ordersubset)
     }
 }
@@ -441,7 +443,7 @@ ruleOrderProc <- function(portfolio, symbol, mktdata, timespan=NULL, ordertype=N
                                 {
                                     txnprice = as.numeric(getPrice(mktdataTimestamp))
                                     #TODO extend this to figure out which side to prefer
-                                    txntime  = as.character(timestamp)
+                                    txntime = timestamp
                                 }) # end switch on frequency
                     },
                     limit= ,
@@ -456,7 +458,7 @@ ruleOrderProc <- function(portfolio, symbol, mktdata, timespan=NULL, ordertype=N
                                 orderPrice < as.numeric(Hi(mktdataTimestamp)) ) 
                             {
                                 txnprice = orderPrice
-                                txntime  = as.character(timestamp)
+                                txntime = timestamp
                             } else {
                                 # price did not move through my order
                                 next() # should go to next order
@@ -467,13 +469,13 @@ ruleOrderProc <- function(portfolio, symbol, mktdata, timespan=NULL, ordertype=N
                                 if(orderPrice >= as.numeric(getPrice(mktdataTimestamp,prefer='offer'))){
                                     # price we're willing to pay is higher than the offer price, so execute at the limit
                                     txnprice = orderPrice
-                                    txntime  = as.character(timestamp)
+                                    txntime = timestamp
                                 } else next()
                             } else { # negative quantity 'sell'
                                 if(orderPrice <= as.numeric(getPrice(mktdataTimestamp,prefer='bid'))){
                                     # we're willing to sell at a better price than the bid, so execute at the limit
                                     txnprice = orderPrice
-                                    txntime  = as.character(timestamp)
+                                    txntime = timestamp
                                 } else next()
                             }
                             if( orderType == 'iceberg'){
@@ -498,7 +500,7 @@ ruleOrderProc <- function(portfolio, symbol, mktdata, timespan=NULL, ordertype=N
                             # no depth data, either OHLC or BBO, getPrice explicitly using symbol ?
                             if(orderPrice == getPrice(mktdataTimestamp, symbol=symbol, prefer='price')){
                                 txnprice = orderPrice
-                                txntime  = as.character(timestamp)
+                                txntime = timestamp
                             } else next()
                         }
 
@@ -509,18 +511,20 @@ ruleOrderProc <- function(portfolio, symbol, mktdata, timespan=NULL, ordertype=N
                             if(isBBOmktdata){
                                 prefer='offer'
                                 if(orderPrice >= getPrice(mktdataTimestamp,prefer=prefer)){ #TODO maybe use last(getPrice) to catch multiple prints on timestamp?
-                                    # price we're willing to pay is higher than the offer price, so execute at the limit
-                                    txnprice = orderPrice
-                                    txntime  = as.character(timestamp)
+                                    # price we're willing to pay is higher than the offer price, so execute at the prevailing price
+                                    #txnprice = orderPrice
+                                    txnprice = as.numeric(getPrice(mktdataTimestamp,prefer=prefer)) #presumes unique timestamps
+                                    txntime = timestamp
                                 } 
                             } 
                         } else { # negative quantity 'sell'
                             if(isBBOmktdata){
                                 prefer='bid'
                                 if(orderPrice <= getPrice(mktdataTimestamp,prefer=prefer)){
-                                    # we're willing to sell at a better price than the bid, so execute at the limit
-                                    txnprice = orderPrice
-                                    txntime  = as.character(timestamp)
+                                    # we're willing to sell at a better price than the bid, so execute at the prevailing price
+                                    # txnprice = orderPrice
+                                    txnprice = as.numeric(getPrice(mktdataTimestamp,prefer=prefer)) #presumes unique timestamp
+                                    txntime = timestamp
                                 }  
                             } 
                         } 
@@ -530,7 +534,7 @@ ruleOrderProc <- function(portfolio, symbol, mktdata, timespan=NULL, ordertype=N
                                 orderPrice < as.numeric(Hi(mktdataTimestamp)) ) 
                             {
                                 txnprice = orderPrice
-                                txntime  = as.character(timestamp)
+                                txntime = timestamp
                             } 
                         }
                         # if market is beyond price+(-threshold), replace order

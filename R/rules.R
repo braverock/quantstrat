@@ -291,7 +291,7 @@ applyRules <- function(portfolio, symbol, strategy, mktdata, Dates=NULL, indicat
 
     #we could maybe do something more sophisticated, but this should work
     if(isTRUE(path.dep)){
-        dindex<-c(1,length(Dates)) # set the dimension reduction/loop jumping index vector
+        dindex<-c(1,length(Dates)-1) # set the dimension reduction/loop jumping index vector
         assign.dindex(dindex)
         #pre-process for dimension reduction here
         for ( type in names(strategy$rules)){
@@ -303,7 +303,7 @@ applyRules <- function(portfolio, symbol, strategy, mktdata, Dates=NULL, indicat
                         if(is.null(rule$arguments$sigcol) | is.null(rule$arguments$sigval) ){
                             assign.dindex(1:length(Dates))
                         } else {
-                            assign.dindex(sort(unique(c(get.dindex(),which(mktdata[,rule$arguments$sigcol] == rule$arguments$sigval)))))   
+                            assign.dindex(c(get.dindex(),which(mktdata[,rule$arguments$sigcol] == rule$arguments$sigval)))   
                         }
                     }
                 }
@@ -314,7 +314,7 @@ applyRules <- function(portfolio, symbol, strategy, mktdata, Dates=NULL, indicat
         
         #for debugging, set dindex to all index values:
         #assign.dindex(1:length(index(mktdata)))
-        
+        #print(dindex)
     } else {
         Dates=''
         dindex=1
@@ -347,9 +347,13 @@ applyRules <- function(portfolio, symbol, strategy, mktdata, Dates=NULL, indicat
                 # no open orders between now and the next index
                 nidx=FALSE
             } else {
-                if(!length(grep('market',ordersubset[oo.idx,'Order.Type']))==0 || hasArg('prefer')) {
-                    #if any type is market
-                    #TODO right now, 'prefer' arguments loop through all observations.  we could probably change the code below on finding price to handle prefer, but not sure it matters
+                if(!length(grep('market',ordersubset[oo.idx,'Order.Type']))==0 ) {
+                    # if block above had a prefer exclusion, as below:
+                    # || hasArg('prefer')
+                    # 'prefer' arguments would loop through all observations.  
+                    # we could probably change the code below on finding price to handle prefer, but not sure it matters
+                                
+                    #if any type is market    
                     # set to curIndex+1
                     curIndex<-curIndex+1
                     if (is.na(curIndex) || curIndex > length(index(mktdata))) curIndex=FALSE
@@ -396,7 +400,7 @@ applyRules <- function(portfolio, symbol, strategy, mktdata, Dates=NULL, indicat
                             assign.dindex(c(get.dindex(),newidx))                  
                         } else{
                             # no cross, move ahead
-                            nidx=TRUE
+                            # nidx=TRUE #WHY WAS THIS HERE?
                         }
                     } # end loop over open limit orders
                 } # end if for limit order handling
@@ -480,7 +484,11 @@ applyRules <- function(portfolio, symbol, strategy, mktdata, Dates=NULL, indicat
             dindex<-get.dindex()
             curIndex<-min(dindex[dindex>curIndex])
         }
-        if (is.na(curIndex) || curIndex > length(index(mktdata))) curIndex=FALSE
+        if (is.na(curIndex) || curIndex >= length(index(mktdata))) curIndex=FALSE
+        
+        #debug line
+        #print(curIndex)
+        
         return(curIndex)
     } # end function nextIndex
         
@@ -535,6 +543,13 @@ applyRules <- function(portfolio, symbol, strategy, mktdata, Dates=NULL, indicat
                         if(length(strategy$rules[[type]])>=1) {
                             ruleProc(strategy$rules[[type]],timestamp=timestamp, path.dep=path.dep, mktdata=mktdata,portfolio=portfolio, symbol=symbol, ruletype=type, mktinstr=mktinstr, ...)
                         }
+                        if(isTRUE(path.dep) && length(getOrders(portfolio=portfolio, symbol=symbol, status="open", timespan=timestamp,which.i=TRUE))) {
+                            ## TODO FIXME this doesn't appear to work correctly
+                            # we opened orders in this timestamp, make sure to increment dindex w/ curIndex+1 so the order slot gets checked next index ?
+                            #browser()
+                            #assign.dindex(c(get.dindex(),curIndex+1))
+                            #
+                        }
                     },
                     post = {
                         #TODO do we process for hold here, or not?
@@ -567,3 +582,4 @@ applyRules <- function(portfolio, symbol, strategy, mktdata, Dates=NULL, indicat
 # $Id$
 #
 ###############################################################################
+

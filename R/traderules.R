@@ -42,14 +42,8 @@ ruleSignal <- function(data=mktdata, timestamp, sigcol, sigval, orderqty=0, orde
     if(!is.function(osFUN)) osFUN<-match.fun(osFUN)
     #print(paste(symbol,timestamp))
     #print(data[timestamp][,sigcol])
-    if (!is.na(data[as.character(timestamp)][,sigcol]) & data[as.character(timestamp)][,sigcol] == sigval) {
-        #TODO add fancy formals matching for osFUN
-        if(orderqty>0 & orderqty<1){
-            # TODO add proportional order?  or should that go in order sizing function?
-        } 
-        orderqty <- osFUN(strategy=strategy, data=mktdata, timestamp=timestamp, orderqty=orderqty, ordertype=ordertype, orderside=orderside, portfolio=portfolio, symbol=symbol,...=...,ruletype=ruletype)
-
-		#calculate order price using pricemethod
+    if (!is.na(data[timestamp][,sigcol]) && data[timestamp][,sigcol] == sigval) {
+        #calculate order price using pricemethod
         pricemethod<-pricemethod[1] #only use the first if not set by calling function
 
 		if(hasArg(prefer)) prefer=match.call(expand.dots=TRUE)$prefer
@@ -64,10 +58,17 @@ ruleSignal <- function(data=mktdata, timestamp, sigcol, sigval, orderqty=0, orde
                         prefer='ask'  # we're buying, so pay what they're asking
                     else
                         prefer='bid'  # we're selling, so give it to them for what they're bidding
-                    orderprice <- try(getPrice(x=data, prefer=prefer))[as.character(timestamp)]
+                    orderprice <- try(getPrice(x=data, prefer=prefer))[timestamp]
 				}, 
                 market = {
-					orderprice <- try(getPrice(x=data, prefer=prefer))[as.character(timestamp)] 
+                    if(is.BBO(mktdata)){
+                        if (orderqty>0) 
+                            prefer='bid'  # we're buying, so work the bid price
+                        else
+                            prefer='ask'  # we're selling, so work the ask price
+                        
+                    }
+					orderprice <- try(getPrice(x=data, prefer=prefer))[timestamp] 
 				},
 				maker = {
 					if(hasArg(price) & length(match.call(expand.dots=TRUE)$price)>1) {
@@ -75,9 +76,9 @@ ruleSignal <- function(data=mktdata, timestamp, sigcol, sigval, orderqty=0, orde
 						orderprice <- try(match.call(expand.dots=TRUE)$price)
 					} else {
 						if(!is.null(threshold)) {
-							baseprice<- last(getPrice(x=data)[as.character(timestamp)]) # this should get either the last trade price or the Close
+							baseprice<- last(getPrice(x=data)[timestamp]) # this should get either the last trade price or the Close
 							if(hasArg(tmult) & isTRUE(match.call(expand.dots=TRUE)$tmult)) {
-								baseprice<- last(getPrice(x=data)[as.character(timestamp)]) # this should get either the last trade price or the Close
+								baseprice<- last(getPrice(x=data)[timestamp]) # this should get either the last trade price or the Close
 								# threshold is a multiplier of current price
 								if (length(threshold)>1){
 									orderprice <- baseprice * threshold # assume the user has set proper threshold multipliers for each side
@@ -106,7 +107,8 @@ ruleSignal <- function(data=mktdata, timestamp, sigcol, sigval, orderqty=0, orde
 				}
         )
         if(inherits(orderprice,'try-error')) orderprice<-NULL
-        if(length(orderprice>1) & !pricemethod=='maker') orderprice<-last(orderprice[as.character(timestamp)])
+        if(length(orderprice>1) & !pricemethod=='maker') orderprice<-last(orderprice[timestamp])
+
         if(is.null(orderside) & !isTRUE(orderqty == 0)){
             curqty<-getPosQty(Portfolio=portfolio, Symbol=symbol, Date=timestamp)
             if (curqty>0 ){
@@ -123,6 +125,12 @@ ruleSignal <- function(data=mktdata, timestamp, sigcol, sigval, orderqty=0, orde
                     orderside<-'short'
             }
         }
+        
+        ## now size the order
+        #TODO add fancy formals matching for osFUN
+        orderqty <- osFUN(strategy=strategy, data=mktdata, timestamp=timestamp, orderqty=orderqty, ordertype=ordertype, orderside=orderside, portfolio=portfolio, symbol=symbol,...=...,ruletype=ruletype, orderprice=as.numeric(orderprice))
+        
+        
         if(!is.null(orderqty) & !orderqty == 0 & !is.null(orderprice)){
             addOrder(portfolio=portfolio, symbol=symbol, timestamp=timestamp, qty=orderqty, price=as.numeric(orderprice), ordertype=ordertype, side=orderside, threshold=threshold, status="open", replace=replace , delay=delay, tmult=tmult, ...=..., TxnFees=TxnFees)
         }
@@ -222,6 +230,9 @@ getPosLimit <- function(portfolio, symbol, timestamp){
 #' but this is the default.  If you don't want to use levels, set 
 #' them to 1.
 #' 
+#' \code{orderqty='all'} in a risk rule will return an order size 
+#' appropriate to flatten the current position.
+#' 
 #' @param data an xts object containing market data.  depending on rules, may need to be in OHLCV or BBO formats, and may include indicator and signal information
 #' @param timestamp timestamp coercible to POSIXct that will be the time the order will be inserted on 
 #' @param orderqty numeric quantity of the desired order, modified by osFUN
@@ -233,8 +244,9 @@ getPosLimit <- function(portfolio, symbol, timestamp){
 #' @param ... any other passthru parameters
 #' @seealso \code{\link{addPosLimit}},\code{\link{getPosLimit}}
 #' @export
+#' @note 
+#' TODO integrate orderqty='all' into osMaxPos for non-risk exit orders by combining side and pos for exits
 osMaxPos <- function(data, timestamp, orderqty, ordertype, orderside, portfolio, symbol, ruletype, ...){
-	# TODO integrate orderqty='all' into osMaxPos by combining side 
 	# check for current position
     pos<-getPosQty(portfolio,symbol,timestamp)
     # check against max position
@@ -280,7 +292,10 @@ osMaxPos <- function(data, timestamp, orderqty, ordertype, orderside, portfolio,
     
     #sell long
     if(orderqty<0 & orderside=='long'){
-		if(ruletype=='risk') return(orderqty)
+		if(ruletype=='risk'){
+          if(orderqty=='all') return(-1*pos)
+          else return(orderqty)
+        } 
 		if ((orderqty+pos)>=0) {
             return(orderqty)
         } else {
@@ -309,8 +324,11 @@ osMaxPos <- function(data, timestamp, orderqty, ordertype, orderside, portfolio,
     
     #buy cover short
     if(orderqty>0 & orderside=='short'){
-		if(ruletype=='risk') return(orderqty)
-		if ((orderqty+pos)<=0) {
+        if(ruletype=='risk'){
+            if(orderqty=='all') return(-1*pos)
+            else return(orderqty)
+        } 
+        if ((orderqty+pos)<=0) {
             return(orderqty)
         } else {
             orderqty<-pos #flatten position, don't cross through zero
