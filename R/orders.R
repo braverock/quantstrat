@@ -466,10 +466,10 @@ ruleOrderProc <- function(portfolio, symbol, mktdata, timespan=NULL, ordertype=N
                         } else if(isBBOmktdata){
                             # check side/qty
                             if(orderQty > 0){ # positive quantity 'buy'
-                                if(orderPrice >= as.numeric(getPrice(mktdataTimestamp,prefer='offer'))){
+                                if(orderPrice >= as.numeric(getPrice(mktdataTimestamp,prefer='ask'))){
                                     # price we're willing to pay is higher than the offer price, so execute at the prevailing price
                                     #txnprice = orderPrice
-                                    txnprice = as.numeric(getPrice(mktdataTimestamp,prefer=prefer)) #presumes unique timestamps
+                                    txnprice = as.numeric(getPrice(mktdataTimestamp,prefer='ask')) #presumes unique timestamps
                                     txnprice = orderPrice
                                     txntime = timestamp
                                 } else next()
@@ -477,7 +477,7 @@ ruleOrderProc <- function(portfolio, symbol, mktdata, timespan=NULL, ordertype=N
                                 if(orderPrice <= as.numeric(getPrice(mktdataTimestamp,prefer='bid'))){
                                     # we're willing to sell at a better price than the bid, so execute at the prevailing price
                                     # txnprice = orderPrice
-                                    txnprice = as.numeric(getPrice(mktdataTimestamp,prefer=prefer)) #presumes unique timestamp
+                                    txnprice = as.numeric(getPrice(mktdataTimestamp,prefer='bid')) #presumes unique timestamp
                                     txntime = timestamp
                                 } else next()
                             }
