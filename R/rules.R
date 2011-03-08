@@ -117,7 +117,11 @@ add.rule <- function(strategy, name, arguments, parameters=NULL, label=NULL, typ
 #' and then again in stepping over the time indexes of the mktdata object.
 #' 
 #' Individual rule functions may need to use <<- to place \code{hold} and \code{holdtill}
-#' variables into play.  These would be most likely implemented by risk rules.
+#' variables into play.  These would be most likely implemented by risk rules.  When
+#' \code{hold==TRUE}, any open oders will still be processed (orders are \emph{NOT} 
+#' canceled automatically, but no new orders may be entered.  \code{type='risk'}
+#' rules will still function during a hold.  Note that hold must be set via a custom
+#' rule.  We tend to set hold in an order or risk rule. 
 #' 
 #' \code{quantstrat} has a significant amount of logic devoted to handling 
 #' path-dependent rule execution.  Most of that code/logic resides in this
@@ -284,7 +288,8 @@ applyRules <- function(portfolio, symbol, strategy, mktdata, Dates=NULL, indicat
             mktdata <<- mktdata
             ret <<- ret
             hold <<- hold #TODO FIXME hold processing doesn't work unless custom rule has set it with <<-
-
+            holdtill <<- holdtill 
+            
             #print(tmp_val)
         } #end rules loop
     } # end sub process function ruleProc
@@ -523,7 +528,6 @@ applyRules <- function(portfolio, symbol, strategy, mktdata, Dates=NULL, indicat
                         }
                     },
                     order = {
-                        if(isTRUE(hold)) next()
                         if(length(strategy$rules[[type]])>=1) {
                             ruleProc(strategy$rules[[type]],timestamp=timestamp, path.dep=path.dep, mktdata=mktdata,portfolio=portfolio, symbol=symbol, ruletype=type, mktinstr=mktinstr, ...)
                         } else {
