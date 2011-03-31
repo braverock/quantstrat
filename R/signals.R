@@ -209,14 +209,16 @@ sigCrossover <- function(label,data=mktdata, columns, relationship=c("gt","lt","
 #' @param direction one of "peak" or "bottom" to calculate  peaks for
 #' @export
 sigPeak <- function(label,data,column, direction=c("peak","bottom")){
-    #should we only do this for one column?
-    colNum<-match.names(column,colnames(data))
+    if(!is.numeric(column)){
+        colNum<-match.names(column,colnames(data))   
+    } else colNum<-column
     direction=direction[1] # only use the first]
     #(Lag(IBM[,4],2)<Lag(IBM[,4],1)) & Lag(IBM[,4],1) >IBM[,4]
     switch(direction,
-           "peak"   = { Lag(data[,colNum],2) < Lag(data[,colNum],1) & Lag(data[,colNum],1) > data[,colNum] } ,
-           "bottom","valley" = { Lag(data[,colNum],2) > Lag(data[,colNum],1) & Lag(data[,colNum],1) < data[,colNum] }
+           "peak"   = { ret_sig <- Lag(data[,colNum],2) < Lag(data[,colNum],1) & Lag(data[,colNum],1) > data[,colNum] } ,
+           "bottom","valley" = { ret_sig <- Lag(data[,colNum],2) > Lag(data[,colNum],1) & Lag(data[,colNum],1) < data[,colNum] }
     )
+    Lag(ret_sig,-1)
     colnames(ret_sig)<-paste(label,direction,"sig",sep='.')
     return(ret_sig)
 }
