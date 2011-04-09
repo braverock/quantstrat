@@ -40,9 +40,10 @@
 ruleSignal <- function(data=mktdata, timestamp, sigcol, sigval, orderqty=0, ordertype, orderside=NULL, threshold=NULL, tmult=FALSE, replace=TRUE, delay=0.0001, osFUN='osNoOp', pricemethod=c('market','opside','maker'), portfolio, symbol, ..., ruletype, TxnFees=0, prefer=NULL, sethold=FALSE)
 {
     if(!is.function(osFUN)) osFUN<-match.fun(osFUN)
-    #print(paste(symbol,timestamp))
+    #print(paste(symbol,timestamp, sigval))
     #print(data[timestamp][,sigcol])
-    if (!is.na(data[timestamp][,sigcol]) && data[timestamp][,sigcol] == sigval) {
+    #browser()
+    if (!is.na(timestamp) && !is.na(data[timestamp][,sigcol]) && data[timestamp][,sigcol] == sigval) {
         #calculate order price using pricemethod
         pricemethod<-pricemethod[1] #only use the first if not set by calling function
 

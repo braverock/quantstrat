@@ -81,8 +81,8 @@ applySignals <- function(strategy, mktdata, indicators=NULL, parameters=NULL, ..
         onames <- names(.formals)
         
         pm <- pmatch(names(signal$arguments), onames, nomatch = 0L)
-        if (any(pm == 0L))
-            warning(paste("some arguments stored for",signal$name,"do not match"))
+        #if (any(pm == 0L))
+        #    warning(paste("some arguments stored for",signal$name,"do not match"))
         names(signal$arguments[pm > 0L]) <- onames[pm]
         .formals[pm] <- signal$arguments[pm > 0L]		
 		

@@ -242,7 +242,7 @@ applyRules <- function(portfolio, symbol, strategy, mktdata, Dates=NULL, indicat
             
             if(!isTRUE(rule$enabled)) next()
             
-			# check to see if we should run in this timepan
+			# check to see if we should run in this timespan
 			if(!is.null(rule$timespan) & nrow(mktdata[rule$timespan]==0)) next()
 			
             # see 'S Programming' p. 67 for this matching
