@@ -76,7 +76,7 @@ for(symbol in symbols) {
 
 # Initialize portfolio and account
 initPortf('faber', symbols=symbols, initDate=initDate)
-initAcct('faber', portfolios='faber', initDate=initDate)
+initAcct('faber', portfolios='faber', initDate=initDate, initEq=100000)
 initOrders(portfolio='faber', initDate=initDate)
 
 print("setup completed")
@@ -95,9 +95,9 @@ stratFaber <- add.signal(stratFaber,name="sigCrossover",arguments = list(columns
 
 # There are two rules:
 # The first is to buy when the price crosses above the SMA
-stratFaber <- add.rule(stratFaber, name='ruleSignal', arguments = list(sigcol="Cl.gt.SMA", sigval=TRUE, orderqty=1000, ordertype='market', orderside='long', pricemethod='market'), type='enter', path.dep=TRUE)
+stratFaber <- add.rule(stratFaber, name='ruleSignal', arguments = list(sigcol="Cl.gt.SMA", sigval=TRUE, orderqty=1000, ordertype='market', orderside='long', pricemethod='market',TxnFees=-5), type='enter', path.dep=TRUE)
 # The second is to sell when the price crosses below the SMA
-stratFaber <- add.rule(stratFaber, name='ruleSignal', arguments = list(sigcol="Cl.lt.SMA", sigval=TRUE, orderqty='all', ordertype='market', orderside='long', pricemethod='market'), type='exit', path.dep=TRUE)
+stratFaber <- add.rule(stratFaber, name='ruleSignal', arguments = list(sigcol="Cl.lt.SMA", sigval=TRUE, orderqty='all', ordertype='market', orderside='long', pricemethod='market',TxnFees=-5), type='exit', path.dep=TRUE)
 
 # Process the indicators and generate trades
 start_t<-Sys.time()
@@ -125,6 +125,21 @@ for(symbol in symbols){
     plot(add_SMA(n=10,col='darkgreen', on=1))
 }
 
+ret1 <- PortfReturns('faber')
+ret1$total<-rowSums(ret1)
+ret1
+
+if("package:PerformanceAnalytics" %in% search() || require("PerformanceAnalytics",quietly=TRUE)){
+	getSymbols("SPY", src='yahoo', index.class=c("POSIXt","POSIXct"), from='1999-01-01')
+	SPY<-to.monthly(SPY)
+	SPY.ret<-Return.calculate(SPY$SPY.Close)
+	index(SPY.ret)<-index(ret1)
+	dev.new()
+	charts.PerformanceSummary(cbind(ret1$total,SPY.ret), geometric=FALSE, wealth.index=TRUE)
+}
+
+faber.stats<-tradeStats('faber')[,c('Net.Trading.PL','maxDrawdown','Num.Trades','Profit.Factor','Std.Dev.Trade.PL','Largest.Winner','Largest.Loser','Max.Equity','Min.Equity')]
+faber.stats
 
 ###############################################################################
 # R (http://r-project.org/) Quantitative Strategy Model Framework
