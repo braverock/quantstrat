@@ -183,29 +183,28 @@ osNoOp <- function(timestamp, orderqty, portfolio, symbol, ruletype, ...){
 #' @param timestamp timestamp coercible to POSIXct that will be the time the order will be inserted on 
 #' @param maxpos numeric maximum long position for symbol 
 #' @param longlevels numeric number of levels
-#' @param minpos numeric minimum position, default 0 (short allowed use negative number)
-#' @param shortlevels numeric number of short levels 
+#' @param minpos numeric minimum position, default -minpos (short allowed use negative number)
+#' @param shortlevels numeric number of short levels, default longlevels 
 #' @seealso 
 #' \code{\link{osMaxPos}}
 #' \code{\link{getPosLimit}}
 #' @export
-addPosLimit <- function(portfolio, symbol, timestamp, maxpos, longlevels=1, minpos=0, shortlevels=0){
-    portf<-getPortfolio(portfolio)
-    newrow <- xts(cbind(maxpos, longlevels, minpos, shortlevels),order.by=as.POSIXct(timestamp))
-	colnames(newrow)<-c("MaxPos","LongLevels","MinPos","ShortLevels")
+addPosLimit <- function (portfolio, symbol, timestamp, maxpos, longlevels = 1, minpos = -maxpos, shortlevels = longlevels) 
+{
+	portf <- getPortfolio(portfolio)
+	newrow <- xts(cbind(maxpos, longlevels, minpos, shortlevels), order.by = as.POSIXct(timestamp))
+	colnames(newrow) <- c("MaxPos", "LongLevels", "MinPos", "ShortLevels")
 	
-    if(is.null(portf$symbols[[symbol]]$PosLimit)) {
-        portf$symbols[[symbol]]$PosLimit <- newrow         
-    } else {
-        if(!is.null(portf[[symbol]]$PosLimit[timestamp])){
-            # it exists already, so replace
-            portf$symbols[[symbol]]$PosLimit[timestamp]<-newrow
-        } else {
-            # add a new row on timestamp
-            portf$symbols[[symbol]]$PosLimit <- rbind(portf[[symbol]]$PosLimit,newrow)
-        }
-    }
-    assign(paste("portfolio",portfolio,sep='.'),portf,envir=.blotter)
+	if (is.null(portf$symbols[[symbol]]$PosLimit)) {
+		portf$symbols[[symbol]]$PosLimit <- newrow
+	} else {
+		if (is.null(portf$symbols[[symbol]]$PosLimit[timestamp])) {
+			portf$symbols[[symbol]]$PosLimit[timestamp] <- newrow
+		} else {
+			portf$symbols[[symbol]]$PosLimit <- rbind(portf$symbols[[symbol]]$PosLimit,	newrow)
+		}
+	}
+	assign(paste("portfolio", portfolio, sep = "."), portf, envir = .blotter)
 }
 
 #' get position and level limits on timestamp
