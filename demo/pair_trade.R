@@ -2,13 +2,13 @@
 #code borrowed heavily from existing quantstrat demos
 
 #This is a simple pairs trading example intended to illustrate how you can extend
-#existing quantstrat functionality.  Also, it uses addPosLimits to specify
-#levels and position limits, and shows how to pass a custom order sizing function to osFUN 
+#existing quantstrat functionality.  It uses addPosLimits to specify levels and 
+#position limits, and shows how to pass a custom order sizing function to osFUN 
 
 #Note that it would be easier to build a spread first and treat it as a single instrument
 #instead of dealing with a portfolio of stocks.
 
-## given 2 stocks, calculate their ratio.  If the ratio falls below it's
+## given 2 stocks, calculate the ratio of their notional values.  If the ratio falls below it's
 # 2 stdev band, then when it crosses back above it, buy stock 1 and sell stock 2.  
 # If the ratio rises above it's 2 stdev band, then when it crosses back below
 # it, sell stock 1 and buy stock 2.  If the ratio crosses it's moving average,
@@ -34,14 +34,34 @@ MaxPos = 1500  #max position in stockA;
 #max position in stock B will be max * ratio, i.e. no hard position limit in Stock B
 lvls = 3	#how many times to fade; Each order's qty will = MaxPos/lvls
 
-symb1 <- 'CVX' #change these to try other pairs
-symb2 <- 'XOM' #if you change them, make sure position limits still make sense
+symb1 <- 'SPY' #change these to try other pairs
+symb2 <- 'DIA' #if you change them, make sure position limits still make sense
 
 portfolio1.st <- 'pair1'
 account.st <- 'pairs'
 
 getSymbols(c(symb1, symb2), from=startDate, to=endDate, adjust=TRUE) 
 
+#generic used to make sure the timestamps of all symbols are the same
+#deletes rows where one of the stocks is missing data
+alignSymbols <- function(symbols, env=.GlobalEnv) {
+	if (length(symbols) < 2) 
+		stop("Must provide at least 2 symbols")
+	if (any(!is.character(symbols))) 
+		stop("Symbols must be vector of character strings.")
+	ff <- get(symbols[1],env=env)
+	for (sym in symbols[-1]) {
+		tmp.sym <- get(sym,env=env)
+		ff <- merge(ff,tmp.sym,all=FALSE)
+	}
+	for (sym in symbols) {
+		assign(sym,ff[,grep(sym,colnames(ff))],env=env)
+	}
+	symbols
+}
+alignSymbols(c(symb1,symb2)) 
+
+#Define Instruments
 currency("USD")
 stock(symb1, currency="USD", multiplier=1)
 stock(symb2, currency="USD", multiplier=1)
@@ -51,34 +71,41 @@ initPortf(name=portfolio1.st, c(symb1,symb2), initDate=initDate)
 initAcct(account.st, portfolios=portfolio1.st, initDate=initDate, initEq=initEq)
 initOrders(portfolio=portfolio1.st,initDate=initDate)
 
-#create a slot in portfolio for symb1 and symb2 to make them available to osFUN
-pair <- c('long','short')
-names(pair) <- c(symb1,symb2)
+#osFUN will need to know which symbol is leg 1 and which is leg 2 as well as what the 
+#values are for MaxPos and lvls.  So, create a slot in portfolio to hold this info.
+pair <- c(1,2,MaxPos,lvls)
+names(pair) <- c(symb1,symb2,"MaxPos","lvls")
 .blotter[[paste('portfolio',portfolio1.st,sep='.')]]$pair <- pair
 
 # Create initial position limits and levels by symbol
-# allow 3 entries for long and short.
+# allow 3 entries for long and short if lvls=3.
 addPosLimit(portfolio=portfolio1.st, timestamp=initDate, symbol=symb1, maxpos=MaxPos, longlevels=lvls, minpos=-MaxPos, shortlevels=lvls)
 addPosLimit(portfolio=portfolio1.st, timestamp=initDate, symbol=symb2, maxpos=MaxPos, longlevels=lvls, minpos=-MaxPos, shortlevels=lvls)
 
 # Create a strategy object 
 pairStrat <- strategy('pairStrat')
 
-calcRatio <- function(x) { #returns the ratio of close prices for 2 symbols
+# Indicator function
+calcRatio <- function(x) { #returns the ratio of notional close prices for 2 symbols
 	x1 <- get(x[1])
 	x2 <- get(x[2])
-	rat <- Ad(x1) / Ad(x2)
+	mult1 <- getInstrument(x[1])$multiplier
+	mult2 <- getInstrument(x[2])$multiplier
+	rat <- (mult1 * Cl(x1)) / (mult2 * Cl(x2))
 	colnames(rat) <- 'Ratio'
 	rat
 } 
-Ratio <- calcRatio(c(symb1[1],symb2[1]))
-#let's go ahead and put this in a slot in portfolio
-.blotter[[paste('portfolio',portfolio1.st,sep='.')]]$Ratio <- Ratio
-#and make a function to get the most recent Ratio
-getRatio <- function(portfolio, timestamp) {
+Ratio <- calcRatio(c(symb1[1],symb2[1])) #Indicator used for determining entry/exits
+
+#Put a slot in portfolio to hold hedge ratio so that it's available for order sizing function. 
+#In this example, the hedge ratio happens to be the same as the Ratio indicator.
+.blotter[[paste('portfolio',portfolio1.st,sep='.')]]$HedgeRatio <- Ratio
+#and make a function to get the most recent HedgeRatio
+getHedgeRatio <- function(portfolio, timestamp) {
 	portf <- getPortfolio(portfolio)
+	timestamp <- format(timestamp,"%Y-%m-%d %H:%M:%S") #ensures you don't get last value of next day if using intraday data and timestamp=midnight
 	toDate <- paste("::", timestamp, sep="")
-	Ratio <- last(portf$Ratio[toDate])
+	Ratio <- last(portf$HedgeRatio[toDate])
 	as.numeric(Ratio)
 }
 
@@ -100,17 +127,22 @@ pairStrat <- add.signal(strategy = pairStrat, name = "sigCrossover", arguments= 
 osSpreadMaxPos <- function (data, timestamp, orderqty, ordertype, orderside, portfolio, symbol, ruletype, ..., orderprice) 
 {
 	portf <- getPortfolio(portfolio)
-    legside <- portf$pair[symbol] #"long" if symbol=symb1, "short" if symbol=symb2
-	if (legside != "long" && legside != "short") stop('pair must contain "long" and "short"')
-	ratio <- getRatio(portfolio, timestamp)
-	
+	#check to make sure pair slot has the things needed for this function
+	if (!any(portf$pair == 1) && !(any(portf$pair == 2))) stop('pair must contain both values 1 and 2')
+	if (!any(names(portf$pair) == "MaxPos") || !any(names(portf$pair) == "lvls")) stop('pair must contain MaxPos and lvls')	
+		
+	if (portf$pair[symbol] == 1) legside <- "long"
+	if (portf$pair[symbol] == 2) legside <- "short"	
+	MaxPos <- portf$pair["MaxPos"]
+	lvls <- portf$pair["lvls"]
+	ratio <- getHedgeRatio(portfolio, timestamp)
 	pos <- getPosQty(portfolio, symbol, timestamp) 	    
-    PosLimit <- getPosLimit(portfolio, symbol, timestamp) 
+	PosLimit <- getPosLimit(portfolio, symbol, timestamp) 
 	qty <- orderqty
 	if (legside == "short") {#symbol is 2nd leg
 		## Comment out next line to use equal ordersizes for each stock. 
-		addPosLimit(portfolio=portfolio, timestamp=timestamp, symbol=symbol, maxpos=MaxPos*ratio, longlevels=lvls, minpos=-MaxPos*ratio, shortlevels=lvls)
-		#TODO: is it okay that MaxPos and lvls come from .GlobalEnv ?
+		addPosLimit(portfolio=portfolio, timestamp=timestamp, symbol=symbol, maxpos=round(MaxPos*ratio,0), longlevels=lvls, minpos=round(-MaxPos*ratio,0), shortlevels=lvls)
+		## 
 		qty <- -orderqty #switch orderqty for Stock B
 	}
 	
@@ -119,8 +151,7 @@ osSpreadMaxPos <- function (data, timestamp, orderqty, ordertype, orderside, por
  
 	orderqty <- osMaxPos(data=data,timestamp=timestamp,orderqty=qty,ordertype=ordertype,
 					orderside=orderside,portfolio=portfolio,symbol=symbol,ruletype=ruletype, ...)
-	orderqty <- round(orderqty,0)
-
+					
 	#Add the order here instead of in the ruleSignal function
 	if (!is.null(orderqty) & !orderqty == 0 & !is.null(orderprice)) {
             addOrder(portfolio = portfolio, symbol = symbol, 
@@ -153,18 +184,18 @@ chart.Posn(Portfolio=portfolio1.st,Symbol=symb1)
 dev.new()
 chart.Posn(Portfolio=portfolio1.st,Symbol=symb2)
 dev.new()
-chartSeries(Cl(get(symb1))/Cl(get(symb2)),TA="addBBands()")
+chartSeries(Cl(get(symb1))/Cl(get(symb2)),TA="addBBands(n=N,sd=SD)")
 
 ret1 <- PortfReturns(account.st)
 ret1$total <- rowSums(ret1)
 #ret1
 
 if("package:PerformanceAnalytics" %in% search() || require("PerformanceAnalytics",quietly=TRUE)) {
-	getSymbols("SPY", from='1999-01-01')
-	SPY.ret <- Return.calculate(SPY$SPY.Close)
-	tmp <- merge(SPY.ret,ret1$total,all=FALSE)
+#	getSymbols("SPY", from='1999-01-01')
+#	SPY.ret <- Return.calculate(SPY$SPY.Close)
+#	tmp <- merge(SPY.ret,ret1$total,all=FALSE)
 	dev.new()
-	charts.PerformanceSummary(cbind(tmp[,2],tmp[,1]),geometric=FALSE,wealth.index=TRUE)
+	charts.PerformanceSummary(ret1$total,geometric=FALSE,wealth.index=TRUE)
 }
 
 
