@@ -470,7 +470,6 @@ ruleOrderProc <- function(portfolio, symbol, mktdata, timespan=NULL, ordertype=N
                                     # price we're willing to pay is higher than the offer price, so execute at the prevailing price
                                     #txnprice = orderPrice
                                     txnprice = as.numeric(getPrice(mktdataTimestamp,prefer='ask')) #presumes unique timestamps
-                                    txnprice = orderPrice
                                     txntime = timestamp
                                 } else next()
                             } else { # negative quantity 'sell'
