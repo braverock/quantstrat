@@ -4,11 +4,11 @@
 \usage{add.parameter(strategy, type=c("indicator", "signal"), add.to.name, method=c("lookup", "lookup.range", "calc"), arguments, label, ...,
     store=FALSE)}
 \description{add parameters to strategy objects: ALPHA CODE USE WITH CARE}
-\arguments{\item{strategy}{}
-\item{type}{}
-\item{add.to.name}{}
-\item{method}{}
-\item{arguments}{}
-\item{label}{}
-\item{...}{}
-\item{store}{}}
+\arguments{\item{strategy}{strategy}
+\item{type}{type}
+\item{add.to.name}{add.to.name}
+\item{method}{method}
+\item{arguments}{arguments}
+\item{label}{label}
+\item{...}{dots}
+\item{store}{store?}}
