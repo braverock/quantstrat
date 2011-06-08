@@ -407,7 +407,7 @@ ruleOrderProc <- function(portfolio, symbol, mktdata, timespan=NULL, ordertype=N
     # check for open orders
     if (length(procorders)>=1){
         # get previous bar
-        prevtime  <- time(mktdata[last(mktdata[timespan, which.i = TRUE])-1])
+        prevtime  <- time(mktdata[last(mktdata[timespan, which.i = TRUE])-1]) #not used
         timestamp <- time(last(mktdata[timespan]))
         #switch on frequency
         freq = periodicity(mktdata)
@@ -439,11 +439,20 @@ ruleOrderProc <- function(portfolio, symbol, mktdata, timespan=NULL, ordertype=N
                                     txntime=as.character(index(ordersubset[ii,])) # transacts on this bar, e.g. in the intraday cross, or leading into the end of month, quarter, etc.
                                     # txntime=as.character(timestamp) # use this if you wanted to transact on the close of the next bar
                                     txnprice=as.numeric(getPrice(last(mktdata[txntime]), ...=...))
-                                }, #end daily and lower frequency processing
-                                {
-                                    txnprice = as.numeric(getPrice(mktdataTimestamp))
-                                    #TODO extend this to figure out which side to prefer
+                                }, #end daily
+                                { 
+                                    #txnprice = as.numeric(getPrice(mktdataTimestamp)) #filled at 'price'
                                     txntime = timestamp
+                                    #An ordertype of market will *almost* trump pricemethod here. orderPrice was determined using pricemethod.
+                                    #but, for buy orders you'll be filled at either orderPrice or the current mkt ask -- whichever is worse.
+                                    #and, for sell orders you'll be filled at either orderPrice or the current mkt bid -- whichever is worse.
+                                    if(orderQty > 0){ # positive quantity 'buy'
+                                        #fill at max(orderPrice,newMktAsk price) 
+                                        txnprice = max(orderPrice, as.numeric(getPrice(mktdataTimestamp,prefer='ask')))
+                                    } else { # negative quantity 'sell'
+                                        txnprice = min(orderPrice, as.numeric(getPrice(mktdataTimestamp,prefer='bid'))) #presumes unique timestamp
+                                    }
+                                    #e.g. if pricemethod was opside, it sent a buy order at mktAsk. fill at greater of that ask, and current ask
                                 }) # end switch on frequency
                     },
                     limit= ,
@@ -454,8 +463,10 @@ ruleOrderProc <- function(portfolio, symbol, mktdata, timespan=NULL, ordertype=N
                                 stop("iceberg orders not supported for OHLC data")
                             } 
                             # check to see if price moved through the limit
-                            if( orderPrice > as.numeric(Lo(mktdataTimestamp)) &
-                                orderPrice < as.numeric(Hi(mktdataTimestamp)) ) 
+                            # FIXME: should this be the same for buys and sells?
+                            if( orderPrice > as.numeric(Lo(mktdataTimestamp)) & #what about an offer entered way above the market?
+                                orderPrice < as.numeric(Hi(mktdataTimestamp)) ) #what about a bid entered way below the market? 
+                                #should be: if buy order price > Lo || sell order price < Hi
                             {
                                 txnprice = orderPrice
                                 txntime = timestamp
@@ -623,7 +634,8 @@ ruleOrderProc <- function(portfolio, symbol, mktdata, timespan=NULL, ordertype=N
 # R (http://r-project.org/) Quantitative Strategy Model Framework
 #
 # Copyright (c) 2009-2011
-# Peter Carl, Dirk Eddelbuettel, Brian G. Peterson, Jeffrey Ryan, and Joshua Ulrich 
+# Peter Carl, Dirk Eddelbuettel, Brian G. Peterson, 
+# Jeffrey Ryan, Joshua Ulrich, and Garrett See 
 #
 # This library is distributed under the terms of the GNU Public License (GPL)
 # for full details see the file COPYING
