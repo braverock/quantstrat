@@ -441,18 +441,19 @@ ruleOrderProc <- function(portfolio, symbol, mktdata, timespan=NULL, ordertype=N
                                     txnprice=as.numeric(getPrice(last(mktdata[txntime]), ...=...))
                                 }, #end daily
                                 { 
-                                    #txnprice = as.numeric(getPrice(mktdataTimestamp)) #filled at 'price'
                                     txntime = timestamp
-                                    #An ordertype of market will *almost* trump pricemethod here. orderPrice was determined using pricemethod.
-                                    #but, for buy orders you'll be filled at either orderPrice or the current mkt ask -- whichever is worse.
-                                    #and, for sell orders you'll be filled at either orderPrice or the current mkt bid -- whichever is worse.
-                                    if(orderQty > 0){ # positive quantity 'buy'
-                                        #fill at max(orderPrice,newMktAsk price) 
-                                        txnprice = max(orderPrice, as.numeric(getPrice(mktdataTimestamp,prefer='ask')))
-                                    } else { # negative quantity 'sell'
-                                        txnprice = min(orderPrice, as.numeric(getPrice(mktdataTimestamp,prefer='bid'))) #presumes unique timestamp
-                                    }
-                                    #e.g. if pricemethod was opside, it sent a buy order at mktAsk. fill at greater of that ask, and current ask
+                                    if (isBBOmktdata) {
+                                        #An ordertype of market will *almost* trump pricemethod here. orderPrice was determined using pricemethod.
+                                        #but, for buy orders you'll be filled at either orderPrice or the current mkt ask -- whichever is worse.
+                                        #and, for sell orders you'll be filled at either orderPrice or the current mkt bid -- whichever is worse.
+                                        if(orderQty > 0){ # positive quantity 'buy'
+                                            #fill at max(orderPrice,newMktAsk price) 
+                                            txnprice = max(orderPrice, as.numeric(getPrice(mktdataTimestamp,prefer='ask')))
+                                        } else { # negative quantity 'sell'
+                                            txnprice = min(orderPrice, as.numeric(getPrice(mktdataTimestamp,prefer='bid'))) #presumes unique timestamp
+                                        }
+                                        #e.g. if pricemethod was opside, it sent a buy order at mktAsk. fill at greater of that ask, and current ask
+                                    } else txnprice = as.numeric(getPrice(mktdataTimestamp)) #filled at 'price'                                
                                 }) # end switch on frequency
                     },
                     limit= ,
@@ -464,8 +465,8 @@ ruleOrderProc <- function(portfolio, symbol, mktdata, timespan=NULL, ordertype=N
                             } 
                             # check to see if price moved through the limit
                             # FIXME: should this be the same for buys and sells?
-                            if( orderPrice > as.numeric(Lo(mktdataTimestamp)) & #what about an offer entered way above the market?
-                                orderPrice < as.numeric(Hi(mktdataTimestamp)) ) #what about a bid entered way below the market? 
+                            if( orderPrice > as.numeric(Lo(mktdataTimestamp)) & #what about an offer entered below the Lo?
+                                orderPrice < as.numeric(Hi(mktdataTimestamp)) ) #what about a bid entered above the Hi? 
                                 #should be: if buy order price > Lo || sell order price < Hi
                             {
                                 txnprice = orderPrice
