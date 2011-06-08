@@ -296,7 +296,7 @@ applyRules <- function(portfolio, symbol, strategy, mktdata, Dates=NULL, indicat
 
     #we could maybe do something more sophisticated, but this should work
     if(isTRUE(path.dep)){
-        dindex<-c(1,length(Dates)-1) # set the dimension reduction/loop jumping index vector
+        dindex<-c(1,length(Dates))# -1) # set the dimension reduction/loop jumping index vector
         assign.dindex(dindex)
         #pre-process for dimension reduction here
         for ( type in names(strategy$rules)){
@@ -347,7 +347,7 @@ applyRules <- function(portfolio, symbol, strategy, mktdata, Dates=NULL, indicat
             isOHLCmktdata <- is.OHLC(mktdata)
             isBBOmktdata  <- is.BBO(mktdata)
             #check for open orders at curIndex
-            timespan<-paste(timestamp,"::",sep='')
+            timespan<-paste(timestamp,"::",sep='') #no check to see if timestamp came through dots? Does it come from the search path? -gsee
             if(nrow(ordersubset[oo.idx,][timespan])==0){
                 # no open orders between now and the next index
                 nidx=FALSE
@@ -374,7 +374,7 @@ applyRules <- function(portfolio, symbol, strategy, mktdata, Dates=NULL, indicat
                         tmpprice<-as.numeric(ordersubset[oo.idx[lorder],'Order.Price'])
                         if(tmpqty>0){
                             #buying
-                            relationship="gte"
+                            relationship="lte" #look for places where Mkt Ask <= our Bid
                             if(isBBOmktdata) {
                                 col<-first(colnames(mktdata)[has.Ask(mktdata,which=TRUE)])
                             } else if (isOHLCmktdata) {
@@ -386,7 +386,7 @@ applyRules <- function(portfolio, symbol, strategy, mktdata, Dates=NULL, indicat
                             }
                         } else {
                             #selling
-                            relationship="lte"
+                            relationship="gte" #look for places where Mkt Bid >= our Ask
                             if(isBBOmktdata) {
                                 col<-first(colnames(mktdata)[has.Bid(mktdata,which=TRUE)])
                             } else if (isOHLCmktdata) {
@@ -400,7 +400,13 @@ applyRules <- function(portfolio, symbol, strategy, mktdata, Dates=NULL, indicat
                         cross<-sigThreshold(label='tmplimit',column=col,threshold=tmpprice,relationship=relationship)
                         if(any(cross[timespan])){
                             # find first index that would cross after this index
-                            newidx <- curIndex + which(cross[timespan])[1] - 1  #curIndex/timestamp was 1 in the subset, we need a -1 offset?
+                            newidx <- curIndex + which(cross[timespan])[1] #- 1  #curIndex/timestamp was 1 in the subset, we need a -1 offset?
+                            #if there are is no cross curIndex will be incremented on line 496
+                            # with curIndex<-min(dindex[dindex>curIndex]).                            
+                            #we cannot get filled at this timestamp. The soonest we could get filled is next timestamp...
+                            #see also that market order increments curIndex before returning it. Going by the docs,
+                            #I think this is by design. i.e. no instant fills. -gsee
+                            
                             # insert that into dindex
                             assign.dindex(c(get.dindex(),newidx))                  
                         } else{
@@ -482,12 +488,12 @@ applyRules <- function(portfolio, symbol, strategy, mktdata, Dates=NULL, indicat
                 } # end if for trailing orders
             } # end else clause for any open orders in this timespan    
         } # end any open orders closure
-        if(nidx) {
+        if(nidx) { #This will never evaluate to TRUE; if it has a purpose, it's a bug. -gsee
             curIndex <- curIndex+1
             dindex<-get.dindex()
         } else {
             dindex<-get.dindex()
-            curIndex<-min(dindex[dindex>curIndex])
+            curIndex<-min(dindex[dindex>curIndex]) 
         }
         if (is.na(curIndex) || curIndex >= length(index(mktdata))) curIndex=FALSE
         
@@ -563,7 +569,7 @@ applyRules <- function(portfolio, symbol, strategy, mktdata, Dates=NULL, indicat
                     }
             ) # end switch
         } #end type loop
-        if(isTRUE(path.dep)) curIndex<-nextIndex(curIndex, ...)
+        if(isTRUE(path.dep)) curIndex<-nextIndex(curIndex, ...) #timestamp comes from environment, not dots? -gsee
         else curIndex=FALSE
     } # end index while loop
 
@@ -578,7 +584,8 @@ applyRules <- function(portfolio, symbol, strategy, mktdata, Dates=NULL, indicat
 # R (http://r-project.org/) Quantitative Strategy Model Framework
 #
 # Copyright (c) 2009-2011
-# Peter Carl, Dirk Eddelbuettel, Brian G. Peterson, Jeffrey Ryan, and Joshua Ulrich 
+# Peter Carl, Dirk Eddelbuettel, Brian G. Peterson, 
+# Jeffrey Ryan, Joshua Ulrich, and Garrett See 
 #
 # This library is distributed under the terms of the GNU Public License (GPL)
 # for full details see the file COPYING
