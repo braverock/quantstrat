@@ -493,7 +493,9 @@ applyRules <- function(portfolio, symbol, strategy, mktdata, Dates=NULL, indicat
             dindex<-get.dindex()
         } else {
             dindex<-get.dindex()
-            curIndex<-min(dindex[dindex>curIndex]) 
+            if (any(dindex > curIndex)) {
+                curIndex<-min(dindex[dindex>curIndex]) 
+            } else curIndex <- FALSE
         }
         if (is.na(curIndex) || curIndex >= length(index(mktdata))) curIndex=FALSE
         

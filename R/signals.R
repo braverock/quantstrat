@@ -192,7 +192,7 @@ sigCrossover <- function(label,data=mktdata, columns, relationship=c("gt","lt","
     ret_sig = FALSE
     lng<-length(columns)
     for (i in 1:(lng-1)) {
-        ret_sig = ret_sig | diff(sigComparison(label=label,data=data,columns=columns[c(i,lng)],relationship=relationship))==1
+        ret_sig = suppressWarnings(ret_sig | diff(sigComparison(label=label,data=data,columns=columns[c(i,lng)],relationship=relationship))==1)
     }
     is.na(ret_sig) <- which(!ret_sig)
     colnames(ret_sig)<-label
