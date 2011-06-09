@@ -46,9 +46,10 @@
 require(quantstrat)
 
 # Try to clean up in case the demo was run previously
-try(rm("account.faber","portfolio.faber",pos=.blotter),silent=TRUE)
-try(rm("ltaccount","ltportfolio","ClosePrice","CurrentDate","equity","GSPC","stratFaber","initDate","initEq","Posn","UnitSize","verbose"),silent=TRUE)
-try(rm("order_book.faber",pos=.strategy),silent=TRUE)
+suppressWarnings(rm("account.faber","portfolio.faber",pos=.blotter))
+suppressWarnings(rm("ltaccount", "ltportfolio", "ClosePrice", "CurrentDate", "equity", 
+            "GSPC", "stratFaber", "initDate", "initEq", "Posn", "UnitSize", "verbose"))
+suppressWarnings(rm("order_book.faber",pos=.strategy))
 
 # Set initial values
 initDate='1997-12-31'

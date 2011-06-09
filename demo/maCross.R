@@ -5,9 +5,9 @@
 #########################################################################################################################################################################
 
 require(quantstrat)
-try(rm("order_book.macross",pos=.strategy),silent=TRUE)
-try(rm("account.macross","portfolio.macross",pos=.blotter),silent=TRUE)
-try(rm("account.st","portfolio.st","stock.str","stratMACROSS","initDate","initEq",'start_t','end_t'),silent=TRUE)
+suppressWarnings(rm("order_book.macross",pos=.strategy))
+suppressWarnings(rm("account.macross","portfolio.macross",pos=.blotter))
+suppressWarnings(rm("account.st","portfolio.st","stock.str","stratMACROSS","initDate","initEq",'start_t','end_t'))
 stock.str='AAPL' # what are we trying it on
 currency('USD')
 stock(stock.str,currency='USD',multiplier=1)
@@ -24,7 +24,7 @@ stratMACROSS<- strategy(portfolio.st)
 stratMACROSS <- add.indicator(strategy = stratMACROSS, name = "SMA", arguments = list(x=quote(Cl(mktdata)), n=50),label= "ma50" )
 stratMACROSS <- add.indicator(strategy = stratMACROSS, name = "SMA", arguments = list(x=quote(Cl(mktdata)), n=200),label= "ma200")
 
-stratMACROSS <- add.signal(strategy = stratMACROSS,name="sigCrossover",arguments = list(columns=c("ma50","ma200"),relationship="gt"),label="ma50.gt.ma200")
+stratMACROSS <- add.signal(strategy = stratMACROSS,name="sigCrossover",arguments = list(columns=c("ma50","ma200"), relationship="gt"),label="ma50.gt.ma200")
 stratMACROSS <- add.signal(strategy = stratMACROSS,name="sigCrossover",arguments = list(column=c("ma50","ma200"),relationship="lt"),label="ma50.lt.ma200")
 
 stratMACROSS <- add.rule(strategy = stratMACROSS,name='ruleSignal', arguments = list(sigcol="ma50.gt.ma200",sigval=TRUE, orderqty=100, ordertype='market', orderside='long'),type='enter')

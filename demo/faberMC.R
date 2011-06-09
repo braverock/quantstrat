@@ -46,16 +46,17 @@
 require(quantstrat)
 
 # Try to clean up in case the demo was run previously
-try(rm("account.faber","portfolio.faber",pos=.blotter),silent=TRUE)
-try(rm("ltaccount","ltportfolio","ClosePrice","CurrentDate","equity","stratFaber","initDate","initEq","Posn","UnitSize","verbose"),silent=TRUE)
-try(rm("order_book.faber",pos=.strategy),silent=TRUE)
+suppressWarnings(rm("account.faber","account.faberMC","portfolio.faber","portfolio.combMC", 
+                        "portfolio.GDAXI", "portfolio.GSPC", "portfolio.N225",pos=.blotter))
+suppressWarnings(rm("ltaccount","ltportfolio","ClosePrice","CurrentDate","equity","stratFaber","initDate","initEq","Posn","UnitSize","verbose"))
+suppressWarnings(rm("order_book.faber","order_book.combMC", "order_book.GDAXI", "order_book.GSPC", "order_book.N225", pos=.strategy))
 
 # Set initial values
-initDate='2007-01-01'
+initDate='2000-01-01'
 initEq=100000
 
 # Set up instruments with FinancialInstruments package
-symbols = c("SPX", "^N225", "^GDAXI")
+symbols = c("^GSPC", "^N225", "^GDAXI")
 
 currency("USD")
 currency("JPY")
@@ -69,7 +70,7 @@ colnames(EURUSD)<-"EURUSD"
 
 getSymbols(symbols,from=initDate)
 #takes out the carat
-symbols = c("SPX", "N225", "GDAXI")
+symbols = c("GSPC", "N225", "GDAXI")
 
 
 stock(symbols[1], currency="USD",multiplier=1)

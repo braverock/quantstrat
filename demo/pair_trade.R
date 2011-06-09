@@ -17,10 +17,10 @@
 # The Qty of Stock A that it buys (sells) = MaxPos / lvls
 # The Qty of Stock B that is sells (buys) = MaxPos * Ratio / lvls  
 
-try(rm("order_book.pair1",pos=.strategy),silent=TRUE)
-try(rm("account.pairs", "portfolio.pair1", pos=.blotter), silent=TRUE)
-try(rm("initDate", "endDate", "startDate", "initEq", "SD", "N", "symb1", "symb2", 
-	"portfolio1.st", "account.st", "pairStrat", "out1"), silent=TRUE)
+suppressWarnings(rm("order_book.pair1",pos=.strategy))
+suppressWarnings(rm("account.pairs", "portfolio.pair1", pos=.blotter))
+suppressWarnings(rm("initDate", "endDate", "startDate", "initEq", "SD", "N", "symb1", "symb2", 
+	"portfolio1.st", "account.st", "pairStrat", "out1"))
 
 require(quantstrat)
 initDate = '2009-01-01'		

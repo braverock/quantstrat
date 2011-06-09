@@ -11,9 +11,9 @@
 
 
 require(quantstrat)
-try(rm("order_book.macd",pos=.strategy),silent=TRUE)
-try(rm("account.macd","portfolio.macd",pos=.blotter),silent=TRUE)
-try(rm("account.st","portfolio.st","stock.str","stratMACD","initDate","initEq",'start_t','end_t'),silent=TRUE)
+suppressWarnings(rm("order_book.macd",pos=.strategy))
+suppressWarnings(rm("account.macd","portfolio.macd",pos=.blotter))
+suppressWarnings(rm("account.st","portfolio.st","stock.str","stratMACD","initDate","initEq",'start_t','end_t'))
 
 stock.str='AAPL' # what are we trying it on
 
