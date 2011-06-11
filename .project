@@ -1,14 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <projectDescription>
-	<name>quantstrat</name>
+	<name>QuantStrat</name>
 	<comment></comment>
 	<projects>
-		<project>blotter</project>
-		<project>FinancialInstrument</project>
-		<project>PerformanceAnalytics</project>
-		<project>PortfolioAnalytics</project>
-		<project>quantmod</project>
-		<project>xts</project>
 	</projects>
 	<buildSpec>
 		<buildCommand>

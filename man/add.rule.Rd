@@ -1,7 +1,8 @@
 \name{add.rule}
 \alias{add.rule}
 \title{add a rule to a strategy...}
-\usage{add.rule(strategy, name, arguments, parameters, label, type=c(NULL, "risk", "order", "rebalance", "exit", "enter"), ..., enabled=TRUE,
+\usage{add.rule(strategy, name, arguments, parameters, label, type=c(NULL,
+    "risk", "order", "rebalance", "exit", "enter"), ..., enabled=TRUE,
     indexnum, path.dep=TRUE, timespan, store=FALSE)}
 \description{add a rule to a strategy}
 \details{Rules will be processed in a very particular manner, so it bears going over.

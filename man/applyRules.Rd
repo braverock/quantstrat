@@ -1,14 +1,19 @@
 \name{applyRules}
 \alias{applyRules}
 \title{apply the rules in the strategy to arbitrary market data...}
-\usage{applyRules(portfolio, symbol, strategy, mktdata, Dates, indicators, signals, parameters, ..., path.dep=TRUE)}
+\usage{applyRules(portfolio, symbol, strategy, mktdata, Dates, indicators,
+    signals, parameters, ..., path.dep=TRUE)}
 \description{apply the rules in the strategy to arbitrary market data}
 \details{In typical usage, this function will be called via \code{\link{applyStrategy}}.  
 In this mode, this function will be called twice, once with \code{path.dep=FALSE} 
 and then again in stepping over the time indexes of the mktdata object.
 
 Individual rule functions may need to use <<- to place \code{hold} and \code{holdtill}
-variables into play.  These would be most likely implemented by risk rules.
+variables into play.  These would be most likely implemented by risk rules.  When
+\code{hold==TRUE}, any open oders will still be processed (orders are \emph{NOT} 
+canceled automatically, but no new orders may be entered.  \code{type='risk'}
+rules will still function during a hold.  Note that hold must be set via a custom
+rule.  We tend to set hold in an order or risk rule. 
 
 \code{quantstrat} has a significant amount of logic devoted to handling 
 path-dependent rule execution.  Most of that code/logic resides in this

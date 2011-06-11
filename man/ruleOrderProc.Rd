@@ -1,7 +1,8 @@
 \name{ruleOrderProc}
 \alias{ruleOrderProc}
 \title{process open orders at time t, generating transactions or new orders...}
-\usage{ruleOrderProc(portfolio, symbol, mktdata, timespan, ordertype, ..., slippageFUN)}
+\usage{ruleOrderProc(portfolio, symbol, mktdata, timespan, ordertype, ...,
+    slippageFUN)}
 \description{process open orders at time \emph{t}, generating transactions or new orders}
 \details{The ruleOrderProc function is effectively the default fill simulator for quantstrat. 
 This function is meant to be sufficient for backtesting most strategies, 

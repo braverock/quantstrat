@@ -1,8 +1,8 @@
 \name{addPosLimit}
 \alias{addPosLimit}
 \title{add position and level limits at timestamp...}
-\usage{addPosLimit(portfolio, symbol, timestamp, maxpos, longlevels = 1,
-                 minpos = -maxpos, shortlevels = longlevels)}
+\usage{addPosLimit(portfolio, symbol, timestamp, maxpos, longlevels=1,
+    minpos=-maxpos, shortlevels=longlevels)}
 \description{add position and level limits at timestamp}
 \details{levels are a simplification of more complex (proprietary) 
 techniques sometimes used for order sizing.  
@@ -17,5 +17,5 @@ them to 1.}
 \item{timestamp}{timestamp coercible to POSIXct that will be the time the order will be inserted on}
 \item{maxpos}{numeric maximum long position for symbol}
 \item{longlevels}{numeric number of levels}
-\item{minpos}{numeric minimum position, default 0 (short allowed use negative number)}
-\item{shortlevels}{numeric number of short levels}}
+\item{minpos}{numeric minimum position, default -minpos (short allowed use negative number)}
+\item{shortlevels}{numeric number of short levels, default longlevels}}

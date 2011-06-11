@@ -1,8 +1,9 @@
 \name{addOrder}
 \alias{addOrder}
 \title{add an order to the order book...}
-\usage{addOrder(portfolio, symbol, timestamp, qty, price, ordertype, side, threshold, status="open", statustimestamp="", delay=1e-05, tmult=FALSE,
-    replace=TRUE, return=FALSE, ..., TxnFees=0)}
+\usage{addOrder(portfolio, symbol, timestamp, qty, price, ordertype, side,
+    threshold, status="open", statustimestamp="", delay=1e-05,
+    tmult=FALSE, replace=TRUE, return=FALSE, ..., TxnFees=0)}
 \description{add an order to the order book}
 \details{It is important to understand that all the order functionality included in \code{quantstrat}
 exists to more closely model a real trading environment both in backtesting and in production.

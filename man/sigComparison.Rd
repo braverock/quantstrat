@@ -1,7 +1,8 @@
 \name{sigComparison}
 \alias{sigComparison}
 \title{generate comparison signal...}
-\usage{sigComparison(label, data=mktdata, columns, relationship=c("gt", "lt", "eq", "gte", "lte"))}
+\usage{sigComparison(label, data=mktdata, columns, relationship=c("gt", "lt",
+    "eq", "gte", "lte"))}
 \description{generate comparison signal}
 \details{Currently, this function compares two columns.  
 Patches to compare an arbitrary number of columns would be gladly accepted.

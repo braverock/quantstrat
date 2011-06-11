@@ -1,13 +1,18 @@
 
 #' default rule to generate a trade order on a signal
 #' 
-#' \code{pricemethod} may be one of 'market', 'opside', or 'maker' 
-#' which will either try to get the price of the 'market' at \code{timestamp} and use this as the order price
-#' or 'opside' which will use the 'ask' price if you're buying and the 'bid' price if you're selling, crossing 
-#' the market at the time of order entry to attempt to set an aggressive price to get the trade.  
-#' The 'maker' \code{pricemethod} will create a pair of orders for both bid and offer, modeling market making 
-#' activities by having orders on both sides.  This will then create an Order.Set, and use the threshold to
-#' set the prices for these orders.
+#' \code{pricemethod} may be one of 
+#'   \itemize{ 
+#'      \item{'market', 'opside', or 'maker'}{ will use the 'ask' price if you're buying and 
+#'            the 'bid' price if you're selling, crossing the market at the time of 
+#'            order entry to attempt to set an aggressive price to get the trade. }
+#' 		\item{'passive', 'work' or 'join'}{ which will join the 'bid' price if you are buying
+#'      	  or join the 'ask' price if you are selling, passively working to make liquidity \
+#'            at the prevailing market price without crossing the market at time of order entry}
+#' 		\item{'maker'}{will create a pair of orders for both bid and offer, modeling 
+#' 		      market making activities by having orders on both sides.  
+#'            This will then create an Order.Set, and use the \code{threshold} to set the prices for these orders.}
+#' } 
 #' 
 #' If \code{threshold} is not numeric or \code{NULL} it should be the character string describing a function that can calculate a threshold.  
 #' Ideally this will be a column lookup on a non-path-dependent indicator calculated in advance.
@@ -27,7 +32,7 @@
 #' @param replace TRUE/FALSE, whether to replace any other open order(s) on this portfolio symbol, default TRUE 
 #' @param delay what delay to add to timestamp when inserting the order into the order book, in seconds
 #' @param osFUN function or text descriptor of function to use for order sizing, default \code{\link{osNoOp}}
-#' @param pricemethod one of 'market', 'opside', or 'maker', see Details
+#' @param pricemethod determines how the order price will be calculated, see Details
 #' @param portfolio text name of the portfolio to place orders in
 #' @param symbol identifier of the instrument to place orders for.  The name of any associated price objects (xts prices, usually OHLC) should match these
 #' @param ... any other passthru parameters
@@ -54,24 +59,27 @@ ruleSignal <- function(data=mktdata, timestamp, sigcol, sigval, orderqty=0, orde
 		#else TxnFees=0
 
 		switch(pricemethod,
-                opside = {
-                    if (is.BBO(data)) {
-                        if (orderqty>0)
-                            prefer='ask'  # we're buying, so pay what they're asking
-                        else
-                            prefer='bid'  # we're selling, so give it to them for what they're bidding
-                    }
-                    orderprice <- try(getPrice(x=data, prefer=prefer))[timestamp]
-				}, 
-                market = {
-                    if(is.BBO(data)){
+                market = ,
+				opside = ,
+				active = {
+                    if(is.BBO(mktdata)){
                         if (orderqty>0) 
                             prefer='bid'  # we're buying, so work the bid price
                         else
-                            prefer='ask'  # we're selling, so work the ask price
-                        
-                    }
+                            prefer='ask'  # we're selling, so work the ask price  
+                    } 
 					orderprice <- try(getPrice(x=data, prefer=prefer))[timestamp] 
+				},
+				passive =,
+				work =,
+				join = {
+					if(is.BBO(mktdata)){
+						if (orderqty>0) 
+							prefer='bid'  # we're buying, so work the bid price
+						else
+							prefer='ask'  # we're selling, so work the ask price
+						
+					}
 				},
 				maker = {
 					if(hasArg(price) & length(match.call(expand.dots=TRUE)$price)>1) {

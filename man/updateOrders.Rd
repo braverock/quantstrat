@@ -1,7 +1,8 @@
 \name{updateOrders}
 \alias{updateOrders}
 \title{update an order or orders...}
-\usage{updateOrders(portfolio, symbol, timespan, ordertype, side, oldstatus="open", newstatus, statustimestamp)}
+\usage{updateOrders(portfolio, symbol, timespan, ordertype, side,
+    oldstatus="open", newstatus, statustimestamp)}
 \description{update an order or orders}
 \details{When an order gets filled, it should have its status moved to 'closed'.
 
