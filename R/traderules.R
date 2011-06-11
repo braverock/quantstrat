@@ -62,18 +62,18 @@ ruleSignal <- function(data=mktdata, timestamp, sigcol, sigval, orderqty=0, orde
                 market = ,
 				opside = ,
 				active = {
-                    if(is.BBO(mktdata)){
+                    if(is.BBO(data)){
                         if (orderqty>0) 
-                            prefer='bid'  # we're buying, so work the bid price
+                            prefer='ask'  # we're buying, so pay what they're asking
                         else
-                            prefer='ask'  # we're selling, so work the ask price  
+                            prefer='bid'  # we're selling, so give it to them for what they're bidding  
                     } 
 					orderprice <- try(getPrice(x=data, prefer=prefer))[timestamp] 
 				},
 				passive =,
 				work =,
 				join = {
-					if(is.BBO(mktdata)){
+					if(is.BBO(data)){
 						if (orderqty>0) 
 							prefer='bid'  # we're buying, so work the bid price
 						else
@@ -139,7 +139,7 @@ ruleSignal <- function(data=mktdata, timestamp, sigcol, sigval, orderqty=0, orde
         
         ## now size the order
         #TODO add fancy formals matching for osFUN
-        orderqty <- osFUN(strategy=strategy, data=mktdata, timestamp=timestamp, orderqty=orderqty, ordertype=ordertype, orderside=orderside, portfolio=portfolio, symbol=symbol,...=...,ruletype=ruletype, orderprice=as.numeric(orderprice))
+        orderqty <- osFUN(strategy=strategy, data=data, timestamp=timestamp, orderqty=orderqty, ordertype=ordertype, orderside=orderside, portfolio=portfolio, symbol=symbol,...=...,ruletype=ruletype, orderprice=as.numeric(orderprice))
         
         
         if(!is.null(orderqty) && !orderqty == 0 && !is.null(orderprice)){ #orderqty could have length > 1
