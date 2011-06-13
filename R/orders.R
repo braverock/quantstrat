@@ -604,7 +604,7 @@ ruleOrderProc <- function(portfolio, symbol, mktdata, timespan=NULL, ordertype=N
                 remqty<-orderQty+pos
                 if(side=="long"){
                     if (remqty<0){
-                        newqty<-orderQty+remqty
+                        newqty<-orderQty-remqty
                         warning("orderQty of ",orderQty," would cross through zero, reducing qty to ",newqty)
                         orderQty<-newqty
                     }
