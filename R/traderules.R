@@ -78,8 +78,8 @@ ruleSignal <- function(data=mktdata, timestamp, sigcol, sigval, orderqty=0, orde
 							prefer='bid'  # we're buying, so work the bid price
 						else
 							prefer='ask'  # we're selling, so work the ask price
-						
 					}
+                    orderprice <- try(getPrice(x=data, prefer=prefer))[timestampe]
 				},
 				maker = {
 					if(hasArg(price) & length(match.call(expand.dots=TRUE)$price)>1) {
