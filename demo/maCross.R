@@ -24,7 +24,7 @@ stratMACROSS<- strategy(portfolio.st)
 stratMACROSS <- add.indicator(strategy = stratMACROSS, name = "SMA", arguments = list(x=quote(Cl(mktdata)), n=50),label= "ma50" )
 stratMACROSS <- add.indicator(strategy = stratMACROSS, name = "SMA", arguments = list(x=quote(Cl(mktdata)), n=200),label= "ma200")
 
-stratMACROSS <- add.signal(strategy = stratMACROSS,name="sigCrossover",arguments = list(columns=c("ma50","ma200"), relationship="gt"),label="ma50.gt.ma200")
+stratMACROSS <- add.signal(strategy = stratMACROSS,name="sigCrossover",arguments = list(columns=c("ma50","ma200"), relationship="gte"),label="ma50.gt.ma200")
 stratMACROSS <- add.signal(strategy = stratMACROSS,name="sigCrossover",arguments = list(column=c("ma50","ma200"),relationship="lt"),label="ma50.lt.ma200")
 
 stratMACROSS <- add.rule(strategy = stratMACROSS,name='ruleSignal', arguments = list(sigcol="ma50.gt.ma200",sigval=TRUE, orderqty=100, ordertype='market', orderside='long'),type='enter')
@@ -58,7 +58,8 @@ add_SMA(n=200, on=1)
 # R (http://r-project.org/) Quantitative Strategy Model Framework
 #
 # Copyright (c) 2009-2010
-# Peter Carl, Dirk Eddelbuettel, Brian G. Peterson, Jeffrey Ryan, and Joshua Ulrich 
+# Peter Carl, Dirk Eddelbuettel, Brian G. Peterson,
+# Jeffrey Ryan, Joshua Ulrich, and Garrett See
 #
 # This library is distributed under the terms of the GNU Public License (GPL)
 # for full details see the file COPYING

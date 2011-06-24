@@ -90,7 +90,7 @@ stratFaber <- add.indicator(strategy = stratFaber, name = "SMA", arguments = lis
 
 # There are two signals:
 # The first is when monthly price crosses over the 10-month SMA
-stratFaber <- add.signal(stratFaber,name="sigCrossover",arguments = list(columns=c("Close","SMA10"),relationship="gt"),label="Cl.gt.SMA")
+stratFaber <- add.signal(stratFaber,name="sigCrossover",arguments = list(columns=c("Close","SMA10"),relationship="gte"),label="Cl.gt.SMA")
 # The second is when the monthly price crosses under the 10-month SMA
 stratFaber <- add.signal(stratFaber,name="sigCrossover",arguments = list(columns=c("Close","SMA10"),relationship="lt"),label="Cl.lt.SMA")
 
@@ -146,7 +146,8 @@ faber.stats
 # R (http://r-project.org/) Quantitative Strategy Model Framework
 #
 # Copyright (c) 2009-2010
-# Peter Carl, Dirk Eddelbuettel, Brian G. Peterson, Jeffrey Ryan, and Joshua Ulrich 
+# Peter Carl, Dirk Eddelbuettel, Brian G. Peterson,
+# Jeffrey Ryan, Joshua Ulrich, and Garrett See
 #
 # This library is distributed under the terms of the GNU Public License (GPL)
 # for full details see the file COPYING
