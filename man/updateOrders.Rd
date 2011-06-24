@@ -1,8 +1,9 @@
 \name{updateOrders}
 \alias{updateOrders}
 \title{update an order or orders...}
-\usage{updateOrders(portfolio, symbol, timespan, ordertype, side,
-    oldstatus="open", newstatus, statustimestamp)}
+\usage{updateOrders(portfolio, symbol, timespan, ordertype = NULL, side =
+                 NULL, qtysign = NULL, oldstatus = "open", newstatus,
+                 statustimestamp)}
 \description{update an order or orders}
 \details{When an order gets filled, it should have its status moved to 'closed'.
 
@@ -19,6 +20,7 @@ Many models will also want to run a process at the close of market that will can
 \item{timespan}{xts-style character timespan to be the period to find orders of the given status and ordertype}
 \item{ordertype}{one of NULL, "market","limit","stoplimit", or "stoptrailing" default NULL}
 \item{side}{one of NULL, "long" or "short", default NULL}
+\item{qtysign}{sign of orderqty: -1, 0, or 1}
 \item{oldstatus}{one of NULL, "open", "closed", "canceled", or "replaced", default "open"}
 \item{newstatus}{one of "open", "closed", "canceled", or "replaced"}
 \item{statustimestamp}{timestamp of a status update, will be blank when order is initiated}}

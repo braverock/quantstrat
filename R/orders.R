@@ -70,7 +70,7 @@ initOrders <- function(portfolio=NULL, symbols=NULL, initDate = '1999-12-31', ..
 #' @param side one of NULL, "long" or "short", default NULL 
 #' @param which.i if TRUE, return the row index numbers rather than the order rows matching the criteria, default FALSE
 #' @export
-getOrders <- function(portfolio,symbol,status="open",timespan=NULL,ordertype=NULL, side=NULL, which.i=FALSE)
+getOrders <- function(portfolio,symbol,status="open",timespan=NULL,ordertype=NULL, side=NULL, qtysign=NULL, which.i=FALSE)
 {
     #if(is.null(timespan)) stop("timespan must be an xts style timestring")
     # get order book
@@ -89,7 +89,8 @@ getOrders <- function(portfolio,symbol,status="open",timespan=NULL,ordertype=NUL
     indices <- which(#if(!is.null(timespan)) ordersubset[timespan,which.i=TRUE] else TRUE &
                      (if(!is.null(status)) ordersubset[,"Order.Status"]==status else TRUE) &
                      (if(!is.null(ordertype)) ordersubset[,"Order.Type"]==ordertype else TRUE) &
-                     (if(!is.null(side)) ordersubset[,"Order.Side"]==side else TRUE)
+                     (if(!is.null(side)) ordersubset[,"Order.Side"]==side else TRUE) &
+                     (if(!is.null(qtysign)) sign(as.numeric(ordersubset[,"Order.Qty"]))==qtysign else TRUE)
                     )
 
     if(isTRUE(which.i)){
@@ -98,7 +99,7 @@ getOrders <- function(portfolio,symbol,status="open",timespan=NULL,ordertype=NUL
         # extract
         ordersubset<-orderbook[[portfolio]][[symbol]][indices,]
         #subset by time
-        if(nrow(ordersubset)>1) ordersubset<-ordersubset[timespan]
+        if(nrow(ordersubset)>1 && !is.null(timespan)) ordersubset<-ordersubset[timespan]
         return(ordersubset)
     }
 }
@@ -260,10 +261,10 @@ addOrder <- function(portfolio, symbol, timestamp, qty, price, ordertype, side, 
     #handle order sets
     #get the order set if length(price)>1
     if(length(price)>1) {
-        order.set<-max(getOrders(portfolio=portfolio, symbol=symbol, status='open', timespan=timespan, ordertype=NULL, side=NULL,which.i=FALSE)$Order.Set)
+        order.set<-max(na.omit(getOrders(portfolio=portfolio, symbol=symbol, status='open', timespan=timespan, ordertype=NULL, side=NULL,which.i=FALSE)$Order.Set))
         if(is.na(order.set)) order.set<-1
     } else {    
-        order.set=NA
+        order.set=1
     }
 
     #set up the other parameters
@@ -289,8 +290,10 @@ addOrder <- function(portfolio, symbol, timestamp, qty, price, ordertype, side, 
         next()
     }
 
+    qtysign <- sign(qty)    
+    
     if(!isTRUE(return)){
-        if(isTRUE(replace)) updateOrders(portfolio=portfolio, symbol=symbol,timespan=timespan, ordertype=ordertype, side=side, oldstatus="open", newstatus="replaced", statustimestamp=timestamp)
+        if(isTRUE(replace)) updateOrders(portfolio=portfolio, symbol=symbol,timespan=timespan, ordertype=ordertype, side=side, qtysign=qtysign, oldstatus="open", newstatus="replaced", statustimestamp=timestamp)
         # get order book
         orderbook <- getOrderBook(portfolio)
         orderbook[[portfolio]][[symbol]]<-rbind(orderbook[[portfolio]][[symbol]],order)
@@ -325,7 +328,7 @@ addOrder <- function(portfolio, symbol, timestamp, qty, price, ordertype, side, 
 #' @param newstatus one of "open", "closed", "canceled", or "replaced"
 #' @param statustimestamp timestamp of a status update, will be blank when order is initiated 
 #' @export
-updateOrders <- function(portfolio, symbol, timespan, ordertype=NULL, side=NULL, oldstatus="open", newstatus, statustimestamp) 
+updateOrders <- function(portfolio, symbol, timespan, ordertype=NULL, side=NULL, qtysign=NULL, oldstatus="open", newstatus, statustimestamp) 
 { 
     #data quality checks
     if(!is.null(oldstatus) & !length(grep(oldstatus,c("open", "closed", "canceled","replaced")))==1) 
@@ -334,12 +337,14 @@ updateOrders <- function(portfolio, symbol, timespan, ordertype=NULL, side=NULL,
         stop(paste("new order status:",newstatus,' must be one of "open", "closed", "canceled", or "replaced"'))
     if(!is.null(side) & !length(grep(side,c('long','short')))==1) 
         stop(paste("side:",side," must be one of 'long' or 'short'"))
+    if(!is.null(qtysign) && (qtysign != -1 && qtysign != 1 && qtysign != 0))
+        stop(paste("qtysign:",qtysign," must be one of -1, 0, or 1"))
     #if(is.null(side)) side<-NA
     if(!is.null(ordertype) & is.na(charmatch(ordertype,c("market","limit","stoplimit","stoptrailing","iceberg")))) 
         stop(paste("ordertype:",ordertype,' must be one of "market","limit","stoplimit","stoptrailing", or "iceberg"'))
     
     # need the ability to pass a range like we do in blotter
-    updatedorders<-getOrders(portfolio=portfolio, symbol=symbol, status=oldstatus, timespan=timespan, ordertype=ordertype, side=side,which.i=TRUE) 
+    updatedorders<-getOrders(portfolio=portfolio, symbol=symbol, status=oldstatus, timespan=timespan, ordertype=ordertype, side=side, qtysign=qtysign, which.i=TRUE) 
     if(length(updatedorders)>=1){
         # get order book 
         #TODO this gets the order book again after it was already retrieved by getOrdersByStatus.  
@@ -403,7 +408,7 @@ ruleOrderProc <- function(portfolio, symbol, mktdata, timespan=NULL, ordertype=N
     
     # get open orders
     procorders=NULL
-    procorders<-getOrders(portfolio=portfolio, symbol=symbol, status="open", timespan=timespan, ordertype=ordertype,which.i=TRUE)
+    procorders<-getOrders(portfolio=portfolio, symbol=symbol, status="open", timespan=timespan, ordertype=ordertype, which.i=TRUE)
     # check for open orders
     if (length(procorders)>=1){
         # get previous bar
