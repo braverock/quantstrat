@@ -604,25 +604,18 @@ ruleOrderProc <- function(portfolio, symbol, mktdata, timespan=NULL, ordertype=N
             #if(!is.null(txnprice) & !isTRUE(is.na(txnprice)))
             if(ifelse(is.null(txnprice),FALSE,!is.na(txnprice))) {  # eliminate warning for is.na(NULL) -- jmu
                 #make sure we don't cross through zero
+
                 pos<-getPosQty(portfolio,symbol,timestamp)
-                side=ordersubset[ii,"Order.Side"]
-                remqty<-orderQty+pos
-                if(side=="long"){
-                    if (remqty<0){
-                        newqty<-orderQty-remqty
-                        warning("orderQty of ",orderQty," would cross through zero, reducing qty to ",newqty)
-                        orderQty<-newqty
-                    }
-                } else {
-                    if (remqty>0){
-                        newqty<-orderQty-remqty
-                        warning("orderQty of",orderQty,"would cross through zero, reducing qty to",newqty)
-                        orderQty<-newqty
-                    }
+                              pos<-getPosQty(portfolio,symbol,timestamp)
+                if ( (pos > 0 && orderQty < -pos) || (pos < 0 && orderQty > -pos) ){
+                    warning("orderQty of ",orderQty,
+                            " would cross through zero, adjusting qty to ",-pos)                       
+                    orderQty <- -pos
                 }
-                if(orderQty!=0){
+                if (orderQty != 0) {
                     #now add the transaction
-                    addTxn(Portfolio=portfolio, Symbol=symbol, TxnDate=txntime, TxnQty=orderQty, TxnPrice=txnprice , ...=..., TxnFees=txnfees)
+                    addTxn(Portfolio=portfolio, Symbol=symbol, TxnDate=txntime, 
+                                 TxnQty=orderQty, TxnPrice=txnprice , ...=..., TxnFees=txnfees)
                     ordersubset[ii,"Order.Status"]<-'closed'
                     ordersubset[ii,"Order.StatusTime"]<-as.character(timestamp)
                 } 
