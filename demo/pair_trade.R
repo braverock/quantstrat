@@ -156,7 +156,7 @@ osSpreadMaxPos <- function (data, timestamp, orderqty, ordertype, orderside, por
 	if (!is.null(orderqty) & !orderqty == 0 & !is.null(orderprice)) {
             addOrder(portfolio = portfolio, symbol = symbol, 
                 timestamp = timestamp, qty = orderqty, price = as.numeric(orderprice), 
-                ordertype = ordertype, side = orderside, 
+                ordertype = ordertype, side = orderside, replace = FALSE,
                 status = "open", ... = ...)
     }
 	return(0) #so that ruleSignal function doesn't also try to place an order
