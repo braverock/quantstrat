@@ -63,9 +63,9 @@ currency("JPY")
 currency("EUR")
 
 #get the currencies
-JPYUSD<-getPrice(to.monthly(getSymbols("JPY=X",auto.assign=FALSE),indexAt='lastof',drop.time=TRUE))
+USDJPY<-getPrice(to.monthly(getSymbols("JPY=X",auto.assign=FALSE),indexAt='lastof',drop.time=TRUE))
 EURUSD<-getPrice(to.monthly(getSymbols("EURUSD=X",auto.assign=FALSE),indexAt='lastof',drop.time=TRUE))
-colnames(JPYUSD)<-"JPYUSD"
+colnames(USDJPY)<-"USDJPY"
 colnames(EURUSD)<-"EURUSD"
 
 getSymbols(symbols,from=initDate)
