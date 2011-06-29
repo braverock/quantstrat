@@ -4,7 +4,7 @@ Title: Quantitative Strategy Model Framework
 Version: 0.5.0
 Date: $Date$
 Author: Peter Carl, Dirk Eddelbuettel, Brian G. Peterson, 
-        Jeffrey A. Ryan, Joshua Ulrich, Garrett See
+        Jeffrey A. Ryan, Joshua Ulrich, Garrett See, Yu Chen
 Depends: xts(>= 0.7-6.15),TTR(>= 0.2),blotter(>= 0.7.2),
     FinancialInstrument, quantmod (>= 0.3-14)
 Suggests: PerformanceAnalytics,PortfolioAnalytics
