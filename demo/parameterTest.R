@@ -6,6 +6,7 @@
 
 
 #please run bbands demo before all these...
+paramStructure<-getParameterTable(stratBBands)
 
 tPD<-setParameterDistribution() 
 
@@ -27,10 +28,14 @@ tPD
 
 
 # Just provide leagal values and use random sampling.
-tPD<-setParameterDistribution(tPD,'indicator',indexnum=1,distribution=list(sd=(1:3)),weight=c(.25,.25,.5))
-tPD<-setParameterDistribution(tPD,'signal',indexnum=2,distribution=list(sd=1:10),weight=1:10)
-tPD<-setParameterDistribution(tPD,'signal',indexnum=3,distribution=list(n=20:30))
+tPD<-setParameterDistribution(tPD,'indicator',indexnum=1,distribution=list(sd=(1:3)),weight=c(.25,.25,.5),label='sd')
+tPD<-setParameterDistribution(tPD,'signal',indexnum=2,distribution=list(relationship=c("lt","lte")),label='rel')
+#tPD<-setParameterDistribution(tPD,'signal',indexnum=2,distribution=list(relationship=c("lte")))
+tPD<-setParameterDistribution(tPD,'indicator',indexnum=1,distribution=list(n=20:30),label='n')
 
-testPackList<-applyParameter(strategy=stratBBands,portfolios='bbands',parameterPool=tPD,method='random',sampleSize=5)
+#pConstr<-setParameterConstraint()
+pConstraint<-setParameterConstraint(constraintLabel='PC1',paramList=c('sd','n'),relationship='gt')
+
+testPackList<-applyParameter(strategy=stratBBands,portfolios='bbands',parameterPool=tPD,method='random',sampleSize=2,parameterConstrains=pConstraint)
 
 
