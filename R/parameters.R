@@ -7,7 +7,7 @@
 #' @param label 
 #' @param ... 
 #' @param store 
-# @export
+#' @export
 add.parameter <- 
 		function (strategy, 
 				type = c('indicator','signal'), 
@@ -74,7 +74,7 @@ paramLookup <- function(strategy, symbol , type, name, parameter, ...) {
 #' @param type 
 #' @param name 
 #' @param paramTable 
-# @export
+#' @export
 add.paramLookupTable <- function(strategy, type, name, paramTable){
 	assign(paste(strategy,type,name,'table',pos=.strategy),paramTable)
 }
@@ -126,8 +126,6 @@ getParams <- function (strategy, symbol, type, name)
 #' Extract the parameter structure from a strategy object.
 #' @param strategy The name of the strategy
 #' @param staticSwitch 
-#' @returnType 
-#' @return 
 #' @author CCD
 #' @export
 getParameterTable<-function (strategy,staticSwitch){
@@ -203,8 +201,6 @@ getParameterMatrix<-function(paraStructure){
 #' @param distribution 
 #' @param weight 
 #' @param psindex 
-#' @returnType 
-#' @return 
 #' @author Yu Chen
 #' @export
 setParameterDistribution<-function(paramDist=NULL,type=NULL,indexnum=0,distribution=NULL,weight,label,psindex=NULL){#All is needed, set to illegal values
@@ -249,8 +245,6 @@ setParameterDistribution<-function(paramDist=NULL,type=NULL,indexnum=0,distribut
 #' @param parameterPool a paramter set object include all the parameter legal values and distribution/weights.
 #' @param method string 'expand' or 'random' how to generate samples of parameters.
 #' @param sampleSize 
-#' @returnType 
-#' @return 
 #' @author Yu Chen
 #' @export
 applyParameter<-function(strategy,portfolios,parameterPool,parameterConstrains,method,sampleSize){
@@ -295,7 +289,7 @@ applyParameter<-function(strategy,portfolios,parameterPool,parameterConstrains,m
 	
 	if (method=='expand') 
 	{
-		paramTable<-expand.grid(paramdist)
+		paramTable<-expand.grid(paramdist, stringsAsFactors=FALSE)
 	}
 	else if (method=='random')
 	{
@@ -597,8 +591,6 @@ paramConstraint <- function(label,data=mktdata, columns, relationship=c("gt","lt
 #' @param constrainlabel 
 #' @param paramList 
 #' @param relationship 
-#' @returnType 
-#' @return 
 #' @author CCD
 #' @export
 setParameterConstraint<-function(paramConstraintObj=list(),constraintLabel,paramList,relationship)
