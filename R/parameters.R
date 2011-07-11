@@ -388,7 +388,7 @@ applyParameter<-function(strategy,portfolios,parameterPool,parameterConstrains,m
 						pnamepos<-pmatch(names(targ1),names(tmp_arg),nomatch=0L)
 						if( any(pnamepos>0)){
 							#just change the argument value itself will do ?or still need add.indicator??
-							tmp_strategy$signal[[tmp_index]]$arguments[which(pnamepos>0)]<-tmp_arg[1]
+							tmp_strategy$indicators[[tmp_index]]$arguments[which(pnamepos>0)]<-tmp_arg[1]
 						}
 						else{
 							tmp_strategy$indicators[[tmp_index]]$arguments<-append(targ1,tmp_arg)
@@ -423,7 +423,7 @@ applyParameter<-function(strategy,portfolios,parameterPool,parameterConstrains,m
 						pnamepos<-pmatch(names(targ1),names(tmp_arg),nomatch=0L)
 						if( any(pnamepos>0)){
 							#just change the argument value itself will do ?or still need add.indicator??
-							tmp_strategy$signal[[tmp_index]]$arguments[which(pnamepos>0)]<-tmp_arg[1]
+							tmp_strategy$rules$order[[tmp_index]]$arguments[which(pnamepos>0)]<-tmp_arg[1]
 						}
 						else{
 							tmp_strategy$rules$order[[tmp_index]]$arguments<-append(targ1,tmp_arg)
@@ -436,7 +436,7 @@ applyParameter<-function(strategy,portfolios,parameterPool,parameterConstrains,m
 						pnamepos<-pmatch(names(targ1),names(tmp_arg),nomatch=0L)
 						if( any(pnamepos>0)){
 							#just change the argument value itself will do ?or still need add.indicator??
-							tmp_strategy$signal[[tmp_index]]$arguments[which(pnamepos>0)]<-tmp_arg[1]
+							tmp_strategy$rules$enter[[tmp_index]]$arguments[which(pnamepos>0)]<-tmp_arg[1]
 						}
 						else{
 							tmp_strategy$rules$enter[[tmp_index]]$arguments<-append(targ1,tmp_arg)
@@ -449,7 +449,7 @@ applyParameter<-function(strategy,portfolios,parameterPool,parameterConstrains,m
 						pnamepos<-pmatch(names(targ1),names(tmp_arg),nomatch=0L)
 						if( any(pnamepos>0)){
 							#just change the argument value itself will do ?or still need add.indicator??
-							tmp_strategy$signal[[tmp_index]]$arguments[which(pnamepos>0)]<-tmp_arg[1]
+							tmp_strategy$rules$exit[[tmp_index]]$arguments[which(pnamepos>0)]<-tmp_arg[1]
 						}
 						else{
 							tmp_strategy$rules$exit[[tmp_index]]$arguments<-append(targ1,tmp_arg)
