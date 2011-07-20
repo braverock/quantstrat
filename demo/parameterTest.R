@@ -8,7 +8,7 @@
 #please run bbands demo before all these...
 paramStructure<-getParameterTable(stratBBands)
 
-tPD<-setParameterDistribution() 
+#tPD<-setParameterDistribution() need no more for initial object. 
 
 #Do expand test
 #tPD<-setParameterDistribution(tPD,'indicator',indexnum=1,distribution=list(sd=(1:3)))
@@ -22,7 +22,8 @@ tPD<-setParameterDistribution()
 
 
 
-tPD
+#tPD
+
 #debug(applyParameter)
 #undebug(applyParameter)
 
