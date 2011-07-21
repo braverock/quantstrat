@@ -300,6 +300,10 @@ applyParameter<-function(strategy,portfolios,parameterPool,parameterConstrains,m
 	
 	testPackList<-list()
 	testPackList$stats<-NULL
+	
+	testPackListPRLStructure<-list()
+	testPackListPRLStructure$stats<-NULL
+	
 	testPack<-list()
 	
 	if (!is.strategy(tmp_strategy)) {
@@ -419,10 +423,57 @@ applyParameter<-function(strategy,portfolios,parameterPool,parameterConstrains,m
 	
 	psize=nrow(paramTable)
 	print(psize)
-	#for (i in 1:nrow(paramTable)){
-	foreach (i = 1:psize) %do% 
-	#TODO check %dopar problem updateportf
+	
+	
+	#	
+	
+	
+	#for (i in 1:nrow(paramTable))
+	instruments<-as.list(.instrument)
+	getSymbols<-as.list(.getSymbols)
+	blotter<-as.list(.blotter)
+	
+	#Pack all symbols downloaded in .GlobalEnv
+	symbols<-names(.getSymbols)
+	
+	testPackListPRL<-foreach (i = 1:psize, .export=c('instruments',symbols,'getSymbols','blotter','tmp_strategy'),.verbose=TRUE) %dopar% 
+			#TODO check %dopar problem updateportf
 			{								
+				.instrument<-as.environment(instruments)
+				.getSymbols<-as.environment(getSymbols)
+				.blotter<-as.environment(blotter)
+				
+				length(instruments$wer)
+				
+			#Unpack symbols to worker. change later.
+			#seems need to go through assign, rather than just .export the names...
+
+			for (sym in symbols) {
+				assign(sym, eval(as.name(sym)), .GlobalEnv)
+			}
+
+#			
+#			assign('AAPL',AAPL,.GlobalEnv)
+#				length(AAPL)
+#				length(.getSymbols$AAPL)
+#				
+				
+				
+				library(blotter)
+				require(FinancialInstrument)
+				require(quantstrat)
+				
+				#Pass values to each process, for parallel execution.
+#				currency('USD')
+#				stock(stock.str,currency='USD',multiplier=1)# for .instrument
+#				
+#				getSymbols('IBM',from=initDate)
+				
+				
+				#Create a copy of strategy object.	
+				PLtmp_strategy<-tmp_strategy
+				
+				#Start extract parameter from table.	
 				for (j in 1:ncol(paramTable)){
 					
 					tmp_arg<-parameterPool[[j]]$distribution[1] #Just get the list form with name
@@ -438,77 +489,77 @@ applyParameter<-function(strategy,portfolios,parameterPool,parameterConstrains,m
 					
 					switch(parameterPool[[j]]$type,
 							'indicator'={
-								#merge.list uses another package. tmp_strategy$indicators[[tmp_index]]$arguments<-merge.list(targ1,tmp_arg)
-								targ1<-tmp_strategy$indicators[[tmp_index]]$arguments
+								#merge.list uses another package. PLtmp_strategy$indicators[[tmp_index]]$arguments<-merge.list(targ1,tmp_arg)
+								targ1<-PLtmp_strategy$indicators[[tmp_index]]$arguments
 								
 								pnamepos<-pmatch(names(targ1),names(tmp_arg),nomatch=0L)
 								if( any(pnamepos>0)){
 									#just change the argument value itself will do ?or still need add.indicator??
-									tmp_strategy$indicators[[tmp_index]]$arguments[which(pnamepos>0)]<-tmp_arg[1]
+									PLtmp_strategy$indicators[[tmp_index]]$arguments[which(pnamepos>0)]<-tmp_arg[1]
 								}
 								else{
-									tmp_strategy$indicators[[tmp_index]]$arguments<-append(targ1,tmp_arg)
+									PLtmp_strategy$indicators[[tmp_index]]$arguments<-append(targ1,tmp_arg)
 									
 								}
 								#OR still need add.*??
 								#pass_arg<-append(,tmp_arg)
-								#tmp_strategy <- add.indicator(strategy = tmp_strategy,name=tmp_strategy$indicators[[tmp_index]]$name, arguments = pass_arg,indexnum=tmp_index)
+								#PLtmp_strategy <- add.indicator(strategy = PLtmp_strategy,name=PLtmp_strategy$indicators[[tmp_index]]$name, arguments = pass_arg,indexnum=tmp_index)
 							},
 							'signal'={
 								
-								targ1<-tmp_strategy$signals[[tmp_index]]$arguments
+								targ1<-PLtmp_strategy$signals[[tmp_index]]$arguments
 								
 								pnamepos<-pmatch(names(targ1),names(tmp_arg),nomatch=0L)
 								if( any(pnamepos>0)){
 									#just change the argument value itself will do ?or still need add.indicator??
 									
-									tmp_strategy$signals[[tmp_index]]$arguments[which(pnamepos>0)]<-tmp_arg[1]
+									PLtmp_strategy$signals[[tmp_index]]$arguments[which(pnamepos>0)]<-tmp_arg[1]
 								}
 								else{
-									tmp_strategy$signals[[tmp_index]]$arguments<-append(targ1,tmp_arg)
+									PLtmp_strategy$signals[[tmp_index]]$arguments<-append(targ1,tmp_arg)
 									
 								}
 								
-#						pass_arg<-append(tmp_strategy$signal[[tmp_index]]$arguments,tmp_arg)
-#						tmp_strategy <- add.signal(strategy = tmp_strategy,name=tmp_strategy$signal[[tmp_index]]$name,arguments = tmp_arg,indexnum=tmp_index)
+#						pass_arg<-append(PLtmp_strategy$signal[[tmp_index]]$arguments,tmp_arg)
+#						PLtmp_strategy <- add.signal(strategy = PLtmp_strategy,name=PLtmp_strategy$signal[[tmp_index]]$name,arguments = tmp_arg,indexnum=tmp_index)
 								
 							},
 							'order'={
-								targ1<-tmp_strategy$rules$order[[tmp_index]]$arguments
+								targ1<-PLtmp_strategy$rules$order[[tmp_index]]$arguments
 								
 								pnamepos<-pmatch(names(targ1),names(tmp_arg),nomatch=0L)
 								if( any(pnamepos>0)){
 									#just change the argument value itself will do ?or still need add.indicator??
-									tmp_strategy$rules$order[[tmp_index]]$arguments[which(pnamepos>0)]<-tmp_arg[1]
+									PLtmp_strategy$rules$order[[tmp_index]]$arguments[which(pnamepos>0)]<-tmp_arg[1]
 								}
 								else{
-									tmp_strategy$rules$order[[tmp_index]]$arguments<-append(targ1,tmp_arg)
+									PLtmp_strategy$rules$order[[tmp_index]]$arguments<-append(targ1,tmp_arg)
 									
 								}
 							},
 							'enter'={
-								targ1<-tmp_strategy$rules$enter[[tmp_index]]$arguments
+								targ1<-PLtmp_strategy$rules$enter[[tmp_index]]$arguments
 								
 								pnamepos<-pmatch(names(targ1),names(tmp_arg),nomatch=0L)
 								if( any(pnamepos>0)){
 									#just change the argument value itself will do ?or still need add.indicator??
-									tmp_strategy$rules$enter[[tmp_index]]$arguments[which(pnamepos>0)]<-tmp_arg[1]
+									PLtmp_strategy$rules$enter[[tmp_index]]$arguments[which(pnamepos>0)]<-tmp_arg[1]
 								}
 								else{
-									tmp_strategy$rules$enter[[tmp_index]]$arguments<-append(targ1,tmp_arg)
+									PLtmp_strategy$rules$enter[[tmp_index]]$arguments<-append(targ1,tmp_arg)
 									
 								}						
 							},
 							'exit'={
-								targ1<-tmp_strategy$rules$exit[[tmp_index]]$arguments
+								targ1<-PLtmp_strategy$rules$exit[[tmp_index]]$arguments
 								
 								pnamepos<-pmatch(names(targ1),names(tmp_arg),nomatch=0L)
 								if( any(pnamepos>0)){
 									#just change the argument value itself will do ?or still need add.indicator??
-									tmp_strategy$rules$exit[[tmp_index]]$arguments[which(pnamepos>0)]<-tmp_arg[1]
+									PLtmp_strategy$rules$exit[[tmp_index]]$arguments[which(pnamepos>0)]<-tmp_arg[1]
 								}
 								else{
-									tmp_strategy$rules$exit[[tmp_index]]$arguments<-append(targ1,tmp_arg)
+									PLtmp_strategy$rules$exit[[tmp_index]]$arguments<-append(targ1,tmp_arg)
 									
 								}
 							}
@@ -518,7 +569,6 @@ applyParameter<-function(strategy,portfolios,parameterPool,parameterConstrains,m
 #Initial portfolio for each test		
 				#######################################################################################
 				
-				library(blotter)
 				
 #TODO will move out later, as parameter or put in a obj of TestPack.
 				#initDate='2010-12-31'
@@ -538,24 +588,29 @@ applyParameter<-function(strategy,portfolios,parameterPool,parameterConstrains,m
 				
 				print('Initial portf')
 				
-				initPortf(testPack$portfolio.st,symbols=stock.str, initDate=initDate)
 				
-				try({
-							initAcct(testPack$account.st,testPack$portfolio.st, initDate=initDate)
-							initOrders(portfolio=testPack$portfolio.st,initDate=initDate)
-						})
+				
+#			try({})
+				
+				try(rm(paste("order_book",portfolio.st,sep='.'),pos=.strategy),silent=TRUE)
+				try(rm(paste("account",portfolio.st,sep='.'),paste("portfolio",portfolio.st,sep='.'),pos=.blotter),silent=TRUE)
+				
+				try({initPortf(testPack$portfolio.st,symbols=stock.str, initDate=initDate)})
+				try({initAcct(testPack$account.st,testPack$portfolio.st, initDate=initDate)})
+				try({initOrders(portfolio=testPack$portfolio.st,initDate=initDate)})
+				
 				
 # Apply strategy ######################################################################################
 				print("Apply strategy...")
 				
-				try(rm("tmp_strategy",pos=.strategy),silent=TRUE)
+				try(rm("PLtmp_strategy",pos=.strategy),silent=TRUE)
 				
-				print(tmp_strategy$signals[[2]])
+				print(PLtmp_strategy$signals[[2]])
 				
-				assign("tmp_strategy1",tmp_strategy,envir=as.environment(.strategy))
+				assign("PLtmp_strategy1",PLtmp_strategy,envir=as.environment(.strategy))
 				
-				testPack$out<-try(applyStrategy(strategy=tmp_strategy , portfolios=testPack$portfolio.st ))
-				testPack$strategy<-tmp_strategy
+				testPack$out<-try(applyStrategy(strategy=PLtmp_strategy , portfolios=testPack$portfolio.st ))
+				testPack$strategy<-PLtmp_strategy
 				
 # 	Update portfolio ######################################################################################
 				
@@ -567,8 +622,7 @@ applyParameter<-function(strategy,portfolios,parameterPool,parameterConstrains,m
 				#				})
 				
 				
-				updatePortf(Portfolio=testPack$portfolio.st,Dates=paste('::',as.Date(Sys.time()),sep=''))
-				
+				try(updatePortf(Portfolio=testPack$portfolio.st,Dates=paste('::',as.Date(Sys.time()),sep='')))
 				
 				#? what to do with account?
 				#updateAcct(account.st,Dates=paste(startDate,endDate,sep="::")) 
@@ -579,16 +633,33 @@ applyParameter<-function(strategy,portfolios,parameterPool,parameterConstrains,m
 				
 				testPack$stats<-tradeStats(Portfolios=testPack$portfolio.st)
 				
-				testPackList$stats<-rbind(testPackList$stats,cbind(testPack$parameters,testPack$stats))
+				#TODO combine the stats outside the foreach loop.
+				#length(werqewr)
 				
 				
 # replaced -- testPackList[[i]]<-testPack
-				testPackList[[paste(testPack$portfolio.st)]]<-testPack
+				#testPackList[[paste(testPack$portfolio.st)]]<-testPack
+				return(testPack)
 				
 			}	# Loop i
 	
 	
-	return(testPackList)
+	for (k in 1: nrow(paramTable)){
+		
+		testPackListPRLStructure$statsTable<-rbind(testPackListPRLStructure$stats,cbind(testPackListPRL[[k]]$parameters,testPackListPRL[[k]]$stats))
+		names(testPackListPRL)[k]<-testPackListPRL[[k]]$portfolio.st
+		
+	}
+	
+#	return(testPackList)
+	testPackListPRLStructure$eachRun<-testPackListPRL
+	testPackListPRLStructure$paramTable<-paramTable
+	testPackListPRLStructure$paramConstrainTable<-data.frame(parameterConstrains)
+	
+	testPackListPRLStructure$parameterDistribution<-parameterPool
+	testPackListPRLStructure$parameterConstrains<-parameterConstrains
+	
+	return(testPackListPRLStructure)
 	
 }
 
