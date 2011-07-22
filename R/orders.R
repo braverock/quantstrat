@@ -483,20 +483,40 @@ ruleOrderProc <- function(portfolio, symbol, mktdata, timespan=NULL, ordertype=N
                         } else if(isBBOmktdata){
                             # check side/qty
                             if(orderQty > 0){ # positive quantity 'buy'
-                                if(orderPrice >= as.numeric(getPrice(mktdataTimestamp,prefer='ask')[,1])){
-                                    # price we're willing to pay is higher than the offer price, so execute at the prevailing price
-                                    #txnprice = orderPrice
-                                    txnprice = as.numeric(getPrice(mktdataTimestamp,prefer='ask')[,1]) #presumes unique timestamps
-                                    txntime = timestamp
-                                } else next()
+                                if (orderType == 'stoplimit') {
+                                       if(orderPrice <= as.numeric(getPrice(mktdataTimestamp,prefer='ask')[,1])){
+                                        # mktprice moved above our stop buy price 
+                                        txnprice = orderPrice #assume we got filled at our stop price
+                                        #txnprice = as.numeric(getPrice(mktdataTimestamp,prefer='ask')[,1]) #presumes unique timestamps
+                                        txntime = timestamp
+                                       } else next()
+                                } else {
+                                    if(orderPrice >= as.numeric(getPrice(mktdataTimestamp,prefer='ask')[,1])){
+                                        # price we're willing to pay is higher than the offer price, so execute at the prevailing price
+                                        #txnprice = orderPrice
+                                        txnprice = as.numeric(getPrice(mktdataTimestamp,prefer='ask')[,1]) #presumes unique timestamps
+                                        txntime = timestamp
+                                    } else next()
+                                }
                             } else { # negative quantity 'sell'
-                                if(orderPrice <= as.numeric(getPrice(mktdataTimestamp,prefer='bid')[,1])){
-                                    # we're willing to sell at a better price than the bid, so execute at the prevailing price
-                                    # txnprice = orderPrice
-                                    txnprice = as.numeric(getPrice(mktdataTimestamp,prefer='bid')[,1]) #presumes unique timestamp
-                                    txntime = timestamp
-                                } else next()
+                                if (orderType == 'stoplimit') {
+                                    if(orderPrice >= as.numeric(getPrice(mktdataTimestamp,prefer='bid')[,1])){
+                                        # mktprice moved below our stop sell price
+                                        txnprice = orderPrice #assumption is that we're filled at our stop price
+                                        #txnprice = as.numeric(getPrice(mktdataTimestamp,prefer='bid')[,1]) #presumes unique timestamp
+                                        txntime = timestamp
+                                    } else next()
+                                } else {
+                                    if(orderPrice <= as.numeric(getPrice(mktdataTimestamp,prefer='bid')[,1])){
+                                        # we're willing to sell at a better price than the bid, so execute at the prevailing price
+                                        # txnprice = orderPrice
+                                        txnprice = as.numeric(getPrice(mktdataTimestamp,prefer='bid')[,1]) #presumes unique timestamp
+                                        txntime = timestamp
+                                    } else next()
+                               } 
                             }
+
+
                             if( orderType == 'iceberg'){
                                 #we've transacted, so the old order was closed, put in a new one
                                 neworder<-addOrder(portfolio=portfolio,

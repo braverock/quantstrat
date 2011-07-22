@@ -334,6 +334,7 @@ applyRules <- function(portfolio, symbol, strategy, mktdata, Dates=NULL, indicat
         dindex<-get.dindex()
         #message(dindex," in nextIndex(), at ",curIndex)
 
+        hasmktord <- FALSE
         nidx=FALSE
         neworders=NULL
         
@@ -360,14 +361,53 @@ applyRules <- function(portfolio, symbol, strategy, mktdata, Dates=NULL, indicat
                                 
                     #if any type is market    
                     # set to curIndex+1
-                    curIndex<-curIndex+1
-                    if (is.na(curIndex) || curIndex > length(index(mktdata))) curIndex=FALSE
-                    return(curIndex) # move to next index, a market order in this index would have trumped any other open order
+                    #curIndex<-curIndex+1
+                    if (is.na(curIndex) || (curIndex + 1) > length(index(mktdata))) curIndex=FALSE
+                    hasmktord <- TRUE                    
+                    #return(curIndex) # move to next index, a market order in this index would have trumped any other open order
                 } 
                 if (!length(grep('limit',ordersubset[oo.idx,'Order.Type']))==0){ # process limit orders
                     #else limit
                     #print("limit")
+                    stoplimitorders <- grep('stoplimit',ordersubset[oo.idx,'Order.Type'])
                     limitorders<-grep('limit',ordersubset[oo.idx,'Order.Type'])
+                    limitorders <- limitorders[-stoplimitorders]
+
+                    for (slorder in stoplimitorders) {
+                        dindex <- get.dindex()
+                        tmpqty <- as.numeric(ordersubset[oo.idx[slorder],'Order.Qty'])
+                        tmpprice <- as.numeric(ordersubset[oo.idx[slorder],'Order.Price'])
+                        if (tmpqty > 0) { #buy if mktprice moves above stoplimitorder price
+                            relationship='gte'  #if the Ask or Hi go above threshold our stop will be filled
+                            if(isBBOmktdata) {
+                                col<-first(colnames(mktdata)[has.Ask(mktdata,which=TRUE)])
+                            } else if (isOHLCmktdata) {
+                                col<-first(colnames(mktdata)[has.Hi(mktdata,which=TRUE)])
+                            } else {
+                                # We should never hit this code, but it should help us find any edge cases
+                                # like perhaps we need a has.Price check
+                                stop("no price discernable for stoplimit in applyRules")
+                            }
+                        } else { #sell if mktprice moves below stoplimitorder price
+                            relationship="lte" #if Bid or Lo go below threshold, our stop will be filled
+                            if(isBBOmktdata) {
+                                col<-first(colnames(mktdata)[has.Bid(mktdata,which=TRUE)])
+                            } else if (isOHLCmktdata) {
+                                col<-first(colnames(mktdata)[has.Lo(mktdata,which=TRUE)])
+                            } else {
+                                # We should never hit this code, but it should help us find any edge cases
+                                stop("no price discernable for stoplimit in applyRules")
+                            }
+                        } 
+                        cross<-sigThreshold(label='tmpstop',column=col,threshold=tmpprice,relationship=relationship)
+                        if(any(cross[timespan])){
+                            # find first index that would cross after this index
+                            newidx <- curIndex + which(cross[timespan])[1] 
+                            # insert that into dindex
+                            assign.dindex(c(get.dindex(),newidx))                  
+                        }
+                    }
+
                     for (lorder in limitorders){
                         dindex<-get.dindex()
                         tmpqty<-as.numeric(ordersubset[oo.idx[lorder],'Order.Qty'])
@@ -488,7 +528,7 @@ applyRules <- function(portfolio, symbol, strategy, mktdata, Dates=NULL, indicat
                 } # end if for trailing orders
             } # end else clause for any open orders in this timespan    
         } # end any open orders closure
-        if(nidx) { #This will never evaluate to TRUE; if it has a purpose, it's a bug. -gsee
+        if(hasmktord) { 
             curIndex <- curIndex+1
             dindex<-get.dindex()
         } else {
