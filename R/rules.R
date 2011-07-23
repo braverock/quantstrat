@@ -402,7 +402,7 @@ applyRules <- function(portfolio, symbol, strategy, mktdata, Dates=NULL, indicat
                         cross<-sigThreshold(label='tmpstop',column=col,threshold=tmpprice,relationship=relationship)
                         if(any(cross[timespan])){
                             # find first index that would cross after this index
-                            newidx <- curIndex + which(cross[timespan])[1] 
+                            newidx <- curIndex + which(cross[timespan])[1] - 1
                             # insert that into dindex
                             assign.dindex(c(get.dindex(),newidx))                  
                         }
