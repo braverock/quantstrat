@@ -392,6 +392,11 @@ updateOrders <- function(portfolio, symbol, timespan, ordertype=NULL, side=NULL,
 #' @concept fill simulator
 #' @concept orders  
 #' @concept backtest
+#' 
+#' This function is meant to be sufficient for backtesting most strategies, 
+#' but would need to be replaced for production use.  It provides the interface 
+#' for taking the order book and determining when orders become trades.
+#'  
 #' @param portfolio text name of the portfolio to associate the order book with
 #' @param symbol identfier of the instrument to find orders for.  The name of any associated price objects (xts prices, usually OHLC or BBO) should match these
 #' @param mktdata an xts object containing market data.  depending on indicators, may need to be in OHLCV or BBO formats, default NULL
