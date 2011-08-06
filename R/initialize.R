@@ -30,7 +30,7 @@ add.init <- function(strategy, name, arguments, parameters=NULL, label=NULL, ...
     tmp_init$call<-match.call()
     class(tmp_init)<-'strat_init'
     
-    strategy$inits[[indexnum]]<-tmp_init
+    strategy$init[[indexnum]]<-tmp_init
     
     if (store) assign(strategy$name,strategy,envir=as.environment(.strategy))
     else return(strategy)

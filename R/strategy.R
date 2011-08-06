@@ -46,6 +46,8 @@ strategy <- function(name, ..., assets=NULL, constraints=NULL ,store=FALSE)
                             signals = list(),
                             rules = rules,
                             constraints = NULL,
+                            init =list(),
+                            wrapup = list(),
                             call = match.call()
                     ),
                     class=c("strategy")
