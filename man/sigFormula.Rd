@@ -1,14 +1,39 @@
 \name{sigFormula}
 \alias{sigFormula}
-\title{generate a signal from a formula...}
-\usage{sigFormula(label, data=mktdata, formula, cross=FALSE)}
-\description{generate a signal from a formula}
-\details{This code takes advantage of some base R functionality that can treat an R object (in this case the internal mktdata object in quantstrat) as an enfironment or 'frame' using \code{\link{parent.frame}}.  
-This allows the columns of the data to be addressed without any major manipulation, simply by column name.  In most cases in quantstrat, this will be either the price/return columns, or columns added by indicators or prior signals.
-The formula will return TRUE/FALSE for each row comparison as a time series column which can then be used for rule execution.  The \code{formula} will be evaluated using \code{\link{eval}} as though in an if statement. 
+\title{generate a signal from a formula}
+\usage{
+  sigFormula(label, data = mktdata, formula, cross = FALSE)
+}
+\arguments{
+  \item{label}{text label to apply to the output}
 
-This code is adapted from the approach used by Vijay Vaidyanthan in his PAST(AAII/SIPRO) code to construct arbitrary, formulaic, comparisons.  Many thanks to Vijay for sharing his expertise.}
-\arguments{\item{label}{text label to apply to the output}
-\item{data}{data to apply formula to}
-\item{formula}{a logical expression like that used in an if statement, will typically reference column names in \code{mktdata}}
-\item{cross}{if TRUE, will return TRUE only for the first observation to match the formula in a run}}
+  \item{data}{data to apply formula to}
+
+  \item{formula}{a logical expression like that used in an
+  if statement, will typically reference column names in
+  \code{mktdata}}
+
+  \item{cross}{if TRUE, will return TRUE only for the first
+  observation to match the formula in a run}
+}
+\description{
+  This code takes advantage of some base R functionality
+  that can treat an R object (in this case the internal
+  mktdata object in quantstrat) as an enfironment or
+  'frame' using \code{\link{parent.frame}}. This allows the
+  columns of the data to be addressed without any major
+  manipulation, simply by column name.  In most cases in
+  quantstrat, this will be either the price/return columns,
+  or columns added by indicators or prior signals. The
+  formula will return TRUE/FALSE for each row comparison as
+  a time series column which can then be used for rule
+  execution.  The \code{formula} will be evaluated using
+  \code{\link{eval}} as though in an if statement.
+}
+\details{
+  This code is adapted from the approach used by Vijay
+  Vaidyanthan in his PAST(AAII/SIPRO) code to construct
+  arbitrary, formulaic, comparisons.  Many thanks to Vijay
+  for sharing his expertise.
+}
+

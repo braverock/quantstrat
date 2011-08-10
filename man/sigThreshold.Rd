@@ -1,15 +1,30 @@
 \name{sigThreshold}
 \alias{sigThreshold}
-\title{generate a threshold signal...}
-\usage{sigThreshold(label, data=mktdata, column, threshold=0,
-    relationship=c("gt", "lt", "eq", "gte", "lte"), cross=FALSE)}
-\description{generate a threshold signal}
-\details{Many strategies, including RSI or MACD styles, make trading decisions when an indicator 
-is over or under a specific threshold.  
-This function generates the appropriate signal based on such a threshold.}
-\arguments{\item{label}{text label to apply to the output}
-\item{data}{data to apply comparison to}
-\item{column}{named column to apply comparison to}
-\item{threshold}{numeric threhold to test for}
-\item{relationship}{one of c("gt","lt","eq","gte","lte") or reasonable alternatives}
-\item{cross}{if TRUE, will return TRUE only for the first observation to cross the threshold in a run}}
+\title{generate a threshold signal}
+\usage{
+  sigThreshold(label, data = mktdata, column, threshold =
+  0, relationship = c("gt", "lt", "eq", "gte", "lte"),
+  cross = FALSE)
+}
+\arguments{
+  \item{label}{text label to apply to the output}
+
+  \item{data}{data to apply comparison to}
+
+  \item{column}{named column to apply comparison to}
+
+  \item{threshold}{numeric threhold to test for}
+
+  \item{relationship}{one of c("gt","lt","eq","gte","lte")
+  or reasonable alternatives}
+
+  \item{cross}{if TRUE, will return TRUE only for the first
+  observation to cross the threshold in a run}
+}
+\description{
+  Many strategies, including RSI or MACD styles, make
+  trading decisions when an indicator is over or under a
+  specific threshold. This function generates the
+  appropriate signal based on such a threshold.
+}
+

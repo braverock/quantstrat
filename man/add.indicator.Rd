@@ -1,45 +1,94 @@
 \name{add.indicator}
 \alias{add.indicator}
-\title{add an indicator to a strategy...}
-\usage{add.indicator(strategy, name, arguments, parameters, label, ...,
-    enabled=TRUE, indexnum, store=FALSE)}
-\description{add an indicator to a strategy}
-\details{Indicators are typically standard technical or statistical analysis outputs, 
-such as moving averages, bands, or pricing models.
+\title{add an indicator to a strategy}
+\usage{
+  add.indicator(strategy, name, arguments, parameters =
+  NULL, label = NULL, ..., enabled = TRUE, indexnum = NULL,
+  store = FALSE)
+}
+\arguments{
+  \item{strategy}{an object of type 'strategy' to add the
+  indicator to}
 
-Indicators are always path-independent, and should be constructed from vectorized functions where possible.
+  \item{name}{name of the indicator, must correspond to an
+  R function}
 
-Indicators are applied before signals and rules, and the output of indicators 
-may be used as inputs to construct signals or fire rules.
+  \item{arguments}{default arguments to be passed to an
+  indicator function when executed}
 
-\code{arguments} and \code{parameters} are named lists that describe the arguments to be passed to the indicator function.
-\code{arguments} is for defining any non-default arguments to be passed to the function named in the \code{name} of the indicator.  
-For example, the \code{x} argument to a moving average function may be defined as \code{x=quote(Cl(mktdata))}
+  \item{parameters}{vector of strings naming parameters to
+  be saved for apply-time definition,default NULL, only
+  needed if you need special names to avoid argument
+  collision}
 
-If you look at the demo scripts, you'll notice that we often use \code{quote(mktdata)} in setting up indicators, signals, or rules.
-This tells \R to delay evaluation via \code{quote()}, and to use the special variable \code{mktdata}. 
+  \item{label}{arbitrary text label for indicator output,
+  NULL default will be converted to '<name>.ind'}
 
-\code{mktdata} is typically created internally to \code{quantstrat} by looking in the global environment for 
-a time series of prices or returns. mktdata may also contain other data you've manipulated outside quatstrat, 
-though where possible you should use quantstrat to contain all the logic for the strategy, to aid in maintenance and modifications.
+  \item{...}{any other passthru parameters}
 
-The use of \code{quote()} tells R to not evaluate what's inside the quote until the function is evaluated later.  
-By the time that code is evaluated, \code{mktdata} will be populated with the correct price information based on the contents of whatever portfolio you are evaluating the strategy on. 
+  \item{enabled}{TRUE/FALSE whether the indicator is
+  enabled for use in applying the strategy, default TRUE}
 
-\code{parameters} is another named list, and normally will not be needed.  
-If you have multiple indicator, signal, or rule functions share the that 
-\emph{both} share the same argument names \emph{and} will need to have 
-different values passed to those arguments as defined parameters at apply-time,
-then you may need to give them unique names so that delayed evaluation can
-sort it all out for you at apply-time.  
-We will endeavor to get an example of named parameters into the demo scripts.}
-\seealso{\code{\link{quote}}}
-\arguments{\item{strategy}{an object of type 'strategy' to add the indicator to}
-\item{name}{name of the indicator, must correspond to an R function}
-\item{arguments}{default arguments to be passed to an indicator function when executed}
-\item{parameters}{vector of strings naming parameters to be saved for apply-time definition,default NULL, only needed if you need special names to avoid argument collision}
-\item{label}{arbitrary text label for indicator output, NULL default will be converted to '<name>.ind'}
-\item{...}{any other passthru parameters}
-\item{enabled}{TRUE/FALSE whether the indicator is enabled for use in applying the strategy, default TRUE}
-\item{indexnum}{if you are updating a specific indicator, the index number in the $indicators list to update}
-\item{store}{TRUE/FALSE whether to store the strategy in the .strategy environment, or return it.  default FALSE}}
+  \item{indexnum}{if you are updating a specific indicator,
+  the index number in the $indicators list to update}
+
+  \item{store}{TRUE/FALSE whether to store the strategy in
+  the .strategy environment, or return it.  default FALSE}
+}
+\description{
+  Indicators are typically standard technical or
+  statistical analysis outputs, such as moving averages,
+  bands, or pricing models.
+}
+\details{
+  Indicators are always path-independent, and should be
+  constructed from vectorized functions where possible.
+
+  Indicators are applied before signals and rules, and the
+  output of indicators may be used as inputs to construct
+  signals or fire rules.
+
+  \code{arguments} and \code{parameters} are named lists
+  that describe the arguments to be passed to the indicator
+  function. \code{arguments} is for defining any
+  non-default arguments to be passed to the function named
+  in the \code{name} of the indicator. For example, the
+  \code{x} argument to a moving average function may be
+  defined as \code{x=quote(Cl(mktdata))}
+
+  If you look at the demo scripts, you'll notice that we
+  often use \code{quote(mktdata)} in setting up indicators,
+  signals, or rules. This tells \R to delay evaluation via
+  \code{quote()}, and to use the special variable
+  \code{mktdata}.
+
+  \code{mktdata} is typically created internally to
+  \code{quantstrat} by looking in the global environment
+  for a time series of prices or returns. mktdata may also
+  contain other data you've manipulated outside quatstrat,
+  though where possible you should use quantstrat to
+  contain all the logic for the strategy, to aid in
+  maintenance and modifications.
+
+  The use of \code{quote()} tells R to not evaluate what's
+  inside the quote until the function is evaluated later.
+  By the time that code is evaluated, \code{mktdata} will
+  be populated with the correct price information based on
+  the contents of whatever portfolio you are evaluating the
+  strategy on.
+
+  \code{parameters} is another named list, and normally
+  will not be needed. If you have multiple indicator,
+  signal, or rule functions share the that \emph{both}
+  share the same argument names \emph{and} will need to
+  have different values passed to those arguments as
+  defined parameters at apply-time, then you may need to
+  give them unique names so that delayed evaluation can
+  sort it all out for you at apply-time. We will endeavor
+  to get an example of named parameters into the demo
+  scripts.
+}
+\seealso{
+  \code{\link{quote}}
+}
+
