@@ -129,12 +129,21 @@ getParams <- function (strategy, symbol, type, name)
 #' Users can use this function to extract the parameters used in a strategy, and as a reminder/ cheatsheet
 #' when they create the parameter distribution.
 #' 
-#' In the returned object:
-#' $paramNameList is the list of parameters used in the strategy, easy for print and view as a table.
-#' $strategyName is the name of the strategy itself.
-#' $structure is the detailed paramter structure, can be ignored.
+#' Example:
+#' When strategy object stratMACD has already been created by macd.R demo:
+#' following line will return the parameter information to object paramStructure:
 #' 
-#' @param strategy The name of the strategy
+#' x<-getParameterTable(stratMACD)
+#' 
+#' In the returned list x:
+#' 
+#' x$paramNameList is the list of parameters used in the strategy, easy for print and view as a table.
+#' x$strategyName is the name of the strategy itself.
+#' x$structure is the detailed paramter structure in the input strategy, can be used when user wants to look into more details of the parameter structure.
+#' 
+#' @param strategy The strategy object.
+#' @returnType A list of objects that contains the parameter structure  information, see detail.
+#' 
 #' @author Yu Chen
 #' @export
 getParameterTable<-function (strategy) #,staticSwitch)
@@ -226,15 +235,30 @@ getParameterTable<-function (strategy) #,staticSwitch)
 #	
 #}
 
-#' Function used to set distribution of a parameter in a strategy.
+#' Function used to set distribution of a parameter to be generated from, for testing a strategy.
 #' 
+#' Each call to the function will set/update the distribution of ONE parameter in the strategy.  
 #' 
-#' @param paramDist the object name that store the parameter list
-#' @param type indicator/signal/enter/exit/order
-#' @param indexnum tells the sequence within the type, (if the type is signal, indexnum =2 means the 2nd signal in the strategy)  
-#' @param distribution distribution of the parameter, can be any function that return a vector. (example: 1:10 or sample(1:20,6)
-#' @param weight the weight of each value in the distribution, default value will be all equally weighted.
+#' When call the function, the user must know the parameter strcture of the strategy, function getParameterTable can be used to layout the parameter structure of a certain strategy.
+#' Parameter distribution object for one strategy usually won't work for another strategy, because different strategies has different parameter structure.
+#' Type of the parameter and the sequence in that type is needed to specify the exact parameter in THAT STRATEGY.
+#' 
+#' The parameter of the function 'distribution' is a list contains vector of values named WITH THE NAME OF THE PARAMETER, the values can be any type (integer, characters, etc) matches with the leagal value of that parameter.
+#' For example: distribution=list(nFast=(10:30)) or distribution=list(relationship=c('gt','gte'))
+#' 
+#' Example: (For complete demo see parameterTestMACD.R)
+#' tPD2<-setParameterDistribution(tPD2,'indicator',indexnum=1,distribution=list(nFast=(10:30)),label='nFast')
+#' tPD2<-setParameterDistribution(tPD2,'indicator',indexnum=1,distribution=list(nSlow=(20:40)),label='nSlow')
+#' tPD2<-setParameterDistribution(tPD2,'signal',indexnum=1,distribution=list(relationship=c('gt','gte')),label='sig1.gtgte')
+#' 
+#' @param paramDist The object that store the parameter list, if this parameter is missing, or object does not exist, the function will create a new object.
+#' @param type A character string that specifies the type of the parameter, it takes the value of one of 'indicator', 'signal', 'enter', 'exit', 'order'.
+#' @param indexnum Tells the sequence within the type, (If the type is 'signal', indexnum =2 tells the function to update the 2nd signal in the strategy)  
+#' @param distribution Distribution of the parameter, can be any function that return a vector of value. See detail. (A numerical example: 1:10 or sample(1:20,6)
+#' @param weight The weight of each value in the distribution, default value will be all equally weighted.
 #' @param psindex specify the index within the parameter distribution object, it is used to make change/ repalce a parameter distribution in the object.
+#' @returnType The returned object is a structure contains the distribution of parameters, is of the same type as the input parameter paramDist (if provided), the function update the input paramDist object and return the updated one. Usually the returned value is pass to the same object as parameter. See details. 
+#' @return .
 #' @author Yu Chen
 #' @export
 setParameterDistribution<-function(paramDist=NULL,type=NULL,indexnum=0,distribution=NULL,weight,label,psindex=NULL){#All is needed, set to illegal values
@@ -243,7 +267,8 @@ setParameterDistribution<-function(paramDist=NULL,type=NULL,indexnum=0,distribut
 		paramDist<-list()
 		print('Object for parameter distribution initialized...')
 	}
-	else{
+#	else{
+	
 		if (!is.list(distribution)|length(distribution)!=1) stop("distribution must be passed as a named list of length 1")
 		if (!type %in% c("indicator","signal","enter","exit","order")) stop("Type must be a string in: indicator, signal, enter, exit, order")
 		
@@ -267,34 +292,61 @@ setParameterDistribution<-function(paramDist=NULL,type=NULL,indexnum=0,distribut
 		
 		#TODO put an check to see if the type/indexnum exist already.
 		paramDist[[psindex]]<-tmp_paramDist
-	}
+#	}
 	return(paramDist)
 }
 
-
-
-#' Test different parameter sets on a strategy.
+#' Generate parameter sets based on specified distribution and constrains, apply the parameters to the specified strategy and return the results package.
 #' 
 #' Given a parameter distribution object generated by setParameterDistribution function, 
-#' generate parameter sets and test each set on specified strategy. 
+#' generate parameter sets and test each set on the specified strategy. 
 #' 
-#' In the returned Object$:
-#' eachRun	contains the details of test run with each parameter set.
-#' paramTable	is parameter samples used, in a table for print.
-#' paramConstrainTable	is the constraints apply to the parameters, in a table for print.
-#' parameterDistribution	is the parameter distribution passed in as argument.
-#' parameterConstrains	 is the constraints apply to the parameters, passed in as argument.
+#' Example to call the function:  (For complete demo see parameterTestMACD.R)
+#' x<-applyParameter(strategy=stratMACD,portfolios=portfolio.st,parameterPool=tPD2,method='random',sampleSize=20,parameterConstrains=pConstraint2)
+#' or 
+#' x<-applyParameter(strategy=stratMACD,portfolios=portfolio.st,parameterPool=tPD2,method='expand',parameterConstrains=pConstraint2)
 #' 
-#' @param strategy name of the strategy to apply paramters to.
-#' @param portfolios name of the portfolio to apply to.
-#' @param parameterPool a paramter distribution object that created by setParameterDistribution function, which includes all the parameter legal values and distribution/weights.
-#' @param parameterConstrains the object created by setParameterConstraint function that specifies the constrains between each parameters,
-#' @param method takes string 'expand' or 'random', specify how to generate samples of parameters. 'expand' will do all possible combinations of the parameter sets, 
-#' @param sampleSize used when method=='random', specify how many parameter sets to generate and run test of.
+#' The function support parallel execution, user only need to initial the parallel package and wrap up afterwards.
+#' The function will automaticly use the number of registered parallel sessions to run testing.
+#' Example:
+#' ---------------------------------------------
+#' require(foreach)
+#' require(doSMP)
+#' workers <- startWorkers(2)
+#' registerDoSMP(workers)
+#' 
+#' #PUT ALL CODE RELATED TO QUANTSTRAT HERE
+#' 
+#' stopWorkers(workers)
+#' rmSessions(all=TRUE)
+#' ---------------------------------------------
+#' 
+#' 
+#' In the returned Object x:
+#' x$statsTable	is the summary table show stats from all the runs.	
+#' x$eachRun	contains the details of test run with each parameter set, including portfolio name, account name, strategy used, parameters used, stats of the single run, object in .blotter but as a list named blotterl. 
+#' x$paramTable	is parameter samples used, in a table for print.
+#' x$paramConstrainTable	is the constraints apply to the parameters, in a table for print.
+#' x$parameterDistribution	is the parameter distribution passed in as argument.
+#' x$parameterConstrains	 is the constraints apply to the parameters, passed in as argument.
+#' 
+#' Other than returned value, the function puts portfolio and account objects in the .blotter environment.
+#' The names of those objects will be extension of the names created by initial strategy/portfolios are created.
+#' For example, in macd.R demo, account.macd and portfolio.macd are created in .blotter environment. After calling the function and did the 
+#' parameter test, series of similar objects are created with names 
+#' 
+#' account.macd.p.1, account.macd.p.2 ... and
+#' portfolio.macd.p.1, portfolio.macd.p.2 ...
+#'   
+#' 
+#' @param strategy The strategy to test paramters to.
+#' @param portfolios The character name of the portfolios to apply to.
+#' @param parameterPool The object that created by setParameterDistribution function, which includes all the parameter legal values and distribution/weights.
+#' @param parameterConstrains The object created by setParameterConstraint function that specifies the constrains between each parameters,
+#' @param method Takes string 'expand' or 'random', specify how to generate samples of parameters. 'expand' will do all possible combinations of the parameter sets, 
+#' @param sampleSize Used when method=='random', specify how many parameter sets to generate and run test of.
 #' @author Yu Chen
 #' @export
-
-
 applyParameter<-function(strategy,portfolios,parameterPool,parameterConstrains,method,sampleSize){
 	#need to create combination of distribution values in each slot of the parameterPool
 	
@@ -310,7 +362,7 @@ applyParameter<-function(strategy,portfolios,parameterPool,parameterConstrains,m
 	testPackListPRLStructure<-list()
 	testPackListPRLStructure$stats<-NULL
 	
-	testPack<-list()
+	
 	
 	if (!is.strategy(tmp_strategy)) {
 		tmp_strategy<-try(getStrategy(tmp_strategy))
@@ -379,12 +431,9 @@ applyParameter<-function(strategy,portfolios,parameterPool,parameterConstrains,m
 			
 			names(tparamTable)<-names(paramdist)
 			
-			#TODO put constraint test on tparamTable, before rbind
+			# put constraint test on tparamTable, before rbind
 			for (k in 1:length(parameterConstrains))
 			{
-				
-				#tt<-ParamConstrain(label="pc",data=tparamTable,columns=c("Param.indicator.1.sd","Param.indicator.1.n"),relationship="gt")
-				
 				constrintfill<-paramConstraint(label=parameterConstrains[[k]]$constraintLabel,
 						data=tparamTable,
 						columns=merge(paramLabel,data.frame(parameterConstrains[[k]]$paramList),by="label")$varName, #has to keep the order.
@@ -446,10 +495,12 @@ applyParameter<-function(strategy,portfolios,parameterPool,parameterConstrains,m
 #				require(FinancialInstrument)
 				require(quantstrat)
 				
+				testPack<-list()
+				
 				#Pass enviorments needed.
 				.instrument<-as.environment(instruments)
 				.getSymbols<-as.environment(getSymbols)
-				.blotter<-as.environment(blotter)
+#				CAN NOT BE HERE, OTHERWISE will have problem extract to outside .blooter.. #.blotter<-as.environment(blotter)
 				
 				#Unpack symbols to worker. change later.
 				#seems need to go through assign, rather than just .export the names...
@@ -552,11 +603,11 @@ applyParameter<-function(strategy,portfolios,parameterPool,parameterConstrains,m
 #Initial portfolio for each test		
 				#######################################################################################
 				
-				testPack$portfolio.st=paste(portfolios,'t',i,sep='.')
-				testPack$account.st=paste(portfolios,'t',i,sep='.')
+				testPack$portfolio.st<-paste(portfolios,'p',i,sep='.')
+				testPack$account.st<-paste(portfolios,'p',i,sep='.')
 				
-				rmpstr=paste('portfolio',testPack$portfolio.st,sep=".")
-				rmastr=paste('account',testPack$account.st,sep=".")
+				rmpstr<-paste('portfolio',testPack$portfolio.st,sep=".")
+				rmastr<-paste('account',testPack$account.st,sep=".")
 				
 				try(rm(list = rmpstr, pos = .blotter),silent=FALSE)
 				try(rm(list = rmastr, pos = .blotter),silent=FALSE)
@@ -564,14 +615,15 @@ applyParameter<-function(strategy,portfolios,parameterPool,parameterConstrains,m
 				
 				print('Initial portf')
 				
-				#some time even exist, can't remove, why?
-				try(rm(paste("order_book",portfolio.st,sep='.'),pos=.strategy),silent=TRUE)
-				try(rm(paste("account",portfolio.st,sep='.'),paste("portfolio",portfolio.st,sep='.'),pos=.blotter),silent=TRUE)
+#				Decide not to remove the main obj from .blotter, incase of non-parallel run.
+#				try(rm(list=paste("order_book",portfolios,sep='.'),pos=.strategy),silent=TRUE)
+##				try(rm(paste("account",portfolio.st,sep='.'),paste("portfolio",portfolio.st,sep='.'),pos=.blotter),silent=TRUE)
+#				try(rm(list=paste("account",portfolios,sep='.'),pos=.blotter))
+#				try(rm(list=paste("portfolio",portfolios,sep='.'),pos=.blotter))
 				
 				try({initPortf(testPack$portfolio.st,symbols=stock.str, initDate=initDate)})
 				try({initAcct(testPack$account.st,testPack$portfolio.st, initDate=initDate)})
 				try({initOrders(portfolio=testPack$portfolio.st,initDate=initDate)})
-				
 				
 # Apply strategy ######################################################################################
 				print("Apply strategy...")
@@ -595,9 +647,10 @@ applyParameter<-function(strategy,portfolios,parameterPool,parameterConstrains,m
 				#				})
 				
 				
-				try(updatePortf(Portfolio=testPack$portfolio.st,Dates=paste('::',as.Date(Sys.time()),sep='')))
+#try(updatePortf(Portfolio=testPack$portfolio.st,Dates=paste('::',as.Date(Sys.time()),sep='')))
+				updatePortf(Portfolio=testPack$portfolio.st,Dates=paste('::',as.Date(Sys.time()),sep=''))
 				
-				#? what to do with account?
+				#no need to update account.
 				#updateAcct(account.st,Dates=paste(startDate,endDate,sep="::")) 
 				#updateEndEq(account.st,Dates=paste(startDate,endDate,sep="::"))
 				#getEndEq(account.st,Sys.time())
@@ -605,17 +658,24 @@ applyParameter<-function(strategy,portfolios,parameterPool,parameterConstrains,m
 				testPack$parameters<-paramTable[i,]
 				
 				testPack$stats<-tradeStats(Portfolios=testPack$portfolio.st)
-				
+				testPack$blotterl<-as.list(.blotter)
+#				testPack$blotter<-as.environment(.blotter)
+#				testPack$blotterr<-.blotter
+		
 				return(testPack)
 				
 			}	# Loop i
 	
 	
 	for (k in 1: nrow(paramTable)){
-		
 		testPackListPRLStructure$statsTable<-rbind(testPackListPRLStructure$stats,cbind(testPackListPRL[[k]]$parameters,testPackListPRL[[k]]$stats))
-		names(testPackListPRL)[k]<-testPackListPRL[[k]]$portfolio.st
+		print(names(testPackListPRL[[k]]$blotterl))
 		
+		for(nn in 1:length(testPackListPRL[[k]]$blotterl)){
+#			print(paste(names(testPackListPRL[[k]]$blotterl)[nn],'nnp',nn,sep='.'))
+			assign(names(testPackListPRL[[k]]$blotterl[nn]),testPackListPRL[[k]]$blotterl[[nn]],envir=as.environment(.blotter))
+		}
+		names(testPackListPRL)[k]<-testPackListPRL[[k]]$portfolio.st
 	}
 	
 	
@@ -630,10 +690,12 @@ applyParameter<-function(strategy,portfolios,parameterPool,parameterConstrains,m
 	
 }
 
+#for(pname in names(as.list(ss$blotter))){
+#	assign(paste(pname,'p',23,sep='.'),get(paste('ss$blotter$',pname,sep='')),envir=as.environment(.blotter))
+#}
 
 
-
-#' Basicly is the same as sigComparison function in signal.R wrote by Brian, with miner change.
+#' Basicly is the same as sigComparison function in signal.R written by Brian, with miner change.
 #' 
 #' Currently, this function compares two columns.  
 #' Patches to compare an arbitrary number of columns would be gladly accepted.
@@ -649,7 +711,7 @@ applyParameter<-function(strategy,portfolios,parameterPool,parameterConstrains,m
 
 paramConstraint <- function(label,data=mktdata, columns, relationship=c("gt","lt","eq","gte","lte")) {
 	relationship=relationship[1] #only use the first one
-	
+#	print(columns)
 	if (length(columns)==2){
 		ret_sig=NULL
 		if (relationship=='op'){
@@ -688,8 +750,17 @@ paramConstraint <- function(label,data=mktdata, columns, relationship=c("gt","lt
 
 
 #' Function to construct parameter constraint object.
+#'  
 #' 
-#' @param constrainlabel give a label to the constraint.
+#' Example: (For complete demo see parameterTestMACD.R)
+#' In a MACD strategy, we want to fast macd calcuated from less time periods (days) than slow macd signal:
+#'   
+#' pConstraint2<-setParameterConstraint(constraintLabel='macdPC',paramList=c('nFast','nSlow'),relationship='lt')
+#' 
+#' The object pConstraint2 then can be used in applyParameter function to specify the constrains between parameters. 
+#' 
+#' @param paramConstraintObj the ParameterConstraint object to be updated on, if missing, funtion will create a new one.
+#' @param constrainlabel User can give a character label to the constraint.
 #' @param paramList the two name of the prameters as a list contains two strings.
 #' @param relationship relationship between the 1st parameter and 2nd one. ('gt' means 1st parameter > 2nd parameter)
 #' @author Yu Chen
