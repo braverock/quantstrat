@@ -290,7 +290,7 @@ addOrder <- function(portfolio, symbol, timestamp, qty, price, ordertype, side, 
         next()
     }
 
-    qtysign <- sign(qty)    
+    qtysign <- sign(drop(coredata(qty)))
     
     if(!isTRUE(return)){
         if(isTRUE(replace)) updateOrders(portfolio=portfolio, symbol=symbol,timespan=timespan, ordertype=ordertype, side=side, qtysign=qtysign, oldstatus="open", newstatus="replaced", statustimestamp=timestamp)
