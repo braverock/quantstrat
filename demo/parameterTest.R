@@ -3,7 +3,7 @@
 # Author: Yu Chen
 ###############################################################################
 
-
+require(foreach)
 
 #please run bbands demo before all these...
 paramStructure<-getParameterTable(stratBBands)
