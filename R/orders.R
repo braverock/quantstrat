@@ -68,6 +68,7 @@ initOrders <- function(portfolio=NULL, symbols=NULL, initDate = '1999-12-31', ..
 #' @param timespan xts-style character timespan to be the period to find orders of the given status and ordertype
 #' @param ordertype one of NULL, "market","limit","stoplimit", "stoptrailing", or "iceberg" default NULL
 #' @param side one of NULL, "long" or "short", default NULL 
+#' @param qtysign one of NULL, -1,0,1 ; could be useful when all qty's are reported as positive numbers and need to be identified other ways, default NULL
 #' @param which.i if TRUE, return the row index numbers rather than the order rows matching the criteria, default FALSE
 #' @export
 getOrders <- function(portfolio,symbol,status="open",timespan=NULL,ordertype=NULL, side=NULL, qtysign=NULL, which.i=FALSE)
@@ -324,6 +325,7 @@ addOrder <- function(portfolio, symbol, timestamp, qty, price, ordertype, side, 
 #' @param timespan xts-style character timespan to be the period to find orders of the given status and ordertype 
 #' @param ordertype one of NULL, "market","limit","stoplimit", or "stoptrailing" default NULL
 #' @param side one of NULL, "long" or "short", default NULL 
+#' @param qtysign one of NULL, -1,0,1 ; could be useful when all qty's are reported as positive numbers and need to be identified other ways, default NULL
 #' @param oldstatus one of NULL, "open", "closed", "canceled", or "replaced", default "open"
 #' @param newstatus one of "open", "closed", "canceled", or "replaced"
 #' @param statustimestamp timestamp of a status update, will be blank when order is initiated 
@@ -338,8 +340,7 @@ updateOrders <- function(portfolio, symbol, timespan, ordertype=NULL, side=NULL,
     if(!is.null(side) & !length(grep(side,c('long','short')))==1) 
         stop(paste("side:",side," must be one of 'long' or 'short'"))
     if(!is.null(qtysign) && (qtysign != -1 && qtysign != 1 && qtysign != 0))
-        stop(paste("qtysign:",qtysign," must be one of -1, 0, or 1"))
-    #if(is.null(side)) side<-NA
+        stop(paste("qtysign:",qtysign," must be one of NULL, -1, 0, or 1"))
     if(!is.null(ordertype) & is.na(charmatch(ordertype,c("market","limit","stoplimit","stoptrailing","iceberg")))) 
         stop(paste("ordertype:",ordertype,' must be one of "market","limit","stoplimit","stoptrailing", or "iceberg"'))
     

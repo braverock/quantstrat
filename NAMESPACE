@@ -1,7 +1,5 @@
 export(add.indicator)
 export(addOrder)
-export(add.parameter)
-export(add.paramLookupTable)
 export(addPosLimit)
 export(add.rule)
 export(add.signal)

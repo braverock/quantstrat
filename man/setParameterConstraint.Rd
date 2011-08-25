@@ -6,7 +6,12 @@
   constraintLabel, paramList, relationship)
 }
 \arguments{
-  \item{constrainlabel}{give a label to the constraint.}
+  \item{paramConstraintObj}{the ParameterConstraint object
+  to be updated on, if missing, funtion will create a new
+  one.}
+
+  \item{constraintLabel}{string label to apply to the
+  constraint}
 
   \item{paramList}{the two name of the prameters as a list
   contains two strings.}
@@ -17,6 +22,14 @@
 }
 \description{
   Function to construct parameter constraint object.
+}
+\examples{
+#(For complete demo see parameterTestMACD.R)
+#In a MACD strategy, we want to fast macd calcuated from less time periods (days) than slow macd signal:
+\dontrun{
+pConstraint2<-setParameterConstraint(constraintLabel='macdPC',paramList=c('nFast','nSlow'),relationship='lt')
+}
+#The object pConstraint2 then can be used in applyParameter function to specify the constrains between parameters.
 }
 \author{
   Yu Chen

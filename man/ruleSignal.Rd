@@ -74,14 +74,14 @@
   hold, default FALSE}
 }
 \description{
-  \code{pricemethod} may be one of \itemize{
+  \code{pricemethod} may be one of \describe{
   \item{'market', 'opside', or 'maker'}{ will use the 'ask'
   price if you're buying and the 'bid' price if you're
   selling, crossing the market at the time of order entry
   to attempt to set an aggressive price to get the trade. }
   \item{'passive', 'work' or 'join'}{ which will join the
   'bid' price if you are buying or join the 'ask' price if
-  you are selling, passively working to make liquidity \ at
+  you are selling, passively working to make liquidity at
   the prevailing market price without crossing the market
   at time of order entry} \item{'maker'}{will create a pair
   of orders for both bid and offer, modeling market making

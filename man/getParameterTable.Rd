@@ -5,21 +5,31 @@
   getParameterTable(strategy)
 }
 \arguments{
-  \item{strategy}{The name of the strategy}
+  \item{strategy}{The strategy object.}
+}
+\value{
+  A list of objects that contains the parameter structure
+  information" \describe{ \item{paramNameList}{the list of
+  parameters used in the strategy, for printing or viewing
+  as a table.} \item{strategyName}{ string name of the
+  strategy} \item{structure}{the detailed paramter
+  structure in the input strategy, can be used when user
+  wants to look into more details of the parameter
+  structure.} }
 }
 \description{
-  This function is not required for user to specify the
-  distribution of parameters, Users can use this function
-  to extract the parameters used in a strategy, and as a
-  reminder/ cheatsheet when they create the parameter
-  distribution.
+  Users can use this function to extract the parameters
+  used in a strategy, and as a reminder/ cheatsheet when
+  they create the parameter distribution. But it's not
+  required to be used to specify the distribution of
+  parameters.
 }
-\details{
-  In the returned object: $paramNameList is the list of
-  parameters used in the strategy, easy for print and view
-  as a table. $strategyName is the name of the strategy
-  itself. $structure is the detailed paramter structure,
-  can be ignored.
+\examples{
+# When strategy object stratMACD has already been created by macd.R demo:
+# bfollowing line will return the parameter information to object paramStructure:
+\dontrun{
+x<-getParameterTable(stratMACD)
+}
 }
 \author{
   Yu Chen

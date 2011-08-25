@@ -23,6 +23,10 @@
 
   \item{side}{one of NULL, "long" or "short", default NULL}
 
+  \item{qtysign}{one of NULL, -1,0,1 ; could be useful when
+  all qty's are reported as positive numbers and need to be
+  identified other ways, default NULL}
+
   \item{oldstatus}{one of NULL, "open", "closed",
   "canceled", or "replaced", default "open"}
 

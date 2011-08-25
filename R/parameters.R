@@ -1,105 +1,81 @@
-#' add parameters to strategy objects: ALPHA CODE USE WITH CARE 
-#' @param strategy 
-#' @param type 
-#' @param add.to.name 
-#' @param method 
-#' @param arguments 
-#' @param label 
-#' @param ... 
-#' @param store 
-#' @export
-add.parameter <- 
-		function (strategy, 
-				type = c('indicator','signal'), 
-				add.to.name,
-				method = c('lookup','lookup.range','calc'), 
-				arguments = NULL, 
-				label = NULL,
-				...,
-				store=FALSE) 
-{
-	if(!is.strategy(strategy)) stop("You must pass in a strategy object to manipulate")
-	# perhaps I should add parameters and parameter.args as arguments to the constructors...
-	
-	tmp.param<-list()
-	
-	type=type[1] #this should probably come out eventually
-	
-	method = method[1] #only use the first if the user didn't specify, or over-specified
-	
-	if(is.null(label)) {
-		label<-method
-	}
-	tmp.param$label <- label
-	tmp.param$method <- method
-	tmp.param$call <- match.call()
-	tmp.param$arguments <- arguments
-	class(tmp.param)<-'quantstrat.parameter'
-	
-	switch(type,
-			indicator = {type='indicators'},
-			signal = {type='signals'},
-			rule = {type='rules'}) #NOTE rules not supported yet, since they need a rule type too
-	
-	# need to think about how to create a 'parameters' list, and whether 
-	# it should be at the strategy level or lower down, on the individual 
-	# signal/indicator/rule
-	
-	if(!is.list(strategy[[type]][[add.to.name]]$parameters)){
-		strategy[[type]][[add.to.name]]$parameters <- list()
-	}
-	strategy[[type]][[add.to.name]][['parameters']][[method]] <- tmp.param
-	
-	if (store) assign(strategy$name,strategy,envir=as.environment(.strategy))
-	else return(strategy)
-}
-
-
-#' add parameters to strategy objects: ALPHA CODE USE WITH CARE 
-#' @param strategy 
-#' @param symbol 
-#' @param type 
-#' @param name 
-#' @param parameter 
-#' @param ... 
-paramLookup <- function(strategy, symbol , type, name, parameter, ...) {
-	# should take in a strategy and parameter object, and return an argument list for 'symbol'
-	#as.pairlist(paramTable[,symbol]
-	paramTable<-get(paste(strategy,type,name,'table',pos=.strategy))
-	as.pairlist(paramTable[,symbol])
-}
-
-#' add parameters to strategy objects: ALPHA CODE USE WITH CARE 
-#' @param strategy 
-#' @param type 
-#' @param name 
-#' @param paramTable 
-#' @export
-add.paramLookupTable <- function(strategy, type, name, paramTable){
-	assign(paste(strategy,type,name,'table',pos=.strategy),paramTable)
-}
-
-#' get parameterized arguments list out of the strategy environment
-#' @param strategy 
-#' @param symbol 
-#' @param type 
-#' @param name 
-getParams <- function (strategy, symbol, type, name)
-{
-	
-	params <- strategy[[type]][[name]]$parameters
-	param.ret<-list()
-	for (param in params) {
-		switch(param$method,
-				lookup = {param.ret<-c(param.ret,paramLookup(strategy,symbol,parameter=param))},
-				lookup.range = {},
-				calc = {},
-				{warning("parameter method",param$method,'not recognized for',type,name); next()}
-		)
-	}
-	# return an arguments list back to the 'apply*' fn
-	return(param.ret)
-}
+## add parameters to strategy objects: ALPHA CODE USE WITH CARE 
+#add.parameter <- 
+#		function (strategy, 
+#				type = c('indicator','signal'), 
+#				add.to.name,
+#				method = c('lookup','lookup.range','calc'), 
+#				arguments = NULL, 
+#				label = NULL,
+#				...,
+#				store=FALSE) 
+#{
+#	if(!is.strategy(strategy)) stop("You must pass in a strategy object to manipulate")
+#	# perhaps I should add parameters and parameter.args as arguments to the constructors...
+#	
+#	tmp.param<-list()
+#	
+#	type=type[1] #this should probably come out eventually
+#	
+#	method = method[1] #only use the first if the user didn't specify, or over-specified
+#	
+#	if(is.null(label)) {
+#		label<-method
+#	}
+#	tmp.param$label <- label
+#	tmp.param$method <- method
+#	tmp.param$call <- match.call()
+#	tmp.param$arguments <- arguments
+#	class(tmp.param)<-'quantstrat.parameter'
+#	
+#	switch(type,
+#			indicator = {type='indicators'},
+#			signal = {type='signals'},
+#			rule = {type='rules'}) #NOTE rules not supported yet, since they need a rule type too
+#	
+#	# need to think about how to create a 'parameters' list, and whether 
+#	# it should be at the strategy level or lower down, on the individual 
+#	# signal/indicator/rule
+#	
+#	if(!is.list(strategy[[type]][[add.to.name]]$parameters)){
+#		strategy[[type]][[add.to.name]]$parameters <- list()
+#	}
+#	strategy[[type]][[add.to.name]][['parameters']][[method]] <- tmp.param
+#	
+#	if (store) assign(strategy$name,strategy,envir=as.environment(.strategy))
+#	else return(strategy)
+#}
+#
+#
+## add parameters to strategy objects: ALPHA CODE USE WITH CARE 
+#paramLookup <- function(strategy, symbol , type, name, parameter, ...) {
+#	# should take in a strategy and parameter object, and return an argument list for 'symbol'
+#	#as.pairlist(paramTable[,symbol]
+#	paramTable<-get(paste(strategy,type,name,'table',pos=.strategy))
+#	as.pairlist(paramTable[,symbol])
+#}
+#
+## add parameters to strategy objects: ALPHA CODE USE WITH CARE 
+#add.paramLookupTable <- function(strategy, type, name, paramTable){
+#	assign(paste(strategy,type,name,'table',pos=.strategy),paramTable)
+#}
+#
+## get parameterized arguments list out of the strategy environment
+#getParams <- function (strategy, symbol, type, name)
+#{
+#	
+#	params <- strategy[[type]][[name]]$parameters
+#	param.ret<-list()
+#	for (param in params) {
+#		switch(param$method,
+#				lookup = {param.ret<-c(param.ret,paramLookup(strategy,symbol,parameter=param))},
+#				lookup.range = {},
+#				calc = {},
+#				{warning("parameter method",param$method,'not recognized for',type,name); next()}
+#		)
+#	}
+#	# return an arguments list back to the 'apply*' fn
+#	return(param.ret)
+#}
 
 
 ###############################################################################
@@ -129,21 +105,19 @@ getParams <- function (strategy, symbol, type, name)
 #' when they create the parameter distribution. But it's not required to be used to specify the distribution of parameters. 
 #' 
 #' @examples
-#' When strategy object stratMACD has already been created by macd.R demo:
-#' following line will return the parameter information to object paramStructure:
-#' 
+#' # When strategy object stratMACD has already been created by macd.R demo:
+#' # bfollowing line will return the parameter information to object paramStructure:
+#' \dontrun{
 #' x<-getParameterTable(stratMACD)
-#' 
+#' }
 #' @return
-#' In the returned list of object:
-#' 
-#' paramNameList is the list of parameters used in the strategy, easy for print and view as a table.
-#' strategyName is the name of the strategy itself.
-#' structure is the detailed paramter structure in the input strategy, can be used when user wants to look into more details of the parameter structure.
-#' 
+#' A list of objects that contains the parameter structure  information"
+#' \describe{
+#'    \item{paramNameList}{the list of parameters used in the strategy, for printing or viewing as a table.}
+#'    \item{strategyName}{ string name of the strategy}
+#'    \item{structure}{the detailed paramter structure in the input strategy, can be used when user wants to look into more details of the parameter structure.}
+#' }
 #' @param strategy The strategy object.
-#' @returnType A list of objects that contains the parameter structure  information, see detail.
-#' 
 #' @author Yu Chen
 #' @export
 getParameterTable<-function (strategy) #,staticSwitch)
@@ -259,6 +233,7 @@ getParameterTable<-function (strategy) #,staticSwitch)
 #' @param indexnum Tells the sequence within the type, (If the type is 'signal', indexnum =2 tells the function to update the 2nd signal in the strategy)  
 #' @param distribution Distribution of the parameter, can be any function that return a vector of value. See detail. (A numerical example: 1:10 or sample(1:20,6)
 #' @param weight The weight of each value in the distribution, default value will be all equally weighted.
+#' @param label string label to apply to the parameter distribution
 #' @param psindex specify the index within the parameter distribution object, it is used to make change/ repalce a parameter distribution in the object.
 #' @return The returned object is a structure contains the distribution of parameters, is of the same type as the input parameter paramDist (if provided), the function update the input paramDist object and return the updated one. Usually the returned value is pass to the same object as parameter. See details. 
 #' @author Yu Chen
@@ -709,11 +684,10 @@ applyParameter<-function(strategy,portfolios,parameterPool,parameterConstraints,
 #' 
 #' Relationship 'op' means 'opposite' side.  Reasonable attempt will be made to match.
 #' 
-#' @param label text label to apply to the output
+#' @param label text label to apply to the constraint
 #' @param data data to apply comparison to
 #' @param columns named columns to apply comparison to
 #' @param relationship one of c("gt","lt","eq","gte","lte","op") or reasonable alternatives
-
 paramConstraint <- function(label,data=mktdata, columns, relationship=c("gt","lt","eq","gte","lte")) {
 	relationship=relationship[1] #only use the first one
 #	print(columns)
@@ -757,15 +731,15 @@ paramConstraint <- function(label,data=mktdata, columns, relationship=c("gt","lt
 #' Function to construct parameter constraint object.
 #'  
 #' @examples
-#' (For complete demo see parameterTestMACD.R)
+#' #(For complete demo see parameterTestMACD.R)
 #' #In a MACD strategy, we want to fast macd calcuated from less time periods (days) than slow macd signal:
-#'   
+#' \dontrun{  
 #' pConstraint2<-setParameterConstraint(constraintLabel='macdPC',paramList=c('nFast','nSlow'),relationship='lt')
-#' 
+#' }
 #' #The object pConstraint2 then can be used in applyParameter function to specify the constrains between parameters. 
 #' 
 #' @param paramConstraintObj the ParameterConstraint object to be updated on, if missing, funtion will create a new one.
-#' @param constrainlabel User can give a character label to the constraint.
+#' @param constraintLabel string label to apply to the constraint
 #' @param paramList the two name of the prameters as a list contains two strings.
 #' @param relationship relationship between the 1st parameter and 2nd one. ('gt' means 1st parameter > 2nd parameter)
 #' @author Yu Chen
