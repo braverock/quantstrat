@@ -101,17 +101,17 @@
 
 #' Extract the parameter structure from a strategy object.
 #' 
-#' Users can use this function to extract the parameters used in a strategy, and as a reminder/ cheatsheet
-#' when they create the parameter distribution. But it's not required to be used to specify the distribution of parameters. 
+#' Users can use this function to extract the parameters used in a strategy, and use the output as a reminder/ cheatsheet
+#' when they create the parameter distribution or parameter constraints. But it's not required to run to specify the distribution or constraints of parameters. 
 #' 
 #' @examples
-#' # When strategy object stratMACD has already been created by macd.R demo:
-#' # bfollowing line will return the parameter information to object paramStructure:
+#' # When strategy object stratMACD has already been created by demo macd.R:
+#' # following line will return object x that contains the parameter information.
 #' \dontrun{
 #' x<-getParameterTable(stratMACD)
 #' }
 #' @return
-#' A list of objects that contains the parameter structure  information"
+#' A list of objects that contains the parameter structure  information
 #' \describe{
 #'    \item{paramNameList}{the list of parameters used in the strategy, for printing or viewing as a table.}
 #'    \item{strategyName}{ string name of the strategy}
@@ -209,33 +209,37 @@ getParameterTable<-function (strategy) #,staticSwitch)
 #	
 #}
 
-#' Function used to set distribution of a parameter to be generated from, for testing a strategy.
+#' Function used to create an object that contains the distribution of parameters to be generated from, before testing parameters of a strategy.
 #' 
-#' Each call to the function will set/update the distribution of ONE parameter in the strategy.  
+#' 
+#' Each call to the function will set/update the distribution of ONE parameter in the 'parameter distribution object' that is associated with a specific strategy.  
 #' 
 #' When call the function, the user must know the parameter strcture of the strategy, function getParameterTable can be used to layout the parameter structure of a certain strategy.
 #' Parameter distribution object for one strategy usually won't work for another strategy, because different strategies has different parameter structure.
 #' Type of the parameter and the sequence in that type is needed to specify the exact parameter in THAT STRATEGY.
 #' 
-#' The parameter of the function 'distribution' is a list contains vector of values named WITH THE NAME OF THE PARAMETER, the values can be any type (integer, characters, etc) matches with the leagal value of that parameter.
+#' The parameter 'distribution' is a list contains vector of values NAMED WITH THE NAMES OF THE PARAMETERS, the values can be any type (integer, characters, etc) but must match with the leagal value of that parameter.
 #' For example: distribution=list(nFast=(10:30)) or distribution=list(relationship=c('gt','gte'))
 #' 
 #' @examples 
 #' \dontrun{
 #' #(For complete demo see parameterTestMACD.R)
-#' tPD2<-setParameterDistribution(tPD2,'indicator',indexnum=1,distribution=list(nFast=(10:30)),label='nFast')
-#' tPD2<-setParameterDistribution(tPD2,'indicator',indexnum=1,distribution=list(nSlow=(20:40)),label='nSlow')
-#' tPD2<-setParameterDistribution(tPD2,'signal',indexnum=1,distribution=list(relationship=c('gt','gte')),label='sig1.gtgte')
+#' tPD2<-setParameterDistribution(tPD2,'indicator',indexnum=1,
+#' 		distribution=list(nFast=(10:30)),label='nFast')
+#' tPD2<-setParameterDistribution(tPD2,'indicator',indexnum=1,
+#' 		distribution=list(nSlow=(20:40)),label='nSlow')
+#' tPD2<-setParameterDistribution(tPD2,'signal',indexnum=1,
+#' 		distribution=list(relationship=c('gt','gte')),label='sig1.gtgte')
 #' }
 #' 
-#' @param paramDist The object that store the parameter list, if this parameter is missing, or object does not exist, the function will create a new object.
-#' @param type A character string that specifies the type of the parameter, it takes the value of one of 'indicator', 'signal', 'enter', 'exit', 'order'.
-#' @param indexnum Tells the sequence within the type, (If the type is 'signal', indexnum =2 tells the function to update the 2nd signal in the strategy)  
-#' @param distribution Distribution of the parameter, can be any function that return a vector of value. See detail. (A numerical example: 1:10 or sample(1:20,6)
-#' @param weight The weight of each value in the distribution, default value will be all equally weighted.
-#' @param label string label to apply to the parameter distribution
-#' @param psindex specify the index within the parameter distribution object, it is used to make change/ repalce a parameter distribution in the object.
-#' @return The returned object is a structure contains the distribution of parameters, is of the same type as the input parameter paramDist (if provided), the function update the input paramDist object and return the updated one. Usually the returned value is pass to the same object as parameter. See details. 
+#' @param paramDist The object that store the parameter list, if this parameter is missing, or object does not exist, the function will return a new object.
+#' @param type A character string that specifies the type of the parameter, it takes the value in one of 'indicator', 'signal', 'enter', 'exit', 'order'.
+#' @param indexnum Tells the sequence within the type, (for example: type = 'signal', indexnum =2 tells the function to update the 2nd signal in the strategy)  
+#' @param distribution Distribution of the parameter, can be any function that returns a vector of value. See detail. (A numerical example: 1:10 or sample(1:20,6)
+#' @param weight The weight of each value in the distribution, if missing, the default value of all equal weights will be taken.
+#' @param label A string label to apply to the parameter distribution
+#' @param psindex A number specify the index within the parameter distribution object, it is used to make change/ repalce a parameter distribution in the object.
+#' @return The returned object is a structure contains the distribution of parameters, if the input argument 'paramDist' is provided, the function update the input paramDist object and return the updated one. When specify the distribution of several parameters, usually the first returned object is passed to the next several call of the function as input argument 'paramDist'. See example. 
 #' @author Yu Chen
 #' @export
 setParameterDistribution<-function(paramDist=NULL,type=NULL,indexnum=0,distribution=NULL,weight,label,psindex=NULL){#All is needed, set to illegal values
@@ -275,7 +279,7 @@ setParameterDistribution<-function(paramDist=NULL,type=NULL,indexnum=0,distribut
 
 #' Generate parameter sets for a specific strategy, test the strategy on each set of parameters, output result package.
 #' 
-#' Generate parameter sets based on specified distribution (a defined parameter distribution object generated by setParameterDistribution function) and constraints (A defined parameter constraint object generated by setParameterConstraint function), 
+#' The function do several things in one call, to test different parameters on a strategy. It generates parameter sets based on specified distribution (a defined parameter distribution object generated by setParameterDistribution function) and constraints (A defined parameter constraint object generated by setParameterConstraint function), 
 #' apply the generated parameter sets to the specified strategy and return the results package, put the generated portfolio objects and account objects in .blotter environment.
 #' 
 #' Other than the returned result pack, the function puts the generated portfolio and account objects in the .blotter environment.
@@ -283,9 +287,6 @@ setParameterDistribution<-function(paramDist=NULL,type=NULL,indexnum=0,distribut
 #' For example, in macd.R demo, account.macd and portfolio.macd are created in .blotter environment. After calling the applyParameter function and did the 
 #' parameter test, series of similar objects are created with names account.macd.p.1, account.macd.p.2 ... and portfolio.macd.p.1, portfolio.macd.p.2 ...
 #' 
-#' The function supports parallel execution, user only need to initial the parallel package and wrap up afterwards.
-#' The function will automaticly use the number of registered parallel sessions to run testing, See example.
-#'    
 #' @return 
 #' In the returned result pack as a list of object:
 #' 
@@ -297,6 +298,12 @@ setParameterDistribution<-function(paramDist=NULL,type=NULL,indexnum=0,distribut
 #'      \item{parameterDistribution}{is the parameter distribution passed in as argument}
 #'      \item{parameterConstraints}{is the constraints apply to the parameters, passed in as argument}
 #' }
+#' 
+#' \section{Support of parallel execution}{
+#' The function supports parallel execution, user only need to initial the parallel package and wrap up afterwards.
+#' The function will automaticly use the number of registered parallel sessions to run testing, See example.
+#' }   
+#' 
 #' @examples 
 #' \dontrun{
 #' require(foreach)
@@ -319,7 +326,7 @@ setParameterDistribution<-function(paramDist=NULL,type=NULL,indexnum=0,distribut
 #' @param strategy The strategy to test paramters to.
 #' @param portfolios The character name of the portfolios to apply to.
 #' @param parameterPool The object that created by setParameterDistribution function, which includes all the parameter legal values and distribution/weights.
-#' @param parameterConstraints The object created by setParameterConstraint function that specifies the constrains between each parameters,
+#' @param parameterConstraints The object created by setParameterConstraint function that specifies the constraints between each parameters,
 #' @param method Takes string 'expand' or 'random', specify how to generate samples of parameters. 'expand' will do all possible combinations of the parameter sets, 
 #' @param sampleSize Used when method=='random', specify how many parameter sets to generate and run test of.
 #' 
@@ -729,19 +736,25 @@ paramConstraint <- function(label,data=mktdata, columns, relationship=c("gt","lt
 
 
 #' Function to construct parameter constraint object.
+#' 
+#' Function to construct parameter constraint object. The returned value will be one of the inputs to the applyParameter function.
 #'  
 #' @examples
 #' #(For complete demo see parameterTestMACD.R)
-#' #In a MACD strategy, we want to fast macd calcuated from less time periods (days) than slow macd signal:
+#' #In a MACD strategy, we want to fast macd calcuated from less time periods (days)
+#'  than slow macd signal:
 #' \dontrun{  
-#' pConstraint2<-setParameterConstraint(constraintLabel='macdPC',paramList=c('nFast','nSlow'),relationship='lt')
+#' x<-setParameterConstraint(constraintLabel='macdPC',
+#' 		paramList=c('nFast','nSlow'),relationship='lt')
 #' }
-#' #The object pConstraint2 then can be used in applyParameter function to specify the constrains between parameters. 
+#' #The object x then can be used as one of the inputs to applyParameter function to specify the
+#'  constraints between parameters. 
 #' 
-#' @param paramConstraintObj the ParameterConstraint object to be updated on, if missing, funtion will create a new one.
-#' @param constraintLabel string label to apply to the constraint
+#' @param paramConstraintObj the ParameterConstraint object to be updated, if missing, funtion will create a new one.
+#' @param constraintLabel string label to apply to the constraint.
 #' @param paramList the two name of the prameters as a list contains two strings.
-#' @param relationship relationship between the 1st parameter and 2nd one. ('gt' means 1st parameter > 2nd parameter)
+#' @param relationship relationship between the 1st parameter and 2nd one. ('gt' means 1st parameter > 2nd parameter).
+#' @return The returned object is a structure contains the constraints on pairs of parameters, if the input argument 'paramConstraintObj' is provided, the function update the input paramConstraintObj object and return the updated one. When specify the constraints of several pairs of parameters, usually the first returned object is passed to the next several call of the function as input argument 'paramConstraintObj'. See example. 
 #' @author Yu Chen
 #' @export
 setParameterConstraint<-function(paramConstraintObj=list(),constraintLabel,paramList,relationship)
