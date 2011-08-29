@@ -1,14 +1,38 @@
 
 #' add a signal to a strategy
+#' 
+#' This adds a signal definition to a strategy object. 
+#' 
+#' Signals denote times at which the strategy \emph{may} want to 
+#' take action.  Common signals types from the literature include 
+#' crossovers, thresholds, or other interactions between your \code{mktdata}
+#' and your indicators.
+#' 
+#' if \code{label} is not supplied,  NULL default will be converted to '<name>.sig'
+#' if the signal function returns one named column, we use that, and ignore the label.  
+#' If the signal function returns multiple columns, the label will be 
+#' \code{\link{paste}}'d to either the returned column names or the 
+#' respective column number.
+#' 
 #' @param strategy an object of type 'strategy' to add the signal to
 #' @param name name of the signal, must correspond to an R function
 #' @param arguments named list of default arguments to be passed to an signal function when executed
 #' @param parameters vector of strings naming parameters to be saved for apply-time definition,default NULL, only needed if you need special names to avoid argument collision
-#' @param label arbitrary text label for signal output, NULL default will be converted to '<name>.sig'
+#' @param label arbitrary text label for signal output, default NULL
 #' @param ... any other passthru parameters
 #' @param enabled TRUE/FALSE whether the signal is enabled for use in applying the strategy, default TRUE
 #' @param indexnum if you are updating a specific signal, the index number in the $signals list to update
 #' @param store TRUE/FALSE whether to store the strategy in the .strategy environment, or return it.  default FALSE
+#' @seealso 
+#' \code{\link{applySignals}}
+#' \code{\link{add.indicator}}
+#' \code{link{add.rule}}
+#' \code{\link{sigComparison}}
+#' \code{\link{sigCrossover}}
+#' \code{\link{sigFormula}}
+#' \code{\link{sigPeak}}
+#' \code{\link{sigThreshold}}
+#'  
 #' @export
 add.signal <- function(strategy, name, arguments, parameters=NULL, label=NULL, ..., enabled=TRUE, indexnum=NULL, store=FALSE) {
     if(!is.strategy(strategy)) stop("You must pass in a strategy object to manipulate")
@@ -102,7 +126,15 @@ applySignals <- function(strategy, mktdata, indicators=NULL, parameters=NULL, ..
         .formals$... <- NULL
         
         tmp_val<-do.call(fun,.formals)
-        if(is.null(names(tmp_val)) & ncol(tmp_val)==1) names(tmp_val)<-signal$label
+        if(is.null(colnames(tmp_val))) {
+            if (ncol(tmp_val)==1) { #no names, only one column
+                colnames(tmp_val)<-signal$label 
+            } else { #no names, more than one column
+                colnames(tmp_val) <- paste(signal$label,seq(1,ncol(tmp_val)),sep='.') 
+            }  
+        } else { #we have column names, so paste
+            if(ncol(tmp_val)>1) colnames(tmp_val) <- paste(signal$label,colnames(tmp_val),sep='.')
+        }
         if (nrow(mktdata)==nrow(tmp_val) | length(mktdata)==length(tmp_val)) {
             # the signal returned a time series, so we'll name it and cbind it
             mktdata<-cbind(mktdata,tmp_val)

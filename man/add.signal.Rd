@@ -21,8 +21,8 @@
   needed if you need special names to avoid argument
   collision}
 
-  \item{label}{arbitrary text label for signal output, NULL
-  default will be converted to '<name>.sig'}
+  \item{label}{arbitrary text label for signal output,
+  default NULL}
 
   \item{...}{any other passthru parameters}
 
@@ -36,6 +36,26 @@
   the .strategy environment, or return it.  default FALSE}
 }
 \description{
-  add a signal to a strategy
+  This adds a signal definition to a strategy object.
+}
+\details{
+  Signals denote times at which the strategy \emph{may}
+  want to take action.  Common signals types from the
+  literature include crossovers, thresholds, or other
+  interactions between your \code{mktdata} and your
+  indicators.
+
+  if \code{label} is not supplied, NULL default will be
+  converted to '<name>.sig' if the signal function returns
+  one named column, we use that, and ignore the label. If
+  the signal function returns multiple columns, the label
+  will be \code{\link{paste}}'d to either the returned
+  column names or the respective column number.
+}
+\seealso{
+  \code{\link{applySignals}} \code{\link{add.indicator}}
+  \code{link{add.rule}} \code{\link{sigComparison}}
+  \code{\link{sigCrossover}} \code{\link{sigFormula}}
+  \code{\link{sigPeak}} \code{\link{sigThreshold}}
 }
 

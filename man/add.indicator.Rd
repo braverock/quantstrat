@@ -87,8 +87,17 @@
   sort it all out for you at apply-time. We will endeavor
   to get an example of named parameters into the demo
   scripts.
+
+  if \code{label} is not supplied, NULL default will be
+  converted to '<name>.ind' if the indicator function
+  returns one named column, we use that, and ignore the
+  label. If the indicator function returns multiple
+  columns, the label will be \code{\link{paste}}'d to
+  either the returned column names or the respective column
+  number.
 }
 \seealso{
-  \code{\link{quote}}
+  \code{\link{quote}} \code{\link{applyIndicators}}
+  \code{\link{add.signal}} \code{link{add.rule}}
 }
 
