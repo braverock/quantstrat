@@ -742,13 +742,13 @@ paramConstraint <- function(label,data=mktdata, columns, relationship=c("gt","lt
 #' @examples
 #' #(For complete demo see parameterTestMACD.R)
 #' #In a MACD strategy, we want to fast macd calcuated from less time periods (days)
-#'  than slow macd signal:
+#' #than slow macd signal:
 #' \dontrun{  
 #' x<-setParameterConstraint(constraintLabel='macdPC',
 #' 		paramList=c('nFast','nSlow'),relationship='lt')
 #' }
 #' #The object x then can be used as one of the inputs to applyParameter function to specify the
-#'  constraints between parameters. 
+#' #constraints between parameters. 
 #' 
 #' @param paramConstraintObj the ParameterConstraint object to be updated, if missing, funtion will create a new one.
 #' @param constraintLabel string label to apply to the constraint.
