@@ -68,9 +68,15 @@
 #' @param path.dep TRUE/FALSE whether rule is path dependent, default TRUE, see Details 
 #' @param timespan an xts/ISO-8601 style \emph{time} subset, like "T08:00/T15:00", see Details
 #' @param store TRUE/FALSE whether to store the strategy in the .strategy environment, or return it.  default FALSE
+#' @return if \code{strategy} was the name of a strategy, the name. It it was a strategy, the updated strategy. 
 #' @export
 add.rule <- function(strategy, name, arguments, parameters=NULL, label=NULL, type=c(NULL,"risk","order","rebalance","exit","enter"), ..., enabled=TRUE, indexnum=NULL, path.dep=TRUE, timespan=NULL, store=FALSE) {
-    if(!is.strategy(strategy)) stop("You must pass in a strategy object to manipulate")
+    if (!is.strategy(strategy)) {
+        strategy<-try(getStrategy(strategy))
+        if(inherits(strategy,"try-error"))
+            stop ("You must supply an object or the name of an object of type 'strategy'.")
+        store=TRUE
+    } 
     type=type[1]
     if(is.null(type)) stop("You must specify a type")
 	if(is.na(charmatch(type,c("risk","order","rebalance","exit","enter","pre","post")))) stop(paste("type:",type,' must be one of "risk", "order", "rebalance", "exit", "enter", "pre", or "post"'))
@@ -108,6 +114,7 @@ add.rule <- function(strategy, name, arguments, parameters=NULL, label=NULL, typ
     
     if (store) assign(strategy$name,strategy,envir=as.environment(.strategy))
     else return(strategy)
+    strategy$name
 }
 
 #' apply the rules in the strategy to arbitrary market data 

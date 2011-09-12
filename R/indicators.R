@@ -37,7 +37,7 @@
 #' \code{\link{paste}}'d to either the returned column names or the 
 #' respective column number.
 #' 
-#' @param strategy an object of type 'strategy' to add the indicator to
+#' @param strategy an object (or the name of an object) type 'strategy' to add the indicator to
 #' @param name name of the indicator, must correspond to an R function
 #' @param arguments default arguments to be passed to an indicator function when executed
 #' @param parameters vector of strings naming parameters to be saved for apply-time definition,default NULL, only needed if you need special names to avoid argument collision
@@ -46,6 +46,7 @@
 #' @param enabled TRUE/FALSE whether the indicator is enabled for use in applying the strategy, default TRUE
 #' @param indexnum if you are updating a specific indicator, the index number in the $indicators list to update
 #' @param store TRUE/FALSE whether to store the strategy in the .strategy environment, or return it.  default FALSE
+#' @return if \code{strategy} was the name of a strategy, the name. It it was a strategy, the updated strategy. 
 #' @seealso 
 #' \code{\link{quote}}
 #' \code{\link{applyIndicators}}
@@ -54,7 +55,12 @@
 #'  
 #' @export
 add.indicator <- function(strategy, name, arguments, parameters=NULL, label=NULL, ..., enabled=TRUE, indexnum=NULL, store=FALSE) {
-    if(!is.strategy(strategy)) stop("You must pass in a strategy object to manipulate")
+    if (!is.strategy(strategy)) {
+        strategy<-try(getStrategy(strategy))
+        if(inherits(strategy,"try-error"))
+            stop ("You must supply an object or the name of an object of type 'strategy'.")
+        store=TRUE    
+    } 
     tmp_indicator<-list()
     tmp_indicator$name<-name
     if(is.null(label)) label = paste(name,"ind",sep='.')
@@ -73,6 +79,7 @@ add.indicator <- function(strategy, name, arguments, parameters=NULL, label=NULL
     
     if (store) assign(strategy$name,strategy,envir=as.environment(.strategy))
     else return(strategy)
+    strategy$name
 }
 
 #' apply the indicators in the strategy to arbitrary market data

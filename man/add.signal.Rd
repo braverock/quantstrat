@@ -7,8 +7,8 @@
   = FALSE)
 }
 \arguments{
-  \item{strategy}{an object of type 'strategy' to add the
-  signal to}
+  \item{strategy}{an object (or the name of an object) of
+  type 'strategy' to add the signal to}
 
   \item{name}{name of the signal, must correspond to an R
   function}
@@ -34,6 +34,10 @@
 
   \item{store}{TRUE/FALSE whether to store the strategy in
   the .strategy environment, or return it.  default FALSE}
+}
+\value{
+  if \code{strategy} was the name of a strategy, the name.
+  It it was a strategy, the updated strategy.
 }
 \description{
   This adds a signal definition to a strategy object.

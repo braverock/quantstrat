@@ -44,6 +44,10 @@
   \item{store}{TRUE/FALSE whether to store the strategy in
   the .strategy environment, or return it.  default FALSE}
 }
+\value{
+  if \code{strategy} was the name of a strategy, the name.
+  It it was a strategy, the updated strategy.
+}
 \description{
   Rules will be processed in a very particular manner, so
   it bears going over.

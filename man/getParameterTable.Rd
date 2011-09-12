@@ -9,7 +9,7 @@
 }
 \value{
   A list of objects that contains the parameter structure
-  information" \describe{ \item{paramNameList}{the list of
+  information \describe{ \item{paramNameList}{the list of
   parameters used in the strategy, for printing or viewing
   as a table.} \item{strategyName}{ string name of the
   strategy} \item{structure}{the detailed paramter
@@ -19,14 +19,14 @@
 }
 \description{
   Users can use this function to extract the parameters
-  used in a strategy, and as a reminder/ cheatsheet when
-  they create the parameter distribution. But it's not
-  required to be used to specify the distribution of
-  parameters.
+  used in a strategy, and use the output as a reminder/
+  cheatsheet when they create the parameter distribution or
+  parameter constraints. But it's not required to run to
+  specify the distribution or constraints of parameters.
 }
 \examples{
-# When strategy object stratMACD has already been created by macd.R demo:
-# bfollowing line will return the parameter information to object paramStructure:
+# When strategy object stratMACD has already been created by demo macd.R:
+# following line will return object x that contains the parameter information.
 \dontrun{
 x<-getParameterTable(stratMACD)
 }
