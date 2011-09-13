@@ -37,6 +37,6 @@ tPD<-setParameterDistribution(tPD,'indicator',indexnum=1,distribution=list(n=20:
 #pConstr<-setParameterConstraint()
 pConstraint<-setParameterConstraint(constraintLabel='PC1',paramList=c('sd','n'),relationship='gt')
 
-testPackList<-applyParameter(strategy=stratBBands,portfolios='bbands',parameterPool=tPD,method='random',sampleSize=2,parameterConstrains=pConstraint)
+testPackList<-applyParameter(strategy=stratBBands,portfolios='default',parameterPool=tPD,method='random',sampleSize=2,parameterConstraints=pConstraint)
 
 

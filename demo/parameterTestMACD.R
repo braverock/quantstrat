@@ -37,7 +37,7 @@ pConstraint2<-setParameterConstraint(constraintLabel='macdPC',paramList=c('nFast
 
 
 laststpar.rnd<-system.time(
-		testPackListPL<-applyParameter(strategy=stratMACD,portfolios=portfolio.st,parameterPool=tPD2,method='random',sampleSize=20,parameterConstrains=pConstraint2)
+		testPackListPL<-applyParameter(strategy=stratMACD,portfolios=portfolio.st,parameterPool=tPD2,method='random',sampleSize=20,parameterConstraints=pConstraint2)
 )
 laststpar.rnd
 
