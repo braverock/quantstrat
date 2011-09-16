@@ -390,11 +390,11 @@ applyRules <- function(portfolio, symbol, strategy, mktdata, Dates=NULL, indicat
                                 col<-first(colnames(mktdata)[has.Ask(mktdata,which=TRUE)])
                             } else if (isOHLCmktdata) {
                                 col<-first(colnames(mktdata)[has.Hi(mktdata,which=TRUE)])
-                            } else {
-                                # We should never hit this code, but it should help us find any edge cases
-                                # like perhaps we need a has.Price check
-                                stop("no price discernable for stoplimit in applyRules")
+                            } else { #univariate or something built with fn_SpreadBuilder  
+                                col<-first(colnames(mktdata)[grep(prefer, colnames(mktdata))])
+                                # perhaps we need a has.Price check
                             }
+                            if (is.na(col)) stop("no price discernable for stoplimit in applyRules")
                         } else { #sell if mktprice moves below stoplimitorder price
                             relationship="lte" #if Bid or Lo go below threshold, our stop will be filled
                             if(isBBOmktdata) {
@@ -402,9 +402,9 @@ applyRules <- function(portfolio, symbol, strategy, mktdata, Dates=NULL, indicat
                             } else if (isOHLCmktdata) {
                                 col<-first(colnames(mktdata)[has.Lo(mktdata,which=TRUE)])
                             } else {
-                                # We should never hit this code, but it should help us find any edge cases
-                                stop("no price discernable for stoplimit in applyRules")
-                            }
+                                col<-first(colnames(mktdata)[grep(prefer, colnames(mktdata))])
+                            }    
+                            if (is.na(col)) stop("no price discernable for stoplimit in applyRules")                            
                         } 
                         cross<-sigThreshold(label='tmpstop',column=col,threshold=tmpprice,relationship=relationship)
                         if(any(cross[timespan])){
@@ -427,10 +427,9 @@ applyRules <- function(portfolio, symbol, strategy, mktdata, Dates=NULL, indicat
                             } else if (isOHLCmktdata) {
                                 col<-first(colnames(mktdata)[has.Lo(mktdata,which=TRUE)])
                             } else {
-                                # We should never hit this code, but it should help us find any edge cases
-                                # like perhaps we need a has.Price check
-                                stop("no price discernable in applyRules")
-                            }
+                                col<-first(colnames(mktdata)[grep(prefer, colnames(mktdata))])
+                            }    
+                            if (is.na(col)) stop("no price discernable for stoplimit in applyRules")
                         } else {
                             #selling
                             relationship="gte" #look for places where Mkt Bid >= our Ask
@@ -439,9 +438,9 @@ applyRules <- function(portfolio, symbol, strategy, mktdata, Dates=NULL, indicat
                             } else if (isOHLCmktdata) {
                                 col<-first(colnames(mktdata)[has.Hi(mktdata,which=TRUE)])
                             } else {
-                                # We should never hit this code, but it should help us find any edge cases
-                                stop("no price discernable in applyRules")
-                            }
+                                col<-first(colnames(mktdata)[grep(prefer, colnames(mktdata))])
+                            }    
+                            if (is.na(col)) stop("no price discernable for stoplimit in applyRules")
                         }
                         # use sigThreshold
                         cross<-sigThreshold(label='tmplimit',column=col,threshold=tmpprice,relationship=relationship)

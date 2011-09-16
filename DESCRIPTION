@@ -1,7 +1,7 @@
 Package: quantstrat
 Type: Package
 Title: Quantitative Strategy Model Framework
-Version: 0.5.4
+Version: 0.5.5
 Date: $Date$
 Author: Peter Carl, Dirk Eddelbuettel, Brian G. Peterson,
     Jeffrey A. Ryan, Joshua Ulrich, Garrett See, Yu Chen

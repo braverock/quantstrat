@@ -210,9 +210,9 @@ addOrder <- function(portfolio, symbol, timestamp, qty, price, ordertype, side, 
     if(is.null(qty)) stop("qty",qty,"must not be NULL")
     if(is.na(qty)) stop("qty",qty,"must not be NA")
     if(!is.numeric(price)) stop (paste("Price must be numeric:",price))
-    if(price==0) stop("price",price,"must be positive or negative")
-    if(is.null(price)) stop("price",price,"must not be NULL")
-    if(is.na(price)) stop("price",price,"must not be NA")
+    if(is.null(price)) stop("price ",price," must not be NULL")
+    if(is.na(price)) stop("order at timestamp ", timestamp, " must not have price of NA")
+    if(price==0) warning(paste(ordertype, "order for", qty, "has a price of zero."))
 
     if(!is.null(side) & !length(grep(side,c('long','short')))==1) stop(paste("side:",side," must be one of 'long' or 'short'"))
     if(is.na(charmatch(ordertype,c("market","limit","stoplimit","stoptrailing","iceberg")))) stop(paste("ordertype:",ordertype,' must be one of "market","limit","stoplimit","stoptrailing", or"iceberg"'))
@@ -415,10 +415,14 @@ ruleOrderProc <- function(portfolio, symbol, mktdata, timespan=NULL, ordertype=N
     # get open orders
     procorders=NULL
     procorders<-getOrders(portfolio=portfolio, symbol=symbol, status="open", timespan=timespan, ordertype=ordertype, which.i=TRUE)
+
+    if(hasArg(prefer)) prefer=match.call(expand.dots=TRUE)$prefer
+    else prefer = NULL
+
     # check for open orders
     if (length(procorders)>=1){
         # get previous bar
-        prevtime  <- time(mktdata[last(mktdata[timespan, which.i = TRUE])-1]) #not used
+        prevtime  <- time(mktdata[last(mktdata[timespan, which.i = TRUE])-1]) 
         timestamp <- time(last(mktdata[timespan]))
         #switch on frequency
         freq = periodicity(mktdata)
@@ -449,7 +453,7 @@ ruleOrderProc <- function(portfolio, symbol, mktdata, timespan=NULL, ordertype=N
                                 daily = {
                                     txntime=as.character(index(ordersubset[ii,])) # transacts on this bar, e.g. in the intraday cross, or leading into the end of month, quarter, etc.
                                     # txntime=as.character(timestamp) # use this if you wanted to transact on the close of the next bar
-                                    txnprice=as.numeric(getPrice(last(mktdata[txntime]), ...=...)[,1])
+                                    txnprice=as.numeric(getPrice(last(mktdata[txntime]), prefer=prefer)[,1])
                                 }, #end daily
                                 { 
                                     txntime = timestamp
@@ -464,27 +468,34 @@ ruleOrderProc <- function(portfolio, symbol, mktdata, timespan=NULL, ordertype=N
                                             txnprice = min(orderPrice, as.numeric(getPrice(mktdataTimestamp,prefer='bid')[,1])) #presumes unique timestamp
                                         }
                                         #e.g. if pricemethod was opside, it sent a buy order at mktAsk. fill at greater of that ask, and current ask
-                                    } else txnprice = as.numeric(getPrice(mktdataTimestamp)[,1]) #filled at 'price'                                
+                                    } else txnprice = as.numeric(getPrice(mktdataTimestamp, prefer=prefer)[,1]) #filled at 'price'
                                 }) # end switch on frequency
                     },
                     limit= ,
                     stoplimit =,
                     iceberg = {
-                        if (isOHLCmktdata){
+                        if (!isBBOmktdata) { #(isOHLCmktdata){
                             if( orderType == 'iceberg'){
-                                stop("iceberg orders not supported for OHLC data")
+                                stop("iceberg orders only supported for BBO data")
                             } 
                             # check to see if price moved through the limit
-                            # FIXME: should this be the same for buys and sells?
-                            if( orderPrice > as.numeric(Lo(mktdataTimestamp)) & #what about an offer entered below the Lo?
-                                orderPrice < as.numeric(Hi(mktdataTimestamp)) ) #what about a bid entered above the Hi? 
-                                #should be: if buy order price > Lo || sell order price < Hi
-                            {
-                                txnprice = orderPrice
-                                txntime = timestamp
+                            if (orderQty > 0) { # positive quantity 'buy'
+                                if( (has.Lo(mktdata) && orderprice > as.numeric(Lo(mktdataTimestamp))) || 
+                                    (!has.Lo(mktdata) && orderprice >= as.numeric(getPrice(mktdataTimestamp, prefer=prefer))))
+                                {
+                                    txnprice = orderPrice
+                                    txntime = timestamp
+                                } else next() # price did not move through my order, should go to next order  
+                            } else if(orderQty < 0) { #negative quantity 'sell'
+                                if ( (has.Hi(mktdata) && orderprice < as.numeric(Hi(mktdataTimestamp))) ||
+                                     (!has.Hi(mktdata) && orderprice <= as.numeric(getPrice(mktdataTimestamp,prefer=prefer))) )
+                                {
+                                    txnprice = orderPrice
+                                    txntime = timestamp
+                                } else next() # price did not move through my order, should go to next order 
                             } else {
-                                # price did not move through my order
-                                next() # should go to next order
+                                warning('ignoring order with quantity of zero')
+                                next()
                             }
                         } else if(isBBOmktdata){
                             # check side/qty
@@ -541,36 +552,25 @@ ruleOrderProc <- function(portfolio, symbol, mktdata, timespan=NULL, ordertype=N
                                 ordersubset[ii,"Order.StatusTime"]<-as.character(timestamp)
                                 next()
                             } 
-                        } else {
-                            # no depth data, either OHLC or BBO, getPrice explicitly using symbol ?
-                            if(orderPrice == getPrice(mktdataTimestamp, symbol=symbol, prefer='price')[,1]){
-                                txnprice = orderPrice
-                                txntime = timestamp
-                            } else next()
                         }
-
                     },
                     stoptrailing = {
                         # if market moved through my price, execute
                         if(orderQty > 0){ # positive quantity 'buy'
-                            if(isBBOmktdata){
-                                prefer='offer'
-                                if(orderPrice >= getPrice(mktdataTimestamp,prefer=prefer)[,1]){ #TODO maybe use last(getPrice) to catch multiple prints on timestamp?
-                                    # price we're willing to pay is higher than the offer price, so execute at the prevailing price
-                                    #txnprice = orderPrice
-                                    txnprice = as.numeric(getPrice(mktdataTimestamp,prefer=prefer)[,1]) #presumes unique timestamps
-                                    txntime = timestamp
-                                } 
+                            if(isBBOmktdata) prefer='offer'
+                            if(orderPrice >= getPrice(mktdataTimestamp,prefer=prefer)[,1]){ #TODO maybe use last(getPrice) to catch multiple prints on timestamp?
+                                # price we're willing to pay is higher than the offer price, so execute at the prevailing price
+                                #txnprice = orderPrice
+                                txnprice = as.numeric(getPrice(mktdataTimestamp,prefer=prefer)[,1]) #presumes unique timestamps
+                                txntime = timestamp
                             } 
                         } else { # negative quantity 'sell'
-                            if(isBBOmktdata){
-                                prefer='bid'
-                                if(orderPrice <= getPrice(mktdataTimestamp,prefer=prefer)[,1]){
-                                    # we're willing to sell at a better price than the bid, so execute at the prevailing price
-                                    # txnprice = orderPrice
-                                    txnprice = as.numeric(getPrice(mktdataTimestamp,prefer=prefer)[,1]) #presumes unique timestamp
-                                    txntime = timestamp
-                                }  
+                            if(isBBOmktdata) prefer='bid'
+                            if(orderPrice <= getPrice(mktdataTimestamp,prefer=prefer)[,1]){
+                                # we're willing to sell at a better price than the bid, so execute at the prevailing price
+                                # txnprice = orderPrice
+                                txnprice = as.numeric(getPrice(mktdataTimestamp,prefer=prefer)[,1]) #presumes unique timestamp
+                                txntime = timestamp
                             } 
                         } 
                         if(isOHLCmktdata){
