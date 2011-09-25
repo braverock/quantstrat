@@ -299,10 +299,9 @@ setParameterDistribution<-function(paramDist=NULL,type=NULL,indexnum=0,distribut
 #'      \item{parameterConstraints}{is the constraints apply to the parameters, passed in as argument}
 #' }
 #' 
-#' \section{Support of parallel execution}{
+#' @section Support for parallel execution:
 #' The function supports parallel execution, user only need to initial the parallel package and wrap up afterwards.
 #' The function will automaticly use the number of registered parallel sessions to run testing, See example.
-#' }   
 #' 
 #' @examples 
 #' \dontrun{
