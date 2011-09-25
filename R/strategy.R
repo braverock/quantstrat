@@ -6,7 +6,7 @@
 #' @param store TRUE/FALSE whether to store the strategy in the .strategy environment, or return it.  default FALSE
 #' @export
 strategy <- function(name, ..., assets=NULL, constraints=NULL ,store=FALSE)
-{ # modeled on GPL R-Forge pkg roi by Stefan Thuessel,Kurt Hornik,David Meyer
+{ # originally modeled on framework code in GPL R-Forge pkg roi by Stefan Thuessel,Kurt Hornik,David Meyer
     
     if(!is.null(assets)){
         if(is.numeric(assets)){
@@ -68,8 +68,9 @@ strategy <- function(name, ..., assets=NULL, constraints=NULL ,store=FALSE)
 #' @param parameters named list of parameters to be applied during evaluation of the strategy, default NULL
 #' @param ... any other passthru parameters
 #' @param verbose if TRUE, return output list
+#' @param symbols character vector identifying symbols to initialize a portfolio for, default NULL
 #' @export
-applyStrategy <- function(strategy , portfolios, mktdata=NULL , parameters=NULL, ..., verbose=TRUE ) {
+applyStrategy <- function(strategy , portfolios, mktdata=NULL , parameters=NULL, ..., verbose=TRUE, symbols=NULL ) {
     #TODO add Date subsetting
     #TODO add saving of modified market data
     
@@ -83,10 +84,11 @@ applyStrategy <- function(strategy , portfolios, mktdata=NULL , parameters=NULL,
 	
 	
     for (portfolio in portfolios) {
-		
-		# TODO FIXME evaluate parameter table here, add outer loop
-		
-		ret[[portfolio]]<-list() # this is slot [[i]] which we will use later
+        
+		# TODO call to initStrategy will go here!
+        # initStrategy(strategy, portfolio, symbols, ...=...)
+        
+   		ret[[portfolio]]<-list() # this is slot [[i]] which we will use later
         pobj<-getPortfolio(portfolio)
         symbols<-names(pobj$symbols)
         sret<-list()
