@@ -4,8 +4,19 @@
 #
 ###############################################################################
 
+#' run standard and custom strategy initialization functions 
+#' @param strategy object of type \code{strategy} to initialize data/containers for
+#' @param portfolio 
+#' @param symbols 
+#' @param get.Symbols TRUE/FALSE, default TRUE: 
+#' @param init.Portf TRUE/FALSE, default TRUE: 
+#' @param init.Acct TRUE/FALSE, default TRUE: 
+#' @param init.Orders TRUE/FALSE, default TRUE: 
+#' @param unique TRUE/FALSE, default TRUE: 
+#' @param dots any other passtrhrough parameters
 #' @author Garrett See, Brian Peterson
-initStrategy <- function(strategy, portfolio, symbols, get.Symbols=TRUE, init.Portf=TRUE, init.Acct=TRUE, init.Orders=TRUE, unique=TRUE) {
+#' @export
+initStrategy <- function(strategy, portfolio, symbols, get.Symbols=TRUE, init.Portf=TRUE, init.Acct=TRUE, init.Orders=TRUE, unique=TRUE,...) {
     # basic idea is to do all the common set-up stuff
     # create portfolio, account, orderbook
     #if any 'symbols' are not defined as instruments, we'll make a basic instrument
