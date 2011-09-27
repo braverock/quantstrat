@@ -126,7 +126,11 @@ applyStrategy <- function(strategy , portfolios, mktdata=NULL , parameters=NULL,
 
 			ret[[portfolio]][[symbol]]<-sret
 		}
-	}
+        
+        # TODO call to updateStrategy will go here!
+        # updateStrategy(strategy, portfolio, Symbols=symbols, ...=...)
+        
+    }
     
     if(verbose) return(ret)
 }

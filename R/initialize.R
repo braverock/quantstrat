@@ -13,7 +13,7 @@
 #' @param init.Acct TRUE/FALSE, default TRUE: 
 #' @param init.Orders TRUE/FALSE, default TRUE: 
 #' @param unique TRUE/FALSE, default TRUE: 
-#' @param dots any other passtrhrough parameters
+#' @param \dots any other passtrhrough parameters
 #' @author Garrett See, Brian Peterson
 #' @export
 initStrategy <- function(strategy, portfolio, symbols, get.Symbols=TRUE, init.Portf=TRUE, init.Acct=TRUE, init.Orders=TRUE, unique=TRUE,...) {
@@ -87,6 +87,31 @@ initStrategy <- function(strategy, portfolio, symbols, get.Symbols=TRUE, init.Po
     }            
 }
 
+#' add arbitrary initialization functions to a strategy
+#' 
+#' \code{\link{initStrategy}} will run a series of common initialization functions at the 
+#' beginning of an \code{\link{applyStrategy}} call.  This function allows the user to 
+#' add arbitrary initialization functions to the sequence.
+#' 
+#' These arbitrary functions will be added to the \code{init} slot of the strategy object
+#' and when \code{applyStrategy} is evaluated, the arbitrary initialization functions will
+#' be evaluated after the standardized functions.
+#' 
+#' For example, if your strategy uses a synthetic basket instrument, you could use this 
+#' initialization slot to add a custom constructor to build the basket instrument time 
+#' series and modify the symbols slot(s) of the strategy and portfolio.
+#' 
+#' @param strategy an object (or the name of an object) of type 'strategy' to add the init function definition to
+#' @param name name of the init, must correspond to an R function
+#' @param arguments named list of default arguments to be passed to an init function when executed
+#' @param parameters vector of strings naming parameters to be saved for apply-time definition,default NULL, only needed if you need special names to avoid argument collision
+#' @param label arbitrary text label for init output, default NULL
+#' @param ... any other passthru parameters
+#' @param enabled TRUE/FALSE whether the init is enabled for use in applying the strategy, default TRUE
+#' @param indexnum if you are updating a specific init, the index number in the $init list to update
+#' @param store TRUE/FALSE whether to store the strategy in the .strategy environment, or return it.  default FALSE
+#' @return if \code{strategy} was the name of a strategy, the name. It it was a strategy, the updated strategy. 
+#' @export
 add.init <- function(strategy, name, arguments, parameters=NULL, label=NULL, ..., enabled=TRUE, indexnum=NULL, store=FALSE) {
     if(!is.strategy(strategy)) stop("You must pass in a strategy object to manipulate")
     tmp_init<-list()
