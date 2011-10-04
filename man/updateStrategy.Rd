@@ -13,8 +13,8 @@
   \item{account}{string identifying an account. Same as
   \code{portfolio} by default}
 
-  \item{Symbols:}{character vector of names of symbols
-  whose portfolios will be updated}
+  \item{Symbols}{character vector of names of symbols whose
+  portfolios will be updated}
 
   \item{Dates}{optional xts-style ISO-8601 time range to
   run updatePortf over, default NULL (will use times from
@@ -55,7 +55,7 @@
   standardized functions.
 
   For example, if you are working with high frequency data,
-  it would be common to \empgh{mark the book} on a lower
+  it would be common to \emph{mark the book} on a lower
   frequency, perhaps minutes, hours, or even days, rather
   than tick.  A custom wrapup function could take your high
   frequency data and transform it to lower frequency data

@@ -10,9 +10,9 @@
   \item{strategy}{object of type \code{strategy} to
   initialize data/containers for}
 
-  \item{portfolio}{}
+  \item{portfolio}{portfolio}
 
-  \item{symbols}{}
+  \item{symbols}{symbols}
 
   \item{get.Symbols}{TRUE/FALSE, default TRUE:}
 

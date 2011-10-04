@@ -6,8 +6,8 @@
 
 #' run standard and custom strategy initialization functions 
 #' @param strategy object of type \code{strategy} to initialize data/containers for
-#' @param portfolio 
-#' @param symbols 
+#' @param portfolio portfolio
+#' @param symbols symbols
 #' @param get.Symbols TRUE/FALSE, default TRUE: 
 #' @param init.Portf TRUE/FALSE, default TRUE: 
 #' @param init.Acct TRUE/FALSE, default TRUE: 

@@ -21,13 +21,13 @@ rm.strat <- function(name='default') {
 #' be evaluated \emph{before} the standardized functions.
 #' 
 #' For example, if you are working with high frequency data, it would be common 
-#' to \empgh{mark the book} on a lower frequency, perhaps minutes, hours, or even days,
+#' to \emph{mark the book} on a lower frequency, perhaps minutes, hours, or even days,
 #' rather than tick.  A custom wrapup function could take your high frequency 
 #' data and transform it to lower frequency data before the call to \code{\link{updatePortf}}. 
 #' 
 #' @param portfolio string identifying a portfolio
 #' @param account string identifying an account. Same as \code{portfolio} by default
-#' @param Symbols: character vector of names of symbols whose portfolios will be updated
+#' @param Symbols character vector of names of symbols whose portfolios will be updated
 #' @param Dates optional xts-style ISO-8601 time range to run updatePortf over, default NULL (will use times from Prices)
 #' @param Prices optional xts object containing prices and timestamps to mark the book on, default NULL
 #' @param update.Portf TRUE/FALSE if TRUE (default) a call will be made to \code{updatePortf}
