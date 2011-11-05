@@ -534,17 +534,21 @@ applyRules <- function(portfolio, symbol, strategy, mktdata, Dates=NULL, indicat
                 } # end if for trailing orders
             } # end else clause for any open orders in this timespan    
         } # end any open orders closure
-        if(hasmktord) { 
-            curIndex <- curIndex+1
-            dindex<-get.dindex()
-        } else {
-            dindex<-get.dindex()
-            if (any(dindex > curIndex)) {
-                curIndex<-min(dindex[dindex>curIndex]) 
-            } else curIndex <- FALSE
+
+        if(curIndex){
+            if(hasmktord) { 
+                curIndex <- curIndex+1
+                dindex<-get.dindex()
+            } else {
+                dindex<-get.dindex()
+                if (any(dindex > curIndex)) {
+                    curIndex<-min(dindex[dindex>curIndex]) 
+                } else curIndex <- FALSE
+            }
         }
-        if (is.na(curIndex) || curIndex >= length(index(mktdata))) curIndex=FALSE
         
+        if (is.na(curIndex) || curIndex > length(index(mktdata))) curIndex=FALSE
+
         #debug line
         #print(curIndex)
         
