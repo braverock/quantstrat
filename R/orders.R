@@ -480,15 +480,15 @@ ruleOrderProc <- function(portfolio, symbol, mktdata, timespan=NULL, ordertype=N
                             } 
                             # check to see if price moved through the limit
                             if (orderQty > 0) { # positive quantity 'buy'
-                                if( (has.Lo(mktdata) && orderprice > as.numeric(Lo(mktdataTimestamp))) || 
-                                    (!has.Lo(mktdata) && orderprice >= as.numeric(getPrice(mktdataTimestamp, prefer=prefer))))
+                                if( (has.Lo(mktdata) && orderPrice > as.numeric(Lo(mktdataTimestamp))) || 
+                                    (!has.Lo(mktdata) && orderPrice >= as.numeric(getPrice(mktdataTimestamp, prefer=prefer))))
                                 {
                                     txnprice = orderPrice
                                     txntime = timestamp
                                 } else next() # price did not move through my order, should go to next order  
                             } else if(orderQty < 0) { #negative quantity 'sell'
-                                if ( (has.Hi(mktdata) && orderprice < as.numeric(Hi(mktdataTimestamp))) ||
-                                     (!has.Hi(mktdata) && orderprice <= as.numeric(getPrice(mktdataTimestamp,prefer=prefer))) )
+                                if ( (has.Hi(mktdata) && orderPrice < as.numeric(Hi(mktdataTimestamp))) ||
+                                     (!has.Hi(mktdata) && orderPrice <= as.numeric(getPrice(mktdataTimestamp,prefer=prefer))) )
                                 {
                                     txnprice = orderPrice
                                     txntime = timestamp
