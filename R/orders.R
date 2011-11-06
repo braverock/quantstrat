@@ -627,15 +627,25 @@ ruleOrderProc <- function(portfolio, symbol, mktdata, timespan=NULL, ordertype=N
                         # else next
                     }
             )
-            #if(!is.null(txnprice) & !isTRUE(is.na(txnprice)))
-            if(ifelse(is.null(txnprice),FALSE,!is.na(txnprice))) {  # eliminate warning for is.na(NULL) -- jmu
+            if(!is.null(txnprice) && !isTRUE(is.na(txnprice))) {
                 #make sure we don't cross through zero
-
                 pos<-getPosQty(portfolio,symbol,timestamp)
-                              pos<-getPosQty(portfolio,symbol,timestamp)
-                if ( (pos > 0 && orderQty < -pos) || (pos < 0 && orderQty > -pos) ){
+                if ( (pos > 0 && orderQty < -pos) || (pos < 0 && orderQty > -pos) ) {
                     warning("orderQty of ",orderQty,
-                            " would cross through zero, adjusting qty to ",-pos)                       
+                            " would cross through zero, adjusting qty to ",-pos)
+                    orderQty <- -pos
+                }
+                # make sure we don't create a position on the opposite order side
+                # FIXME: this should really be something like:
+                #  1> tell updateOrders to cancel all risk orders if the position is zero and
+                #     after the ordersubset is put back into the order book
+                #  2> delay processing risk orders with orderqty='all'
+                orderSide <- ordersubset[ii,"Order.Side"]
+                if ((orderSide == "long"  && orderQty + pos < 0) ||
+                    (orderSide == "short" && orderQty + pos > 0) ) {
+                    warning("orderQty of ", orderQty, " would create a ",
+                      grep(orderSide,c("long","short"),invert=TRUE,value=TRUE),
+                      " postion adjusting qty to ",-pos)
                     orderQty <- -pos
                 }
                 if (orderQty != 0) {
