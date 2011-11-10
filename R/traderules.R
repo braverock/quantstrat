@@ -3,7 +3,7 @@
 #' 
 #' \code{pricemethod} may be one of 
 #'      \describe{ 
-#'          \item{'market', 'opside', or 'maker'}{ will use the 'ask' price if you're buying and 
+#'          \item{'market', 'opside', or 'active'}{ will use the 'ask' price if you're buying and 
 #'            the 'bid' price if you're selling, crossing the market at the time of 
 #'            order entry to attempt to set an aggressive price to get the trade. }
 #' 		   \item{'passive', 'work' or 'join'}{ which will join the 'bid' price if you are buying
@@ -42,7 +42,7 @@
 #' @param sethold boolean, puts entry Rule processing on hold, default FALSE
 #' @seealso \code{\link{osNoOp}} , \code{\link{add.rule}}
 #' @export
-ruleSignal <- function(data=mktdata, timestamp, sigcol, sigval, orderqty=0, ordertype, orderside=NULL, threshold=NULL, tmult=FALSE, replace=TRUE, delay=0.0001, osFUN='osNoOp', pricemethod=c('market','opside','maker'), portfolio, symbol, ..., ruletype, TxnFees=0, prefer=NULL, sethold=FALSE)
+ruleSignal <- function(data=mktdata, timestamp, sigcol, sigval, orderqty=0, ordertype, orderside=NULL, threshold=NULL, tmult=FALSE, replace=TRUE, delay=0.0001, osFUN='osNoOp', pricemethod=c('market','opside','active'), portfolio, symbol, ..., ruletype, TxnFees=0, prefer=NULL, sethold=FALSE)
 {
     if(!is.function(osFUN)) osFUN<-match.fun(osFUN)
     #print(paste(symbol,timestamp, sigval))
@@ -118,7 +118,7 @@ ruleSignal <- function(data=mktdata, timestamp, sigcol, sigval, orderqty=0, orde
 				}
         )
         if(inherits(orderprice,'try-error')) orderprice<-NULL
-        if(length(orderprice>1) & !pricemethod=='maker') orderprice<-last(orderprice[timestamp])
+        if(length(orderprice>1) && !pricemethod=='maker') orderprice<-last(orderprice[timestamp])
         if(!is.null(orderprice) && !is.null(ncol(orderprice))) orderprice <- orderprice[,1]
 
         if(is.null(orderside) & !isTRUE(orderqty == 0)){

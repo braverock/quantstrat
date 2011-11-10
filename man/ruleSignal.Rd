@@ -5,9 +5,9 @@
   ruleSignal(data = mktdata, timestamp, sigcol, sigval,
   orderqty = 0, ordertype, orderside = NULL, threshold =
   NULL, tmult = FALSE, replace = TRUE, delay = 1e-04, osFUN
-  = "osNoOp", pricemethod = c("market", "opside", "maker"),
-  portfolio, symbol, ..., ruletype, TxnFees = 0, prefer =
-  NULL, sethold = FALSE)
+  = "osNoOp", pricemethod = c("market", "opside",
+  "active"), portfolio, symbol, ..., ruletype, TxnFees = 0,
+  prefer = NULL, sethold = FALSE)
 }
 \arguments{
   \item{data}{an xts object containing market data.
@@ -75,19 +75,19 @@
 }
 \description{
   \code{pricemethod} may be one of \describe{
-  \item{'market', 'opside', or 'maker'}{ will use the 'ask'
-  price if you're buying and the 'bid' price if you're
-  selling, crossing the market at the time of order entry
-  to attempt to set an aggressive price to get the trade. }
-  \item{'passive', 'work' or 'join'}{ which will join the
-  'bid' price if you are buying or join the 'ask' price if
-  you are selling, passively working to make liquidity at
-  the prevailing market price without crossing the market
-  at time of order entry} \item{'maker'}{will create a pair
-  of orders for both bid and offer, modeling market making
-  activities by having orders on both sides. This will then
-  create an Order.Set, and use the \code{threshold} to set
-  the prices for these orders.} }
+  \item{'market', 'opside', or 'active'}{ will use the
+  'ask' price if you're buying and the 'bid' price if
+  you're selling, crossing the market at the time of order
+  entry to attempt to set an aggressive price to get the
+  trade. } \item{'passive', 'work' or 'join'}{ which will
+  join the 'bid' price if you are buying or join the 'ask'
+  price if you are selling, passively working to make
+  liquidity at the prevailing market price without crossing
+  the market at time of order entry} \item{'maker'}{will
+  create a pair of orders for both bid and offer, modeling
+  market making activities by having orders on both sides.
+  This will then create an Order.Set, and use the
+  \code{threshold} to set the prices for these orders.} }
 }
 \details{
   If \code{threshold} is not numeric or \code{NULL} it
