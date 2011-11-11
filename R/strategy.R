@@ -93,7 +93,7 @@ applyStrategy <- function(strategy , portfolios, mktdata=NULL , parameters=NULL,
         symbols<-names(pobj$symbols)
         sret<-list()
         for (symbol in symbols){
-            mktdata <- get(symbol)
+            if (is.null(mktdata)) mktdata <- get(symbol)
 
             #loop over indicators
             sret$indicators <- applyIndicators(strategy=strategy , mktdata=mktdata , parameters=parameters, ... )
