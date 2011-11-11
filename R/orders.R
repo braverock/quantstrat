@@ -119,9 +119,8 @@ getOrders <- function(portfolio,symbol,status="open",timespan=NULL,ordertype=NUL
 #' 
 #' By default, this function will locate and replace any 'open' order(s) 
 #' on the requested portfolio/symbol that have the same type and side.  
-#' This is the equivalent of what is sometimes called an 
-#' OCO (Order Cancels Other) order.  If you do not want the function to 
-#' behave this way, set \code{replace=FALSE}.
+#' If you do not want open orders to be canceled and replaced with the new order,
+#' set \code{replace=FALSE}.
 #'  
 #' We have modeled two types of stop orders, which should be sufficient to model most types of stops.  
 #' 
@@ -294,7 +293,7 @@ addOrder <- function(portfolio, symbol, timestamp, qty, price, ordertype, side, 
     qtysign <- sign(drop(coredata(qty)))
     
     if(!isTRUE(return)){
-        if(isTRUE(replace)) updateOrders(portfolio=portfolio, symbol=symbol,timespan=timespan, ordertype=ordertype, side=side, qtysign=qtysign, oldstatus="open", newstatus="replaced", statustimestamp=timestamp)
+        if(isTRUE(replace)) updateOrders(portfolio=portfolio, symbol=symbol,timespan=timespan, side=side, qtysign=qtysign, oldstatus="open", newstatus="replaced", statustimestamp=timestamp)
         # get order book
         orderbook <- getOrderBook(portfolio)
         orderbook[[portfolio]][[symbol]]<-rbind(orderbook[[portfolio]][[symbol]],order)
@@ -333,15 +332,15 @@ addOrder <- function(portfolio, symbol, timestamp, qty, price, ordertype, side, 
 updateOrders <- function(portfolio, symbol, timespan, ordertype=NULL, side=NULL, qtysign=NULL, oldstatus="open", newstatus, statustimestamp) 
 { 
     #data quality checks
-    if(!is.null(oldstatus) & !length(grep(oldstatus,c("open", "closed", "canceled","replaced")))==1) 
+    if(!is.null(oldstatus) && !length(grep(oldstatus,c("open", "closed", "canceled","replaced")))==1) 
         stop(paste("old order status:",oldstatus,' must be one of "open", "closed", "canceled", or "replaced"'))
     if(!length(grep(newstatus,c("open", "closed", "canceled","replaced")))==1) 
         stop(paste("new order status:",newstatus,' must be one of "open", "closed", "canceled", or "replaced"'))
-    if(!is.null(side) & !length(grep(side,c('long','short')))==1) 
+    if(!is.null(side) && !length(grep(side,c('long','short')))==1) 
         stop(paste("side:",side," must be one of 'long' or 'short'"))
     if(!is.null(qtysign) && (qtysign != -1 && qtysign != 1 && qtysign != 0))
         stop(paste("qtysign:",qtysign," must be one of NULL, -1, 0, or 1"))
-    if(!is.null(ordertype) & is.na(charmatch(ordertype,c("market","limit","stoplimit","stoptrailing","iceberg")))) 
+    if(!is.null(ordertype) && is.na(charmatch(ordertype,c("market","limit","stoplimit","stoptrailing","iceberg")))) 
         stop(paste("ordertype:",ordertype,' must be one of "market","limit","stoplimit","stoptrailing", or "iceberg"'))
     
     # need the ability to pass a range like we do in blotter
@@ -635,19 +634,6 @@ ruleOrderProc <- function(portfolio, symbol, mktdata, timespan=NULL, ordertype=N
                 if ( (pos > 0 && orderQty < -pos) || (pos < 0 && orderQty > -pos) ) {
                     warning("orderQty of ",orderQty,
                             " would cross through zero, adjusting qty to ",-pos)
-                    orderQty <- -pos
-                }
-                # make sure we don't create a position on the opposite order side
-                # FIXME: this should really be something like:
-                #  1> tell updateOrders to cancel all risk orders if the position is zero and
-                #     after the ordersubset is put back into the order book
-                #  2> delay processing risk orders with orderqty='all'
-                orderSide <- ordersubset[ii,"Order.Side"]
-                if ((orderSide == "long"  && orderQty + pos < 0) ||
-                    (orderSide == "short" && orderQty + pos > 0) ) {
-                    warning("orderQty of ", orderQty, " would create a ",
-                      grep(orderSide,c("long","short"),invert=TRUE,value=TRUE),
-                      " postion adjusting qty to ",-pos)
                     orderQty <- -pos
                 }
                 if (orderQty != 0) {

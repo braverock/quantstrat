@@ -76,10 +76,9 @@
 \details{
   By default, this function will locate and replace any
   'open' order(s) on the requested portfolio/symbol that
-  have the same type and side. This is the equivalent of
-  what is sometimes called an OCO (Order Cancels Other)
-  order.  If you do not want the function to behave this
-  way, set \code{replace=FALSE}.
+  have the same type and side. If you do not want open
+  orders to be canceled and replaced with the new order,
+  set \code{replace=FALSE}.
 
   We have modeled two types of stop orders, which should be
   sufficient to model most types of stops.
