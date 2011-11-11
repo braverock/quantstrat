@@ -249,9 +249,9 @@ applyRules <- function(portfolio, symbol, strategy, mktdata, Dates=NULL, indicat
             
             if(!isTRUE(rule$enabled)) next()
             
-			# check to see if we should run in this timespan
-			if(!is.null(rule$timespan) & nrow(mktdata[rule$timespan]==0)) next()
-			
+            # check to see if we should run in this timespan
+            if(!is.null(rule$timespan) && nrow(mktdata[rule$timespan][timestamp]==0)) next()
+
             # see 'S Programming' p. 67 for this matching
             if(is.function(rule$name)) fun <- rule$name
             else fun<-match.fun(rule$name)
@@ -315,7 +315,11 @@ applyRules <- function(portfolio, symbol, strategy, mktdata, Dates=NULL, indicat
                         if(is.null(rule$arguments$sigcol) | is.null(rule$arguments$sigval) ){
                             assign.dindex(1:length(Dates))
                         } else {
-                            assign.dindex(c(get.dindex(),which(mktdata[,rule$arguments$sigcol] == rule$arguments$sigval)))   
+                            if(is.null(rule$timespan)) {
+                                assign.dindex(c(get.dindex(),which(mktdata[,rule$arguments$sigcol] == rule$arguments$sigval)))
+                            } else {
+                                assign.dindex(c(get.dindex(),which(merge(.xts(,.index(mktdata)),mktdata[rule$timespan,rule$arguments$sigcol]) == rule$arguments$sigval)))
+                            }
                         }
                     }
                 }
