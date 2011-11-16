@@ -1,14 +1,34 @@
 #' Remove objects associated with a strategy
 #'
 #' Remove the order_book, account, and portfolio of given \code{name}.
-#' @param name name of the portfolio/account/order book to clean up
+#' @param name name of the portfolio/account/order book to clean up. (Default='default')
+#' @param silent silence warnings about trying to remove objects that do not exist. (Default=TRUE)
+#' @return invisible -- called for side-effect
+#' @examples
+#' \dontrun{
+#' # make some things to remove
+#' strategy("example", store=TRUE)
+#' initPortf('example', stock('SPY', currency("USD")))
+#' initAcct('example', 'example')
+#' initOrders('example', 'SPY')
+#' #Now remove them
+#' rm.strat('example')
+#' }
 #' @export
-rm.strat <- function(name='default') {
+rm.strat <- function(name='default', silent=TRUE) {
     if (is.strategy(name)) name <- name[['name']]
-    try(rm(list=paste("order_book",name,sep="."), pos=.strategy))
-    try(rm(list=paste(c("account", "portfolio"), name, sep="."), pos=.blotter))
+    if (silent) {
+        suppressWarnings({
+            try(rm(list=paste("order_book",name,sep="."), pos=.strategy))
+            try(rm(list=paste(c("account", "portfolio"), name, sep="."), pos=.blotter))
+            try(rm(list=name, pos=.strategy))
+        })
+    } else {
+        try(rm(list=paste("order_book",name,sep="."), pos=.strategy))
+        try(rm(list=paste(c("account", "portfolio"), name, sep="."), pos=.blotter))
+        try(rm(list=name, pos=.strategy))
+    }
 }
-
 
 #' run standard and custom strategy wrapup functions such as updating portfolio, account, and ending equity
 #' 
