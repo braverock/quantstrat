@@ -10,8 +10,8 @@
   \item{strategy}{an object (or the name of an object) type
   'strategy' to add the indicator to}
 
-  \item{name}{name of the indicator, must correspond to an
-  R function}
+  \item{name}{name of the indicator function -- must
+  correspond to an R function}
 
   \item{arguments}{default arguments to be passed to an
   indicator function when executed}
@@ -21,8 +21,10 @@
   needed if you need special names to avoid argument
   collision}
 
-  \item{label}{arbitrary text label for indicator output,
-  NULL default will be converted to '<name>.ind'}
+  \item{label}{arbitrary text label for indicator output.
+  This will also be used as the name of the indicator list
+  when it is stored.  NULL default will be converted to
+  '<name>.ind'}
 
   \item{...}{any other passthru parameters}
 
@@ -30,7 +32,8 @@
   enabled for use in applying the strategy, default TRUE}
 
   \item{indexnum}{if you are updating a specific indicator,
-  the index number in the $indicators list to update}
+  the \code{label} or the index number in the $indicators
+  list to update.}
 
   \item{store}{TRUE/FALSE whether to store the strategy in
   the .strategy environment, or return it.  default FALSE}
@@ -93,12 +96,23 @@
   scripts.
 
   if \code{label} is not supplied, NULL default will be
-  converted to '<name>.ind' if the indicator function
-  returns one named column, we use that, and ignore the
-  label. If the indicator function returns multiple
-  columns, the label will be \code{\link{paste}}'d to
-  either the returned column names or the respective column
-  number.
+  converted to '<name>.ind' unless there already exists an
+  indicator with that label in which case it will be
+  appended with a number (i.e. '<name>.ind.2',
+  '<name>.ind.3', etc.). If the indicator function returns
+  multiple columns, the label will be \code{\link{paste}}'d
+  to either the returned column names or the respective
+  column number when applying it to \code{mktdata}.
+}
+\examples{
+\dontrun{
+strategy("example", store=TRUE)
+getSymbols("SPY", src='yahoo')
+add.indicator('example', 'SMA', arguments=list(x=quote(Ad(SPY)), n=20))
+str(getStrategy('example')$indicators)
+out <- applyIndicators('example', SPY)
+tail(out)
+}
 }
 \seealso{
   \code{\link{quote}} \code{\link{applyIndicators}}

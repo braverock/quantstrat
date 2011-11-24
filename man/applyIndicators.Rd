@@ -18,8 +18,21 @@
 
   \item{...}{any other passthru parameters}
 }
+\value{
+  \code{mktdata} with indicators colums added.
+}
 \description{
   apply the indicators in the strategy to arbitrary market
   data
+}
+\examples{
+\dontrun{
+strategy("example", store=TRUE)
+getSymbols("SPY", src='yahoo')
+add.indicator('example', 'SMA', arguments=list(x=quote(Ad(SPY)), n=20))
+str(getStrategy('example')$indicators)
+out <- applyIndicators('example', SPY)
+tail(out)
+}
 }
 
