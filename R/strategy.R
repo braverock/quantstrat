@@ -1,10 +1,16 @@
 #' constructor for objects of type 'strategy'
+#' 
+#' variables passed in dots will be added to the strategy object, and may 
+#' be used by initialization and wrapup functions, as well as
+#' indicators, signals, and rules.
+#' 
 #' @param name character string naming the strategy
 #' @param ... any other passthru parameters
 #' @param assets optional list of assets to apply the strategy to, should normally be defined in the portfolio, not here
 #' @param constraints optional portfolio constraints object matching assets
 #' @param store TRUE/FALSE whether to store the strategy in the .strategy environment, or return it.  default FALSE
 #' @export
+#' @seealso \code{\link{applyStrategy}}
 strategy <- function(name, ..., assets=NULL, constraints=NULL ,store=FALSE)
 { # originally modeled on framework code in GPL R-Forge pkg roi by Stefan Thuessel,Kurt Hornik,David Meyer
     
@@ -52,15 +58,34 @@ strategy <- function(name, ..., assets=NULL, constraints=NULL ,store=FALSE)
                     ),
                     class=c("strategy")
             )
+     
+    arg<-list(...)        
+    if(length(arg)>=1) {
+        strat <- c(strat,arg)  
+        #the c() function loses our class attribute, annoyingly
+        class(strat)<-'strategy'
+    }
+            
     if(store) assign(strat$name,strat,envir=as.environment(.strategy))
     else return(strat)
 }
 
 #' apply the strategy to arbitrary market data
 #' 
-#' if \code{mktdata} is NULL, the default, the mktdata variable will be populated 
-#' for each symbol via a call to get (getSymbols??, not yet)
+#' This function is the wrapper that holds together the execution of a strategy.
 #' 
+#' After the straetgy object has been created, it may be applied to any 
+#' combination of symbols and parameters.
+#' 
+#' The symbols to be utilized will be defined in one of two ways, either by
+#' specifying a name of a portfolio that has already been initialized 
+#' with the \code{portfolios} argument, or be specifying a 
+#' \code{symbols} argument in  addition to setting \code{initStrat=TRUE}.
+#' 
+#' \code{applyStrategy} will use the \R core function \code{\link{get}} 
+#' to load market data for each symbol during stategy evaluation unless 
+#' the user passes \code{mktdata} in the call to \code{applyStrategy}
+#'
 #'  
 #' @param strategy an object of type 'strategy' to add the indicator to
 #' @param portfolios a list of portfolios to apply the strategy to
@@ -69,8 +94,13 @@ strategy <- function(name, ..., assets=NULL, constraints=NULL ,store=FALSE)
 #' @param ... any other passthru parameters
 #' @param verbose if TRUE, return output list
 #' @param symbols character vector identifying symbols to initialize a portfolio for, default NULL
+#' @param initStrat whether to use (experimental) initialization code, default FALSE
+#' @param updateStrat whether to use (experimental) wrapup code, default FALSE
 #' @export
-applyStrategy <- function(strategy , portfolios, mktdata=NULL , parameters=NULL, ..., verbose=TRUE, symbols=NULL ) {
+#' @seealso \code{\link{strategy}},  \code{\link{applyIndicators}}, 
+#'  \code{\link{applySignals}}, \code{\link{applyRules}},
+#'  \code{\link{initStrategy}}, 
+applyStrategy <- function(strategy , portfolios, mktdata=NULL , parameters=NULL, ..., verbose=TRUE, symbols=NULL, initStrat=FALSE, updateStrat=FALSE ) {
     #TODO add Date subsetting
     #TODO add saving of modified market data
     
@@ -82,18 +112,19 @@ applyStrategy <- function(strategy , portfolios, mktdata=NULL , parameters=NULL,
     	    stop ("You must supply an object of type 'strategy'.")
     } 
 	
+    if (missing(mktdata)) load.mktdata=TRUE else load.mktdata=FALSE
 	
     for (portfolio in portfolios) {
         
 		# TODO call to initStrategy will go here!
-        # initStrategy(strategy, portfolio, symbols, ...=...)
+        if(isTRUE(initStrat)) initStrategy(strategy=strategy, portfolio, symbols, ...=...)
         
    		ret[[portfolio]]<-list() # this is slot [[i]] which we will use later
         pobj<-getPortfolio(portfolio)
         symbols<-names(pobj$symbols)
         sret<-list()
         for (symbol in symbols){
-            if (is.null(mktdata)) mktdata <- get(symbol)
+            if(isTRUE(load.mktdata)) mktdata <- get(symbol)
 
             #loop over indicators
             sret$indicators <- applyIndicators(strategy=strategy , mktdata=mktdata , parameters=parameters, ... )
@@ -128,7 +159,7 @@ applyStrategy <- function(strategy , portfolios, mktdata=NULL , parameters=NULL,
 		}
         
         # TODO call to updateStrategy will go here!
-        # updateStrategy(strategy, portfolio, Symbols=symbols, ...=...)
+        if(isTRUE(updateStrat)) updateStrategy(strategy, portfolio, Symbols=symbols, ...=...)
         
     }
     
