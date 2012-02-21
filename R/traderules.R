@@ -310,7 +310,7 @@ osMaxPos <- function(data, timestamp, orderqty, ordertype, orderside, portfolio,
 		if ((orderqty+pos)>=0) {
             return(orderqty)
         } else {
-			orderqty<-pos #flatten position, don't cross through zero
+			orderqty <- -pos #flatten position, don't cross through zero
             #TODO add code to break into two orders?
             return(orderqty)
         }
