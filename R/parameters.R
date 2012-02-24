@@ -467,7 +467,7 @@ applyParameter<-function(strategy,portfolios,parameterPool,parameterConstraints,
 	
 	
 	
-	instruments<-as.list(.instrument)
+	instruments<-as.list(FinancialInstrument:::.instrument)
 	getSymbols<-as.list(.getSymbols)
 	blotter<-as.list(.blotter)
 	
@@ -484,7 +484,7 @@ applyParameter<-function(strategy,portfolios,parameterPool,parameterConstraints,
 				testPack<-list()
 				
 				#Pass enviorments needed.
-				.instrument<-as.environment(instruments)
+                FinancialInstrument:::.instrument<-as.environment(instruments)
 				.getSymbols<-as.environment(getSymbols)
 #				CAN NOT BE HERE, OTHERWISE will have problem extract to outside .blooter.. #.blotter<-as.environment(blotter)
 				
