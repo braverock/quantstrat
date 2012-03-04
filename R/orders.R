@@ -220,18 +220,15 @@ addOrder <- function(portfolio, symbol, timestamp, qty, price, ordertype, side, 
             #we have a threshold set on a stop* order, process it
             switch(ordertype,
                     stoplimit =, 
-                    iceberg = {
-                        # handle setting the stop limit price
-                        if(isTRUE(tmult)){
-                            price = price*threshold
-                        } else {
-                            price = price+threshold
-                        }
-                    },
+                    iceberg =, 
                     stoptrailing = {
                         if(isTRUE(tmult)){
-                            #get the difference between the threshold*price and the price
-                            threshold = (price*threshold)-price
+                            #set the numeric theshold as threshold*price 
+                            if(threshold<1) threshold = price*threshold
+                            else{
+                                #get the difference between the threshold*price and the price
+                                threshold = price-(price*threshold) #positive threshold  
+                            } 
                             tmult=FALSE
                             #this sets the threshold as a fixed number for later trailing orders 
                         } 
