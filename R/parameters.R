@@ -483,8 +483,8 @@ applyParameter<-function(strategy,portfolios,parameterPool,parameterConstraints,
 				
 				testPack<-list()
 				
-				#Pass enviorments needed.
-                FinancialInstrument:::.instrument<-as.environment(instruments)
+				#Pass environments needed.
+                loadInstruments(instruments)
 				.getSymbols<-as.environment(getSymbols)
 #				CAN NOT BE HERE, OTHERWISE will have problem extract to outside .blooter.. #.blotter<-as.environment(blotter)
 				
