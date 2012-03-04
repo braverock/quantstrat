@@ -7,6 +7,7 @@
 #' \code{\link{applyStrategy}}.  Non path dependent rules will likely be quite rare in real life, 
 #' and will be applied after indicators and signals, and before path-dependent rules are processed.
 #' 
+#' 
 #' All rules have a \code{type}.  These may be any of:
 #' \describe{
 #'   \item{risk}{ rules that check and react to risk of positions, may stop all other rule execution temporarily or permanently}
@@ -68,9 +69,10 @@
 #' @param path.dep TRUE/FALSE whether rule is path dependent, default TRUE, see Details 
 #' @param timespan an xts/ISO-8601 style \emph{time} subset, like "T08:00/T15:00", see Details
 #' @param store TRUE/FALSE whether to store the strategy in the .strategy environment, or return it.  default FALSE
+#' @param storefun TRUE/FALSE whether to store the function in the rule, default TRUE.  setting this option to FALSE may slow the backtest, but makes \code{\link{debug}} usable
 #' @return if \code{strategy} was the name of a strategy, the name. It it was a strategy, the updated strategy. 
 #' @export
-add.rule <- function(strategy, name, arguments, parameters=NULL, label=NULL, type=c(NULL,"risk","order","rebalance","exit","enter"), ..., enabled=TRUE, indexnum=NULL, path.dep=TRUE, timespan=NULL, store=FALSE) {
+add.rule <- function(strategy, name, arguments, parameters=NULL, label=NULL, type=c(NULL,"risk","order","rebalance","exit","enter"), ..., enabled=TRUE, indexnum=NULL, path.dep=TRUE, timespan=NULL, store=FALSE, storefun=TRUE) {
     if (!is.strategy(strategy)) {
         strategy<-try(getStrategy(strategy))
         if(inherits(strategy,"try-error"))
@@ -81,7 +83,7 @@ add.rule <- function(strategy, name, arguments, parameters=NULL, label=NULL, typ
     if(is.null(type)) stop("You must specify a type")
 	if(is.na(charmatch(type,c("risk","order","rebalance","exit","enter","pre","post")))) stop(paste("type:",type,' must be one of "risk", "order", "rebalance", "exit", "enter", "pre", or "post"'))
     tmp_rule<-list()
-    if(!is.function(name)) {
+    if(!is.function(name) && isTRUE(storefun)) {
         if(!is.function(get(name))){
             if(!is.function(get(paste("sig",name,sep='.')))){
                 message(paste("Skipping rule",name,"because there is no function by that name to call"))
@@ -123,6 +125,10 @@ add.rule <- function(strategy, name, arguments, parameters=NULL, label=NULL, typ
 #' In this mode, this function will be called twice, once with \code{path.dep=FALSE} 
 #' and then again in stepping over the time indexes of the mktdata object.
 #' 
+#' This function, because of its path dependent nature and the order of rule 
+#' evaluation discussed in \code{\link{add.rule}}, will likely take up most of the 
+#' execution time of a strategy backtest.
+#' 
 #' Individual rule functions may need to use <<- to place \code{hold} and \code{holdtill}
 #' variables into play.  These would be most likely implemented by risk rules.  When
 #' \code{hold==TRUE}, any open oders will still be processed (orders are \emph{NOT} 
@@ -139,7 +145,7 @@ add.rule <- function(strategy, name, arguments, parameters=NULL, label=NULL, typ
 #' market infrastructure. 
 #' 
 #' 
-#' } \section{Dimension Reduction for Performance}{ %roxygen requires that we stop the prior section before we add a new one
+#' @section Dimension Reduction for Performance:
 #' In evaluation of path-dependent rules, the simplest method, 
 #' and the one we used initially, is to check the rules on every observation 
 #' in the time series of market data.  
@@ -147,7 +153,9 @@ add.rule <- function(strategy, name, arguments, parameters=NULL, label=NULL, typ
 #' Looping in \R is generally discouraged, and on high frequency data for 
 #' strategy evaluation it can produce completely unacceptable results.
 #' 
-#' The solution we've employed makes use of what we know about the strategy and
+#' The solution we've employed is to utilize a state machine to evaluate the rules only 
+#' when deemed necessary.
+#' This approach makes use of what we know about the strategy and
 #' the orders the strategy places (or may place) to reduce the dimensionality of the problem.
 #' 
 #' As discussed in \code{\link{add.rule}}, the first step in this dimension 
@@ -177,12 +185,13 @@ add.rule <- function(strategy, name, arguments, parameters=NULL, label=NULL, typ
 #' be moved. We then examine the market data between the current index and 
 #' the point at which the order may move. if there is a (possible) cross, 
 #' we insert that index into the indices for examination.  If not, we insert 
-#' the index of the next probably move.
+#' the index of the next probable move.
 #' 
 #' It should be noted that this dimension reduction methodology does 'look ahead'
 #' in the data.  This 'look ahead' is only done \emph{after} the order has been 
-#' entered in the normal path-dependent process, and so should not introduce biases.     
-#' 
+#' entered in the normal path-dependent process, and only to insert new indices for 
+#' evaluation, and so should not introduce biases.
+#'      
 #' @param portfolio text name of the portfolio to associate the order book with
 #' @param symbol identfier of the instrument to find orders for.  The name of any associated price objects (xts prices, usually OHLC) should match these
 #' @param strategy an object of type 'strategy' to add the rule to
