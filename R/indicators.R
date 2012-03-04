@@ -16,8 +16,9 @@
 #' This tells \R to delay evaluation via \code{quote()}, and to use the special variable \code{mktdata}. 
 #' 
 #' \code{mktdata} is typically created internally to \code{quantstrat} by looking in the global environment for 
-#' a time series of prices or returns. mktdata may also contain other data you've manipulated outside quatstrat, 
-#' though where possible you should use quantstrat to contain all the logic for the strategy, to aid in maintenance and modifications.
+#' a time series of prices or returns. mktdata may also contain other data you've manipulated outside quantstrat, 
+#' though where possible you should use quantstrat to contain all the logic for the strategy, 
+#' to aid in maintenance and modifications.
 #' 
 #' The use of \code{quote()} tells R to not evaluate what's inside the quote until the function is evaluated later.  
 #' By the time that code is evaluated, \code{mktdata} will be populated with the correct price information based on the contents of whatever portfolio you are evaluating the strategy on. 
