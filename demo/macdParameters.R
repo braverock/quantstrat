@@ -1,12 +1,18 @@
-# TODO: Add comment
+# Parameter demo for MACD demo
 # 
-# Author: CCD
+# Author: Yu Chen
 ###############################################################################
 
-require(foreach)
-require(doSMP)
-workers <- startWorkers(2)
-registerDoSMP(workers)
+require(foreach,quietly=TRUE)
+require(quantstrat)
+
+demo('macd',ask=FALSE)
+
+# example parallel initialization for doSMP, doParallel, doMC, or doRedis are 
+# most probably preferable to doSMP
+#require(doSMP)
+#workers <- startWorkers(2)
+#registerDoSMP(workers)
 
 #please run macd demo before all these...
 paramStructure<-getParameterTable(stratMACD)

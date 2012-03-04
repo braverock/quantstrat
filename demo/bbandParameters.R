@@ -1,9 +1,14 @@
-# TODO: Add comment
+# Parameter example for BBands demo
 # 
 # Author: Yu Chen
 ###############################################################################
 
-require(foreach)
+require(foreach,quietly=TRUE)
+require(quantstrat)
+
+demo('bbands',ask=FALSE)
+#the user should load a parallel backend for foreach before running, 
+# or this will run in single threaded mode
 
 #please run bbands demo before all these...
 paramStructure<-getParameterTable(stratBBands)
@@ -37,6 +42,6 @@ tPD<-setParameterDistribution(tPD,'indicator',indexnum=1,distribution=list(n=20:
 #pConstr<-setParameterConstraint()
 pConstraint<-setParameterConstraint(constraintLabel='PC1',paramList=c('sd','n'),relationship='gt')
 
-testPackList<-applyParameter(strategy=stratBBands,portfolios='default',parameterPool=tPD,method='random',sampleSize=2,parameterConstraints=pConstraint)
+testPackList<-applyParameter(strategy=stratBBands,portfolios=portfolio.st,parameterPool=tPD,method='random',sampleSize=2,parameterConstraints=pConstraint)
 
 

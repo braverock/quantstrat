@@ -5,3 +5,5 @@ macd       example of Moving Average Convergence/Divergence (MACD) used as a tre
 maCross    classic 'Golden Cross' 50/200 period moving average cross strategy, long only, with long/short extra rules commented out
 pair_trade simple two-instrument long-short equity strategy demonstrating custom indicator and extended order sizing functionality
 rsi        Relative Strength Index (RSI) strategy demonstrating long-only threshold actions
+bbandParameters  example of parameter test on bbands demo strategy
+macdParameters  example of parameter test on macd demo strategy
