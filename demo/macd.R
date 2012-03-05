@@ -50,7 +50,7 @@ stratMACD <- add.signal(strategy = stratMACD,name="sigThreshold",arguments = lis
 stratMACD <- add.signal(strategy = stratMACD,name="sigThreshold",arguments = list(column="signal",relationship="lt",threshold=0,cross=TRUE),label="signal.lt.zero")
 
 stratMACD <- add.rule(strategy = stratMACD,name='ruleSignal', arguments = list(sigcol="signal.gt.zero",sigval=TRUE, orderqty=100, ordertype='market', orderside='long', threshold=NULL),type='enter')
-stratMACD <- add.rule(strategy = stratMACD,name='ruleSignal', arguments = list(sigcol="signal.gt.zero",sigval=TRUE, orderqty=-100, ordertype='stoplimit', orderside='long', threshold=.85,tmult=TRUE),type='risk')
+#stratMACD <- add.rule(strategy = stratMACD,name='ruleSignal', arguments = list(sigcol="signal.gt.zero",sigval=TRUE, orderqty=-100, ordertype='stoplimit', orderside='long', threshold=.85,tmult=TRUE),type='risk')
 # alternately, use a trailing order
 # stratMACD <- add.rule(strategy = stratMACD,name='ruleSignal', arguments = list(sigcol="signal.gt.zero",sigval=TRUE, orderqty=-100, ordertype='stoptrailing', orderside='long', threshold=.9,tmult=TRUE),type='risk')
 stratMACD <- add.rule(strategy = stratMACD,name='ruleSignal', arguments = list(sigcol="signal.lt.zero",sigval=TRUE, orderqty='all', ordertype='market', orderside='long', threshold=NULL),type='exit')
