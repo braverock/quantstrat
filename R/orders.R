@@ -3,6 +3,9 @@
 #' I don't think this should be exported, but it is for now while we're in test mode.
 #' 
 #' @param portfolio text name of the portfolio the order book is associated with
+#' @seealso addOrder
+#' @seealso getOrders
+#' @concept order book
 #' @export
 getOrderBook <- function(portfolio) #should symbol subsets be supported too?  probably not.
 { 
@@ -25,6 +28,7 @@ getOrderBook <- function(portfolio) #should symbol subsets be supported too?  pr
 #' @param symbols a list of identfiers of the instruments to be contained in the Portfolio.  The name of any associated price objects (xts prices, usually OHLC) should match these
 #' @param initDate date (ISO8601) prior to the first close price given in mktdata, used to initialize the order book with a dummy order
 #' @param \dots any other passthrough parameters
+#' @concept order book
 #' @export
 initOrders <- function(portfolio=NULL, symbols=NULL, initDate = '1999-12-31', ...)
 {
@@ -36,8 +40,8 @@ initOrders <- function(portfolio=NULL, symbols=NULL, initDate = '1999-12-31', ..
         orders<-list()
         orders[[portfolio]]<-list()
     }
-    ordertemplate<-xts(as.matrix(t(c(0,NA,"init","long",0,"closed",as.character(as.POSIXct(initDate)),1,0))),order.by=as.POSIXct(initDate), ...=...)
-    colnames(ordertemplate) <- c("Order.Qty","Order.Price","Order.Type","Order.Side","Order.Threshold","Order.Status","Order.StatusTime","Order.Set","Txn.Fees")
+    ordertemplate<-xts(as.matrix(t(c(0,NA,"init","long",0,"closed",as.character(as.POSIXct(initDate)),1,0,''))),order.by=as.POSIXct(initDate), ...=...)
+    colnames(ordertemplate) <- c("Order.Qty","Order.Price","Order.Type","Order.Side","Order.Threshold","Order.Status","Order.StatusTime","Order.Set","Txn.Fees","Rule")
 
     if(is.null(symbols)) {
         pfolio<-getPortfolio(portfolio)
@@ -70,6 +74,9 @@ initOrders <- function(portfolio=NULL, symbols=NULL, initDate = '1999-12-31', ..
 #' @param side one of NULL, "long" or "short", default NULL 
 #' @param qtysign one of NULL, -1,0,1 ; could be useful when all qty's are reported as positive numbers and need to be identified other ways, default NULL
 #' @param which.i if TRUE, return the row index numbers rather than the order rows matching the criteria, default FALSE
+#' @seealso getOrderBook
+#' @seealso addOrder
+#' @concept order book
 #' @export
 getOrders <- function(portfolio,symbol,status="open",timespan=NULL,ordertype=NULL, side=NULL, qtysign=NULL, which.i=FALSE)
 {
@@ -196,8 +203,12 @@ getOrders <- function(portfolio,symbol,status="open",timespan=NULL,ordertype=NUL
 #' @param return if TRUE, return the row that makes up the order, default FALSE (will assign into the environment)
 #' @param \dots any other passthru parameters
 #' @param TxnFees numeric fees (usually negative) or function name for calculating TxnFees (processing happens later, not in this function)
+#' @param label text label, default to '', set to rule label by \code{\link{ruleSignal}}
+#' @seealso getOrderBook
+#' @seealso updateOrders
+#' @concept order book
 #' @export
-addOrder <- function(portfolio, symbol, timestamp, qty, price, ordertype, side, threshold=NULL, status="open", statustimestamp='' , delay=.00001, tmult=FALSE, replace=TRUE, return=FALSE, ..., TxnFees=0)
+addOrder <- function(portfolio, symbol, timestamp, qty, price, ordertype, side, threshold=NULL, status="open", statustimestamp='' , delay=.00001, tmult=FALSE, replace=TRUE, return=FALSE, ..., TxnFees=0,label='')
 {
     # get order book
     #orderbook <- getOrderBook(portfolio)
@@ -273,18 +284,17 @@ addOrder <- function(portfolio, symbol, timestamp, qty, price, ordertype, side, 
     # insert new order
     if(is.timeBased(timestamp)) ordertime<-timestamp+delay
     else ordertime<-as.POSIXct(timestamp)+delay
-
-    order<-NULL
+    orders<-NULL
     for (i in 1:length(price)){
-        neworder<-xts(as.matrix(t(c(as.numeric(qty[i]), price[i], ordertype[i], side, threshold[i], status, statustimestamp, order.set,TxnFees))),order.by=(ordertime))
-        if(is.null(order)) order<-neworder
-        else order <- rbind(order,neworder)
+        neworder<-xts(as.matrix(t(c(as.numeric(qty[i]), price[i], ordertype[i], side, threshold[i], status, statustimestamp, order.set,TxnFees,label))),order.by=(ordertime))
+        if(is.null(orders)) orders<-neworder
+        else orders <- rbind(orders,neworder)
     }
 
-    if(ncol(order)!=9) {
+    if(ncol(orders)!=10) {
         print("bad order(s):")
-        print(order)
-        next()
+        print(orders)
+        return()
     }
 
     qtysign <- sign(drop(coredata(qty)))
@@ -293,13 +303,13 @@ addOrder <- function(portfolio, symbol, timestamp, qty, price, ordertype, side, 
         if(isTRUE(replace)) updateOrders(portfolio=portfolio, symbol=symbol,timespan=timespan, side=side, qtysign=qtysign, oldstatus="open", newstatus="replaced", statustimestamp=timestamp)
         # get order book
         orderbook <- getOrderBook(portfolio)
-        orderbook[[portfolio]][[symbol]]<-rbind(orderbook[[portfolio]][[symbol]],order)
+        orderbook[[portfolio]][[symbol]]<-rbind(orderbook[[portfolio]][[symbol]],orders)
         # assign order book back into place (do we need a non-exported "put" function?)
         assign(paste("order_book",portfolio,sep='.'),orderbook,envir=.strategy)
         rm(orderbook)
         return()
     } else {
-        return(order)
+        return(orders)
     }
 }
 
@@ -324,7 +334,11 @@ addOrder <- function(portfolio, symbol, timestamp, qty, price, ordertype, side, 
 #' @param qtysign one of NULL, -1,0,1 ; could be useful when all qty's are reported as positive numbers and need to be identified other ways, default NULL
 #' @param oldstatus one of NULL, "open", "closed", "canceled", or "replaced", default "open"
 #' @param newstatus one of "open", "closed", "canceled", or "replaced"
-#' @param statustimestamp timestamp of a status update, will be blank when order is initiated 
+#' @param statustimestamp timestamp of a status update, will be blank when order is initiated
+#' @seealso addOrder
+#' @seealso getOrders
+#' @seealso getOrderBook 
+#' @concept order book
 #' @export
 updateOrders <- function(portfolio, symbol, timespan, ordertype=NULL, side=NULL, qtysign=NULL, oldstatus="open", newstatus, statustimestamp) 
 { 
@@ -389,8 +403,9 @@ updateOrders <- function(portfolio, symbol, timespan, ordertype=NULL, side=NULL,
 #' @concept fill simulator
 #' @concept orders  
 #' @concept backtest
+#' @concept fills
 #' 
-#' This function is meant to be sufficient for backtesting most strategies, 
+#' This function is meant to be sufficient for backtesting many/most strategies, 
 #' but would need to be replaced for production use.  It provides the interface 
 #' for taking the order book and determining when orders become trades.
 #'  
@@ -401,6 +416,11 @@ updateOrders <- function(portfolio, symbol, timespan, ordertype=NULL, side=NULL,
 #' @param ordertype one of NULL, "market","limit","stoplimit", or "stoptrailing" default NULL
 #' @param ... any other passthru parameters
 #' @param slippageFUN default  NULL, not yet implemented
+#' @seealso add.rule
+#' @seealso applyRules
+#' @seealso getOrderBook
+#' @seealso addOrder
+#' @seealso updateOrders
 #' @export
 ruleOrderProc <- function(portfolio, symbol, mktdata, timespan=NULL, ordertype=NULL, ..., slippageFUN=NULL)
 {
