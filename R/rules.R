@@ -404,6 +404,7 @@ applyRules <- function(portfolio, symbol, strategy, mktdata, Dates=NULL, indicat
                             if(side=='long') tmpqty==-1
                             else tmpqty==1
                         }
+                        tmpqty<-as.numeric(tmpqty)
                         tmpprice <- as.numeric(ordersubset[oo.idx[slorder],'Order.Price'])
                         if (tmpqty > 0) { #buy if mktprice moves above stoplimitorder price
                             relationship='gte'  #if the Ask or Hi go above threshold our stop will be filled
@@ -493,7 +494,15 @@ applyRules <- function(portfolio, symbol, strategy, mktdata, Dates=NULL, indicat
                         neworders<-NULL
                         onum<-oo.idx[torder]
                         orderThreshold <- as.numeric(ordersubset[onum,'Order.Threshold'])
-                        tmpqty<-as.numeric(ordersubset[onum,'Order.Qty'])
+                        tmpqty<-ordersubset[onum,'Order.Qty']
+                        if (tmpqty=='all') tmpqty<-osNoOp(timestamp=timestamp, orderqty=tmpqty, portfolio=portfolio, symbol=symbol,ruletype='exit' )
+                        if (tmpqty==0) {
+                            #no position, so do some slight of hand to figure out when the index may be needed
+                            side <- ordersubset[onum,'Order.Side']
+                            if(side=='long') tmpqty==-1
+                            else tmpqty==1
+                        }
+                        tmpqty<-as.numeric(tmpqty)
                         tmpprice<-as.numeric(ordersubset[onum,'Order.Price'])
                         tmpidx<-as.character(index(ordersubset[onum,])) #this is the time the order was entered
                         #print(tmpidx)
