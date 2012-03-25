@@ -215,14 +215,15 @@ addOrder <- function(portfolio, symbol, timestamp, qty, price, ordertype, side, 
     #if(!length(grep(symbol,names(orderbook[[portfolio]])))==1) stop(paste("symbol",symbol,"does not exist in portfolio",portfolio,"having symbols",names(orderbook[[portfolio]])))
 
     #data quality checks
-    if(!is.numeric(qty)) stop (paste("Quantity must be numeric:",qty))
-    if(qty==0) stop("qty",qty,"must be positive or negative")
+    if(!is.numeric(qty) && !(qty=='all')) stop (paste("Quantity must be numeric:",qty))
+    if(qty==0) stop("qty",qty,"must positive, negative, or 'all'")
     if(is.null(qty)) stop("qty",qty,"must not be NULL")
     if(is.na(qty)) stop("qty",qty,"must not be NA")
     if(!is.numeric(price)) stop (paste("Price must be numeric:",price))
     if(is.null(price)) stop("price ",price," must not be NULL")
     if(is.na(price)) stop("order at timestamp ", timestamp, " must not have price of NA")
-    if(price==0) warning(paste(ordertype, "order for", qty, "has a price of zero."))
+    #spreads can have a zero price
+    #if(price==0) warning(paste(ordertype, "order for", qty, "has a price of zero."))
 
     if(!is.null(side) & !length(grep(side,c('long','short')))==1) stop(paste("side:",side," must be one of 'long' or 'short'"))
     if(is.na(charmatch(ordertype,c("market","limit","stoplimit","stoptrailing","iceberg")))) stop(paste("ordertype:",ordertype,' must be one of "market","limit","stoplimit","stoptrailing", or"iceberg"'))
@@ -287,7 +288,7 @@ addOrder <- function(portfolio, symbol, timestamp, qty, price, ordertype, side, 
     else ordertime<-as.POSIXct(timestamp)+delay
     orders<-NULL
     for (i in 1:length(price)){
-        neworder<-xts(as.matrix(t(c(as.numeric(qty[i]), price[i], ordertype[i], side, threshold[i], status, statustimestamp, order.set,TxnFees,label))),order.by=(ordertime))
+        neworder<-xts(as.matrix(t(c(qty[i], price[i], ordertype[i], side, threshold[i], status, statustimestamp, order.set,TxnFees,label))),order.by=(ordertime))
         if(is.null(orders)) orders<-neworder
         else orders <- rbind(orders,neworder)
     }
@@ -298,7 +299,8 @@ addOrder <- function(portfolio, symbol, timestamp, qty, price, ordertype, side, 
         return()
     }
 
-    qtysign <- sign(drop(coredata(qty)))
+    if(is.numeric(qty)) qtysign <- sign(drop(coredata(qty)))
+    else qtysign <- NULL
     
     if(!isTRUE(return)){
         if(isTRUE(replace)) updateOrders(portfolio=portfolio, symbol=symbol,timespan=timespan, side=side, qtysign=qtysign, oldstatus="open", newstatus="replaced", statustimestamp=timestamp)

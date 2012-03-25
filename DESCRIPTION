@@ -1,7 +1,7 @@
 Package: quantstrat
 Type: Package
 Title: Quantitative Strategy Model Framework
-Version: 0.6.3
+Version: 0.6.4
 Date: $Date$
 Author: Peter Carl, Dirk Eddelbuettel, Brian G. Peterson,
     Jeffrey A. Ryan, Joshua Ulrich, Garrett See, Yu Chen
@@ -24,5 +24,7 @@ Collate:
     'rules.R'
     'signals.R'
     'strategy.R'
-    'traderules.R'
     'wrapup.R'
+    'osFUNs.R'
+    'ruleOrderProc.R'
+    'ruleSignal.R'

@@ -81,7 +81,10 @@ ruleOrderProc <- function(portfolio, symbol, mktdata, timespan=NULL, ordertype=N
             txnprice=NULL
             txnfees=ordersubset[ii,"Txn.Fees"]
             orderPrice <- as.numeric(ordersubset[ii,"Order.Price"])
-            orderQty <- as.numeric(ordersubset[ii,"Order.Qty"])
+            orderQty <- ordersubset[ii,"Order.Qty"]
+            if(orderQty=='all') orderQty <- osNoOp(timestamp=mktdataTimestamp, orderqty=orderQty, portfolio=portfolio, symbol=symbol,ruletype='exit' )
+            orderQty<-as.numeric(orderQty)
+            if(orderQty==0) next()
             orderThreshold <- as.numeric(ordersubset[ii,"Order.Threshold"])
             # mktdataTimestamp <- mktdata[timestamp]
             #FIXME Should we only keep the last observation per time stamp?
