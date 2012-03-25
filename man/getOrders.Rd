@@ -44,4 +44,12 @@
 
   should this be symbols instead of symbol?
 }
+\seealso{
+  getOrderBook
+
+  addOrder
+}
+\concept{
+  order book
+}
 

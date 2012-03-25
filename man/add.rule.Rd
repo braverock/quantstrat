@@ -6,7 +6,7 @@
   label = NULL, type = c(NULL, "risk", "order",
   "rebalance", "exit", "enter"), ..., enabled = TRUE,
   indexnum = NULL, path.dep = TRUE, timespan = NULL, store
-  = FALSE)
+  = FALSE, storefun = TRUE)
 }
 \arguments{
   \item{strategy}{an object of type 'strategy' to add the
@@ -43,6 +43,11 @@
 
   \item{store}{TRUE/FALSE whether to store the strategy in
   the .strategy environment, or return it.  default FALSE}
+
+  \item{storefun}{TRUE/FALSE whether to store the function
+  in the rule, default TRUE.  setting this option to FALSE
+  may slow the backtest, but makes \code{\link{debug}}
+  usable}
 }
 \value{
   if \code{strategy} was the name of a strategy, the name.

@@ -72,7 +72,7 @@
   \code{mktdata} is typically created internally to
   \code{quantstrat} by looking in the global environment
   for a time series of prices or returns. mktdata may also
-  contain other data you've manipulated outside quatstrat,
+  contain other data you've manipulated outside quantstrat,
   though where possible you should use quantstrat to
   contain all the logic for the strategy, to aid in
   maintenance and modifications.

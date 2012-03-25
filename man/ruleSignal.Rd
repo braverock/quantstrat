@@ -7,7 +7,7 @@
   NULL, tmult = FALSE, replace = TRUE, delay = 1e-04, osFUN
   = "osNoOp", pricemethod = c("market", "opside",
   "active"), portfolio, symbol, ..., ruletype, TxnFees = 0,
-  prefer = NULL, sethold = FALSE)
+  prefer = NULL, sethold = FALSE, label = "")
 }
 \arguments{
   \item{data}{an xts object containing market data.
@@ -72,6 +72,9 @@
 
   \item{sethold}{boolean, puts entry Rule processing on
   hold, default FALSE}
+
+  \item{label}{rule label, default '', added by
+  \code{\link{applyRules}}}
 }
 \description{
   \code{pricemethod} may be one of \describe{

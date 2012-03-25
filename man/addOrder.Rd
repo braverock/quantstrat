@@ -5,7 +5,8 @@
   addOrder(portfolio, symbol, timestamp, qty, price,
   ordertype, side, threshold = NULL, status = "open",
   statustimestamp = "", delay = 1e-05, tmult = FALSE,
-  replace = TRUE, return = FALSE, ..., TxnFees = 0)
+  replace = TRUE, return = FALSE, ..., TxnFees = 0, label =
+  "")
 }
 \arguments{
   \item{portfolio}{text name of the portfolio to associate
@@ -29,7 +30,7 @@
   \item{side}{one of either "long" or "short"}
 
   \item{threshold}{numeric threshold to apply to trailing
-  stop orders, default NULL}
+  stop orders and limit orders, default NULL}
 
   \item{status}{one of "open", "closed", "canceled", or
   "replaced", default "open"}
@@ -56,6 +57,9 @@
   \item{TxnFees}{numeric fees (usually negative) or
   function name for calculating TxnFees (processing happens
   later, not in this function)}
+
+  \item{label}{text label, default to '', set to rule label
+  by \code{\link{ruleSignal}}}
 }
 \description{
   It is important to understand that all the order
@@ -163,7 +167,14 @@
   provide the event loop interface and interact with
   \code{mktdata}.
 }
+\seealso{
+  getOrderBook
+
+  updateOrders
+}
 \concept{
   backtest
+
+  order book
 }
 

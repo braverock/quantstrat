@@ -55,4 +55,14 @@
   want to run a process at the close of market that will
   cancel all open orders.
 }
+\seealso{
+  addOrder
+
+  getOrders
+
+  getOrderBook
+}
+\concept{
+  order book
+}
 

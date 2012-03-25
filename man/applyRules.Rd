@@ -51,6 +51,11 @@
   mktdata object.
 }
 \details{
+  This function, because of its path dependent nature and
+  the order of rule evaluation discussed in
+  \code{\link{add.rule}}, will likely take up most of the
+  execution time of a strategy backtest.
+
   Individual rule functions may need to use <<- to place
   \code{hold} and \code{holdtill} variables into play.
   These would be most likely implemented by risk rules.
@@ -69,21 +74,22 @@
   \code{\link{addOrder}}, and \code{\link{applyStrategy}}
   will likely need to be replaced to connect to a live
   market infrastructure.
+}
+\section{Dimension Reduction for Performance}{
+  In evaluation of path-dependent rules, the simplest
+  method, and the one we used initially, is to check the
+  rules on every observation in the time series of market
+  data. There are cases where this will still be required,
+  but we hope to limit them as much as possible. Looping in
+  \R is generally discouraged, and on high frequency data
+  for strategy evaluation it can produce completely
+  unacceptable results.
 
-  } \section{Dimension Reduction for Performance}{ %roxygen
-  requires that we stop the prior section before we add a
-  new one In evaluation of path-dependent rules, the
-  simplest method, and the one we used initially, is to
-  check the rules on every observation in the time series
-  of market data. There are cases where this will still be
-  required, but we hope to limit them as much as possible.
-  Looping in \R is generally discouraged, and on high
-  frequency data for strategy evaluation it can produce
-  completely unacceptable results.
-
-  The solution we've employed makes use of what we know
-  about the strategy and the orders the strategy places (or
-  may place) to reduce the dimensionality of the problem.
+  The solution we've employed is to utilize a state machine
+  to evaluate the rules only when deemed necessary. This
+  approach makes use of what we know about the strategy and
+  the orders the strategy places (or may place) to reduce
+  the dimensionality of the problem.
 
   As discussed in \code{\link{add.rule}}, the first step in
   this dimension reduction is to look for places in the
@@ -123,13 +129,14 @@
   and the point at which the order may move. if there is a
   (possible) cross, we insert that index into the indices
   for examination.  If not, we insert the index of the next
-  probably move.
+  probable move.
 
   It should be noted that this dimension reduction
   methodology does 'look ahead' in the data.  This 'look
   ahead' is only done \emph{after} the order has been
-  entered in the normal path-dependent process, and so
-  should not introduce biases.
+  entered in the normal path-dependent process, and only to
+  insert new indices for evaluation, and so should not
+  introduce biases.
 }
 \seealso{
   \code{\link{add.rule}} \code{\link{applyStrategy}}

@@ -12,4 +12,12 @@
   I don't think this should be exported, but it is for now
   while we're in test mode.
 }
+\seealso{
+  addOrder
+
+  getOrders
+}
+\concept{
+  order book
+}
 

@@ -68,6 +68,17 @@
   \code{slippageFUN}.  Code contributions, suggestions, and
   requests appreciated.
 }
+\seealso{
+  add.rule
+
+  applyRules
+
+  getOrderBook
+
+  addOrder
+
+  updateOrders
+}
 \concept{
   fill simulator
 
@@ -75,8 +86,10 @@
 
   backtest
 
+  fills
+
   This function is meant to be sufficient for backtesting
-  most strategies, but would need to be replaced for
+  many/most strategies, but would need to be replaced for
   production use.  It provides the interface for taking the
   order book and determining when orders become trades.
 }

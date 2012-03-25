@@ -21,6 +21,11 @@
   the .strategy environment, or return it.  default FALSE}
 }
 \description{
-  constructor for objects of type 'strategy'
+  variables passed in dots will be added to the strategy
+  object, and may be used by initialization and wrapup
+  functions, as well as indicators, signals, and rules.
+}
+\seealso{
+  \code{\link{applyStrategy}}
 }
 
