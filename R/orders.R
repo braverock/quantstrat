@@ -194,7 +194,7 @@ getOrders <- function(portfolio,symbol,status="open",timespan=NULL,ordertype=NUL
 #' @param price numeric price at which the order is to be inserted
 #' @param ordertype one of "market","limit","stoplimit", "stoptrailing",or "iceberg"
 #' @param side one of either "long" or "short" 
-#' @param threshold numeric threshold to apply to trailing stop orders, default NULL
+#' @param threshold numeric threshold to apply to trailing stop orders and limit orders, default NULL
 #' @param status one of "open", "closed", "canceled", or "replaced", default "open"
 #' @param statustimestamp timestamp of a status update, will be blank when order is initiated 
 #' @param delay what delay to add to timestamp when inserting the order into the order book, in seconds
@@ -227,9 +227,10 @@ addOrder <- function(portfolio, symbol, timestamp, qty, price, ordertype, side, 
     if(!is.null(side) & !length(grep(side,c('long','short')))==1) stop(paste("side:",side," must be one of 'long' or 'short'"))
     if(is.na(charmatch(ordertype,c("market","limit","stoplimit","stoptrailing","iceberg")))) stop(paste("ordertype:",ordertype,' must be one of "market","limit","stoplimit","stoptrailing", or"iceberg"'))
     if(!is.null(threshold) & length(price)>=1 ) {
-        if(length(grep(ordertype,c("stoplimit","stoptrailing","iceberg")))==1) {
+        if(length(grep(paste("^",ordertype,"$",sep=""),c("limit","stoplimit","stoptrailing","iceberg")))==1) {
             #we have a threshold set on a stop* order, process it
             switch(ordertype,
+                    limit =, 
                     stoplimit =, 
                     iceberg =, 
                     stoptrailing = {
@@ -247,7 +248,7 @@ addOrder <- function(portfolio, symbol, timestamp, qty, price, ordertype, side, 
                     }
             ) #end type switch
         } else {
-            stop(paste("Threshold may only be applied to a stop or iceberg order type",ordertype,threshold))
+            stop(paste("Threshold may only be applied to a limit, stop or iceberg order type",ordertype,threshold))
         }
     }
 
