@@ -82,7 +82,7 @@ ruleOrderProc <- function(portfolio, symbol, mktdata, timespan=NULL, ordertype=N
             txnfees=ordersubset[ii,"Txn.Fees"]
             orderPrice <- as.numeric(ordersubset[ii,"Order.Price"])
             orderQty <- ordersubset[ii,"Order.Qty"]
-            if(orderQty=='all') orderQty <- osNoOp(timestamp=mktdataTimestamp, orderqty=orderQty, portfolio=portfolio, symbol=symbol,ruletype='exit' )
+            if(orderQty=='all') orderQty <- osNoOp(timestamp=timestamp, orderqty=orderQty, portfolio=portfolio, symbol=symbol,ruletype='exit' )
             orderQty<-as.numeric(orderQty)
             if(orderQty==0) next()
             orderThreshold <- as.numeric(ordersubset[ii,"Order.Threshold"])
