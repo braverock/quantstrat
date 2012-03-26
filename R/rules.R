@@ -399,10 +399,10 @@ applyRules <- function(portfolio, symbol, strategy, mktdata, Dates=NULL, indicat
                         tmpqty <- ordersubset[oo.idx[slorder],'Order.Qty']
                         if (tmpqty=='all') tmpqty<-osNoOp(timestamp=timestamp, orderqty=tmpqty, portfolio=portfolio, symbol=symbol,ruletype='exit' )
                         if (tmpqty==0) {
-                            #no position, so do some slight of hand to figure out when the index may be needed
+                            #no position, so do some sleight of hand to figure out when the index may be needed
                             side <- ordersubset[oo.idx[slorder],'Order.Side']
-                            if(side=='long') tmpqty==-1
-                            else tmpqty==1
+                            if(side=='long') tmpqty=-1
+                            else tmpqty=1
                         }
                         tmpqty<-as.numeric(tmpqty)
                         tmpprice <- as.numeric(ordersubset[oo.idx[slorder],'Order.Price'])
@@ -439,8 +439,19 @@ applyRules <- function(portfolio, symbol, strategy, mktdata, Dates=NULL, indicat
 
                     for (lorder in limitorders){
                         dindex<-get.dindex()
-                        tmpqty<-as.numeric(ordersubset[oo.idx[lorder],'Order.Qty'])
+                        tmpqty<-ordersubset[oo.idx[lorder],'Order.Qty']
+                        if (tmpqty=='all') tmpqty<-osNoOp(timestamp=timestamp, orderqty=tmpqty, portfolio=portfolio, symbol=symbol,ruletype='exit' )
+#                        #don't think this block is needed for resular limit orders: BGP
+#                        if (tmpqty==0) {
+#                            #no position, so do some sleight of hand to figure out when the index may be needed
+#                            side <- ordersubset[oo.idx[lorder],'Order.Side']
+#                            if(side=='long') tmpqty=-1
+#                            else tmpqty=1
+#                        }
+                        tmpqty<-as.numeric(tmpqty)
+                        
                         tmpprice<-as.numeric(ordersubset[oo.idx[lorder],'Order.Price'])
+                        
                         if(tmpqty>0){
                             #buying
                             relationship="lte" #look for places where Mkt Ask <= our Bid
@@ -497,10 +508,10 @@ applyRules <- function(portfolio, symbol, strategy, mktdata, Dates=NULL, indicat
                         tmpqty<-ordersubset[onum,'Order.Qty']
                         if (tmpqty=='all') tmpqty<-osNoOp(timestamp=timestamp, orderqty=tmpqty, portfolio=portfolio, symbol=symbol,ruletype='exit' )
                         if (tmpqty==0) {
-                            #no position, so do some slight of hand to figure out when the index may be needed
+                            #no position, so do some sleight of hand to figure out when the index may be needed
                             side <- ordersubset[onum,'Order.Side']
-                            if(side=='long') tmpqty==-1
-                            else tmpqty==1
+                            if(side=='long') tmpqty=-1
+                            else tmpqty=1
                         }
                         tmpqty<-as.numeric(tmpqty)
                         tmpprice<-as.numeric(ordersubset[onum,'Order.Price'])
