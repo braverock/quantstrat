@@ -639,13 +639,13 @@ applyRules <- function(portfolio, symbol, strategy, mktdata, Dates=NULL, indicat
                     },
                     rebalance =, exit = , enter = , entry = {
                         if(isTRUE(hold)) next()
-                        if(type=='exit'){
-                            if(length(strategy$rules$exit)==length(grep('market',strategy$rules$exit))){
-                                # all exit orders are of type 'market'
-                                # so we must have a position for exit rules to fire / be evaluated
-                                if (getPosQty(Portfolio=portfolio,Symbol=symbol,Date=timestamp)==0) next()
-                            }
-                        }
+#                        if(type=='exit'){
+#                            if(length(strategy$rules$exit)==length(grep('market',strategy$rules$exit))){
+#                                # all exit orders are of type 'market'
+#                                # so we must have a position for exit rules to fire / be evaluated
+#                                if (getPosQty(Portfolio=portfolio,Symbol=symbol,Date=timestamp)==0) next()
+#                            }
+#                        }
                         if(length(strategy$rules[[type]])>=1) {
                             ruleProc(strategy$rules[[type]],timestamp=timestamp, path.dep=path.dep, mktdata=mktdata,portfolio=portfolio, symbol=symbol, ruletype=type, mktinstr=mktinstr, ...)
                         }

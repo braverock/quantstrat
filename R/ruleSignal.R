@@ -143,14 +143,10 @@ ruleSignal <- function(data=mktdata, timestamp, sigcol, sigval, orderqty=0, orde
         
         ## now size the order
         #TODO add fancy formals matching for osFUN
-        if(!(ruletype=='risk') && (orderqty=='all')){
-            # Joe Dunn suggested if((ruletype != 'risk') && (orderqty !='all'))
-            # but that didn't work either.  needs more investigation
-            
+        if(orderqty=='all' && (ordertype=='market' || (ruletype!='risk' && ruletype!='exit')))
+	{
             orderqty <- osFUN(strategy=strategy, data=data, timestamp=timestamp, orderqty=orderqty, ordertype=ordertype, orderside=orderside, portfolio=portfolio, symbol=symbol,...=...,ruletype=ruletype, orderprice=as.numeric(orderprice))
-            
         }
-        
         
         if(!is.null(orderqty) && !orderqty == 0 && !is.null(orderprice)){ #orderqty could have length > 1
             addOrder(portfolio=portfolio, symbol=symbol, timestamp=timestamp, qty=orderqty, price=as.numeric(orderprice), ordertype=ordertype, side=orderside, orderset=orderset, threshold=threshold, status="open", replace=replace , delay=delay, tmult=tmult, ...=..., TxnFees=TxnFees,label=label)
