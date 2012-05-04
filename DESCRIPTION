@@ -1,18 +1,19 @@
 Package: quantstrat
 Type: Package
 Title: Quantitative Strategy Model Framework
-Version: 0.6.5
+Version: 0.6.6
 Date: $Date$
 Author: Peter Carl, Dirk Eddelbuettel, Brian G. Peterson,
-    Jeffrey A. Ryan, Joshua Ulrich, Garrett See, Yu Chen
+    Jeffrey A. Ryan, Joshua Ulrich, Garrett See 
 Depends:
     xts(>= 0.8-2),TTR(>= 0.2),blotter(>= 0.7.2),
     FinancialInstrument(>= 0.12.5)
 Suggests:
     PerformanceAnalytics,PortfolioAnalytics
-Maintainer: Jeffrey A. Ryan <jeff.a.ryan@gmail.com>
+Maintainer: Brian G. Peterson <brian@braverock.com>
 Description: Specify, build, and back-test quantitative
     financial trading and portfolio strategies
+Contributors: Yu Chen, Joe Dunn, Jan Humme
 LazyLoad: yes
 License: GPL-3
 Collate:
