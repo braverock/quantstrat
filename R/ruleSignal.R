@@ -27,6 +27,7 @@
 #' @param orderqty numeric quantity of the desired order, or 'all', modified by osFUN
 #' @param ordertype one of "market","limit","stoplimit", "stoptrailing", or "iceberg"
 #' @param orderside one of either "long" or "short", default NULL, see details 
+#' @param orderset tag to identify an orderset; if one order of the set is filled, all others are canceled
 #' @param threshold numeric or function threshold to apply to trailing stop orders, default NULL, see Details
 #' @param tmult if TRUE, threshold is a percent multiplier for \code{price}, not a scalar to be added/subtracted from price.  threshold will be dynamically converted to a scalar at time of order entry
 #' @param replace TRUE/FALSE, whether to replace any other open order(s) on this portfolio symbol, default TRUE 
@@ -43,7 +44,7 @@
 #' @param label rule label, default '', added by \code{\link{applyRules}}
 #' @seealso \code{\link{osNoOp}} , \code{\link{add.rule}}
 #' @export
-ruleSignal <- function(data=mktdata, timestamp, sigcol, sigval, orderqty=0, ordertype, orderside=NULL, threshold=NULL, tmult=FALSE, replace=TRUE, delay=0.0001, osFUN='osNoOp', pricemethod=c('market','opside','active'), portfolio, symbol, ..., ruletype, TxnFees=0, prefer=NULL, sethold=FALSE, label='')
+ruleSignal <- function(data=mktdata, timestamp, sigcol, sigval, orderqty=0, ordertype, orderside=NULL, orderset='', threshold=NULL, tmult=FALSE, replace=TRUE, delay=0.0001, osFUN='osNoOp', pricemethod=c('market','opside','active'), portfolio, symbol, ..., ruletype, TxnFees=0, prefer=NULL, sethold=FALSE, label='')
 {
 
     if(!is.function(osFUN)) osFUN<-match.fun(osFUN)
@@ -142,15 +143,17 @@ ruleSignal <- function(data=mktdata, timestamp, sigcol, sigval, orderqty=0, orde
         
         ## now size the order
         #TODO add fancy formals matching for osFUN
-        if(!(ruletype=='risk') && (orderqty=='all'))
+        if(!(ruletype=='risk') && (orderqty=='all')){
             # Joe Dunn suggested if((ruletype != 'risk') && (orderqty !='all'))
             # but that didn't work either.  needs more investigation
-    
-        orderqty <- osFUN(strategy=strategy, data=data, timestamp=timestamp, orderqty=orderqty, ordertype=ordertype, orderside=orderside, portfolio=portfolio, symbol=symbol,...=...,ruletype=ruletype, orderprice=as.numeric(orderprice))
+            
+            orderqty <- osFUN(strategy=strategy, data=data, timestamp=timestamp, orderqty=orderqty, ordertype=ordertype, orderside=orderside, portfolio=portfolio, symbol=symbol,...=...,ruletype=ruletype, orderprice=as.numeric(orderprice))
+            
+        }
         
         
         if(!is.null(orderqty) && !orderqty == 0 && !is.null(orderprice)){ #orderqty could have length > 1
-            addOrder(portfolio=portfolio, symbol=symbol, timestamp=timestamp, qty=orderqty, price=as.numeric(orderprice), ordertype=ordertype, side=orderside, threshold=threshold, status="open", replace=replace , delay=delay, tmult=tmult, ...=..., TxnFees=TxnFees,label=label)
+            addOrder(portfolio=portfolio, symbol=symbol, timestamp=timestamp, qty=orderqty, price=as.numeric(orderprice), ordertype=ordertype, side=orderside, orderset=orderset, threshold=threshold, status="open", replace=replace , delay=delay, tmult=tmult, ...=..., TxnFees=TxnFees,label=label)
         }
     }
     if(sethold) hold <<- TRUE

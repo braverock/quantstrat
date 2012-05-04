@@ -78,7 +78,7 @@ initOrders <- function(portfolio=NULL, symbols=NULL, initDate = '1999-12-31', ..
 #' @seealso addOrder
 #' @concept order book
 #' @export
-getOrders <- function(portfolio,symbol,status="open",timespan=NULL,ordertype=NULL, side=NULL, qtysign=NULL, which.i=FALSE)
+getOrders <- function(portfolio,symbol,status="open",timespan=NULL,ordertype=NULL, side=NULL, qtysign=NULL, orderset=NULL, which.i=FALSE)
 {
     #if(is.null(timespan)) stop("timespan must be an xts style timestring")
     # get order book
@@ -98,6 +98,7 @@ getOrders <- function(portfolio,symbol,status="open",timespan=NULL,ordertype=NUL
                      (if(!is.null(status)) ordersubset[,"Order.Status"]==status else TRUE) &
                      (if(!is.null(ordertype)) ordersubset[,"Order.Type"]==ordertype else TRUE) &
                      (if(!is.null(side)) ordersubset[,"Order.Side"]==side else TRUE) &
+                     (if(!is.null(orderset)) ordersubset[,"Order.Set"]==orderset else TRUE) &
                      (if(!is.null(qtysign)) sign(as.numeric(ordersubset[,"Order.Qty"]))==qtysign else TRUE)
                     )
 
@@ -208,7 +209,7 @@ getOrders <- function(portfolio,symbol,status="open",timespan=NULL,ordertype=NUL
 #' @seealso updateOrders
 #' @concept order book
 #' @export
-addOrder <- function(portfolio, symbol, timestamp, qty, price, ordertype, side, threshold=NULL, status="open", statustimestamp='' , delay=.00001, tmult=FALSE, replace=TRUE, return=FALSE, ..., TxnFees=0,label='')
+addOrder <- function(portfolio, symbol, timestamp, qty, price, ordertype, side, orderset='', threshold=NULL, status="open", statustimestamp='' , delay=.00001, tmult=FALSE, replace=TRUE, return=FALSE, ..., TxnFees=0,label='')
 {
     # get order book
     #orderbook <- getOrderBook(portfolio)
@@ -268,15 +269,6 @@ addOrder <- function(portfolio, symbol, timestamp, qty, price, ordertype, side, 
 
     statustimestamp=NA # new orders don't have a status time
 
-    #handle order sets
-    #get the order set if length(price)>1
-    if(length(price)>1) {
-        order.set<-max(na.omit(getOrders(portfolio=portfolio, symbol=symbol, status='open', timespan=timespan, ordertype=NULL, side=NULL,which.i=FALSE)$Order.Set))
-        if(is.na(order.set)) order.set<-1
-    } else {    
-        order.set=NA
-    }
-
     #set up the other parameters
     if (!length(qty)==length(price)) qty <- rep(qty,length(price))
     if (!length(ordertype)==length(price)) ordertype <- rep(ordertype,length(price))
@@ -287,8 +279,8 @@ addOrder <- function(portfolio, symbol, timestamp, qty, price, ordertype, side, 
     if(is.timeBased(timestamp)) ordertime<-timestamp+delay
     else ordertime<-as.POSIXct(timestamp)+delay
     orders<-NULL
-    for (i in 1:length(price)){
-        neworder<-xts(as.matrix(t(c(qty[i], price[i], ordertype[i], side, threshold[i], status, statustimestamp, order.set,TxnFees,label))),order.by=(ordertime))
+    for (i in 1:length(price)) {
+        neworder<-xts(as.matrix(t(c(qty[i], price[i], ordertype[i], side, threshold[i], status, statustimestamp, orderset[i], TxnFees, label))), order.by=(ordertime))
         if(is.null(orders)) orders<-neworder
         else orders <- rbind(orders,neworder)
     }
@@ -335,6 +327,7 @@ addOrder <- function(portfolio, symbol, timestamp, qty, price, ordertype, side, 
 #' @param ordertype one of NULL, "market","limit","stoplimit", or "stoptrailing" default NULL
 #' @param side one of NULL, "long" or "short", default NULL 
 #' @param qtysign one of NULL, -1,0,1 ; could be useful when all qty's are reported as positive numbers and need to be identified other ways, default NULL
+#' @param set a tag identifying the orderset
 #' @param oldstatus one of NULL, "open", "closed", "canceled", or "replaced", default "open"
 #' @param newstatus one of "open", "closed", "canceled", or "replaced"
 #' @param statustimestamp timestamp of a status update, will be blank when order is initiated

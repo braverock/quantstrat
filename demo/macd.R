@@ -60,12 +60,12 @@ add.rule(strat.st,name='ruleSignal', arguments = list(sigcol="signal.gt.zero",si
 
 #alternatives for risk stops:
 # simple stoplimit order, with threshold multiplier
-# add.rule(strat.st,name='ruleSignal', arguments = list(sigcol="signal.gt.zero",sigval=TRUE, orderqty='all', ordertype='stoplimit', orderside='long', threshold=-.05,tmult=TRUE),type='risk',label='risk',storefun=FALSE)
+add.rule(strat.st,name='ruleSignal', arguments = list(sigcol="signal.gt.zero",sigval=TRUE, orderqty='all', ordertype='stoplimit', orderside='long', threshold=-.05,tmult=TRUE, orderset='exit2'),type='risk',label='risk',storefun=FALSE)
 # alternately, use a trailing order, also with a threshold multiplier
-# add.rule(strat.st,name='ruleSignal', arguments = list(sigcol="signal.gt.zero",sigval=TRUE, orderqty='all', ordertype='stoptrailing', orderside='long', threshold=-.1,tmult=TRUE),type='risk',label='trailingexit')
+#add.rule(strat.st,name='ruleSignal', arguments = list(sigcol="signal.gt.zero",sigval=TRUE, orderqty='all', ordertype='stoptrailing', orderside='long', threshold=-.15,tmult=TRUE, orderset='exit2'),type='risk',label='trailingexit')
 
 # exit
-add.rule(strat.st,name='ruleSignal', arguments = list(sigcol="signal.lt.zero",sigval=TRUE, orderqty='all', ordertype='market', orderside='long', threshold=NULL),type='exit',label='exit')
+add.rule(strat.st,name='ruleSignal', arguments = list(sigcol="signal.lt.zero",sigval=TRUE, orderqty='all', ordertype='market', orderside='long', threshold=NULL,orderset='exit2'),type='exit',label='exit')
 
 #end rules
 ####

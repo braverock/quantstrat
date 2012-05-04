@@ -57,14 +57,14 @@ ruleOrderProc <- function(portfolio, symbol, mktdata, timespan=NULL, ordertype=N
     ordersubset <- orderbook[[portfolio]][[symbol]]
     
     # get open orders
-    procorders=NULL
-    procorders<-getOrders(portfolio=portfolio, symbol=symbol, status="open", timespan=timespan, ordertype=ordertype, which.i=TRUE)
+    OpenOrders.i=NULL
+    OpenOrders.i<-getOrders(portfolio=portfolio, symbol=symbol, status="open", timespan=timespan, ordertype=ordertype, which.i=TRUE)
 
     if(hasArg(prefer)) prefer=match.call(expand.dots=TRUE)$prefer
     else prefer = NULL
 
     # check for open orders
-    if (length(procorders)>=1){
+    if (length(OpenOrders.i)>=1){
         # get previous bar
         prevtime  <- time(mktdata[last(mktdata[timespan, which.i = TRUE])-1]) 
         timestamp <- time(last(mktdata[timespan]))
@@ -77,7 +77,12 @@ ruleOrderProc <- function(portfolio, symbol, mktdata, timespan=NULL, ordertype=N
         if( NROW(mktdataTimestamp) > 1 ) mktdataTimestamp <- last(mktdataTimestamp)
         isOHLCmktdata <- is.OHLC(mktdata)
         isBBOmktdata  <- is.BBO(mktdata)
-        for (ii in procorders ){
+        for (ii in OpenOrders.i ){
+		if(ordersubset[ii, "Order.Status"] != "open")	# need to check this bc sideeffects may have changed order.status in this loop
+		{
+			#print("@@@@@@@@ status changed from open")
+			next()
+		}
             txnprice=NULL
             txnfees=ordersubset[ii,"Txn.Fees"]
             orderPrice <- as.numeric(ordersubset[ii,"Order.Price"])
@@ -290,6 +295,12 @@ ruleOrderProc <- function(portfolio, symbol, mktdata, timespan=NULL, ordertype=N
                                  TxnQty=orderQty, TxnPrice=txnprice , ...=..., TxnFees=txnfees)
                     ordersubset[ii,"Order.Status"]<-'closed'
                     ordersubset[ii,"Order.StatusTime"]<-as.character(timestamp)
+
+                    #close all other orders in the order set
+                    OrdersetTag = toString(ordersubset[ii,"Order.Set"])
+		    OpenInOrderset.i = which(ordersubset[,"Order.Status"] == 'open' & ordersubset[,"Order.Set"] == OrdersetTag)
+                    ordersubset[OpenInOrderset.i, "Order.Status"] = 'canceled'
+                    ordersubset[OpenInOrderset.i, "Order.StatusTime"]<-as.character(timestamp)
                 } 
             }
         } #end loop over open orders  
