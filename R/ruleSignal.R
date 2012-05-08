@@ -141,15 +141,19 @@ ruleSignal <- function(data=mktdata, timestamp, sigcol, sigval, orderqty=0, orde
             }
         }
         
-        ## now size the order
-        #TODO add fancy formals matching for osFUN
-        if(orderqty=='all' && (ordertype=='market' || (ruletype!='risk' && ruletype!='exit')))
+	## now size the order
+	#TODO add fancy formals matching for osFUN
+	if(orderqty!='all' || ordertype=='market' || (ruletype!='risk' && ruletype!='exit'))
 	{
-            orderqty <- osFUN(strategy=strategy, data=data, timestamp=timestamp, orderqty=orderqty, ordertype=ordertype, orderside=orderside, portfolio=portfolio, symbol=symbol,...=...,ruletype=ruletype, orderprice=as.numeric(orderprice))
+		orderqty <- osFUN(strategy=strategy, data=data, timestamp=timestamp, orderqty=orderqty, ordertype=ordertype, orderside=orderside, portfolio=portfolio, symbol=symbol,...=...,ruletype=ruletype, orderprice=as.numeric(orderprice))
+
+		if(ruletype=='exit' && ((orderqty>0 && orderside=='long') || (orderqty<0 && orderside=='short')))
+			orderqty = NULL		# dirty trick to suppress adding order below JH
         }
-        
-        if(!is.null(orderqty) && !orderqty == 0 && !is.null(orderprice)){ #orderqty could have length > 1
-            addOrder(portfolio=portfolio, symbol=symbol, timestamp=timestamp, qty=orderqty, price=as.numeric(orderprice), ordertype=ordertype, side=orderside, orderset=orderset, threshold=threshold, status="open", replace=replace , delay=delay, tmult=tmult, ...=..., TxnFees=TxnFees,label=label)
+
+	if(!is.null(orderqty) && orderqty!=0 && !is.null(orderprice)) #orderqty could have length > 1
+	{
+		addOrder(portfolio=portfolio, symbol=symbol, timestamp=timestamp, qty=orderqty, price=as.numeric(orderprice), ordertype=ordertype, side=orderside, orderset=orderset, threshold=threshold, status="open", replace=replace , delay=delay, tmult=tmult, ...=..., TxnFees=TxnFees,label=label)
         }
     }
     if(sethold) hold <<- TRUE
