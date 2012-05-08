@@ -280,7 +280,7 @@ addOrder <- function(portfolio, symbol, timestamp, qty, price, ordertype, side, 
     else ordertime<-as.POSIXct(timestamp)+delay
     orders<-NULL
     for (i in 1:length(price)) {
-        neworder<-xts(as.matrix(t(c(as.numeric(qty[i]), 
+        neworder<-xts(as.matrix(t(c(as.character(qty[i]), 
                                     price[i], 
                                     ordertype[i], 
                                     side, 
