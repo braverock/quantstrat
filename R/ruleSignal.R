@@ -44,7 +44,7 @@
 #' @param label rule label, default '', added by \code{\link{applyRules}}
 #' @seealso \code{\link{osNoOp}} , \code{\link{add.rule}}
 #' @export
-ruleSignal <- function(data=mktdata, timestamp, sigcol, sigval, orderqty=0, ordertype, orderside=NULL, orderset='', threshold=NULL, tmult=FALSE, replace=TRUE, delay=0.0001, osFUN='osNoOp', pricemethod=c('market','opside','active'), portfolio, symbol, ..., ruletype, TxnFees=0, prefer=NULL, sethold=FALSE, label='')
+ruleSignal <- function(data=mktdata, timestamp, sigcol, sigval, orderqty=0, ordertype, orderside=NULL, orderset=NULL, threshold=NULL, tmult=FALSE, replace=TRUE, delay=0.0001, osFUN='osNoOp', pricemethod=c('market','opside','active'), portfolio, symbol, ..., ruletype, TxnFees=0, prefer=NULL, sethold=FALSE, label='')
 {
 
     if(!is.function(osFUN)) osFUN<-match.fun(osFUN)
@@ -150,6 +150,8 @@ ruleSignal <- function(data=mktdata, timestamp, sigcol, sigval, orderqty=0, orde
 		if(ruletype=='exit' && ((orderqty>0 && orderside=='long') || (orderqty<0 && orderside=='short')))
 			orderqty = NULL		# dirty trick to suppress adding order below JH
         }
+
+	if(is.null(orderset)) orderset=NA
 
 	if(!is.null(orderqty) && orderqty!=0 && !is.null(orderprice)) #orderqty could have length > 1
 	{
