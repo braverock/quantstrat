@@ -3,11 +3,12 @@
 \title{default rule to generate a trade order on a signal}
 \usage{
   ruleSignal(data = mktdata, timestamp, sigcol, sigval,
-  orderqty = 0, ordertype, orderside = NULL, threshold =
-  NULL, tmult = FALSE, replace = TRUE, delay = 1e-04, osFUN
-  = "osNoOp", pricemethod = c("market", "opside",
-  "active"), portfolio, symbol, ..., ruletype, TxnFees = 0,
-  prefer = NULL, sethold = FALSE, label = "")
+    orderqty = 0, ordertype, orderside = NULL,
+    orderset = NULL, threshold = NULL, tmult = FALSE,
+    replace = TRUE, delay = 1e-04, osFUN = "osNoOp",
+    pricemethod = c("market", "opside", "active"),
+    portfolio, symbol, ..., ruletype, TxnFees = 0,
+    prefer = NULL, sethold = FALSE, label = "")
 }
 \arguments{
   \item{data}{an xts object containing market data.
@@ -30,6 +31,9 @@
 
   \item{orderside}{one of either "long" or "short", default
   NULL, see details}
+
+  \item{orderset}{tag to identify an orderset; if one order
+  of the set is filled, all others are canceled}
 
   \item{threshold}{numeric or function threshold to apply
   to trailing stop orders, default NULL, see Details}

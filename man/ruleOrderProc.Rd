@@ -2,8 +2,9 @@
 \alias{ruleOrderProc}
 \title{process open orders at time \emph{t}, generating transactions or new orders}
 \usage{
-  ruleOrderProc(portfolio, symbol, mktdata, timespan =
-  NULL, ordertype = NULL, ..., slippageFUN = NULL)
+  ruleOrderProc(portfolio, symbol, mktdata,
+    timespan = NULL, ordertype = NULL, ...,
+    slippageFUN = NULL)
 }
 \arguments{
   \item{portfolio}{text name of the portfolio to associate

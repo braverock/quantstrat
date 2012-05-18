@@ -3,10 +3,10 @@
 \title{add an order to the order book}
 \usage{
   addOrder(portfolio, symbol, timestamp, qty, price,
-  ordertype, side, threshold = NULL, status = "open",
-  statustimestamp = "", delay = 1e-05, tmult = FALSE,
-  replace = TRUE, return = FALSE, ..., TxnFees = 0, label =
-  "")
+    ordertype, side, orderset = "", threshold = NULL,
+    status = "open", statustimestamp = "", delay = 1e-05,
+    tmult = FALSE, replace = TRUE, return = FALSE, ...,
+    TxnFees = 0, label = "")
 }
 \arguments{
   \item{portfolio}{text name of the portfolio to associate

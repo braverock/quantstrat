@@ -3,7 +3,7 @@
 \title{Function to construct parameter constraint object.}
 \usage{
   setParameterConstraint(paramConstraintObj = list(),
-  constraintLabel, paramList, relationship)
+    constraintLabel, paramList, relationship)
 }
 \arguments{
   \item{paramConstraintObj}{the ParameterConstraint object
@@ -41,7 +41,7 @@
 #than slow macd signal:
 \dontrun{
 x<-setParameterConstraint(constraintLabel='macdPC',
-paramList=c('nFast','nSlow'),relationship='lt')
+		paramList=c('nFast','nSlow'),relationship='lt')
 }
 #The object x then can be used as one of the inputs to applyParameter function to specify the
 #constraints between parameters.

@@ -3,7 +3,7 @@
 \title{apply the indicators in the strategy to arbitrary market data}
 \usage{
   applyIndicators(strategy, mktdata, parameters = NULL,
-  ...)
+    ...)
 }
 \arguments{
   \item{strategy}{an object of type 'strategy' to add the

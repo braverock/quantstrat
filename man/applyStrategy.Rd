@@ -3,8 +3,8 @@
 \title{apply the strategy to arbitrary market data}
 \usage{
   applyStrategy(strategy, portfolios, mktdata = NULL,
-  parameters = NULL, ..., verbose = TRUE, symbols = NULL,
-  initStrat = FALSE, updateStrat = FALSE)
+    parameters = NULL, ..., verbose = TRUE, symbols = NULL,
+    initStrat = FALSE, updateStrat = FALSE)
 }
 \arguments{
   \item{strategy}{an object of type 'strategy' to add the

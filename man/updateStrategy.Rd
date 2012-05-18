@@ -2,11 +2,11 @@
 \alias{updateStrategy}
 \title{run standard and custom strategy wrapup functions such as updating portfolio, account, and ending equity}
 \usage{
-  updateStrategy(strategy, portfolio = "default", account =
-  portfolio, Symbols = NULL, parameters = NULL, Dates =
-  NULL, Prices = NULL, update.Portf = TRUE, update.Acct =
-  TRUE, update.EndEq = TRUE, showEq = TRUE, chart = TRUE,
-  ...)
+  updateStrategy(strategy, portfolio = "default",
+    account = portfolio, Symbols = NULL, parameters = NULL,
+    Dates = NULL, Prices = NULL, update.Portf = TRUE,
+    update.Acct = TRUE, update.EndEq = TRUE, showEq = TRUE,
+    chart = TRUE, ...)
 }
 \arguments{
   \item{strategy}{object of type \code{strategy} to
@@ -71,12 +71,12 @@
   The 'standard wrapup functions included are: \describe{
   \item{update.Portf}{ if TRUE, will call
   \code{\link[blotter]{updatePortf}} to mark the book in
-  the portfolio. } \item{update.Acct}{ if TRUE, will call
+  the portfolio.  } \item{update.Acct}{ if TRUE, will call
   \code{\link[blotter]{updateAcct}} to mark the blotter
-  account for this test. } \item{update.EndEq}{ if TRUE,
+  account for this test.  } \item{update.EndEq}{ if TRUE,
   will call \code{\link[blotter]{updateEndEq}} to update
   the account equity after all other accounting has been
-  completed. } }
+  completed.  } }
 }
 \author{
   Garrett See, Brian Peterson

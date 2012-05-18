@@ -3,7 +3,7 @@
 \title{default order sizing function}
 \usage{
   osNoOp(timestamp, orderqty, portfolio, symbol, ruletype,
-  ...)
+    ...)
 }
 \arguments{
   \item{timestamp}{timestamp coercible to POSIXct that will

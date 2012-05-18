@@ -3,7 +3,7 @@
 \title{order sizing function for position limits and level sizing}
 \usage{
   osMaxPos(data, timestamp, orderqty, ordertype, orderside,
-  portfolio, symbol, ruletype, ...)
+    portfolio, symbol, ruletype, ...)
 }
 \arguments{
   \item{data}{an xts object containing market data.

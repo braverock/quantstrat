@@ -2,8 +2,8 @@
 \alias{sigCrossover}
 \title{generate a crossover signal}
 \usage{
-  sigCrossover(label, data = mktdata, columns, relationship
-  = c("gt", "lt", "eq", "gte", "lte"))
+  sigCrossover(label, data = mktdata, columns,
+    relationship = c("gt", "lt", "eq", "gte", "lte"))
 }
 \arguments{
   \item{label}{text label to apply to the output}

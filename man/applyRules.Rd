@@ -2,9 +2,10 @@
 \alias{applyRules}
 \title{apply the rules in the strategy to arbitrary market data}
 \usage{
-  applyRules(portfolio, symbol, strategy, mktdata, Dates =
-  NULL, indicators = NULL, signals = NULL, parameters =
-  NULL, ..., path.dep = TRUE)
+  applyRules(portfolio, symbol, strategy, mktdata,
+    Dates = NULL, indicators = NULL, signals = NULL,
+    parameters = NULL, ..., path.dep = TRUE,
+    rule.order = NULL)
 }
 \arguments{
   \item{portfolio}{text name of the portfolio to associate
@@ -42,6 +43,9 @@
 
   \item{path.dep}{TRUE/FALSE whether rule is path
   dependent, default TRUE, see Details}
+
+  \item{rule.order}{default NULL, use at your own risk to
+  adjust order of rule evaluation}
 }
 \description{
   In typical usage, this function will be called via

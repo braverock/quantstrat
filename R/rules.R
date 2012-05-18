@@ -202,9 +202,20 @@ add.rule <- function(strategy, name, arguments, parameters=NULL, label=NULL, typ
 #' @param parameters named list of parameters to be applied during evaluation of the strategy,default NULL, only needed if you need special names to avoid argument collision
 #' @param ... any other passthru parameters
 #' @param path.dep TRUE/FALSE whether rule is path dependent, default TRUE, see Details 
+#' @param rule.order default NULL, use at your own risk to adjust order of rule evaluation
 #' @seealso \code{\link{add.rule}} \code{\link{applyStrategy}} 
 #' @export
-applyRules <- function(portfolio, symbol, strategy, mktdata, Dates=NULL, indicators=NULL, signals=NULL, parameters=NULL,   ..., path.dep=TRUE) {
+applyRules <- function(portfolio, 
+                        symbol, 
+                        strategy, 
+                        mktdata, 
+                        Dates=NULL, 
+                        indicators=NULL, 
+                        signals=NULL, 
+                        parameters=NULL,   
+                        ..., 
+                        path.dep=TRUE,
+                        rule.order=NULL) {
     # TODO check for symbol name in mktdata using Josh's code:
     # symbol <- strsplit(colnames(mktdata)[1],"\\.")[[1]][1]
     
@@ -613,7 +624,12 @@ applyRules <- function(portfolio, symbol, strategy, mktdata, Dates=NULL, indicat
         }
         # evaluate the rule types in the order listed in the documentation
         # thanks to Aleksandr Rudnev for tracking this down (R-SIG-Finance, 2011-01-25)
-        types <- sort(factor(names(strategy$rules), levels=c("pre","risk","order","rebalance","exit","enter","entry","post")))
+        if(is.null(rule.order)){
+            types <- sort(factor(names(strategy$rules), levels=c("pre","risk","order","rebalance","exit","enter","entry","post")))
+        } else {
+            print("Be aware that order of operations matters, and poor choises in rule order can create unintended consequences.")
+            types <- rule.order
+        }
         for ( type in types ) {
             switch( type ,
                     pre = {

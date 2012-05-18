@@ -3,7 +3,7 @@
 \title{generate comparison signal}
 \usage{
   sigComparison(label, data = mktdata, columns,
-  relationship = c("gt", "lt", "eq", "gte", "lte"))
+    relationship = c("gt", "lt", "eq", "gte", "lte"))
 }
 \arguments{
   \item{label}{text label to apply to the output}

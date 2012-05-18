@@ -3,10 +3,10 @@
 \title{add a rule to a strategy}
 \usage{
   add.rule(strategy, name, arguments, parameters = NULL,
-  label = NULL, type = c(NULL, "risk", "order",
-  "rebalance", "exit", "enter"), ..., enabled = TRUE,
-  indexnum = NULL, path.dep = TRUE, timespan = NULL, store
-  = FALSE, storefun = TRUE)
+    label = NULL,
+    type = c(NULL, "risk", "order", "rebalance", "exit", "enter"),
+    ..., enabled = TRUE, indexnum = NULL, path.dep = TRUE,
+    timespan = NULL, store = FALSE, storefun = TRUE)
 }
 \arguments{
   \item{strategy}{an object of type 'strategy' to add the

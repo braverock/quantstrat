@@ -2,9 +2,10 @@
 \alias{initStrategy}
 \title{run standard and custom strategy initialization functions}
 \usage{
-  initStrategy(strategy, portfolio, symbols, parameters =
-  NULL, get.Symbols = TRUE, init.Portf = TRUE, init.Acct =
-  TRUE, init.Orders = TRUE, unique = TRUE, ...)
+  initStrategy(strategy, portfolio, symbols,
+    parameters = NULL, get.Symbols = TRUE,
+    init.Portf = TRUE, init.Acct = TRUE,
+    init.Orders = TRUE, unique = TRUE, ...)
 }
 \arguments{
   \item{strategy}{object of type \code{strategy} to

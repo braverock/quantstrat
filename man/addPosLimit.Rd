@@ -3,8 +3,8 @@
 \title{add position and level limits at timestamp}
 \usage{
   addPosLimit(portfolio, symbol, timestamp, maxpos,
-  longlevels = 1, minpos = -maxpos, shortlevels =
-  longlevels)
+    longlevels = 1, minpos = -maxpos,
+    shortlevels = longlevels)
 }
 \arguments{
   \item{portfolio}{text name of the portfolio to place

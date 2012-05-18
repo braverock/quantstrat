@@ -2,8 +2,8 @@
 \alias{sigPeak}
 \title{signal function for peak/valley signals}
 \usage{
-  sigPeak(label, data, column, direction = c("peak",
-  "bottom"))
+  sigPeak(label, data, column,
+    direction = c("peak", "bottom"))
 }
 \arguments{
   \item{label}{text label to apply to the output}

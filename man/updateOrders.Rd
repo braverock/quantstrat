@@ -2,9 +2,9 @@
 \alias{updateOrders}
 \title{update an order or orders}
 \usage{
-  updateOrders(portfolio, symbol, timespan, ordertype =
-  NULL, side = NULL, qtysign = NULL, oldstatus = "open",
-  newstatus, statustimestamp)
+  updateOrders(portfolio, symbol, timespan,
+    ordertype = NULL, side = NULL, qtysign = NULL,
+    oldstatus = "open", newstatus, statustimestamp)
 }
 \arguments{
   \item{portfolio}{text name of the portfolio to associate
@@ -26,6 +26,8 @@
   \item{qtysign}{one of NULL, -1,0,1 ; could be useful when
   all qty's are reported as positive numbers and need to be
   identified other ways, default NULL}
+
+  \item{set}{a tag identifying the orderset}
 
   \item{oldstatus}{one of NULL, "open", "closed",
   "canceled", or "replaced", default "open"}
