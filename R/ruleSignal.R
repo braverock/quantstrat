@@ -140,18 +140,25 @@ ruleSignal <- function(data=mktdata, timestamp, sigcol, sigval, orderqty=0, orde
                     orderside<-'short'
             }
         }
-        
+
+	if(is.null(orderset)) orderset=NA
+
 	## now size the order
 	#TODO add fancy formals matching for osFUN
 	if(orderqty!='all' || ordertype=='market' || (ruletype!='risk' && ruletype!='exit'))
 	{
 		orderqty <- osFUN(strategy=strategy, data=data, timestamp=timestamp, orderqty=orderqty, ordertype=ordertype, orderside=orderside, portfolio=portfolio, symbol=symbol,...=...,ruletype=ruletype, orderprice=as.numeric(orderprice))
 
-		if(ruletype=='exit' && ((orderqty>0 && orderside=='long') || (orderqty<0 && orderside=='short')))
-			orderqty = NULL		# dirty trick to suppress adding order below JH
-        }
+		if(ruletype=='risk' || ruletype=='exit')
+		{
+			if(orderqty==0)	# cancel any open orders from orderset associated with this exit/risk order
+				updateOrders(portfolio, symbol, oldstatus="open", newstatus='canceled', statustimestamp=timestamp, orderset=orderset)
 
-	if(is.null(orderset)) orderset=NA
+			if(((orderqty>0 && orderside=='long') || (orderqty<0 && orderside=='short')))
+				orderqty = NULL		# dirty trick to suppress adding order below JH; (why?)
+		}
+
+        }
 
 	if(!is.null(orderqty) && orderqty!=0 && !is.null(orderprice)) #orderqty could have length > 1
 	{

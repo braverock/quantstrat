@@ -84,7 +84,7 @@ getOrders <- function(portfolio,symbol,status="open",timespan=NULL,ordertype=NUL
     # get order book
     orderbook <- getOrderBook(portfolio)
     if(!any(names(orderbook[[portfolio]]) == symbol)) stop(paste("symbol",symbol,"does not exist in portfolio",portfolio,"having symbols",names(orderbook[[portfolio]])))
-    ordersubset<-orderbook[[portfolio]][[symbol]]
+	    ordersubset<-orderbook[[portfolio]][[symbol]]
 
     #data quality checks
     if(!is.null(status) & !length(grep(status,c("open", "closed", "canceled","replaced")))==1) stop(paste("order status:",status,' must be one of "open", "closed", "canceled", or "replaced"'))
@@ -345,7 +345,7 @@ addOrder <- function(portfolio, symbol, timestamp, qty, price, ordertype, side, 
 #' @seealso getOrderBook 
 #' @concept order book
 #' @export
-updateOrders <- function(portfolio, symbol, timespan, ordertype=NULL, side=NULL, qtysign=NULL, oldstatus="open", newstatus, statustimestamp) 
+updateOrders <- function(portfolio, symbol, timespan, ordertype=NULL, side=NULL, qtysign=NULL, oldstatus="open", newstatus, statustimestamp, orderset=NULL)
 { 
     #data quality checks
     if(!is.null(oldstatus) && !length(grep(oldstatus,c("open", "closed", "canceled","replaced")))==1) 
