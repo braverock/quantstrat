@@ -40,8 +40,8 @@ initOrders <- function(portfolio=NULL, symbols=NULL, initDate = '1999-12-31', ..
         orders<-list()
         orders[[portfolio]]<-list()
     }
-    ordertemplate<-xts(as.matrix(t(c(0,NA,"init","long",0,"closed",as.character(as.POSIXct(initDate)),1,0,''))),order.by=as.POSIXct(initDate), ...=...)
-    colnames(ordertemplate) <- c("Order.Qty","Order.Price","Order.Type","Order.Side","Order.Threshold","Order.Status","Order.StatusTime","Order.Set","Txn.Fees","Rule")
+    ordertemplate<-xts(as.matrix(t(c(0,NA,"init","long",0,"closed",as.character(as.POSIXct(initDate)),'','',0,''))),order.by=as.POSIXct(initDate), ...=...)
+    colnames(ordertemplate) <- c("Order.Qty","Order.Price","Order.Type","Order.Side","Order.Threshold","Order.Status","Order.StatusTime","Prefer", "Order.Set","Txn.Fees","Rule")
 
     if(is.null(symbols)) {
         pfolio<-getPortfolio(portfolio)
@@ -209,7 +209,7 @@ getOrders <- function(portfolio,symbol,status="open",timespan=NULL,ordertype=NUL
 #' @seealso updateOrders
 #' @concept order book
 #' @export
-addOrder <- function(portfolio, symbol, timestamp, qty, price, ordertype, side, orderset='', threshold=NULL, status="open", statustimestamp='' , delay=.00001, tmult=FALSE, replace=TRUE, return=FALSE, ..., TxnFees=0,label='')
+addOrder <- function(portfolio, symbol, timestamp, qty, price, ordertype, side, orderset='', threshold=NULL, status="open", statustimestamp='' , prefer='', delay=.00001, tmult=FALSE, replace=TRUE, return=FALSE, ..., TxnFees=0,label='')
 {
     # get order book
     #orderbook <- getOrderBook(portfolio)
@@ -287,6 +287,7 @@ addOrder <- function(portfolio, symbol, timestamp, qty, price, ordertype, side, 
                                     threshold[i], 
                                     status, 
                                     statustimestamp, 
+				    prefer,
                                     orderset[i], 
                                     TxnFees, label))), 
                                 order.by=(ordertime))
@@ -294,7 +295,7 @@ addOrder <- function(portfolio, symbol, timestamp, qty, price, ordertype, side, 
         else orders <- rbind(orders,neworder)
     }
 
-    if(ncol(orders)!=10) {
+    if(ncol(orders)!=11) {
         print("bad order(s):")
         print(orders)
         return()

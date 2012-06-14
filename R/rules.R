@@ -285,11 +285,9 @@ applyRules <- function(portfolio,
 
             .formals  <- formals(fun)
             
-            if(hasArg(prefer)) .formals$prefer=match.call(expand.dots=TRUE)$prefer
-            
             onames <- names(.formals)
             rule$arguments$timestamp = timestamp
-			rule$arguments$ruletype  = ruletype
+            rule$arguments$ruletype  = ruletype
             rule$arguments$label = rule$label
             pm <- pmatch(names(rule$arguments), onames, nomatch = 0L)
             # if (any(pm == 0L)) message(paste("some arguments stored for",rule$name,"do not match"))
@@ -310,6 +308,9 @@ applyRules <- function(portfolio,
                 .formals[pm] <- nargs[pm > 0L]
             }
             .formals$... <- NULL
+
+	    # any rule-specific prefer-parameters should override global prefer parameter
+	    if(!is.null(rule$arguments$prefer)) .formals$prefer = rule$arguments$prefer
             
             tmp_val<-do.call(fun,.formals)
 
