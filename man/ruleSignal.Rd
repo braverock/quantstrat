@@ -81,6 +81,13 @@
   \code{\link{applyRules}}}
 }
 \description{
+  The \code{ruleSignal} function is a default sample rule
+  function for generating orders from a signal.  While some
+  strategies may require custom rule functions, we've found
+  that ruleSignal is sufficient for many strategies, with
+  custom code more often found in indicators and rules.
+}
+\details{
   \code{pricemethod} may be one of \describe{
   \item{'market', 'opside', or 'active'}{ will use the
   'ask' price if you're buying and the 'bid' price if
@@ -95,8 +102,7 @@
   market making activities by having orders on both sides.
   This will then create an Order.Set, and use the
   \code{threshold} to set the prices for these orders.} }
-}
-\details{
+
   If \code{threshold} is not numeric or \code{NULL} it
   should be the character string describing a function that
   can calculate a threshold. Ideally this will be a column

@@ -4,7 +4,8 @@
 \usage{
   updateOrders(portfolio, symbol, timespan,
     ordertype = NULL, side = NULL, qtysign = NULL,
-    oldstatus = "open", newstatus, statustimestamp)
+    oldstatus = "open", newstatus, statustimestamp,
+    orderset = NULL)
 }
 \arguments{
   \item{portfolio}{text name of the portfolio to associate

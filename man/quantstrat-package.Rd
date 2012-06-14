@@ -80,6 +80,20 @@ conditions at the time these decisions are made. Also, the order history allows
 for easy computation of things that are important for many strategies, like
 order-to-fill ratios.
 
+\emph{Argument Matching}
+
+Many places in quantstrat apply arguments passed in the strategy specification, 
+the parameters list, or in \code{...} to an indicator, signal, or rule function.  
+These arguments are matched in this order, with the last math overriding.
+Specifically, this order is:
+
+\enumerate{
+    \item the \code{arguments=list(...)} assigned to each indicator, signal, or rule 
+    \item the \code{parameters=list{...}} applied when \code{\link{applyStrategy} is called
+    \item any additional arguments passed in \code{...} in the call to \code{applyStrategy}
+}
+
+
 }
 \author{
 Peter Carl
