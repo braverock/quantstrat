@@ -209,7 +209,7 @@ getOrders <- function(portfolio,symbol,status="open",timespan=NULL,ordertype=NUL
 #' @seealso updateOrders
 #' @concept order book
 #' @export
-addOrder <- function(portfolio, symbol, timestamp, qty, price, ordertype, side, orderset='', threshold=NULL, status="open", statustimestamp='' , prefer='', delay=.00001, tmult=FALSE, replace=TRUE, return=FALSE, ..., TxnFees=0,label='')
+addOrder <- function(portfolio, symbol, timestamp, qty, price, ordertype, side, orderset='', threshold=NULL, status="open", statustimestamp='' , prefer=NULL, delay=.00001, tmult=FALSE, replace=TRUE, return=FALSE, ..., TxnFees=0,label='')
 {
     # get order book
     #orderbook <- getOrderBook(portfolio)
@@ -280,6 +280,7 @@ addOrder <- function(portfolio, symbol, timestamp, qty, price, ordertype, side, 
     else ordertime<-as.POSIXct(timestamp)+delay
     orders<-NULL
     for (i in 1:length(price)) {
+        if(is.null(prefer[i])) prefer[i] = ''
         neworder<-xts(as.matrix(t(c(as.character(qty[i]), 
                                     price[i], 
                                     ordertype[i], 
@@ -287,7 +288,7 @@ addOrder <- function(portfolio, symbol, timestamp, qty, price, ordertype, side, 
                                     threshold[i], 
                                     status, 
                                     statustimestamp, 
-				    prefer,
+				    prefer[i],
                                     orderset[i], 
                                     TxnFees, label))), 
                                 order.by=(ordertime))
