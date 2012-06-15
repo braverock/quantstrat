@@ -89,7 +89,7 @@ Specifically, this order is:
 
 \enumerate{
     \item the \code{arguments=list(...)} assigned to each indicator, signal, or rule 
-    \item the \code{parameters=list{...}} applied when \code{\link{applyStrategy} is called
+    \item the \code{parameters=list{...}} applied when \code{\link{applyStrategy}} is called
     \item any additional arguments passed in \code{...} in the call to \code{applyStrategy}
 }
 
