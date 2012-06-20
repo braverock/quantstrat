@@ -1,4 +1,4 @@
-#!/usr/bin/Rscript --no-save
+#!/usr/bin/Rscript --vanilla
 #
 # Jan Humme (@opentrades) - June 2012
 #
@@ -9,11 +9,12 @@
 .qty=100000
 .th=0.0005
 .txn=-6
+.txn=0
 
 initDate = '2002-10-21'
 .from='2002-10-21'
 .to='2008-07-04'
-#.to='2002-10-30'
+#.to='2002-10-23'
 
 ####
 
@@ -21,7 +22,16 @@ p = 'forex'
 a = 'IB1'
 
 ###
+
 require(quantstrat)
+
+currency(c('GBP', 'USD'))
+
+exchange_rate(c('GBPUSD'), tick_size=0.0001)
+
+setSymbolLookup.FI('~/R.symbols/', 'GBPUSD')
+
+###
 
 getSymbols('GBPUSD', from=.from, to=.to, verbose=FALSE)
 GBPUSD = to.minutes30(GBPUSD)
@@ -135,12 +145,14 @@ s <- add.rule(s, 'ruleSignal',
 
 #
 
-#summary(s)
-
 ###############################################################################
 
-applyStrategy(s, p, prefer='Open', verbose = FALSE)
-#applyStrategy(s, p, verbose = FALSE)
+#applyStrategy(s, p, prefer='Open', verbose = FALSE)
+applyStrategy(s, p, verbose = FALSE)
+
+updatePortf(p, Symbols='GBPUSD', ,Dates=paste('::',as.Date(Sys.time()),sep=''), Prices=GBPUSD)
+
+###############################################################################
 
 chart.Posn(p, "GBPUSD")
 
@@ -151,4 +163,5 @@ txns
 ##txns$Net 
 cat('Net profit:', sum(txns$Net.Txn.Realized.PL), '\n')
 
-#tradeStats(p, 'GBPUSD')
+tradeStats(p, 'GBPUSD')
+
