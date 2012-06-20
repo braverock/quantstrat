@@ -154,7 +154,10 @@ ruleSignal <- function(data=mktdata, timestamp, sigcol, sigval, orderqty=0, orde
 				updateOrders(portfolio, symbol, oldstatus="open", newstatus='canceled', statustimestamp=timestamp, orderset=orderset)
 
 			if(((orderqty>0 && orderside=='long') || (orderqty<0 && orderside=='short')))
+			{
+				warning('trying to exit/all position but orderqty sign is wrong')
 				orderqty = NULL		# dirty trick to suppress adding order below JH; (why?)
+			}
 		}
 
         }
