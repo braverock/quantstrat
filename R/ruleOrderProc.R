@@ -298,8 +298,11 @@ ruleOrderProc <- function(portfolio, symbol, mktdata, timespan=NULL, ordertype=N
                     #close all other orders in the order set
                     OrdersetTag = toString(ordersubset[ii,"Order.Set"])
 		    OpenInOrderset.i = which(ordersubset[,"Order.Status"] == 'open' & ordersubset[,"Order.Set"] == OrdersetTag)
-                    ordersubset[OpenInOrderset.i, "Order.Status"] = 'canceled'
-                    ordersubset[OpenInOrderset.i, "Order.StatusTime"]<-as.character(timestamp)
+                    # skip this if there are no orders
+                    if(length(OpenInOrderset.i)>0) {
+                      ordersubset[OpenInOrderset.i, "Order.Status"] = 'canceled'
+                      ordersubset[OpenInOrderset.i, "Order.StatusTime"]<-as.character(timestamp)
+                    }
                 } 
             }
         } #end loop over open orders  
