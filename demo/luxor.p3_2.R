@@ -13,8 +13,8 @@
 
 initDate = '2002-10-21'
 .from='2002-10-21'
-.to='2008-07-04'
-#.to='2002-10-23'
+#.to='2008-07-04'
+.to='2002-10-31'
 
 options(width = 240)
 
@@ -29,7 +29,8 @@ require(quantstrat)
 
 currency(c('GBP', 'USD'))
 exchange_rate(c('GBPUSD'), tick_size=0.0001)
-setSymbolLookup.FI('~/R.symbols/', 'GBPUSD')
+#setSymbolLookup.FI('~/R.symbols/', 'GBPUSD')
+setSymbolLookup.FI('../sandbox/', 'GBPUSD')
 
 ###
 
