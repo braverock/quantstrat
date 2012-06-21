@@ -16,6 +16,8 @@ initDate = '2002-10-21'
 .to='2008-07-04'
 #.to='2002-10-23'
 
+options(width = 240)
+
 ####
 
 p = 'forex'
@@ -26,9 +28,7 @@ a = 'IB1'
 require(quantstrat)
 
 currency(c('GBP', 'USD'))
-
 exchange_rate(c('GBPUSD'), tick_size=0.0001)
-
 setSymbolLookup.FI('~/R.symbols/', 'GBPUSD')
 
 ###

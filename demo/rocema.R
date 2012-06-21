@@ -1,4 +1,4 @@
-#!/usr/bin/Rscript --no-save
+#!/usr/bin/Rscript --vanilla
 #
 # Rocema strategy, demonstrating among others:
 # * using ternaryindicator that returns -1 (short), 0 (cash) or 1 (long)
@@ -10,9 +10,9 @@
 #
 # JH, June 2012
 
-.ema = 19
-.roc = 45
-.trend = 118
+.ema = 15
+.roc = 50
+.trend = 100
 
 .tplong = 3.0
 .tpshort = -3.0
@@ -34,6 +34,8 @@ initEq = 10000
 
 p = 'rocema'
 a = 'IB'
+
+options(width = 240)
 
 ###############################################################################
 
@@ -57,14 +59,20 @@ RocSys = function(x, nEMA, nROC, nTREND)
 
 require(quantstrat)
 
-getSymbols('GBPUSD')
-GBPUSD <- align.time(to.period(GBPUSD, 'minutes', 15), 900)
-GBPUSD <- GBPUSD[.subset]
+currency('USD')
+
+future('ES', "USD", multiplier=1000, tick_size=.25, exchange="Comex", description="SP500 Future")
+
+setSymbolLookup.FI('~/R.symbols/', 'ES')
+
+getSymbols('ES')
+ES <- align.time(to.period(ES, 'minutes', 15), 900)
+ES <- ES[.subset]
 
 ###############################################################################
 
-initPortf(p, symbols='GBPUSD', initDate=initDate, currency="EUR")
-initAcct(a, portfolios=p, initDate=initDate, currency="EUR")
+initPortf(p, symbols='ES', initDate=initDate, currency="USD")
+initAcct(a, portfolios=p, initDate=initDate, currency="USD")
 
 initOrders(p, initDate=initDate)
 
@@ -207,11 +215,11 @@ s <- add.rule(s,
 
 applyStrategy(s, p, parameters=list(nEMA=.ema,nROC=.roc,nTREND=.trend), verbose = FALSE, prefer='Open')
 
-chart.Posn(p, "GBPUSD")
+chart.Posn(p, "ES")
 
 print(getOrderBook(p))
 
-txns <- getTxns(p, 'GBPUSD')
+txns <- getTxns(p, 'ES')
 txns
 
 cat('Net profit:', sum(txns$Net.Txn.Realized.PL), '\n')
