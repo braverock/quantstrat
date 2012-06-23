@@ -30,6 +30,8 @@
   all qty's are reported as positive numbers and need to be
   identified other ways, default NULL}
 
+  \item{orderset}{a tag identifying the orderset}
+
   \item{which.i}{if TRUE, return the row index numbers
   rather than the order rows matching the criteria, default
   FALSE}

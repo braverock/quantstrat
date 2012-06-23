@@ -4,8 +4,8 @@
 \usage{
   updateOrders(portfolio, symbol, timespan,
     ordertype = NULL, side = NULL, qtysign = NULL,
-    oldstatus = "open", newstatus, statustimestamp,
-    orderset = NULL)
+    orderset = NULL, oldstatus = "open", newstatus,
+    statustimestamp)
 }
 \arguments{
   \item{portfolio}{text name of the portfolio to associate
@@ -28,7 +28,7 @@
   all qty's are reported as positive numbers and need to be
   identified other ways, default NULL}
 
-  \item{set}{a tag identifying the orderset}
+  \item{orderset}{set a tag identifying the orderset}
 
   \item{oldstatus}{one of NULL, "open", "closed",
   "canceled", or "replaced", default "open"}
@@ -57,6 +57,10 @@
   be added to close open positions. Many models will also
   want to run a process at the close of market that will
   cancel all open orders.
+
+  If orderset is passed to updateOrders, all orders with
+  oldstatus for the orderset will be updated, regardless of
+  their other parameters.
 }
 \seealso{
   addOrder

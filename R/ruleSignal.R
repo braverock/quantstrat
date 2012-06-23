@@ -156,7 +156,23 @@ ruleSignal <- function(data=mktdata, timestamp, sigcol, sigval, orderqty=0, orde
 
 	if(!is.null(orderqty) && orderqty!=0 && !is.null(orderprice)) #orderprice could have length > 1
 	{
-		addOrder(portfolio=portfolio, symbol=symbol, timestamp=timestamp, qty=orderqty, price=as.numeric(orderprice), ordertype=ordertype, side=orderside, orderset=orderset, threshold=threshold, status="open", replace=replace , delay=delay, tmult=tmult, ...=..., prefer=prefer, TxnFees=TxnFees,label=label)
+		addOrder(portfolio=portfolio, 
+                 symbol=symbol, 
+                 timestamp=timestamp, 
+                 qty=orderqty, 
+                 price=as.numeric(orderprice), 
+                 ordertype=ordertype, 
+                 side=orderside, 
+                 orderset=orderset, 
+                 threshold=threshold, 
+                 status="open", 
+                 replace=replace , 
+                 delay=delay, 
+                 tmult=tmult, 
+                 ...=..., 
+                 prefer=prefer, 
+                 TxnFees=TxnFees,
+                 label=label)
         }
     }
     if(sethold) hold <<- TRUE

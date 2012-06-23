@@ -3,7 +3,7 @@
 \title{add an order to the order book}
 \usage{
   addOrder(portfolio, symbol, timestamp, qty, price,
-    ordertype, side, orderset = "", threshold = NULL,
+    ordertype, side, threshold = NULL, orderset = "",
     status = "open", statustimestamp = "", prefer = NULL,
     delay = 1e-05, tmult = FALSE, replace = TRUE,
     return = FALSE, ..., TxnFees = 0, label = "")
@@ -32,6 +32,8 @@
   \item{threshold}{numeric threshold to apply to trailing
   stop orders and limit orders, default NULL}
 
+  \item{orderset}{set a tag identifying the orderset}
+
   \item{status}{one of "open", "closed", "canceled", or
   "replaced", default "open"}
 
@@ -47,7 +49,8 @@
   scalar at time of order entry}
 
   \item{replace}{TRUE/FALSE, whether to replace any other
-  open order(s) on this portfolio symbol, default TRUE}
+  open order(s) on this symbol with the same properties as
+  this order, default TRUE, see Details}
 
   \item{return}{if TRUE, return the row that makes up the
   order, default FALSE (will assign into the environment)}
@@ -80,9 +83,11 @@
 \details{
   By default, this function will locate and replace any
   'open' order(s) on the requested portfolio/symbol that
-  have the same type and side. If you do not want open
-  orders to be canceled and replaced with the new order,
-  set \code{replace=FALSE}.
+  have the same order type and side.  If an orderset is
+  also specified and replace=TRUE, \emph{all open orders}
+  for the orderset will be replaced. If you do not want
+  open orders to be canceled and replaced with the new
+  order, set \code{replace=FALSE}.
 
   We have modeled two types of stop orders, which should be
   sufficient to model most types of stops.
