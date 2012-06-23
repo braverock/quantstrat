@@ -5,12 +5,11 @@
 #' but would need to be replaced for production use.  It provides the interface 
 #' for taking the order book and determining when orders become trades.
 #'  
-#' For the purposes of backtesting, and compatibility with the trade accounting in
-#' \code{blotter}, this function will not allow a transaction to cross your current 
+#' In this version, in contrast with an earlier version, 
+#' this function will allow a transaction to cross your current 
 #' position through zero.  The accounting rules for realizing gains in such cases 
-#' are more complicated than we wish to support.  Also, many brokers will break, revise,
-#' or split such transactions for the same reason. If you wish to do a "stop and reverse" 
-#' system, first stop (flatten), and then reverse (initiate a new position).
+#' are quite complicated, so blotter will split this transaction into two transactions.  
+#' Many brokers will break, revise, or split such transactions for the same reason.
 #' 
 #' This function would need to be revised or replaced for connection to a live trading infrastructure.
 #' In a production mode, you would replace the \code{\link{addOrder}} function 
@@ -88,8 +87,14 @@ ruleOrderProc <- function(portfolio, symbol, mktdata, timespan=NULL, ordertype=N
             orderPrice <- as.numeric(ordersubset[ii,"Order.Price"])
             orderQty <- ordersubset[ii,"Order.Qty"]
             if(orderQty=='all'){
-                # this has to be an exit or risk order, so 
+                # this has to be an exit or risk order, so: 
                 orderQty=-1*getPosQty(Portfolio=portfolio,Symbol=symbol,Date=timestamp)
+                orderside<-ordersubset[ii, "Order.Side"]
+                if(((orderQty>0 && orderside=='long') || (orderQty<0 && orderside=='short')))
+                {
+                    #warning('trying to exit/all position but orderQty sign is wrong')
+                    orderQty = 0		
+                }
             }
             orderQty<-as.numeric(orderQty)
             if(orderQty==0) next() #nothing to do, move along

@@ -38,15 +38,13 @@
   orders become trades.
 }
 \details{
-  For the purposes of backtesting, and compatibility with
-  the trade accounting in \code{blotter}, this function
-  will not allow a transaction to cross your current
-  position through zero.  The accounting rules for
-  realizing gains in such cases are more complicated than
-  we wish to support.  Also, many brokers will break,
-  revise, or split such transactions for the same reason.
-  If you wish to do a "stop and reverse" system, first stop
-  (flatten), and then reverse (initiate a new position).
+  In this version, in contrast with an earlier version,
+  this function will allow a transaction to cross your
+  current position through zero.  The accounting rules for
+  realizing gains in such cases are quite complicated, so
+  blotter will split this transaction into two
+  transactions. Many brokers will break, revise, or split
+  such transactions for the same reason.
 
   This function would need to be revised or replaced for
   connection to a live trading infrastructure. In a
