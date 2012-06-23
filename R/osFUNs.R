@@ -13,14 +13,16 @@
 #' @param ruletype one of "risk","order","rebalance","exit","enter", see \code{\link{add.rule}}
 #' @export
 osNoOp <- function(timestamp, orderqty, portfolio, symbol, ruletype, ...){
-	if(orderqty=='all'){
-		if (ruletype=='exit') {
-			orderqty=-1*getPosQty(Portfolio=portfolio,Symbol=symbol,Date=timestamp)
-		} else {
-			message("orderqty 'all' would produce nonsense, maybe use osMaxPos instead?")
-			orderqty=0
-		}
-	} 
+    # handle orderqty=='all' for ruletype!= 'exit' or 'risk'
+    if(orderqty=='all' && !(ruletype=='exit' || ruletype=='risk')) {
+        stop(paste("orderqty 'all' would produce nonsense, maybe use osMaxPos instead?\n",
+                   "Order Details:\n",
+                   'Timestamp:',timestamp,
+                   'Qty:',orderqty,
+                   'Symbol:',symbol)
+        )
+        orderqty=0 # in case we go back to returning this so that we reject it in the orderbook
+    }
 	return(orderqty)
 }
 

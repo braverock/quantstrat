@@ -19,7 +19,7 @@
 \description{
   This code takes advantage of some base R functionality
   that can treat an R object (in this case the internal
-  mktdata object in quantstrat) as an environment or
+  mktdata object in quantstrat) as an enfironment or
   'frame' using \code{\link{parent.frame}}. This allows the
   columns of the data to be addressed without any major
   manipulation, simply by column name.  In most cases in

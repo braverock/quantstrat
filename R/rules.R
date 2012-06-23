@@ -409,7 +409,11 @@ applyRules <- function(portfolio,
                     for (slorder in stoplimitorders) {
                         dindex <- get.dindex()
                         tmpqty <- ordersubset[oo.idx[slorder],'Order.Qty']
-                        if (tmpqty=='all') tmpqty<-osNoOp(timestamp=timestamp, orderqty=tmpqty, portfolio=portfolio, symbol=symbol,ruletype='exit' )
+                        if (tmpqty=='all'){
+                            #tmpqty<-osNoOp(timestamp=timestamp, orderqty=tmpqty, portfolio=portfolio, symbol=symbol,ruletype='exit' )
+                            #set to 0, and let the next block figure it out from orderside
+                            tmpqty=0
+                        } 
                         if (tmpqty==0) {
                             #no position, so do some sleight of hand to figure out when the index may be needed
                             side <- ordersubset[oo.idx[slorder],'Order.Side']
@@ -452,14 +456,17 @@ applyRules <- function(portfolio,
                     for (lorder in limitorders){
                         dindex<-get.dindex()
                         tmpqty<-ordersubset[oo.idx[lorder],'Order.Qty']
-                        if (tmpqty=='all') tmpqty<-osNoOp(timestamp=timestamp, orderqty=tmpqty, portfolio=portfolio, symbol=symbol,ruletype='exit' )
-#                        #don't think this block is needed for resular limit orders: BGP
-#                        if (tmpqty==0) {
-#                            #no position, so do some sleight of hand to figure out when the index may be needed
-#                            side <- ordersubset[oo.idx[lorder],'Order.Side']
-#                            if(side=='long') tmpqty=-1
-#                            else tmpqty=1
-#                        }
+                        if (tmpqty=='all'){
+                            #tmpqty<-osNoOp(timestamp=timestamp, orderqty=tmpqty, portfolio=portfolio, symbol=symbol,ruletype='exit' )
+                            #set to 0, and let the next block figure it out from orderside
+                            tmpqty=0
+                        } 
+                        if (tmpqty==0) {
+                            #no position, so do some sleight of hand to figure out when the index may be needed
+                            side <- ordersubset[oo.idx[lorder],'Order.Side']
+                            if(side=='long') tmpqty=-1
+                            else tmpqty=1
+                        }
                         tmpqty<-as.numeric(tmpqty)
                         
                         tmpprice<-as.numeric(ordersubset[oo.idx[lorder],'Order.Price'])
@@ -518,7 +525,18 @@ applyRules <- function(portfolio,
                         onum<-oo.idx[torder]
                         orderThreshold <- as.numeric(ordersubset[onum,'Order.Threshold'])
                         tmpqty<-ordersubset[onum,'Order.Qty']
-                        if (tmpqty=='all') tmpqty<-osNoOp(timestamp=timestamp, orderqty=tmpqty, portfolio=portfolio, symbol=symbol,ruletype='exit' )
+                        if (tmpqty=='all'){
+                            #tmpqty<-osNoOp(timestamp=timestamp, orderqty=tmpqty, portfolio=portfolio, symbol=symbol,ruletype='exit' )
+                            #set to 0, and let the next block figure it out from orderside
+                            tmpqty=0
+                        } 
+                        if (tmpqty==0) {
+                            #no position, so do some sleight of hand to figure out when the index may be needed
+                            side <- ordersubset[oo.idx[slorder],'Order.Side']
+                            if(side=='long') tmpqty=-1
+                            else tmpqty=1
+                        }
+                        tmpqty<-as.numeric(tmpqty)
                         if (tmpqty==0) {
                             #no position, so do some sleight of hand to figure out when the index may be needed
                             side <- ordersubset[onum,'Order.Side']

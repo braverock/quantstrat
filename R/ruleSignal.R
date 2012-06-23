@@ -1,6 +1,11 @@
 
 #' default rule to generate a trade order on a signal
 #' 
+#' As described elsewhere in the documentation, quantstrat models 
+#' \emph{orders}.  This function is the default provided rule function to 
+#' generate those orders, which will be acted on later as they 
+#' interact with your market data.
+#' 
 #' \code{pricemethod} may be one of 
 #'      \describe{ 
 #'          \item{'market', 'opside', or 'active'}{ will use the 'ask' price if you're buying and 
@@ -144,23 +149,23 @@ ruleSignal <- function(data=mktdata, timestamp, sigcol, sigval, orderqty=0, orde
 
 	## now size the order
 	#TODO add fancy formals matching for osFUN
-	if(orderqty!='all' || ordertype=='market' || (ruletype!='risk' && ruletype!='exit'))
+	if(orderqty!='all')
 	{
 		orderqty <- osFUN(strategy=strategy, data=data, timestamp=timestamp, orderqty=orderqty, ordertype=ordertype, orderside=orderside, portfolio=portfolio, symbol=symbol,...=...,ruletype=ruletype, orderprice=as.numeric(orderprice))
-
-		if(ruletype=='risk' || ruletype=='exit')
-		{
-			if(orderqty==0)	# cancel any open orders from orderset associated with this exit/risk order
-				updateOrders(portfolio, symbol, oldstatus="open", newstatus='canceled', statustimestamp=timestamp, orderset=orderset)
-
-			if(((orderqty>0 && orderside=='long') || (orderqty<0 && orderside=='short')))
-			{
-				warning('trying to exit/all position but orderqty sign is wrong')
-				orderqty = NULL		# dirty trick to suppress adding order below JH; (why?)
-			}
-		}
-
-        }
+    }
+#		if(ruletype=='risk' || ruletype=='exit')
+#		{
+#			if(orderqty==0)	# cancel any open orders from orderset associated with this exit/risk order
+#				updateOrders(portfolio, symbol, oldstatus="open", newstatus='canceled', statustimestamp=timestamp, orderset=orderset)
+#
+#			if(((orderqty>0 && orderside=='long') || (orderqty<0 && orderside=='short')))
+#			{
+#				warning('trying to exit/all position but orderqty sign is wrong')
+#				orderqty = NULL		# dirty trick to suppress adding order below JH; (why?)
+#			}
+#		}
+#
+#        }
 
 	if(!is.null(orderqty) && orderqty!=0 && !is.null(orderprice)) #orderqty could have length > 1
 	{

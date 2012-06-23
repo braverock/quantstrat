@@ -4,7 +4,7 @@
 \usage{
   addOrder(portfolio, symbol, timestamp, qty, price,
     ordertype, side, orderset = "", threshold = NULL,
-    status = "open", statustimestamp = "", prefer = "",
+    status = "open", statustimestamp = "", prefer = NULL,
     delay = 1e-05, tmult = FALSE, replace = TRUE,
     return = FALSE, ..., TxnFees = 0, label = "")
 }

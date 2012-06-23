@@ -81,11 +81,11 @@
   \code{\link{applyRules}}}
 }
 \description{
-  The \code{ruleSignal} function is a default sample rule
-  function for generating orders from a signal.  While some
-  strategies may require custom rule functions, we've found
-  that ruleSignal is sufficient for many strategies, with
-  custom code more often found in indicators and rules.
+  As described elsewhere in the documentation, quantstrat
+  models \emph{orders}.  This function is the default
+  provided rule function to generate those orders, which
+  will be acted on later as they interact with your market
+  data.
 }
 \details{
   \code{pricemethod} may be one of \describe{
