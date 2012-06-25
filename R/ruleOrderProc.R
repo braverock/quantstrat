@@ -82,26 +82,32 @@ ruleOrderProc <- function(portfolio, symbol, mktdata, timespan=NULL, ordertype=N
 			#print("@@@@@@@@ status changed from open")
 			next()
 		}
+
             txnprice=NULL
+
             txnfees=ordersubset[ii,"Txn.Fees"]
+
             orderPrice <- as.numeric(ordersubset[ii,"Order.Price"])
+
             orderQty <- ordersubset[ii,"Order.Qty"]
-            if(orderQty=='all'){
+            if(orderQty=='all')
+	    {
                 # this has to be an exit or risk order, so: 
                 orderQty=-1*getPosQty(Portfolio=portfolio,Symbol=symbol,Date=timestamp)
                 orderside<-ordersubset[ii, "Order.Side"]
                 if(((orderQty>0 && orderside=='long') || (orderQty<0 && orderside=='short')))
                 {
-                    #warning('trying to exit/all position but orderQty sign is wrong')
+                    warning('trying to exit/all position but orderQty sign is wrong')
                     orderQty = 0		
                 }
             }
             orderQty<-as.numeric(orderQty)
-            if(orderQty==0) next() #nothing to do, move along
+
             orderThreshold <- as.numeric(ordersubset[ii,"Order.Threshold"])
             # mktdataTimestamp <- mktdata[timestamp]
             #FIXME Should we only keep the last observation per time stamp?
             #if( NROW(mktdataTimestamp) > 1 ) mktdataTimestamp <- last(mktdataTimestamp)
+
             orderType <- ordersubset[ii,"Order.Type"]
 
             switch(orderType,
@@ -299,21 +305,27 @@ ruleOrderProc <- function(portfolio, symbol, mktdata, timespan=NULL, ordertype=N
 #                    orderQty <- -pos
 #                }
     
-                if (orderQty != 0) {
-                    #now add the transaction
+                if (orderQty == 0)	# reject the order (should be exit/market/all)
+		{
+                    ordersubset[ii,"Order.Status"]<-'rejected'
+		}
+		else	#add the transaction
+		{
                     addTxn(Portfolio=portfolio, Symbol=symbol, TxnDate=txntime, 
                             TxnQty=orderQty, TxnPrice=txnprice , ...=..., TxnFees=txnfees)
                     ordersubset[ii,"Order.Status"]<-'closed'
-                    ordersubset[ii,"Order.StatusTime"]<-as.character(timestamp)
+		}
+                ordersubset[ii,"Order.StatusTime"]<-as.character(timestamp)
                     
-                    #close all other orders in the order set
-                    OrdersetTag = toString(ordersubset[ii,"Order.Set"])
-                    OpenInOrderset.i = which(ordersubset[,"Order.Status"] == 'open' & ordersubset[,"Order.Set"] == OrdersetTag)
-                    # skip this if there are no orders
-                    if(length(OpenInOrderset.i)>0) {
-                        ordersubset[OpenInOrderset.i, "Order.Status"] = 'canceled'
-                        ordersubset[OpenInOrderset.i, "Order.StatusTime"]<-as.character(timestamp)
-                    }
+                #close all other orders in the same order set
+                OrdersetTag = toString(ordersubset[ii,"Order.Set"])
+                OpenInOrderset.i = which(ordersubset[,"Order.Status"] == 'open' & ordersubset[,"Order.Set"] == OrdersetTag)
+
+                # skip this if there are no orders
+                if(length(OpenInOrderset.i) > 0)
+		{
+                    ordersubset[OpenInOrderset.i, "Order.Status"] = 'canceled'
+                    ordersubset[OpenInOrderset.i, "Order.StatusTime"]<-as.character(timestamp)
                 } 
             }
         } #end loop over open orders  
