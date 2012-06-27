@@ -667,7 +667,7 @@ applyRules <- function(portfolio,
                         } else {
                             #(mktdata, portfolio, symbol, timestamp, slippageFUN=NULL)
                             if (isTRUE(path.dep)){
-                                timespan<-paste("::",timestamp,sep='')
+				timespan <- format(index(mktdata)[curIndex], "::%Y-%m-%d %H:%M:%S %OS6")
                             } else timespan=NULL
                             ruleOrderProc(portfolio=portfolio, symbol=symbol, mktdata=mktdata, timespan=timespan, ...)
                         }

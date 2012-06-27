@@ -97,8 +97,7 @@ ruleOrderProc <- function(portfolio, symbol, mktdata, timespan=NULL, ordertype=N
                 orderside<-ordersubset[ii, "Order.Side"]
                 if(((orderQty>0 && orderside=='long') || (orderQty<0 && orderside=='short')))
                 {
-                    warning('trying to exit/all position but orderQty sign is wrong')
-                    orderQty = 0		
+                    stop('trying to exit/market/all position but orderQty sign does not match orderside')
                 }
             }
             orderQty<-as.numeric(orderQty)
