@@ -97,7 +97,12 @@ ruleOrderProc <- function(portfolio, symbol, mktdata, timespan=NULL, ordertype=N
                 orderside<-ordersubset[ii, "Order.Side"]
                 if(((orderQty>0 && orderside=='long') || (orderQty<0 && orderside=='short')))
                 {
-                    stop('trying to exit/market/all position but orderQty sign does not match orderside')
+                    # this condition may occur if (for example) a signal triggers an 'increase LONG pos' and 'close all SHORT pos' simultaneously
+		    # hence this is legal condition, and we must 0 the orderQty to reject the order
+
+#                   warning('trying to exit/market/all position but orderQty sign ', orderQty,' does not match orderside ', orderside)
+
+		    orderQty = 0
                 }
             }
             orderQty<-as.numeric(orderQty)
