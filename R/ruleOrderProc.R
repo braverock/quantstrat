@@ -215,7 +215,8 @@ ruleOrderProc <- function(portfolio, symbol, mktdata, timespan=NULL, ordertype=N
                                         ,...=..., TxnFees=txnfees)
                                 if (is.null(neworders)) neworders=neworder else neworders = rbind(neworders,neworder)
                                 ordersubset[ii,"Order.Status"]<-'replaced'
-                                ordersubset[ii,"Order.StatusTime"]<-as.character(timestamp)
+#                                ordersubset[ii,"Order.StatusTime"]<-as.character(timestamp)
+                                ordersubset[ii,"Order.StatusTime"]<-format(timestamp, "%Y-%m-%d %H:%M:%S")
                                 next()
                             } 
                         }
@@ -286,7 +287,8 @@ ruleOrderProc <- function(portfolio, symbol, mktdata, timespan=NULL, ordertype=N
                                          ,...=..., TxnFees=txnfees)
                                 if (is.null(neworders)) neworders=neworder else neworders = rbind(neworders,neworder)
                                 ordersubset[ii,"Order.Status"]<-'replaced'
-                                ordersubset[ii,"Order.StatusTime"]<-as.character(as.POSIXlt(statustimestamp, Sys.getenv('TZ')))
+                                #ordersubset[ii,"Order.StatusTime"]<-as.character(as.POSIXlt(statustimestamp, Sys.getenv('TZ')))
+                                ordersubset[ii,"Order.StatusTime"]<-format(timestamp, "%Y-%m-%d %H:%M:%S")
                                 next()
                             }
                         }
@@ -314,7 +316,8 @@ ruleOrderProc <- function(portfolio, symbol, mktdata, timespan=NULL, ordertype=N
                             TxnQty=orderQty, TxnPrice=txnprice , ...=..., TxnFees=txnfees)
                     ordersubset[ii,"Order.Status"]<-'closed'
 		}
-                ordersubset[ii,"Order.StatusTime"]<-as.character(timestamp)
+#                ordersubset[ii,"Order.StatusTime"]<-as.character(timestamp)
+                ordersubset[ii,"Order.StatusTime"]<-format(timestamp, "%Y-%m-%d %H:%M:%S")
                     
                 #close all other orders in the same order set
                 OrdersetTag = toString(ordersubset[ii,"Order.Set"])
@@ -324,7 +327,8 @@ ruleOrderProc <- function(portfolio, symbol, mktdata, timespan=NULL, ordertype=N
                 if(length(OpenInOrderset.i) > 0)
 		{
                     ordersubset[OpenInOrderset.i, "Order.Status"] = 'canceled'
-                    ordersubset[OpenInOrderset.i, "Order.StatusTime"]<-as.character(timestamp)
+#                    ordersubset[OpenInOrderset.i, "Order.StatusTime"]<-as.character(timestamp)
+                    ordersubset[OpenInOrderset.i, "Order.StatusTime"]<-format(timestamp, "%Y-%m-%d %H:%M:%S")
                 } 
             }
         } #end loop over open orders  
