@@ -2,35 +2,38 @@
 #
 # Jan Humme (@opentrades) - June 2012
 #
+# Tested and found to work correctly using blotter r1082
+#
 # From Jaekle & Tamasini: A new approach to system development and portfolio optimisation (ISBN 978-1-905641-79-6)
 #
-# Paragraph 3.2: luxor without any optimizations
+# Paragraph 3.2: luxor without any optimizations, but with $30 tnx costs + slippage
 
 .qty=100000
 .th=0.0005
-.txn=-6
-.txn=0
+.txn=-30
+#.txn=0
 
 initDate = '2002-10-21'
 .from='2002-10-21'
-#.to='2008-07-04'
-.to='2002-10-31'
-
-options(width = 240)
+.to='2008-07-04'
 
 ####
 
 p = 'forex'
 a = 'IB1'
 
+options(width = 240)
+#Sys.setenv(TZ="GMT")
+
 ###
 
 require(quantstrat)
 
 currency(c('GBP', 'USD'))
+
 exchange_rate(c('GBPUSD'), tick_size=0.0001)
-#setSymbolLookup.FI('~/R.symbols/', 'GBPUSD')
-setSymbolLookup.FI('../sandbox/', 'GBPUSD')
+
+setSymbolLookup.FI('~/R.symbols/', 'GBPUSD')
 
 ###
 
@@ -91,7 +94,7 @@ s <- add.signal(s, 'sigCrossover',
 
 s <- add.rule(s, 'ruleSignal',
 	arguments=list(sigcol='long' , sigval=TRUE,
-		replace=FALSE,
+		replace=TRUE,
 		orderside='short',
 		ordertype='market',
 		TxnFees=.txn,
@@ -104,7 +107,7 @@ s <- add.rule(s, 'ruleSignal',
 
 s <- add.rule(s, 'ruleSignal',
 	arguments=list(sigcol='short', sigval=TRUE,
-		replace=FALSE,
+		replace=TRUE,
 		orderside='long' ,
 		ordertype='market',
 		TxnFees=.txn,
@@ -121,7 +124,7 @@ s <- add.rule(s, 'ruleSignal',
 		ordertype='stoplimit',
 		prefer='High',
 		threshold=.th,
-		TxnFees=.txn,
+		TxnFees=0,
 		orderqty=+.qty,
 		orderset='ocolong'
 	),
@@ -136,7 +139,7 @@ s <- add.rule(s, 'ruleSignal',
 		ordertype='stoplimit',
 		prefer='Low',
 		threshold=-.th,
-		TxnFees=.txn,
+		TxnFees=0,
 		orderqty=-.qty,
 		orderset='ocoshort'
 	),
