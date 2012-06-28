@@ -14,8 +14,10 @@
 #.txn=0
 
 initDate = '2002-10-21'
+#.from='2002-10-21'
 .from='2002-10-21'
-.to='2008-07-04'
+#.to='2008-07-04'
+.to='2002-10-31'
 
 ####
 
@@ -33,7 +35,8 @@ currency(c('GBP', 'USD'))
 
 exchange_rate(c('GBPUSD'), tick_size=0.0001)
 
-setSymbolLookup.FI('~/R.symbols/', 'GBPUSD')
+#setSymbolLookup.FI('~/R.symbols/', 'GBPUSD')
+setSymbolLookup.FI('../sandbox/', 'GBPUSD')
 
 ###
 
