@@ -73,7 +73,7 @@ addPosLimit <- function (portfolio, symbol, timestamp, maxpos, longlevels = 1, m
 getPosLimit <- function(portfolio, symbol, timestamp){
     portf<-getPortfolio(portfolio)
     # try to get on timestamp, otherwise find the most recent
-    toDate = paste('::', timestamp, sep="")
+    toDate = format(timestamp, '::%Y-%m-%d %H:%M:%OS6')
     PosLimit = last(portf$symbols[[symbol]]$PosLimit[toDate])
     return(PosLimit)
 }

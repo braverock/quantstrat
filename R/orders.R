@@ -284,10 +284,11 @@ addOrder <- function(portfolio,
 
     # subset by time and symbol
     if(!is.null(timestamp)& length(timestamp)>=1){
-        timespan<-paste("::",timestamp,sep='')
+        timespan <- format(timestamp, "::%Y-%m-%d %H:%M:%OS6")
     } else {
         # construct the timespan of the entire series
-        timespan=paste(index(first(orderbook),index(last(orderbook)),sep='::'))
+        timespan <- paste(format(index(first(orderbook)), "%Y-%m-%d %H:%M:%OS6"),
+                          format(index( last(orderbook)), "%Y-%m-%d %H:%M:%OS6"), sep="::")
     }
 
     statustimestamp=NA # new orders don't have a status time

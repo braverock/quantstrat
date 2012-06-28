@@ -545,7 +545,7 @@ applyRules <- function(portfolio,
                         }
                         tmpqty<-as.numeric(tmpqty)
                         tmpprice<-as.numeric(ordersubset[onum,'Order.Price'])
-                        tmpidx<-as.character(index(ordersubset[onum,])) #this is the time the order was entered
+                        tmpidx <- format(index(ordersubset[onum,]), "%Y-%m-%d %H:%M:%OS6") #this is the time the order was entered
                         #print(tmpidx)
                         if(isBBOmktdata) {
                             if(tmpqty > 0){ # positive quantity 'buy'
@@ -560,9 +560,9 @@ applyRules <- function(portfolio,
                         if(is.null(firsttime)) firsttime<-timestamp
                         nextidx<-min(dindex[dindex>curIndex])
                         if(length(nextidx)){
-                            nextstamp<-(as.character(index(mktdata[nextidx,])))
+                            nextstamp <- format(index(mktdata[nextidx,]), "%Y-%m-%d %H:%M:%OS6")
                             #print(nextstamp)
-                            timespan<-paste(firsttime,"::",nextstamp,sep='')
+                            timespan <- paste(format(firsttime, "%Y-%m-%d %H:%M:%OS6"),"::",nextstamp,sep='')
                             #get the subset of prices
                             mkt_price_series <-getPrice(mktdata[timespan],prefer=prefer)
                             col<-first(colnames(mkt_price_series))
@@ -584,8 +584,9 @@ applyRules <- function(portfolio,
                             #print(firsttime)
                             # find first index where we would move an order
                             orderidx<-first(which(move_order)) 
-                            if(is.null(tmpidx)) tmpidx<-as.character(index(move_order[orderidx,]))
-                            trailspan<-paste(firsttime,"::",tmpidx,sep='')
+                            if(is.null(tmpidx))
+                                tmpidx <- format(index(move_order[orderidx,]), "%Y-%m-%d %H:%M:%OS6")
+                            trailspan <- paste(format(firsttime, "%Y-%m-%d %H:%M:%OS6"),"::",tmpidx,sep='')
                             #make sure we don't cross before then 
                             # use sigThreshold
                             cross<-sigThreshold(data=mkt_price_series, label='tmptrail',column=col,threshold=tmpprice,relationship=relationship)
@@ -667,7 +668,7 @@ applyRules <- function(portfolio,
                         } else {
                             #(mktdata, portfolio, symbol, timestamp, slippageFUN=NULL)
                             if (isTRUE(path.dep)){
-				timespan <- format(index(mktdata)[curIndex], "::%Y-%m-%d %H:%M:%S %OS6")
+				timespan <- format(timestamp, "::%Y-%m-%d %H:%M:%OS6")
                             } else timespan=NULL
                             ruleOrderProc(portfolio=portfolio, symbol=symbol, mktdata=mktdata, timespan=timespan, ...)
                         }
