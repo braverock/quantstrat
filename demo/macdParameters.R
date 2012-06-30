@@ -8,13 +8,17 @@ require(quantstrat)
 
 demo('macd',ask=FALSE)
 
-# example parallel initialization for doSMP, doParallel, doMC, or doRedis are 
+# example parallel initialization for doParallel. this or doMC, or doRedis are 
 # most probably preferable to doSMP
-#require(doSMP)
-#workers <- startWorkers(2)
-#registerDoSMP(workers)
+#require(doParallel)
+#registerDoParallel() # by default number of physical cores -1
+
 
 #please run macd demo before all these...
+
+#retrieve the strategy from the environment, since the 'macd' strategy uses store=TRUE
+stratMACD<-getStrategy('macd')
+
 paramStructure<-getParameterTable(stratMACD)
 
 rm(tPD2)
@@ -45,7 +49,7 @@ pConstraint2<-setParameterConstraint(constraintLabel='macdPC',paramList=c('nFast
 laststpar.rnd<-system.time(
 		testPackListPL<-applyParameter(strategy=stratMACD,portfolios=portfolio.st,parameterPool=tPD2,method='random',sampleSize=20,parameterConstraints=pConstraint2)
 )
-laststpar.rnd
+#laststpar.rnd
 
 # Please run either random mode or expand mode, since the latter run will overwrite the objects in .blotter.
 #laststpar.exp<-system.time(

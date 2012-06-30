@@ -328,12 +328,12 @@ setParameterDistribution<-function(paramDist=NULL,type=NULL,indexnum=0,distribut
 #' @param parameterConstraints The object created by setParameterConstraint function that specifies the constraints between each parameters,
 #' @param method Takes string 'expand' or 'random', specify how to generate samples of parameters. 'expand' will do all possible combinations of the parameter sets, 
 #' @param sampleSize Used when method=='random', specify how many parameter sets to generate and run test of.
-#' 
+#' @param verbose if verbose TRUE or 1+, will print a lot of debug info, default FALSE
 #' @seealso \code{\link{setParameterDistribution}}, \code{\link{setParameterConstraint}}
 #' 
 #' @author Yu Chen
 #' @export
-applyParameter<-function(strategy,portfolios,parameterPool,parameterConstraints,method,sampleSize){
+applyParameter<-function(strategy,portfolios,parameterPool,parameterConstraints,method,sampleSize,verbose=FALSE){
 	#need to create combination of distribution values in each slot of the parameterPool
 	
 	initialPortf<-getPortfolio(portfolios)
@@ -435,8 +435,8 @@ applyParameter<-function(strategy,portfolios,parameterPool,parameterConstraints,
 			
 			iparamTable<-unique(iparamTable)
 			
-#			print("nnnnnnnnnnnnnnnnnnnnnnn")
-#			print(nrow(iparamTable))
+#			if(verbose >=1) print("nnnnnnnnnnnnnnnnnnnnnnn")
+#			if(verbose >=1) print(nrow(iparamTable))
 			
 			if (nrow(iparamTable)<tsampleSize)
 			{
@@ -459,11 +459,11 @@ applyParameter<-function(strategy,portfolios,parameterPool,parameterConstraints,
 	testPackList$paramLabel<-paramLabel
 	
 	strategyList<-list()
-	print("ParamTable generated")
+	if(verbose >=1) print("ParamTable generated")
 	
 	
 	psize=nrow(paramTable)
-	print(psize)
+	if(verbose >=1) print(psize)
 	
 	
 	
@@ -477,16 +477,13 @@ applyParameter<-function(strategy,portfolios,parameterPool,parameterConstraints,
 	testPackListPRL<-foreach (i = 1:psize, .export=c('instruments',symbols,'getSymbols','blotter','tmp_strategy'),.verbose=TRUE) %dopar% 
 			
 			{
-#				library(blotter)
-#				require(FinancialInstrument)
-				require(quantstrat)
+				require(quantstrat, quietly=TRUE)
 				
 				testPack<-list()
 				
 				#Pass environments needed.
                 loadInstruments(instruments)
 				.getSymbols<-as.environment(getSymbols)
-#				CAN NOT BE HERE, OTHERWISE will have problem extract to outside .blooter.. #.blotter<-as.environment(blotter)
 				
 				#Unpack symbols to worker. change later.
 				#seems need to go through assign, rather than just .export the names...
@@ -599,7 +596,7 @@ applyParameter<-function(strategy,portfolios,parameterPool,parameterConstraints,
 				try(rm(list = rmastr, pos = .blotter),silent=FALSE)
 				try(rm(list=paste("order_book",testPack$account.st,sep="."),pos=.strategy),silent=FALSE)
 				
-				print('Initial portf')
+				if(verbose >=1) print('Initial portf')
 				
 #				Decide not to remove the main obj from .blotter, incase of non-parallel run.
 #				try(rm(list=paste("order_book",portfolios,sep='.'),pos=.strategy),silent=TRUE)
@@ -612,11 +609,11 @@ applyParameter<-function(strategy,portfolios,parameterPool,parameterConstraints,
 				try({initOrders(portfolio=testPack$portfolio.st,initDate=initDate)})
 				
 # Apply strategy ######################################################################################
-				print("Apply strategy...")
+				if(verbose >=1) print("Apply strategy...")
 				
 				try(rm("PLtmp_strategy",pos=.strategy),silent=TRUE)
 				
-				print(PLtmp_strategy$signals[[2]])
+				if(verbose >=1) print(PLtmp_strategy$signals[[2]])
 				
 				assign("PLtmp_strategy1",PLtmp_strategy,envir=as.environment(.strategy))
 				
@@ -655,10 +652,10 @@ applyParameter<-function(strategy,portfolios,parameterPool,parameterConstraints,
 	
 	for (k in 1: nrow(paramTable)){
 		testPackListPRLStructure$statsTable<-rbind(testPackListPRLStructure$stats,cbind(testPackListPRL[[k]]$parameters,testPackListPRL[[k]]$stats))
-		print(names(testPackListPRL[[k]]$blotterl))
+		if(verbose >=1) print(names(testPackListPRL[[k]]$blotterl))
 		
 		for(nn in 1:length(testPackListPRL[[k]]$blotterl)){
-#			print(paste(names(testPackListPRL[[k]]$blotterl)[nn],'nnp',nn,sep='.'))
+#			if(verbose >=1) print(paste(names(testPackListPRL[[k]]$blotterl)[nn],'nnp',nn,sep='.'))
 			assign(names(testPackListPRL[[k]]$blotterl[nn]),testPackListPRL[[k]]$blotterl[[nn]],envir=as.environment(.blotter))
 		}
 		names(testPackListPRL)[k]<-testPackListPRL[[k]]$portfolio.st
@@ -696,7 +693,7 @@ applyParameter<-function(strategy,portfolios,parameterPool,parameterConstraints,
 #' @param relationship one of c("gt","lt","eq","gte","lte","op") or reasonable alternatives
 paramConstraint <- function(label,data=mktdata, columns, relationship=c("gt","lt","eq","gte","lte")) {
 	relationship=relationship[1] #only use the first one
-#	print(columns)
+#	if(verbose >=1) print(columns)
 	if (length(columns)==2){
 		ret_sig=NULL
 		if (relationship=='op'){
