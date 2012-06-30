@@ -55,11 +55,10 @@ laststpar.rnd<-system.time(
 #laststpar.exp<-system.time(
 #		testPackListPL<-applyParameter(strategy=stratMACD,portfolios=portfolio.st,parameterPool=tPD2,method='random',sampleSize=20,parameterConstrains=pConstraint2)
 #)
-#laststpar.exp
+if(verbose >=1) print(laststpar.exp)
 
-#
-#stopWorkers(workers)
-#rmSessions(all=TRUE)
+#examine the stats from this parameter run:
+if(verbose >=1) print(testPackListPL$statsTable)
 
 
 
