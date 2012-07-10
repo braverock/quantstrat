@@ -8,6 +8,9 @@
 #
 # Paragraph 3.2: luxor without any optimizations, but with $30 tnx costs + slippage
 
+.fast = 1
+.slow = 44
+
 .qty=100000
 .th=0.0005
 .txn=-30
@@ -15,8 +18,7 @@
 
 initDate = '2002-10-21'
 .from='2002-10-21'
-#.to='2008-07-04'
-.to='2002-10-31'
+.to='2008-07-04'
 #.to='2003-12-31'
 
 ####
@@ -36,8 +38,8 @@ currency(c('GBP', 'USD'))
 
 exchange_rate(c('GBPUSD'), tick_size=0.0001)
 
-#setSymbolLookup.FI('~/R.symbols/', 'GBPUSD')
-setSymbolLookup.FI('../sandbox/', 'GBPUSD')
+setSymbolLookup.FI('~/R.symbols/', 'GBPUSD')
+#setSymbolLookup.FI('../sandbox/', 'GBPUSD')
 
 ###
 
@@ -63,7 +65,7 @@ strategy(s, store=TRUE)
 add.indicator(s, name = "SMA",
 	arguments = list(
 		x = quote(Cl(mktdata)),
-		n = 10
+		n = .fast
 	),
 	label="nFast"
 )
@@ -71,7 +73,7 @@ add.indicator(s, name = "SMA",
 add.indicator(s, name="SMA",
 	arguments = list(
 		x = quote(Cl(mktdata)),
-		n = 30
+		n = .slow
 	),
 	label="nSlow"
 )
@@ -155,8 +157,8 @@ add.rule(s, 'ruleSignal',
 
 ###############################################################################
 
-#applyStrategy(s, p, verbose = FALSE)
-applyStrategy(s, p, prefer='Open', verbose = FALSE)
+applyStrategy(s, p, verbose = FALSE)
+#applyStrategy(s, p, prefer='Open', verbose = FALSE)
 
 updatePortf(p, Symbols='GBPUSD', ,Dates=paste('::',as.Date(Sys.time()),sep=''))
 
