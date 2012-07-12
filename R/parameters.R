@@ -329,11 +329,12 @@ setParameterDistribution<-function(paramDist=NULL,type=NULL,indexnum=0,distribut
 #' @param method Takes string 'expand' or 'random', specify how to generate samples of parameters. 'expand' will do all possible combinations of the parameter sets, 
 #' @param sampleSize Used when method=='random', specify how many parameter sets to generate and run test of.
 #' @param verbose if verbose TRUE or 1+, will print a lot of debug info, default FALSE
+#' @param \dots any other passthru parameters
 #' @seealso \code{\link{setParameterDistribution}}, \code{\link{setParameterConstraint}}
 #' 
 #' @author Yu Chen
 #' @export
-applyParameter<-function(strategy,portfolios,parameterPool,parameterConstraints,method,sampleSize,verbose=FALSE){
+applyParameter<-function(strategy,portfolios,parameterPool,parameterConstraints,method,sampleSize,verbose=FALSE,...){
 	#need to create combination of distribution values in each slot of the parameterPool
 	
 	initialPortf<-getPortfolio(portfolios)
@@ -474,7 +475,7 @@ applyParameter<-function(strategy,portfolios,parameterPool,parameterConstraints,
 	#Pack all symbols downloaded in .GlobalEnv
 	symbols<-names(.getSymbols)
 	
-	testPackListPRL<-foreach (i = 1:psize, .export=c('instruments',symbols,'getSymbols','blotter','tmp_strategy'),.verbose=TRUE) %dopar% 
+	testPackListPRL<-foreach (i = 1:psize, .export=c('instruments',symbols,'getSymbols','blotter','tmp_strategy'),.verbose=TRUE,...=...) %dopar% 
 			
 			{
 				require(quantstrat, quietly=TRUE)
@@ -617,7 +618,7 @@ applyParameter<-function(strategy,portfolios,parameterPool,parameterConstraints,
 				
 				assign("PLtmp_strategy1",PLtmp_strategy,envir=as.environment(.strategy))
 				
-				testPack$out<-try(applyStrategy(strategy=PLtmp_strategy , portfolios=testPack$portfolio.st ))
+				testPack$out<-try(applyStrategy(strategy=PLtmp_strategy , portfolios=testPack$portfolio.st ),...=...)
 				testPack$strategy<-PLtmp_strategy
 				
 # 	Update portfolio ######################################################################################
