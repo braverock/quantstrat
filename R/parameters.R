@@ -478,12 +478,19 @@ applyParameter<-function(strategy,portfolios,parameterPool,parameterConstraints,
 	testPackListPRL<-foreach (i = 1:psize, .export=c('instruments',symbols,'getSymbols','blotter','tmp_strategy'),.verbose=TRUE,...=...) %dopar% 
 			
 			{
+				if(verbose) print(paste('===> now starting parameter test', i))
+
 				require(quantstrat, quietly=TRUE)
 				
+				# loops must be run with an empty .blotter environment each, or .blotter appears to accumulate portfolios and accounts
+				# and passes them from one loop to the next on each CPU - JH July 2012
+				rm(list=ls(pos=.blotter), pos=.blotter)
+				gc(verbose=verbose)
+
 				testPack<-list()
 				
 				#Pass environments needed.
-                loadInstruments(instruments)
+				loadInstruments(instruments)
 				.getSymbols<-as.environment(getSymbols)
 				
 				#Unpack symbols to worker. change later.
@@ -649,6 +656,7 @@ applyParameter<-function(strategy,portfolios,parameterPool,parameterConstraints,
 				return(testPack)
 				
 			}	# Loop i
+			gc(verbose=verbose)
 	
 	
 	for (k in 1: nrow(paramTable)){
