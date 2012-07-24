@@ -484,8 +484,11 @@ applyParameter<-function(strategy,portfolios,parameterPool,parameterConstraints,
 				
 				# loops must be run with an empty .blotter environment each, or .blotter appears to accumulate portfolios and accounts
 				# and passes them from one loop to the next on each CPU - JH July 2012
-				rm(list=ls(pos=.blotter), pos=.blotter)
-				gc(verbose=verbose)
+				if (getDoParRegistered() && getDoParWorkers()>1)
+				{
+					rm(list=ls(pos=.blotter), pos=.blotter)
+					gc(verbose=verbose)
+				}
 
 				testPack<-list()
 				
