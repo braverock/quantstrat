@@ -9,7 +9,7 @@ Depends:
     xts(>= 0.8-2),TTR(>= 0.2),blotter(>= 0.7.2),
     FinancialInstrument(>= 0.12.5)
 Suggests:
-    PerformanceAnalytics,PortfolioAnalytics
+    PerformanceAnalytics,PortfolioAnalytics,rgl
 Maintainer: Brian G. Peterson <brian@braverock.com>
 Description: Specify, build, and back-test quantitative
     financial trading and portfolio strategies
@@ -29,3 +29,4 @@ Collate:
     'osFUNs.R'
     'ruleOrderProc.R'
     'ruleSignal.R'
+    'tradeGraphs.R'

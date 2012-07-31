@@ -57,6 +57,8 @@ for(i in 1:length(stats$Net.Trading.PL))
 
 # make graphs
 
+options(scipen=99)
+
 colors <- rainbow(length.Net.Trading.PL, start=0, end=6/6)[Net.Trading.PL - min.Net.Trading.PL + 1]
 rgl.open()
 rgl.surface(x=min.Fast:max.Fast, z=min.Slow:max.Slow, y=Net.Trading.PL, color=colors)

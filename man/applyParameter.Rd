@@ -3,7 +3,8 @@
 \title{Generate parameter sets for a specific strategy, test the strategy on each set of parameters, output result package.}
 \usage{
   applyParameter(strategy, portfolios, parameterPool,
-    parameterConstraints, method, sampleSize)
+    parameterConstraints, method, sampleSize,
+    verbose = FALSE, ...)
 }
 \arguments{
   \item{strategy}{The strategy to test paramters to.}
@@ -25,6 +26,11 @@
 
   \item{sampleSize}{Used when method=='random', specify how
   many parameter sets to generate and run test of.}
+
+  \item{verbose}{if verbose TRUE or 1+, will print a lot of
+  debug info, default FALSE}
+
+  \item{\dots}{any other passthru parameters}
 }
 \value{
   In the returned result pack as a list of object:
