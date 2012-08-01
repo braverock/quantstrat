@@ -54,13 +54,9 @@ tradeGraphs <- function(stats, free.params, fixed.params = NULL, statistics, tit
 
                 graph.data <- matrix(NA, nrows, ncols)
 
-                for(i in 1:nrow(stats[free.params[1]]))
-                {
-                        free.param.1 = stats[[free.params[1]]][i]
-                        free.param.2 = stats[[free.params[2]]][i]
-
-                        graph.data[free.param.1 - min.free.param.1 + 1, free.param.2 - min.free.param.2 + 1] = stats[[statistic]][i]
-                }
+                graph.data[cbind(
+				stats[[free.params[1]]] - min.free.param.1 + 1,
+				stats[[free.params[2]]] - min.free.param.2 + 1)] <- stats[[statistic]]
 
                 # set up color vector
 
