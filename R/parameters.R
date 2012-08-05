@@ -339,7 +339,7 @@ applyParameter<-function(strategy,portfolios,parameterPool,parameterConstraints,
     #need to create combination of distribution values in each slot of the parameterPool
     
     initialPortf<-getPortfolio(portfolios)
-    stock.str<-names(initialPortf$symbols)
+    symbols<-names(initialPortf$symbols)
     initDate<-time(first(initialPortf$symbols[[1]]$posPL))
     
     limits<-list()
@@ -348,13 +348,8 @@ applyParameter<-function(strategy,portfolios,parameterPool,parameterConstraints,
 
     tmp_strategy<-strategy
     
-    testPackList<-list()
-    testPackList$stats<-NULL
-    
-    testPackListPRLStructure<-list()
-    testPackListPRLStructure$stats<-NULL
-    
-    
+    results<-list()
+    results$stats<-NULL
     
     if (!is.strategy(tmp_strategy)) {
         tmp_strategy<-try(getStrategy(tmp_strategy))
@@ -362,14 +357,11 @@ applyParameter<-function(strategy,portfolios,parameterPool,parameterConstraints,
             stop ("You must supply an object of type 'strategy'.")
     } 
     
-    
     out<-list()
     paramdist<-list()
     paramweight<-list()
     paramLabel<-list()
     lvmatch<-list()
-    
-    
     
     for (i in 1:length(parameterPool)){
         
@@ -458,20 +450,8 @@ applyParameter<-function(strategy,portfolios,parameterPool,parameterConstraints,
         
     }
     
-    
-    testPackList$paramTable<-paramTable
-    testPackList$paramdist<-paramdist
-    testPackList$paramweight<-paramweight
-    testPackList$paramLabel<-paramLabel
-    
     strategyList<-list()
     if(verbose >=1) print("ParamTable generated")
-    
-    
-    psize=nrow(paramTable)
-    if(verbose >=1) print(psize)
-    
-    
     
     instruments<-as.list(FinancialInstrument:::.instrument)
     getSymbols<-as.list(.getSymbols)
@@ -480,7 +460,7 @@ applyParameter<-function(strategy,portfolios,parameterPool,parameterConstraints,
     #Pack all symbols downloaded in .GlobalEnv
     symbols<-names(.getSymbols)
     
-    testPackListPRL<-foreach (i = 1:psize, .export=c('instruments',symbols,'getSymbols','blotter','tmp_strategy'),.verbose=TRUE,...=...) %dopar% 
+    testPackListPRL<-foreach (i = 1:nrow(paramTable), .export=c('instruments',symbols,'getSymbols','blotter','tmp_strategy'),.verbose=TRUE,...=...) %dopar% 
             
             {
                 #if(verbose)
@@ -586,7 +566,7 @@ applyParameter<-function(strategy,portfolios,parameterPool,parameterConstraints,
 #               try(rm(list=paste("account",portfolios,sep='.'),pos=.blotter))
 #               try(rm(list=paste("portfolio",portfolios,sep='.'),pos=.blotter))
                 
-                try({initPortf(testPack$portfolio.st,symbols=stock.str, initDate=initDate)})
+                try({initPortf(testPack$portfolio.st,symbols=symbols, initDate=initDate)})
                 try({initAcct(testPack$account.st,testPack$portfolio.st, initDate=initDate)})
                 try({initOrders(portfolio=testPack$portfolio.st,initDate=initDate)})
                 
@@ -637,7 +617,7 @@ applyParameter<-function(strategy,portfolios,parameterPool,parameterConstraints,
     
     
     for (k in 1: nrow(paramTable)){
-        testPackListPRLStructure$statsTable<-rbind(testPackListPRLStructure$stats,cbind(testPackListPRL[[k]]$parameters,testPackListPRL[[k]]$stats))
+        results$statsTable<-rbind(results$stats,cbind(testPackListPRL[[k]]$parameters,testPackListPRL[[k]]$stats))
         if(verbose >=1) print(names(testPackListPRL[[k]]$blotterl))
         
         for(nn in 1:length(testPackListPRL[[k]]$blotterl)){
@@ -648,14 +628,14 @@ applyParameter<-function(strategy,portfolios,parameterPool,parameterConstraints,
     }
     
     
-    testPackListPRLStructure$eachRun<-testPackListPRL
-    testPackListPRLStructure$paramTable<-paramTable
-    testPackListPRLStructure$paramConstrainTable<-data.frame(parameterConstraints)
+    results$eachRun<-testPackListPRL
+    results$paramTable<-paramTable
+    results$paramConstrainTable<-data.frame(parameterConstraints)
     
-    testPackListPRLStructure$parameterDistribution<-parameterPool
-    testPackListPRLStructure$parameterConstraints<-parameterConstraints
+    results$parameterDistribution<-parameterPool
+    results$parameterConstraints<-parameterConstraints
     
-    return(testPackListPRLStructure)
+    return(results)
     
 }
 
