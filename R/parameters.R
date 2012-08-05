@@ -342,6 +342,10 @@ applyParameter<-function(strategy,portfolios,parameterPool,parameterConstraints,
     stock.str<-names(initialPortf$symbols)
     initDate<-time(first(initialPortf$symbols[[1]]$posPL))
     
+    limits<-list()
+    for(symbol in names(initialPortf$symbols))
+        limits[[symbol]]<-initialPortf$symbols[[symbol]]$PosLimit
+
     tmp_strategy<-strategy
     
     testPackList<-list()
@@ -586,6 +590,9 @@ applyParameter<-function(strategy,portfolios,parameterPool,parameterConstraints,
                 try({initAcct(testPack$account.st,testPack$portfolio.st, initDate=initDate)})
                 try({initOrders(portfolio=testPack$portfolio.st,initDate=initDate)})
                 
+                for(symbol in names(limits))
+                    addPosLimit(portfolio=testPack$portfolio.st, symbol=symbol, timestamp=initDate, maxpos=limits[[symbol]]$MaxPos[[1]])
+
 # Apply strategy ######################################################################################
                 if(verbose >=1) print("Apply strategy...")
                 
