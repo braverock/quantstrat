@@ -7,3 +7,4 @@ pair_trade simple two-instrument long-short equity strategy demonstrating custom
 rsi        Relative Strength Index (RSI) strategy demonstrating long-only threshold actions
 bbandParameters  example of parameter test on bbands demo strategy
 macdParameters  example of parameter test on macd demo strategy
+luxor subdirectory - several demos using R to implement and analyze luxor strategy from the Jaekle&Tomasini book

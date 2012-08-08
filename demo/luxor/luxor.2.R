@@ -1,34 +1,34 @@
 #!/usr/bin/Rscript --vanilla
 #
-# Jan Humme (@opentrades) - June 2012
+# Jan Humme (@opentrades) - August 2012
 #
-# Tested and found to work correctly using blotter r1082
+# Tested and found to work correctly using blotter r1123
 #
 # From Jaekle & Tamasini: A new approach to system development and portfolio optimisation (ISBN 978-1-905641-79-6)
 #
-# Paragraph 3.2: luxor without any optimizations, but with $30 tnx costs + slippage
+# Paragraph 3.2: luxor with $30 slippage and transaction costs
 
-.fast = 1
-.slow = 44
+options(width = 240)
+#Sys.setenv(TZ="GMT")
+
+.fast = 10
+.slow = 30
 
 .qty=100000
 .th=0.0005
 .txn=-30
-#.txn=0
 
 initDate = '2002-10-21'
 .from='2002-10-21'
 #.to='2008-07-04'
-.to='2003-12-31'
+#.to='2003-12-31'
+.to='2002-10-31'
 
 ####
 
 s = 'luxor'
 p = 'forex'
 a = 'IB1'
-
-options(width = 240)
-#Sys.setenv(TZ="GMT")
 
 ###
 
@@ -39,7 +39,7 @@ currency(c('GBP', 'USD'))
 exchange_rate(c('GBPUSD'), tick_size=0.0001)
 
 #setSymbolLookup.FI('~/R.symbols/', 'GBPUSD')
-setSymbolLookup.FI('../data/', 'GBPUSD')
+setSymbolLookup.FI('../../data/', 'GBPUSD')
 
 ###
 
@@ -168,10 +168,10 @@ chart.Posn(p, "GBPUSD")
 
 print(getOrderBook(p))
 
-txns <- getTxns(p, 'GBPUSD')
-txns
-##txns$Net 
-cat('Net profit:', sum(txns$Net.Txn.Realized.PL), '\n')
+#txns <- getTxns(p, 'GBPUSD')
+#txns
+###txns$Net 
+#cat('Net profit:', sum(txns$Net.Txn.Realized.PL), '\n')
 
 tradeStats(p, 'GBPUSD')
 
