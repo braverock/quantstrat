@@ -460,7 +460,7 @@ applyParameter<-function(strategy,portfolios,parameterPool,parameterConstraints,
     #Pack all symbols downloaded in .GlobalEnv
     symbols<-names(.getSymbols)
     
-    testPackListPRL<-foreach (i = 1:nrow(paramTable), .export=c('instruments',symbols,'getSymbols','blotter','tmp_strategy'),.verbose=TRUE,...=...) %dopar% 
+    testPackListPRL<-foreach (i = 1:nrow(paramTable), .export=c('instruments',symbols,'getSymbols','blotter','tmp_strategy'),.verbose=verbose,...=...) %dopar% 
             
             {
                 #if(verbose)
@@ -582,8 +582,15 @@ applyParameter<-function(strategy,portfolios,parameterPool,parameterConstraints,
                 
                 assign("PLtmp_strategy1",PLtmp_strategy,envir=as.environment(.strategy))
                 
-                testPack$out<-try(applyStrategy(strategy=PLtmp_strategy , portfolios=testPack$portfolio.st ),...=...)
-                testPack$strategy<-PLtmp_strategy
+                if(verbose)
+                {
+                    testPack$out<-try(applyStrategy(strategy=PLtmp_strategy , portfolios=testPack$portfolio.st ),...=...)
+                    testPack$strategy<-PLtmp_strategy
+                }
+                else
+                {
+                    try(applyStrategy(strategy=PLtmp_strategy , portfolios=testPack$portfolio.st ),...=...)
+                }
                 
 #   Update portfolio ######################################################################################
                 
@@ -606,7 +613,8 @@ applyParameter<-function(strategy,portfolios,parameterPool,parameterConstraints,
                 testPack$parameters<-paramTable[i,]
                 
                 testPack$stats<-tradeStats(Portfolios=testPack$portfolio.st)
-                testPack$blotterl<-as.list(.blotter)
+                if(verbose)
+                    testPack$blotterl<-as.list(.blotter)
 #               testPack$blotter<-as.environment(.blotter)
 #               testPack$blotterr<-.blotter
         
@@ -618,23 +626,30 @@ applyParameter<-function(strategy,portfolios,parameterPool,parameterConstraints,
     
     for (k in 1: nrow(paramTable)){
         results$statsTable<-rbind(results$stats,cbind(testPackListPRL[[k]]$parameters,testPackListPRL[[k]]$stats))
-        if(verbose >=1) print(names(testPackListPRL[[k]]$blotterl))
         
-        for(nn in 1:length(testPackListPRL[[k]]$blotterl)){
-#           if(verbose >=1) print(paste(names(testPackListPRL[[k]]$blotterl)[nn],'nnp',nn,sep='.'))
-            assign(names(testPackListPRL[[k]]$blotterl[nn]),testPackListPRL[[k]]$blotterl[[nn]],envir=as.environment(.blotter))
+        if(verbose)
+        {
+            print(names(testPackListPRL[[k]]$blotterl))
+
+            for(nn in 1:length(testPackListPRL[[k]]$blotterl)){
+#               if(verbose >=1) print(paste(names(testPackListPRL[[k]]$blotterl)[nn],'nnp',nn,sep='.'))
+                assign(names(testPackListPRL[[k]]$blotterl[nn]),testPackListPRL[[k]]$blotterl[[nn]],envir=as.environment(.blotter))
+            }
+            names(testPackListPRL)[k]<-testPackListPRL[[k]]$portfolio.st
         }
-        names(testPackListPRL)[k]<-testPackListPRL[[k]]$portfolio.st
     }
     
     
-    results$eachRun<-testPackListPRL
     results$paramTable<-paramTable
-    results$paramConstrainTable<-data.frame(parameterConstraints)
-    
-    results$parameterDistribution<-parameterPool
-    results$parameterConstraints<-parameterConstraints
-    
+
+    if(verbose)
+    {
+        results$eachRun<-testPackListPRL
+        results$paramConstrainTable<-data.frame(parameterConstraints)
+            
+        results$parameterDistribution<-parameterPool
+        results$parameterConstraints<-parameterConstraints
+    }
     return(results)
     
 }
