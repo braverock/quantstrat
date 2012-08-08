@@ -7,4 +7,11 @@ pair_trade simple two-instrument long-short equity strategy demonstrating custom
 rsi        Relative Strength Index (RSI) strategy demonstrating long-only threshold actions
 bbandParameters  example of parameter test on bbands demo strategy
 macdParameters  example of parameter test on macd demo strategy
-luxor subdirectory - several demos using R to implement and analyze luxor strategy from the Jaekle&Tomasini book
+luxor.1.R  Jaekle&Tomasini: Paragraph 3.2: luxor without any optimizations
+luxor.2.R  Jaekle&Tomasini: Paragraph 3.2: luxor with $30 slippage and transaction costs
+luxor.3.R  Jaekle&Tomasini: Paragraph 3.3 Variation of the input parameters: optimisation and stability diagrams
+luxor.3.Parameters.R  Jaekle&Tomasini: Paragraph 3.3 Variation of the input parameters: optimisation and stability diagrams / scan
+luxor.3.Parameters.tradeGraphs.R  Jaekle&Tomasini: 3D graphs of results for sma scan
+luxor.4.R  Jaekle&Tomasini: Paragraph 3.4: inserting an intraday time filter
+luxor.4.Timespans.R  Jaekle&Tomasini: Paragraph 3.4: inserting an intraday time filter / scan
+luxor.4.Timespan.tradeGraphs.R  Jaekle&Tomasini: 3D graphs of results for timespan scan

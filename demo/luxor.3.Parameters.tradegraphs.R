@@ -2,7 +2,7 @@
 
 require(quantstrat)
 
-load('../../data/luxor.parameters.1-10.30-55.RData')
+load('../data/luxor.parameters.1-10.30-55.RData')
 
 tradeGraphs (
 	stats = stats,

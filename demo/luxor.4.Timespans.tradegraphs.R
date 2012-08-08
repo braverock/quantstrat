@@ -2,7 +2,7 @@
 
 require(quantstrat)
 
-load('../../data/luxor.timespan.24x24.2002-2008.RData')
+load('../data/luxor.timespan.24x24.2002-2008.RData')
 
 names(stats)[names(stats)=='testPackListPRL[[k]]$parameters']<-'timespan'
 

@@ -6,23 +6,24 @@
 #
 # From Jaekle & Tamasini: A new approach to system development and portfolio optimisation (ISBN 978-1-905641-79-6)
 #
-# Paragraph 3.2: luxor without any optimizations
+# Paragraph 3.3 Variation of the input parameters: optimisation and stability diagrams
 
 options(width = 240)
 #Sys.setenv(TZ="GMT")
 
-.fast = 10
-.slow = 30
+.fast = 1
+.slow = 44
 
 .qty=100000
 .th=0.0005
-.txn=0
+.txn=-30
 
 initDate = '2002-10-21'
 .from='2002-10-21'
 #.to='2008-07-04'
 #.to='2003-12-31'
 .to='2002-10-31'
+#.to='2002-12-31'
 
 ####
 
@@ -39,7 +40,7 @@ currency(c('GBP', 'USD'))
 exchange_rate(c('GBPUSD'), tick_size=0.0001)
 
 #setSymbolLookup.FI('~/R.symbols/', 'GBPUSD')
-setSymbolLookup.FI('../../data/', 'GBPUSD')
+setSymbolLookup.FI('../data/', 'GBPUSD')
 
 ###
 

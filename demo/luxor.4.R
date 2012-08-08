@@ -6,23 +6,29 @@
 #
 # From Jaekle & Tamasini: A new approach to system development and portfolio optimisation (ISBN 978-1-905641-79-6)
 #
-# Paragraph 3.2: luxor with $30 slippage and transaction costs
+# Paragraph 3.4: inserting an intraday time filter
 
 options(width = 240)
 #Sys.setenv(TZ="GMT")
 
-.fast = 10
-.slow = 30
+.fast = 1
+.slow = 44
 
 .qty=100000
 .th=0.0005
 .txn=-30
+.timespan = 'T08:00/T12:00'
 
 initDate = '2002-10-21'
 .from='2002-10-21'
 #.to='2008-07-04'
 #.to='2003-12-31'
 .to='2002-10-31'
+#.to='2002-12-31'
+#.from='2006-01-01'
+#.to='2006-12-31'
+#.from='2007-01-01'
+#.to='2007-12-31'
 
 ####
 
@@ -39,7 +45,7 @@ currency(c('GBP', 'USD'))
 exchange_rate(c('GBPUSD'), tick_size=0.0001)
 
 #setSymbolLookup.FI('~/R.symbols/', 'GBPUSD')
-setSymbolLookup.FI('../../data/', 'GBPUSD')
+setSymbolLookup.FI('../data/', 'GBPUSD')
 
 ###
 
@@ -57,6 +63,12 @@ initAcct(a, portfolios=p, initDate=initDate, currency='USD')
 initOrders(p, initDate=initDate)
 
 ### strategy ######################################################################
+
+addPosLimit(
+            portfolio=p,
+            symbol='GBPUSD',
+            timestamp=initDate,
+            maxpos=.qty)
 
 strategy(s, store=TRUE)
 
@@ -80,7 +92,7 @@ add.indicator(s, name="SMA",
 
 ### signals
 
-add.signal(s, 'sigCrossover',
+add.signal(s, name = 'sigCrossover',
 	arguments = list(
 		columns=c("nFast","nSlow"),
 		relationship="gte"
@@ -88,7 +100,7 @@ add.signal(s, 'sigCrossover',
 	label='long'
 )
 
-add.signal(s, 'sigCrossover',
+add.signal(s, name = 'sigCrossover',
 	arguments = list(
 		columns=c("nFast","nSlow"),
 		relationship="lt"
@@ -98,7 +110,7 @@ add.signal(s, 'sigCrossover',
 
 ### rules
 
-add.rule(s, 'ruleSignal',
+add.rule(s, name = 'ruleSignal',
 	arguments=list(sigcol='long' , sigval=TRUE,
 		replace=TRUE,
 		orderside='short',
@@ -108,10 +120,11 @@ add.rule(s, 'ruleSignal',
 		orderset='ocoshort'
 	),
 	type='exit',
+	timespan = .timespan,
 	label='Exit2LONG'
 )
 
-add.rule(s, 'ruleSignal',
+add.rule(s, name = 'ruleSignal',
 	arguments=list(sigcol='short', sigval=TRUE,
 		replace=TRUE,
 		orderside='long' ,
@@ -121,9 +134,10 @@ add.rule(s, 'ruleSignal',
 		orderset='ocolong'
 	),
 	type='exit',
+	timespan = .timespan,
 	label='Exit2SHORT')
 
-add.rule(s, 'ruleSignal',
+add.rule(s, name = 'ruleSignal',
 	arguments=list(sigcol='long' , sigval=TRUE,
 		replace=FALSE,
 		orderside='long' ,
@@ -132,13 +146,15 @@ add.rule(s, 'ruleSignal',
 		threshold=.th,
 		TxnFees=0,
 		orderqty=+.qty,
+		osFUN=osMaxPos,
 		orderset='ocolong'
 	),
 	type='enter',
+	timespan = .timespan,
 	label='EnterLONG'
 )
 
-add.rule(s, 'ruleSignal',
+add.rule(s, name = 'ruleSignal',
 	arguments=list(sigcol='short', sigval=TRUE,
 		replace=FALSE,
 		orderside='short',
@@ -147,9 +163,11 @@ add.rule(s, 'ruleSignal',
 		threshold=-.th,
 		TxnFees=0,
 		orderqty=-.qty,
+		osFUN=osMaxPos,
 		orderset='ocoshort'
 	),
 	type='enter',
+	timespan = .timespan,
 	label='EnterSHORT'
 )
 
@@ -170,8 +188,8 @@ print(getOrderBook(p))
 
 #txns <- getTxns(p, 'GBPUSD')
 #txns
-###txns$Net 
+##txns$Net 
 #cat('Net profit:', sum(txns$Net.Txn.Realized.PL), '\n')
 
-tradeStats(p, 'GBPUSD')
+print(tradeStats(p, 'GBPUSD'))
 
