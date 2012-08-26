@@ -6,6 +6,11 @@
 require(foreach,quietly=TRUE)
 require(quantstrat)
 
+# example parallel initialization for doParallel. this or doMC, or doRedis are 
+# most probably preferable to doSMP
+#require(doParallel)
+#registerDoParallel() # by default number of physical cores -1
+
 demo('bbands',ask=FALSE)
 #the user should load a parallel backend for foreach before running, 
 # or this will run in single threaded mode

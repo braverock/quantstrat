@@ -24,8 +24,12 @@ method='expand'
 
 ###############################################################################
 
-#require(foreach,quietly=TRUE)
-require(doMC)
+require(foreach,quietly=TRUE)
+# example parallel initialization for doParallel. this or doMC, or doRedis are 
+# most probably preferable to doSMP
+#require(doParallel)
+#registerDoParallel() # by default number of physical cores -1
+
 require(quantstrat)
 
 portfolio.st = 'forex'
