@@ -16,7 +16,7 @@ require(xts)
 
 ###############################################################################
 
-load('luxor-3.09.RData')
+load('../data/luxor-3.09.RData')
 
 posPL <- portfolio$symbols$GBPUSD$posPL
 
