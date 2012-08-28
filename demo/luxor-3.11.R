@@ -16,7 +16,7 @@ require(xts)
 
 ###############################################################################
 
-load('../data/luxor-3.09.RData')
+data('luxor-3.09', package='quantstrat')
 
 posPL <- portfolio$symbols$GBPUSD$posPL
 
