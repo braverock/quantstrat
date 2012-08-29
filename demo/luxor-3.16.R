@@ -6,10 +6,10 @@
 #
 # From Jaekle & Tamasini: A new approach to system development and portfolio optimisation (ISBN 978-1-905641-79-6)
 #
-# Figure 3.11: MAE graph of Luxor system
+# Figure 3.16: MFE graph in percentage terms
 
 require('blotter')
 
 data('luxor-p066', package='quantstrat', envir=.blotter)
 
-chart.ME('luxor', type='MAE', scale='cash')
+chart.ME('luxor', type='MFE', scale='percent')
