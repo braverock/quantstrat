@@ -5,20 +5,54 @@
 ###############################################################################
 
 #' run standard and custom strategy initialization functions 
+#' 
+#' \code{initStrategy} will run a series of common initialization functions at the 
+#' beginning of an \code{\link{applyStrategy}} call.
+#' 
+#' \describe{
+#'      \item{get.Symbols}{if TRUE, will call \code{\link[quantmod]{getSymbols}} 
+#'                          on all symbols included in the \code{symbols} vector}
+#'      \item{init.Portf}{if TRUE, will call \code{\link[blotter]{initPortf}} 
+#'                          to initialize the portfolio object}
+#'      \item{init.Acct}{if TRUE, will call \code{\link[blotter]{initAccount}} 
+#'                          to initialize the account object}
+#'      \item{init.Orders}{if TRUE, will call \code{\link{initOrders}} 
+#'                          to initialize the order book for this test}
+#'      \item{unique}{not yet implemented, will force a unique portfolio and account name 
+#'                          if the portfolio, account, or order book already exist}
+#' }
+#'
 #' @param strategy object of type \code{strategy} to initialize data/containers for
 #' @param portfolio portfolio
 #' @param symbols symbols
-#' @param get.Symbols TRUE/FALSE, default TRUE: 
-#' @param init.Portf TRUE/FALSE, default TRUE: 
-#' @param init.Acct TRUE/FALSE, default TRUE: 
-#' @param init.Orders TRUE/FALSE, default TRUE: 
-#' @param unique TRUE/FALSE, default TRUE: 
-#' @param \dots any other passtrhrough parameters
+#' @param parameters named list of parameters to be applied during evaluation of the strategy, default NULL
+#' @param get.Symbols TRUE/FALSE, default TRUE
+#' @param init.Portf TRUE/FALSE, default TRUE 
+#' @param init.Acct TRUE/FALSE, default TRUE 
+#' @param init.Orders TRUE/FALSE, default TRUE 
+#' @param unique TRUE/FALSE, default TRUE
+#' @param \dots any other passthrough parameters
 #' @author Garrett See, Brian Peterson
 #' @export
-initStrategy <- function(strategy, portfolio, symbols, get.Symbols=TRUE, init.Portf=TRUE, init.Acct=TRUE, init.Orders=TRUE, unique=TRUE,...) {
+#' @seealso \code{\link{applyStrategy}}, \code{\link{add.init}},  
+initStrategy <- function(strategy, portfolio, symbols, parameters=NULL, get.Symbols=TRUE, init.Portf=TRUE, init.Acct=TRUE, init.Orders=TRUE, unique=TRUE,...) {
     # basic idea is to do all the common set-up stuff
     # create portfolio, account, orderbook
+
+    if (!is.strategy(strategy)) {
+        strategy<-try(getStrategy(strategy))
+        if(inherits(strategy,"try-error"))
+            stop ("You must supply an object or the name of an object of type 'strategy'.")
+        store=TRUE    
+    } 
+
+    #set default values that will break the intialization
+    if(!hasArg(currency)){
+        if(!is.null(strategy$currency)) currency <- strategy$currency
+        else currency<-'USD'
+    } 
+    
+    
     #if any 'symbols' are not defined as instruments, we'll make a basic instrument
     if(isTRUE(get.Symbols)){
         getsyms <- NULL #symbols that aren't in .GlobalEnv that we'll have to get
@@ -30,24 +64,28 @@ initStrategy <- function(strategy, portfolio, symbols, get.Symbols=TRUE, init.Po
             #test for is.xts here?
             if (inherits(tmp, 'try-error')) getsyms <- c(getsyms, sym)
         }
-        if (!is.null(getsyms)) getSymbols(getsyms,from=initDate) #get the data that didn't exist in env
+        if (!is.null(getsyms)) getSymbols(getsyms,from=initDate, ...=...) #get the data that didn't exist in env
     }
-    if(isTRUE(init.Portf)){
+    
+    if(isTRUE(init.Portf) & !isTRUE(is.portfolio(portfolio))){
+        if(hasArg(portfolio)) portfolio<-portfolio else portfolio<-strategy$name 
+        
+        #TODO FIXME implment unique here
+        
         initPortf(name=portfolio, symbols=symbols, currency=currency, ...=...)
     }
+    
     if(isTRUE(init.Acct)){
         if(hasArg(account)) account<-account else account<-portfolio
-        initAcct(name=account, portfolios=portfolio, currency=currency, ...=...)
+        if(!isTRUE(is.account(account))) initAcct(name=account, portfolios=portfolio, currency=currency, ...=...)
     }
+    
     if(isTRUE(init.Orders)){
         initOrders(portfolio=portfolio, symbols=symbols, ...=...)
     }
 
-    # additionally, we should put an initialization slot in the strategy and have 
-    # an add.init function (like add.indicator, etc) that could have 
-    # arbitrary user-defined initialization functions added to the initialization steps
-    
-    #now do whatrever else the user stuck in this init slot...
+    # arbitrary user-defined initialization functions added to the initialization steps    
+    # now do whatever else the user stuck in this init slot...
     for (init_o in strategy$init){
         if(!is.function(get(init_o$name))){
             message(paste("Skipping initialization function",init_o$name,"because there is no function by that name to call"))
@@ -76,10 +114,11 @@ initStrategy <- function(strategy, portfolio, symbols, get.Symbols=TRUE, init.Po
         }
         
         #now add dots
-        if (length(nargs)) {
-            pm <- pmatch(names(nargs), onames, nomatch = 0L)
-            names(nargs[pm > 0L]) <- onames[pm]
-            .formals[pm] <- nargs[pm > 0L]
+        dargs<-list(...)
+        if (length(dargs)) {
+            pm <- pmatch(names(dargs), onames, nomatch = 0L)
+            names(dargs[pm > 0L]) <- onames[pm]
+            .formals[pm] <- dargs[pm > 0L]
         }
         .formals$... <- NULL
         
@@ -113,7 +152,12 @@ initStrategy <- function(strategy, portfolio, symbols, get.Symbols=TRUE, init.Po
 #' @return if \code{strategy} was the name of a strategy, the name. It it was a strategy, the updated strategy. 
 #' @export
 add.init <- function(strategy, name, arguments, parameters=NULL, label=NULL, ..., enabled=TRUE, indexnum=NULL, store=FALSE) {
-    if(!is.strategy(strategy)) stop("You must pass in a strategy object to manipulate")
+    if (!is.strategy(strategy)) {
+        strategy<-try(getStrategy(strategy))
+        if(inherits(strategy,"try-error"))
+            stop ("You must supply an object or the name of an object of type 'strategy'.")
+        store=TRUE    
+    } 
     tmp_init<-list()
     tmp_init$name<-name
     if(is.null(label)) label = paste(name,"ind",sep='.')

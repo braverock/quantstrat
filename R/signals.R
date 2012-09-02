@@ -299,7 +299,7 @@ sigThreshold <- function(label, data=mktdata, column, threshold=0, relationship=
 
 #' generate a signal from a formula
 #' 
-#' This code takes advantage of some base R functionality that can treat an R object (in this case the internal mktdata object in quantstrat) as an enfironment or 'frame' using \code{\link{parent.frame}}.  
+#' This code takes advantage of some base R functionality that can treat an R object (in this case the internal mktdata object in quantstrat) as an environment or 'frame' using \code{\link{parent.frame}}.  
 #' This allows the columns of the data to be addressed without any major manipulation, simply by column name.  In most cases in quantstrat, this will be either the price/return columns, or columns added by indicators or prior signals.
 #' The formula will return TRUE/FALSE for each row comparison as a time series column which can then be used for rule execution.  The \code{formula} will be evaluated using \code{\link{eval}} as though in an if statement. 
 #' 

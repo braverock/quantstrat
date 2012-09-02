@@ -45,9 +45,24 @@ rm.strat <- function(name='default', silent=TRUE) {
 #' rather than tick.  A custom wrapup function could take your high frequency 
 #' data and transform it to lower frequency data before the call to \code{\link{updatePortf}}. 
 #' 
+#' The 'standard wrapup functions included are:
+#' \describe{
+#'      \item{update.Portf}{ if TRUE, will call \code{\link[blotter]{updatePortf}}
+#'      to mark the book in the portfolio.
+#'      }
+#'      \item{update.Acct}{ if TRUE, will call \code{\link[blotter]{updateAcct}}
+#'      to mark the blotter account for this test.
+#'      }
+#'      \item{update.EndEq}{ if TRUE, will call \code{\link[blotter]{updateEndEq}}
+#'      to update the account equity after all other accounting has been completed.
+#'      }
+#' }
+#' 
+#' @param strategy object of type \code{strategy} to initialize data/containers for
 #' @param portfolio string identifying a portfolio
 #' @param account string identifying an account. Same as \code{portfolio} by default
 #' @param Symbols character vector of names of symbols whose portfolios will be updated
+#' @param parameters named list of parameters to be applied during evaluation of the strategy, default NULL
 #' @param Dates optional xts-style ISO-8601 time range to run updatePortf over, default NULL (will use times from Prices)
 #' @param Prices optional xts object containing prices and timestamps to mark the book on, default NULL
 #' @param update.Portf TRUE/FALSE if TRUE (default) a call will be made to \code{updatePortf}
@@ -60,9 +75,11 @@ rm.strat <- function(name='default', silent=TRUE) {
 #' @author Garrett See, Brian Peterson
 #' @export
 updateStrategy <- 
-function(portfolio='default', 
+function(strategy,
+         portfolio='default', 
          account=portfolio, 
-         Symbols=NULL, 
+         Symbols=NULL,
+         parameters=NULL,
          Dates=NULL, 
          Prices=NULL,
          update.Portf=TRUE,
@@ -72,56 +89,68 @@ function(portfolio='default',
          chart=TRUE,
          ...)
 {
-    
-    #first do whatever the user stuck in this wrapup slot...
-    for (wrapup_o in strategy$wrapup){
-        if(!is.function(get(wrapup_o$name))){
-            message(paste("Skipping wrapup",wrapup_o$name,"because there is no function by that name to call"))
-            next()      
-        }
-        
-        if(!isTRUE(wrapup_o$enabled)) next()
-        
-        # see 'S Programming p. 67 for this matching
-        fun<-match.fun(wrapup_o$name)
-        
-        .formals  <- formals(fun)
-        onames <- names(.formals)
-        
-        pm <- pmatch(names(wrapup_o$arguments), onames, nomatch = 0L)
-        #if (any(pm == 0L))
-        #    warning(paste("some arguments stored for",wrapup_o$name,"do not match"))
-        names(wrapup_o$arguments[pm > 0L]) <- onames[pm]
-        .formals[pm] <- wrapup_o$arguments[pm > 0L]       
-        
-        # now add arguments from parameters
-        if(length(parameters)){
-            pm <- pmatch(names(parameters), onames, nomatch = 0L)
-            names(parameters[pm > 0L]) <- onames[pm]
-            .formals[pm] <- parameters[pm > 0L]
-        }
-        
-        #now add dots
-        if (length(nargs)) {
-            pm <- pmatch(names(nargs), onames, nomatch = 0L)
-            names(nargs[pm > 0L]) <- onames[pm]
-            .formals[pm] <- nargs[pm > 0L]
-        }
-        .formals$... <- NULL
-        
-        do.call(fun,.formals)
-    }            
+
+    if (!is.strategy(strategy)) {
+        strategy<-try(getStrategy(strategy))
+        if(inherits(strategy,"try-error"))
+            stop ("You must supply an object or the name of an object of type 'strategy'.")
+        store=TRUE    
+    } 
     
     out <- list()
+    
+    #first do whatever the user stuck in this wrapup slot...
+    if(length(strategy$wrapup)>0){
+        for (wrapup_o in strategy$wrapup){
+            if(!is.function(get(wrapup_o$name))){
+                message(paste("Skipping wrapup",wrapup_o$name,"because there is no function by that name to call"))
+                next()      
+            }
+            
+            if(!isTRUE(wrapup_o$enabled)) next()
+            
+            # see 'S Programming p. 67 for this matching
+            fun<-match.fun(wrapup_o$name)
+            
+            .formals  <- formals(fun)
+            onames <- names(.formals)
+            
+            pm <- pmatch(names(wrapup_o$arguments), onames, nomatch = 0L)
+            #if (any(pm == 0L))
+            #    warning(paste("some arguments stored for",wrapup_o$name,"do not match"))
+            names(wrapup_o$arguments[pm > 0L]) <- onames[pm]
+            .formals[pm] <- wrapup_o$arguments[pm > 0L]       
+            
+            # now add arguments from parameters
+            if(length(parameters)){
+                pm <- pmatch(names(parameters), onames, nomatch = 0L)
+                names(parameters[pm > 0L]) <- onames[pm]
+                .formals[pm] <- parameters[pm > 0L]
+            }
+            
+            #now add dots
+            dargs<-list(...)
+            if (length(dargs)) {
+                pm <- pmatch(names(dargs), onames, nomatch = 0L)
+                names(dargs[pm > 0L]) <- onames[pm]
+                .formals[pm] <- dargs[pm > 0L]
+            }
+            .formals$... <- NULL
+            
+            out[[wrapup_o$name]]<-do.call(fun,.formals)
+        }            
+    }
+    
+    
     if(isTRUE(update.Portf)){
         out[[paste('portfolio',portfolio,sep='.')]] <- updatePortf(Portfolio=portfolio, Symbols=Symbols, Dates=Dates, Prices=Prices,...=...)
     }
     if(isTRUE(update.Acct)){
-        out[[paste('account',portfolio,sep='.')]] <- updateAcct(name=account,Dates=Dates,...=...) 
+        out[[paste('account',account,sep='.')]] <- updateAcct(name=account,Dates=Dates,...=...) 
     }
     if(isTRUE(update.EndEq)){
         updateEndEq(Account=account,Dates=Dates,...=...)
-        if(showEq) cat('EndingEq: ', getEndEq(Account=account,Date=Sys.time()), '\n')
+        if(showEq) cat('Ending Account Equity: ', getEndEq(Account=account,Date=Sys.time()), '\n')
     }
     if(isTRUE(chart)){
         for (symbol in names(getPortfolio(portfolio)$symbols) ){
