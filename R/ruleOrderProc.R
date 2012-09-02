@@ -348,7 +348,7 @@ ruleOrderProc <- function(portfolio, symbol, mktdata, timespan=NULL, ordertype=N
 ###############################################################################
 # R (http://r-project.org/) Quantitative Strategy Model Framework
 #
-# Copyright (c) 2009-2011
+# Copyright (c) 2009-2012
 # Peter Carl, Dirk Eddelbuettel, Brian G. Peterson, 
 # Jeffrey Ryan, Joshua Ulrich, and Garrett See 
 #
