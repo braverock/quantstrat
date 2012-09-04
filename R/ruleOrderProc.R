@@ -242,7 +242,7 @@ ruleOrderProc <- function(portfolio, symbol, mktdata, timespan=NULL, ordertype=N
                         } 
                         if(isOHLCmktdata){
                             # check to see if price moved through the limit
-                            if( orderPrice > as.numeric(Lo(mktdataTimestamp)) &
+                            if( orderPrice > as.numeric(Lo(mktdataTimestamp)) &&
                                 orderPrice < as.numeric(Hi(mktdataTimestamp)) ) 
                             {
                                 txnprice = orderPrice
