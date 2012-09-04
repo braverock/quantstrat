@@ -76,12 +76,10 @@ ruleOrderProc <- function(portfolio, symbol, mktdata, timespan=NULL, ordertype=N
         if( NROW(mktdataTimestamp) > 1 ) mktdataTimestamp <- last(mktdataTimestamp)
         isOHLCmktdata <- is.OHLC(mktdata)
         isBBOmktdata  <- is.BBO(mktdata)
-        for (ii in OpenOrders.i ){
-		if(ordersubset[ii, "Order.Status"] != "open")	# need to check this bc sideeffects may have changed order.status in this loop
-		{
-			#print("@@@@@@@@ status changed from open")
-			next()
-		}
+        for (ii in OpenOrders.i )
+        {
+            if(ordersubset[ii, "Order.Status"] != "open")   # need to check this bc sideeffects may have changed order.status in this loop
+                next()
 
             txnprice=NULL
 
@@ -91,18 +89,16 @@ ruleOrderProc <- function(portfolio, symbol, mktdata, timespan=NULL, ordertype=N
 
             orderQty <- ordersubset[ii,"Order.Qty"]
             if(orderQty=='all')
-	    {
+            {
                 # this has to be an exit or risk order, so: 
                 orderQty=-1*getPosQty(Portfolio=portfolio,Symbol=symbol,Date=timestamp)
                 orderside<-ordersubset[ii, "Order.Side"]
                 if(((orderQty>0 && orderside=='long') || (orderQty<0 && orderside=='short')))
                 {
                     # this condition may occur if (for example) a signal triggers an 'increase LONG pos' and 'close all SHORT pos' simultaneously
-		    # hence this is legal condition, and we must 0 the orderQty to reject the order
+                    # hence this is legal condition, and we must 0 the orderQty to reject the order
 
-#                   warning('trying to exit/market/all position but orderQty sign ', orderQty,' does not match orderside ', orderside)
-
-		    orderQty = 0
+                    orderQty = 0
                 }
             }
             orderQty<-as.numeric(orderQty)
@@ -220,7 +216,6 @@ ruleOrderProc <- function(portfolio, symbol, mktdata, timespan=NULL, ordertype=N
                                         ,...=..., TxnFees=txnfees)
                                 if (is.null(neworders)) neworders=neworder else neworders = rbind(neworders,neworder)
                                 ordersubset[ii,"Order.Status"]<-'replaced'
-#                                ordersubset[ii,"Order.StatusTime"]<-as.character(timestamp)
                                 ordersubset[ii,"Order.StatusTime"]<-format(timestamp, "%Y-%m-%d %H:%M:%S")
                                 next()
                             } 
@@ -292,7 +287,6 @@ ruleOrderProc <- function(portfolio, symbol, mktdata, timespan=NULL, ordertype=N
                                          ,...=..., TxnFees=txnfees)
                                 if (is.null(neworders)) neworders=neworder else neworders = rbind(neworders,neworder)
                                 ordersubset[ii,"Order.Status"]<-'replaced'
-                                #ordersubset[ii,"Order.StatusTime"]<-as.character(as.POSIXlt(statustimestamp, Sys.getenv('TZ')))
                                 ordersubset[ii,"Order.StatusTime"]<-format(timestamp, "%Y-%m-%d %H:%M:%S")
                                 next()
                             }
@@ -300,28 +294,21 @@ ruleOrderProc <- function(portfolio, symbol, mktdata, timespan=NULL, ordertype=N
                         # else next
                     }
             )
-            if(!is.null(txnprice) && !isTRUE(is.na(txnprice))) {
+            if(!is.null(txnprice) && !isTRUE(is.na(txnprice)))
+            {
                 #make sure we don't cross through zero
                 pos<-getPosQty(portfolio,symbol,timestamp)
                 
-                # this is handled correctly in addTxn now, so this isn't needed anymore
-#                if ( (pos > 0 && orderQty < -pos) || (pos < 0 && orderQty > -pos) ) {
-#                    warning("orderQty of ",orderQty,
-#                            " would cross through zero, adjusting qty to ",-pos)
-#                    orderQty <- -pos
-#                }
-    
-                if (orderQty == 0)	# reject the order (should be exit/market/all)
-		{
+                if (orderQty == 0)  # reject the order (should be exit/market/all)
+                {
                     ordersubset[ii,"Order.Status"]<-'rejected'
-		}
-		else	#add the transaction
-		{
+                }
+                else    #add the transaction
+                {
                     addTxn(Portfolio=portfolio, Symbol=symbol, TxnDate=txntime, 
                             TxnQty=orderQty, TxnPrice=txnprice , ...=..., TxnFees=txnfees)
                     ordersubset[ii,"Order.Status"]<-'closed'
-		}
-#                ordersubset[ii,"Order.StatusTime"]<-as.character(timestamp)
+                }
                 ordersubset[ii,"Order.StatusTime"]<-format(timestamp, "%Y-%m-%d %H:%M:%S")
                     
                 #close all other orders in the same order set
@@ -330,9 +317,8 @@ ruleOrderProc <- function(portfolio, symbol, mktdata, timespan=NULL, ordertype=N
 
                 # skip this if there are no orders
                 if(length(OpenInOrderset.i) > 0)
-		{
+                {
                     ordersubset[OpenInOrderset.i, "Order.Status"] = 'canceled'
-#                    ordersubset[OpenInOrderset.i, "Order.StatusTime"]<-as.character(timestamp)
                     ordersubset[OpenInOrderset.i, "Order.StatusTime"]<-format(timestamp, "%Y-%m-%d %H:%M:%S")
                 } 
             }
@@ -344,7 +330,20 @@ ruleOrderProc <- function(portfolio, symbol, mktdata, timespan=NULL, ordertype=N
         orderbook[[portfolio]][[symbol]] <- ordersubset
         assign(paste("order_book",portfolio,sep='.'),orderbook,envir=.strategy)
     } # end check for open orders
+
+    # return list of orers filled in this call for order chain processing
+    if(length(OpenOrders.i) > 0)
+    {
+        OpenOrders <- ordersubset[OpenOrders.i,]
+        JustClosedOrders.i <- which(OpenOrders[,"Order.Status"]=="closed")
+
+        if(length(JustClosedOrders.i) > 0)
+            return( OpenOrders[JustClosedOrders.i,] )
+
+    }
+    return(NULL)
 }
+
 ###############################################################################
 # R (http://r-project.org/) Quantitative Strategy Model Framework
 #

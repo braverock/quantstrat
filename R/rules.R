@@ -15,6 +15,7 @@
 #'   \item{rebalance}{ rules executed specifically in a portfolio context, unnecessary in univariate strategies}
 #'   \item{exit}{ rules to determine whether to exit a position}
 #'   \item{enter}{ rules to determine whether to enter or increase a position}
+#'   \item{chain}{ rules executed upon fill of the corresponding order, identified by label
 #' }  
 #' The rules will be executed by type, in the order listed above.  
 #' Multiple rules of each type may be defined, as with signals and indicators, 
@@ -62,7 +63,7 @@
 #' @param arguments named list of default arguments to be passed to an rule function when executed
 #' @param parameters vector of strings naming parameters to be saved for apply-time definition
 #' @param label arbitrary text label for rule output, NULL default will be converted to '<name>.rule'
-#' @param type one of "risk","order","rebalance","exit","enter", see Details
+#' @param type one of "risk","order","rebalance","exit","enter","chain" see Details
 #' @param ... any other passthru parameters
 #' @param enabled TRUE/FALSE whether the rule is enabled for use in applying the strategy, default TRUE
 #' @param indexnum if you are updating a specific rule, the index number in the $rules[type] list to update
@@ -72,7 +73,7 @@
 #' @param storefun TRUE/FALSE whether to store the function in the rule, default TRUE.  setting this option to FALSE may slow the backtest, but makes \code{\link{debug}} usable
 #' @return if \code{strategy} was the name of a strategy, the name. It it was a strategy, the updated strategy. 
 #' @export
-add.rule <- function(strategy, name, arguments, parameters=NULL, label=NULL, type=c(NULL,"risk","order","rebalance","exit","enter"), ..., enabled=TRUE, indexnum=NULL, path.dep=TRUE, timespan=NULL, store=FALSE, storefun=TRUE) {
+add.rule <- function(strategy, name, arguments, parameters=NULL, label=NULL, type=c(NULL,"risk","order","rebalance","exit","enter","chain"), parent=NULL, ..., enabled=TRUE, indexnum=NULL, path.dep=TRUE, timespan=NULL, store=FALSE, storefun=TRUE) {
     if (!is.strategy(strategy)) {
         strategy<-try(getStrategy(strategy))
         if(inherits(strategy,"try-error"))
@@ -81,7 +82,7 @@ add.rule <- function(strategy, name, arguments, parameters=NULL, label=NULL, typ
     } 
     type=type[1]
     if(is.null(type)) stop("You must specify a type")
-	if(is.na(charmatch(type,c("risk","order","rebalance","exit","enter","pre","post")))) stop(paste("type:",type,' must be one of "risk", "order", "rebalance", "exit", "enter", "pre", or "post"'))
+    if(is.na(charmatch(type,c("risk","order","rebalance","exit","enter","chain","pre","post")))) stop(paste("type:",type,' must be one of "risk", "order", "rebalance", "exit", "enter", "chain", "pre", or "post"'))
     tmp_rule<-list()
     if(!is.function(name) && isTRUE(storefun)) {
         if(!is.function(get(name))){
@@ -96,24 +97,29 @@ add.rule <- function(strategy, name, arguments, parameters=NULL, label=NULL, typ
     } else {
         fn <- name
     }
-    
+
     tmp_rule$name<-fn
     tmp_rule$type<-type
+    if(type == 'chain')
+    {
+        if(is.null(parent)) stop("You must specify a parent if ruletype=='chain'")
+        tmp_rule$parent<-parent
+    }
     tmp_rule$enabled<-enabled
     if (!is.list(arguments)) stop("arguments must be passed as a named list")
-	if(is.null(label)) label = paste(name,"rule",sep='.')
+    if(is.null(label)) label = paste(name,"rule",sep='.')
     tmp_rule$label<-label
     tmp_rule$arguments<-arguments
-	if(!is.null(parameters)) tmp_rule$parameters = parameters
-	if(!is.null(timespan)) tmp_rule$timespan = timespan
-	tmp_rule$path.dep<-path.dep
-	if(length(list(...))) tmp_rule<-c(tmp_rule,list(...))
-	
+    if(!is.null(parameters)) tmp_rule$parameters = parameters
+    if(!is.null(timespan)) tmp_rule$timespan = timespan
+    tmp_rule$path.dep<-path.dep
+    if(length(list(...))) tmp_rule<-c(tmp_rule,list(...))
+
     tmp_rule$call<-match.call()
     class(tmp_rule)<-'trade_rule'
     if(!hasArg(indexnum) | (hasArg(indexnum) & is.null(indexnum))) indexnum = length(strategy$rules[[type]])+1
     strategy$rules[[type]][[indexnum]]<-tmp_rule
-    
+
     if (store) assign(strategy$name,strategy,envir=as.environment(.strategy))
     else return(strategy)
     strategy$name
@@ -294,12 +300,12 @@ applyRules <- function(portfolio,
             names(rule$arguments[pm > 0L]) <- onames[pm]
             .formals[pm] <- rule$arguments[pm > 0L]
 
-			# now add arguments from parameters
-			if(length(parameters)){
-				pm <- pmatch(names(parameters), onames, nomatch = 0L)
-				names(parameters[pm > 0L]) <- onames[pm]
-				.formals[pm] <- parameters[pm > 0L]
-			}
+            # now add arguments from parameters
+            if(length(parameters)){
+                pm <- pmatch(names(parameters), onames, nomatch = 0L)
+                names(parameters[pm > 0L]) <- onames[pm]
+                .formals[pm] <- parameters[pm > 0L]
+            }
 
             #now add dots
             if (length(nargs)) {
@@ -309,8 +315,8 @@ applyRules <- function(portfolio,
             }
             .formals$... <- NULL
 
-	    # any rule-specific prefer-parameters should override global prefer parameter
-	    if(!is.null(rule$arguments$prefer)) .formals$prefer = rule$arguments$prefer
+            # any rule-specific prefer-parameters should override global prefer parameter
+            if(!is.null(rule$arguments$prefer)) .formals$prefer = rule$arguments$prefer
             
             tmp_val<-do.call(fun,.formals)
 
@@ -319,7 +325,7 @@ applyRules <- function(portfolio,
             hold <<- hold #TODO FIXME hold processing doesn't work unless custom rule has set it with <<-
             holdtill <<- holdtill 
             
-            #print(tmp_val)
+#            print(paste('tmp_val ==', tmp_val))
         } #end rules loop
     } # end sub process function ruleProc
 
@@ -645,7 +651,7 @@ applyRules <- function(portfolio,
         # evaluate the rule types in the order listed in the documentation
         # thanks to Aleksandr Rudnev for tracking this down (R-SIG-Finance, 2011-01-25)
         if(is.null(rule.order)){
-            types <- sort(factor(names(strategy$rules), levels=c("pre","risk","order","rebalance","exit","enter","entry","post")))
+            types <- sort(factor(names(strategy$rules), levels=c("pre","risk","order","rebalance","exit","enter","chain","post")))
         } else {
             print("Be aware that order of operations matters, and poor choises in rule order can create unintended consequences.")
             types <- rule.order
@@ -667,13 +673,35 @@ applyRules <- function(portfolio,
                             ruleProc(strategy$rules[[type]],timestamp=timestamp, path.dep=path.dep, mktdata=mktdata,portfolio=portfolio, symbol=symbol, ruletype=type, mktinstr=mktinstr, ...)
                         } else {
                             #(mktdata, portfolio, symbol, timestamp, slippageFUN=NULL)
-                            if (isTRUE(path.dep)){
-				timespan <- format(timestamp, "::%Y-%m-%d %H:%M:%OS6")
-                            } else timespan=NULL
-                            ruleOrderProc(portfolio=portfolio, symbol=symbol, mktdata=mktdata, timespan=timespan, ...)
+
+                            if (isTRUE(path.dep))
+                                timespan <- format(timestamp, "::%Y-%m-%d %H:%M:%OS6")
+                            else
+                                timespan=NULL
+
+                            closed.orders <- ruleOrderProc(portfolio=portfolio, symbol=symbol, mktdata=mktdata, timespan=timespan, ...)
                         }
                     },
-                    rebalance =, exit = , enter = , entry = {
+                    chain = {
+                        if(!is.null(closed.orders))
+                        {
+                            chain.rules <- strategy$rules[[type]]
+                            for(parent in closed.orders[,'Rule'])
+                            {
+                                # there should be a nicer way to do this in R :-) JH
+                                rules <- list()
+                                for(rule in chain.rules)
+                                    if(!is.null(rule$parent) && rule$parent == parent)
+                                        rules = c(rules, list(rule))
+
+                                if(length(rules) > 0)
+                                {
+                                    ruleProc(rules, timestamp=timestamp, path.dep=path.dep, mktdata=mktdata, portfolio=portfolio, symbol=symbol, ruletype=type, mktinstr=mktinstr, ...)
+                                }
+                            }
+                        }
+                    },
+                    rebalance =, exit = , enter = {
                         if(isTRUE(hold)) next()
 #                        if(type=='exit'){
 #                            if(length(strategy$rules$exit)==length(grep('market',strategy$rules$exit))){
