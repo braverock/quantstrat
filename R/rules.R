@@ -408,9 +408,8 @@ applyRules <- function(portfolio,
                 if (!length(grep('limit',ordersubset[oo.idx,'Order.Type']))==0){ # process limit orders
                     #else limit
                     #print("limit")
-                    stoplimitorders <- grep('stoplimit',ordersubset[oo.idx,'Order.Type'])
-                    limitorders<-grep('limit',ordersubset[oo.idx,'Order.Type'])
-                    limitorders <- limitorders[-stoplimitorders]
+                    stoplimitorders <- grep('^stoplimit$',ordersubset[oo.idx,'Order.Type'])
+                    limitorders<-grep('^limit$',ordersubset[oo.idx,'Order.Type'])
 
                     for (slorder in stoplimitorders) {
                         dindex <- get.dindex()
