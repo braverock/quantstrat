@@ -538,7 +538,7 @@ applyRules <- function(portfolio,
                         } 
                         if (tmpqty==0) {
                             #no position, so do some sleight of hand to figure out when the index may be needed
-                            side <- ordersubset[oo.idx[slorder],'Order.Side']
+                            side <- ordersubset[oo.idx[torder],'Order.Side']
                             if(side=='long') tmpqty=-1
                             else tmpqty=1
                         }
