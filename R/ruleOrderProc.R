@@ -222,36 +222,78 @@ ruleOrderProc <- function(portfolio, symbol, mktdata, timespan=NULL, ordertype=N
                         }
                     },
                     stoptrailing = {
-                        # if market moved through my price, execute
-                        if(orderQty > 0){ # positive quantity 'buy'
-                            if(isBBOmktdata) prefer='offer'
-                            if(orderPrice >= getPrice(mktdataTimestamp,prefer=prefer)[,1]){ #TODO maybe use last(getPrice) to catch multiple prints on timestamp?
-                                # price we're willing to pay is higher than the offer price, so execute at the prevailing price
-                                #txnprice = orderPrice
-                                txnprice = as.numeric(getPrice(mktdataTimestamp,prefer=prefer)[,1]) #presumes unique timestamps
-                                txntime = timestamp
-                            } 
-                        } else { # negative quantity 'sell'
-                            if(isBBOmktdata) prefer='bid'
-                            if(orderPrice <= getPrice(mktdataTimestamp,prefer=prefer)[,1]){
-                                # we're willing to sell at a better price than the bid, so execute at the prevailing price
-                                # txnprice = orderPrice
-                                txnprice = as.numeric(getPrice(mktdataTimestamp,prefer=prefer)[,1]) #presumes unique timestamp
-                                txntime = timestamp
-                            } 
-                        } 
-                        if(isOHLCmktdata){
-                            # check to see if price moved through the limit
-                            if( orderPrice > as.numeric(Lo(mktdataTimestamp)) &&
-                                orderPrice < as.numeric(Hi(mktdataTimestamp)) ) 
+                        if(isBBOmktdata)    # TODO BBO needs testing after fixes for OHLC by JH
+                        {
+                            # if market moved through my price, execute
+                            if(orderQty > 0) # positive quantity 'buy'
                             {
-                                txnprice = orderPrice
-                                txntime = timestamp
+                                if(isBBOmktdata) prefer='offer'
+                                if(orderPrice >= getPrice(mktdataTimestamp,prefer=prefer)[,1]){ #TODO maybe use last(getPrice) to catch multiple prints on timestamp?
+                                    # price we're willing to pay is higher than the offer price, so execute at the prevailing price
+                                    #txnprice = orderPrice
+                                    txnprice = as.numeric(getPrice(mktdataTimestamp,prefer=prefer)[,1]) #presumes unique timestamps
+                                    txntime = timestamp
+                                } 
+                            } else { # negative quantity 'sell'
+                                if(isBBOmktdata) prefer='bid'
+                                if(orderPrice <= getPrice(mktdataTimestamp,prefer=prefer)[,1]){
+                                    # we're willing to sell at a better price than the bid, so execute at the prevailing price
+                                    # txnprice = orderPrice
+                                    txnprice = as.numeric(getPrice(mktdataTimestamp,prefer=prefer)[,1]) #presumes unique timestamp
+                                    txntime = timestamp
+                                } 
                             } 
                         }
+                        else if(isOHLCmktdata)
+                        {
+                            # check to see if price moved through the limit
+
+                            order.side <- ordersubset[ii, "Order.Side"]
+
+                            if(order.side == 'long'  && as.numeric(Lo(mktdataTimestamp)) < orderPrice
+                            || order.side == 'short' && as.numeric(Hi(mktdataTimestamp)) > orderPrice)
+                            {
+                                txnprice <- orderPrice
+                                txntime <- timestamp
+                            } 
+                            else
+                            {
+                                # do we need to change the trailing stop?
+
+                                order.threshold <- as.numeric(ordersubset[ii, "Order.Threshold"])
+
+                                if(order.side == 'long')
+                                    new.order.price <- max(orderPrice, as.numeric(Hi(mktdataTimestamp)) + order.threshold)
+                                if(order.side == 'short')
+                                    new.order.price <- min(orderPrice, as.numeric(Lo(mktdataTimestamp)) + order.threshold)
+
+                                if(new.order.price != orderPrice)
+                                {
+                                    # adjust trailing stop
+
+                                    neworder<-addOrder(portfolio=portfolio,
+                                             symbol=symbol,
+                                             timestamp=timestamp,
+                                             qty=orderQty,
+                                             price=new.order.price - order.threshold,
+                                             ordertype=orderType,
+                                             side=order.side,
+                                             threshold=order.threshold,
+                                             status="open",
+                                             replace=FALSE, return=TRUE,
+                                             orderset=ordersubset[ii,"Order.Set"],
+                                             label=ordersubset[ii,"Rule"],
+                                             ,...=..., TxnFees=txnfees)
+                                    if (is.null(neworders)) neworders=neworder else neworders = rbind(neworders,neworder)
+                                    ordersubset[ii,"Order.Status"]<-'replaced'
+                                    ordersubset[ii,"Order.StatusTime"]<-format(timestamp, "%Y-%m-%d %H:%M:%S")
+                                    next()
+                                }
+                            }
+                        }
+
                         # if market is beyond price+(-threshold), replace order
                         if(is.null(txnprice)) { 
-                            #print("here")
                             # we didn't trade, so check to see if we need to move the stop
                             # first figure out how to find a price
                             if (isOHLCmktdata){
@@ -294,6 +336,7 @@ ruleOrderProc <- function(portfolio, symbol, mktdata, timespan=NULL, ordertype=N
                         # else next
                     }
             )
+
             if(!is.null(txnprice) && !isTRUE(is.na(txnprice)))
             {
                 #make sure we don't cross through zero

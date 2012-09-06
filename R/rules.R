@@ -519,7 +519,7 @@ applyRules <- function(portfolio,
 		    }
 		} # end loop over open limit orders
 
-                trailorders<-grep('^stoptrailing$', ordersubset[oo.idx,'Order.Type'])
+        trailorders<-grep('^stoptrailing$', ordersubset[oo.idx,'Order.Type'])
 		for(torder in trailorders)
 		{
 		    dindex<-get.dindex()

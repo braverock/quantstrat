@@ -259,15 +259,10 @@ addOrder <- function(portfolio,
                     stoplimit =, 
                     iceberg =, 
                     stoptrailing = {
-                        if(isTRUE(tmult)){
-                            #set the numeric theshold as threshold*price 
+                        if(isTRUE(tmult))
+                        {
                             if(threshold<1) threshold = price*threshold
-                            else{
-                                #get the difference between the threshold*price and the price
-                                threshold = price-(price*threshold) #positive threshold  
-                            } 
                             tmult=FALSE
-                            #this sets the threshold as a fixed number for later trailing orders 
                         } 
                         price = price+threshold                        
                     }

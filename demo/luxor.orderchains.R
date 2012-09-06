@@ -21,14 +21,15 @@ options(width = 240)
 .timespan = 'T00:00/T23:59'
 
 .stoploss=0.001
-.takeprofit=0.005
+.stoptrailing=0.0015
+.takeprofit=0.003
 
 initDate = '2002-10-21'
 .from='2002-10-21'
 #.to='2008-07-04'
-#.to='2003-12-31'
 .to='2002-10-31'
 #.to='2002-12-31'
+#.to='2003-12-31'
 #.from='2006-01-01'
 #.to='2006-12-31'
 #.from='2007-01-01'
@@ -148,6 +149,43 @@ add.rule(s, name = 'ruleSignal',
 	label='StopLossSHORT'
 )
 
+### stop-trailing
+
+if(TRUE)
+{
+add.rule(s, name = 'ruleSignal',
+	arguments=list(sigcol='long' , sigval=TRUE,
+		replace=FALSE,
+		orderside='long',
+		ordertype='stoptrailing',
+		tmult=TRUE,
+		threshold=-.stoptrailing,
+		TxnFees=.txn,
+		orderqty='all',
+		orderset='ocolong'
+	),
+	type='chain',
+	parent='EnterLONG',
+	label='StopTrailingLONG'
+)
+
+add.rule(s, name = 'ruleSignal',
+	arguments=list(sigcol='short' , sigval=TRUE,
+		replace=FALSE,
+		orderside='short',
+		ordertype='stoptrailing',
+		tmult=TRUE,
+		threshold=.stoptrailing,
+		TxnFees=.txn,
+		orderqty='all',
+		orderset='ocoshort'
+	),
+	type='chain',
+	parent='EnterSHORT',
+	label='StopTrailingSHORT'
+)
+}
+
 ### take-profit
 
 add.rule(s, name = 'ruleSignal',
@@ -221,6 +259,7 @@ add.rule(s, name = 'ruleSignal',
 		TxnFees=0,
 		orderqty=+.qty,
 		osFUN=osMaxPos,
+#		osFUN=osNoOp,
 		orderset='ocolong'
 	),
 	type='enter',
@@ -238,6 +277,7 @@ add.rule(s, name = 'ruleSignal',
 		TxnFees=0,
 		orderqty=-.qty,
 		osFUN=osMaxPos,
+#		osFUN=osNoOp,
 		orderset='ocoshort'
 	),
 	type='enter',
