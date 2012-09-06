@@ -88,11 +88,11 @@ workers <- startWorkers(2)
 registerDoSMP(workers)
 
 #PUT ALL CODE RELATED TO QUANTSTRAT HERE
-		#Example to call the function:  (For complete demo see parameterTestMACD.R)
-		x<-applyParameter(strategy=stratMACD,portfolios=portfolio.st,parameterPool=tPD2,
+     #Example to call the function:  (For complete demo see parameterTestMACD.R)
+     x<-applyParameter(strategy=stratMACD,portfolios=portfolio.st,parameterPool=tPD2,
                   method='random',sampleSize=20,parameterConstraints=pConstraint2)
-		#or
-		x<-applyParameter(strategy=stratMACD,portfolios=portfolio.st,parameterPool=tPD2,
+     #or
+     x<-applyParameter(strategy=stratMACD,portfolios=portfolio.st,parameterPool=tPD2,
                   method='expand',parameterConstraints=pConstraint2)
 
 stopWorkers(workers)

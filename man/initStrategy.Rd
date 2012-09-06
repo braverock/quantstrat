@@ -3,9 +3,9 @@
 \title{run standard and custom strategy initialization functions}
 \usage{
   initStrategy(strategy, portfolio, symbols,
-    get.Symbols = TRUE, init.Portf = TRUE,
-    init.Acct = TRUE, init.Orders = TRUE, unique = TRUE,
-    ...)
+    parameters = NULL, get.Symbols = TRUE,
+    init.Portf = TRUE, init.Acct = TRUE,
+    init.Orders = TRUE, unique = TRUE, ...)
 }
 \arguments{
   \item{strategy}{object of type \code{strategy} to
@@ -15,22 +15,44 @@
 
   \item{symbols}{symbols}
 
-  \item{get.Symbols}{TRUE/FALSE, default TRUE:}
+  \item{parameters}{named list of parameters to be applied
+  during evaluation of the strategy, default NULL}
 
-  \item{init.Portf}{TRUE/FALSE, default TRUE:}
+  \item{get.Symbols}{TRUE/FALSE, default TRUE}
 
-  \item{init.Acct}{TRUE/FALSE, default TRUE:}
+  \item{init.Portf}{TRUE/FALSE, default TRUE}
 
-  \item{init.Orders}{TRUE/FALSE, default TRUE:}
+  \item{init.Acct}{TRUE/FALSE, default TRUE}
 
-  \item{unique}{TRUE/FALSE, default TRUE:}
+  \item{init.Orders}{TRUE/FALSE, default TRUE}
 
-  \item{\dots}{any other passtrhrough parameters}
+  \item{unique}{TRUE/FALSE, default TRUE}
+
+  \item{\dots}{any other passthrough parameters}
 }
 \description{
-  run standard and custom strategy initialization functions
+  \code{initStrategy} will run a series of common
+  initialization functions at the beginning of an
+  \code{\link{applyStrategy}} call.
+}
+\details{
+  \describe{ \item{get.Symbols}{if TRUE, will call
+  \code{\link[quantmod]{getSymbols}} on all symbols
+  included in the \code{symbols} vector}
+  \item{init.Portf}{if TRUE, will call
+  \code{\link[blotter]{initPortf}} to initialize the
+  portfolio object} \item{init.Acct}{if TRUE, will call
+  \code{\link[blotter]{initAccount}} to initialize the
+  account object} \item{init.Orders}{if TRUE, will call
+  \code{\link{initOrders}} to initialize the order book for
+  this test} \item{unique}{not yet implemented, will force
+  a unique portfolio and account name if the portfolio,
+  account, or order book already exist} }
 }
 \author{
   Garrett See, Brian Peterson
+}
+\seealso{
+  \code{\link{applyStrategy}}, \code{\link{add.init}},
 }
 

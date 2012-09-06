@@ -4,9 +4,10 @@
 \usage{
   add.rule(strategy, name, arguments, parameters = NULL,
     label = NULL,
-    type = c(NULL, "risk", "order", "rebalance", "exit", "enter"),
-    ..., enabled = TRUE, indexnum = NULL, path.dep = TRUE,
-    timespan = NULL, store = FALSE, storefun = TRUE)
+    type = c(NULL, "risk", "order", "rebalance", "exit", "enter", "chain"),
+    parent = NULL, ..., enabled = TRUE, indexnum = NULL,
+    path.dep = TRUE, timespan = NULL, store = FALSE,
+    storefun = TRUE)
 }
 \arguments{
   \item{strategy}{an object of type 'strategy' to add the
@@ -25,7 +26,8 @@
   default will be converted to '<name>.rule'}
 
   \item{type}{one of
-  "risk","order","rebalance","exit","enter", see Details}
+  "risk","order","rebalance","exit","enter","chain" see
+  Details}
 
   \item{...}{any other passthru parameters}
 
@@ -75,12 +77,13 @@
   specifically in a portfolio context, unnecessary in
   univariate strategies} \item{exit}{ rules to determine
   whether to exit a position} \item{enter}{ rules to
-  determine whether to enter or increase a position} } The
-  rules will be executed by type, in the order listed
-  above. Multiple rules of each type may be defined, as
-  with signals and indicators, they will be executed in
-  order by index number with any other rules sharing the
-  same type.
+  determine whether to enter or increase a position}
+  \item{chain}{ rules executed upon fill of the
+  corresponding order, identified by label } The rules will
+  be executed by type, in the order listed above. Multiple
+  rules of each type may be defined, as with signals and
+  indicators, they will be executed in order by index
+  number with any other rules sharing the same type.
 
   The rule execution order was constructed because
   path-dependent rules may modify the ability of rules that

@@ -70,11 +70,11 @@
 \dontrun{
 #(For complete demo see parameterTestMACD.R)
 tPD2<-setParameterDistribution(tPD2,'indicator',indexnum=1,
-		distribution=list(nFast=(10:30)),label='nFast')
+     distribution=list(nFast=(10:30)),label='nFast')
 tPD2<-setParameterDistribution(tPD2,'indicator',indexnum=1,
-		distribution=list(nSlow=(20:40)),label='nSlow')
+     distribution=list(nSlow=(20:40)),label='nSlow')
 tPD2<-setParameterDistribution(tPD2,'signal',indexnum=1,
-		distribution=list(relationship=c('gt','gte')),label='sig1.gtgte')
+     distribution=list(relationship=c('gt','gte')),label='sig1.gtgte')
 }
 }
 \author{
