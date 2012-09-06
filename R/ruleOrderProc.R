@@ -69,7 +69,6 @@ ruleOrderProc <- function(portfolio, symbol, mktdata, timespan=NULL, ordertype=N
         timestamp <- time(last(mktdata[timespan]))
         #switch on frequency
         freq = periodicity(mktdata)
-        neworders<-NULL
         mktdataTimestamp <- mktdata[timestamp]
         #str(mktdataTimestamp)
         # Should we only keep the last observation per time stamp?
@@ -214,7 +213,9 @@ ruleOrderProc <- function(portfolio, symbol, mktdata, timespan=NULL, ordertype=N
                                         status="open",
                                         replace=FALSE, return=TRUE,
                                         ,...=..., TxnFees=txnfees)
-                                if (is.null(neworders)) neworders=neworder else neworders = rbind(neworders,neworder)
+
+                                ordersubset<-rbind(ordersubset, neworder)
+
                                 ordersubset[ii,"Order.Status"]<-'replaced'
                                 ordersubset[ii,"Order.StatusTime"]<-format(timestamp, "%Y-%m-%d %H:%M:%S")
                                 next()
@@ -274,7 +275,9 @@ ruleOrderProc <- function(portfolio, symbol, mktdata, timespan=NULL, ordertype=N
                                              status="open",
                                              replace=FALSE, return=TRUE,
                                              ,...=..., TxnFees=txnfees)
-                                    if (is.null(neworders)) neworders=neworder else neworders = rbind(neworders,neworder)
+
+                                    ordersubset<-rbind(ordersubset, neworder)
+
                                     ordersubset[ii,"Order.Status"]<-'replaced'
                                     ordersubset[ii,"Order.StatusTime"]<-format(timestamp, "%Y-%m-%d %H:%M:%S")
                                     next()
@@ -325,7 +328,7 @@ ruleOrderProc <- function(portfolio, symbol, mktdata, timespan=NULL, ordertype=N
                                              label=ordersubset[ii,"Rule"],
                                              ,...=..., TxnFees=txnfees)
 
-                                    if (is.null(neworders)) neworders=neworder else neworders = rbind(neworders,neworder)
+                                    ordersubset<-rbind(ordersubset, neworder)
 
                                     ordersubset[ii,"Order.Status"]<-'replaced'
                                     ordersubset[ii,"Order.StatusTime"]<-format(timestamp, "%Y-%m-%d %H:%M:%S")
@@ -364,11 +367,11 @@ ruleOrderProc <- function(portfolio, symbol, mktdata, timespan=NULL, ordertype=N
                 {
                     ordersubset[OpenInOrderset.i, "Order.Status"] = 'canceled'
                     ordersubset[OpenInOrderset.i, "Order.StatusTime"]<-format(timestamp, "%Y-%m-%d %H:%M:%S")
+
                 } 
             }
         } #end loop over open orders  
-        if(!is.null(neworders)) ordersubset=rbind(ordersubset,neworders)
-        
+  
         # now put the orders back in
         # assign order book back into place (do we need a non-exported "put" function?)
         orderbook[[portfolio]][[symbol]] <- ordersubset
