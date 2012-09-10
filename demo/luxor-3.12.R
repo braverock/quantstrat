@@ -12,4 +12,7 @@ require('blotter')
 
 data('luxor-p066', package='quantstrat', envir=.blotter)
 
+currency(c('GBP', 'USD'))
+exchange_rate(c('GBPUSD'), tick_size=0.0001)
+
 chart.ME('luxor', type='MAE', scale='percent')
