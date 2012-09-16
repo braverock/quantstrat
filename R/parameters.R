@@ -234,7 +234,7 @@ getParameterTable<-function (strategy) #,staticSwitch)
 #' }
 #' 
 #' @param paramDist The object that store the parameter list, if this parameter is missing, or object does not exist, the function will return a new object.
-#' @param type A character string that specifies the type of the parameter, it takes the value in one of 'indicator', 'signal', 'enter', 'exit', 'order'.
+#' @param type A character string that specifies the type of the parameter, it takes the value in one of 'indicator', 'signal', 'enter', 'exit', 'order', 'chain'.
 #' @param indexnum Tells the sequence within the type, (for example: type = 'signal', indexnum =2 tells the function to update the 2nd signal in the strategy)  
 #' @param distribution Distribution of the parameter, can be any function that returns a vector of value. See detail. (A numerical example: 1:10 or sample(1:20,6)
 #' @param weight The weight of each value in the distribution, if missing, the default value of all equal weights will be taken.
@@ -252,7 +252,7 @@ setParameterDistribution<-function(paramDist=NULL,type=NULL,indexnum=0,distribut
 #   else{
     
         if (!is.list(distribution)|length(distribution)!=1) stop("distribution must be passed as a named list of length 1")
-        if (!type %in% c("indicator","signal","enter","exit","order")) stop("Type must be a string in: indicator, signal, enter, exit, order")
+        if (!type %in% c("indicator","signal","enter","exit","order","chain")) stop("Type must be a string in: indicator, signal, enter, exit, order","chain")
         
         tmp_paramDist<-list()
         tmp_paramDist$type<-type
@@ -541,7 +541,12 @@ applyParameter<-function(strategy,portfolios,parameterPool,parameterConstraints,
                             {
                                 PLtmp_strategy$rules$exit[[tmp_index]] = set.param.values(PLtmp_strategy$rules$exit[[tmp_index]], tmp_arg)
                                 PLtmp_strategy$rules$exit[[tmp_index]]$arguments = set.param.values(PLtmp_strategy$rules$exit[[tmp_index]]$arguments, tmp_arg)
-                            }
+                            },
+                            'chain'=
+                            {
+                                PLtmp_strategy$rules$chain[[tmp_index]] = set.param.values(PLtmp_strategy$rules$chain[[tmp_index]], tmp_arg)
+                                PLtmp_strategy$rules$chain[[tmp_index]]$arguments = set.param.values(PLtmp_strategy$rules$chain[[tmp_index]]$arguments, tmp_arg)
+                            },
                     )
                 } #loop j
                 

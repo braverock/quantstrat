@@ -13,7 +13,7 @@
 
   \item{type}{A character string that specifies the type of
   the parameter, it takes the value in one of 'indicator',
-  'signal', 'enter', 'exit', 'order'.}
+  'signal', 'enter', 'exit', 'order', 'chain'.}
 
   \item{indexnum}{Tells the sequence within the type, (for
   example: type = 'signal', indexnum =2 tells the function
