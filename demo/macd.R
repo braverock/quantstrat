@@ -72,7 +72,7 @@ add.rule(strat.st,name='ruleSignal', arguments = list(sigcol="signal.lt.zero",si
 
 getSymbols(stock.str,from=initDate)
 start_t<-Sys.time()
-out<-try(applyStrategy(strat.st , portfolios=portfolio.st,parameters=list(nFast=fastMA, nSlow=slowMA, nSig=signalMA,maType=maType)))
+out<-applyStrategy(strat.st , portfolios=portfolio.st,parameters=list(nFast=fastMA, nSlow=slowMA, nSig=signalMA,maType=maType),verbose=TRUE)
 end_t<-Sys.time()
 print(end_t-start_t)
 
@@ -91,7 +91,7 @@ getOrderBook('macd')
 ###############################################################################
 # R (http://r-project.org/) Quantitative Strategy Model Framework
 #
-# Copyright (c) 2009-2010
+# Copyright (c) 2009-2012
 # Peter Carl, Dirk Eddelbuettel, Brian G. Peterson, Jeffrey Ryan, and Joshua Ulrich 
 #
 # This library is distributed under the terms of the GNU Public License (GPL)

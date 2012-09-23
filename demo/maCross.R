@@ -11,7 +11,7 @@ suppressWarnings(rm("account.st","portfolio.st","stock.str","stratMACROSS","init
 stock.str='AAPL' # what are we trying it on
 currency('USD')
 stock(stock.str,currency='USD',multiplier=1)
-initDate='1999-12-31'
+initDate='2005-12-31'
 initEq=1000000
 portfolio.st='macross'
 account.st='macross'
@@ -57,7 +57,7 @@ add_SMA(n=200, on=1)
 ###############################################################################
 # R (http://r-project.org/) Quantitative Strategy Model Framework
 #
-# Copyright (c) 2009-2010
+# Copyright (c) 2009-2012
 # Peter Carl, Dirk Eddelbuettel, Brian G. Peterson,
 # Jeffrey Ryan, Joshua Ulrich, and Garrett See
 #

@@ -49,4 +49,16 @@ pConstraint<-setParameterConstraint(constraintLabel='PC1',paramList=c('sd','n'),
 
 testPackList<-applyParameter(strategy=stratBBands,portfolios=portfolio.st,parameterPool=tPD,method='random',sampleSize=2,parameterConstraints=pConstraint)
 
+###############################################################################
+# R (http://r-project.org/) Quantitative Strategy Model Framework
+#
+# Copyright (c) 2009-2012
+# Peter Carl, Dirk Eddelbuettel, Brian G. Peterson, Jeffrey Ryan, and Joshua Ulrich 
+#
+# This library is distributed under the terms of the GNU Public License (GPL)
+# for full details see the file COPYING
+#
+# $Id: bbands.R 1097 2012-07-01 00:30:39Z braverock $
+#
+###############################################################################
 

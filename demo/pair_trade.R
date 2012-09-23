@@ -202,7 +202,7 @@ if("package:PerformanceAnalytics" %in% search() || require("PerformanceAnalytics
 ###############################################################################
 # R (http://r-project.org/) Quantitative Strategy Model Framework
 #
-# Package Copyright (c) 2009-2010
+# Package Copyright (c) 2009-2012
 # Peter Carl, Dirk Eddelbuettel, Brian G. Peterson, Jeffrey Ryan, and Joshua Ulrich 
 #
 # This library is distributed under the terms of the GNU Public License (GPL)

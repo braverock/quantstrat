@@ -5,6 +5,8 @@ suppressWarnings(rm("account.st","portfolio.st","stock.str","stratRSI","initDate
 # Initialize a strategy object
 stratRSI <- strategy("RSI")
 
+n=2
+
 # Add an indicator
 stratRSI <- add.indicator(strategy = stratRSI, name = "RSI", arguments = list(price = quote(getPrice(mktdata))), label="RSI")
 
@@ -79,10 +81,19 @@ for(symbol in symbols){
     plot(add_RSI(n=2))
 }
 
+ret1 <- PortfReturns(account.st)
+ret1$total <- rowSums(ret1)
+#ret1
+
+if("package:PerformanceAnalytics" %in% search() || require("PerformanceAnalytics",quietly=TRUE)) {
+    dev.new()
+    charts.PerformanceSummary(ret1$total,geometric=FALSE,wealth.index=TRUE)
+}
+
 ###############################################################################
 # R (http://r-project.org/) Quantitative Strategy Model Framework
 #
-# Copyright (c) 2009-2010
+# Copyright (c) 2009-2012
 # Peter Carl, Dirk Eddelbuettel, Brian G. Peterson, Jeffrey Ryan, and Joshua Ulrich 
 #
 # This library is distributed under the terms of the GNU Public License (GPL)

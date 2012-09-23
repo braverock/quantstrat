@@ -151,7 +151,7 @@ for(symbol in symbols){
 ###############################################################################
 # R (http://r-project.org/) Quantitative Strategy Model Framework
 #
-# Copyright (c) 2009-2010
+# Copyright (c) 2009-2012
 # Peter Carl, Dirk Eddelbuettel, Brian G. Peterson, 
 # Jeffrey Ryan, Joshua Ulrich, and Garrett See
 #
