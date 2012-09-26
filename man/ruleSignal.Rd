@@ -35,8 +35,8 @@
   \item{orderset}{tag to identify an orderset; if one order
   of the set is filled, all others are canceled}
 
-  \item{threshold}{numeric or function threshold to apply
-  to trailing stop orders, default NULL, see Details}
+  \item{threshold}{numeric or name of indicator column in
+  mktdata, default NULL, see Details}
 
   \item{tmult}{if TRUE, threshold is a percent multiplier
   for \code{price}, not a scalar to be added/subtracted
@@ -104,10 +104,8 @@
   \code{threshold} to set the prices for these orders.} }
 
   If \code{threshold} is not numeric or \code{NULL} it
-  should be the character string describing a function that
-  can calculate a threshold. Ideally this will be a column
-  lookup on a non-path-dependent indicator calculated in
-  advance.
+  should be the name of an indicator mktdata column holding
+  the threshold values.
 
   If \code{orderside} is NULL, the function will attempt to
   calculate the side from the current position (if any),
