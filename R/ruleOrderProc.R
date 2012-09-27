@@ -40,7 +40,7 @@
 #' @param symbol identfier of the instrument to find orders for.  The name of any associated price objects (xts prices, usually OHLC or BBO) should match these
 #' @param mktdata an xts object containing market data.  depending on indicators, may need to be in OHLCV or BBO formats, default NULL
 #' @param timespan xts-style character timespan to be the period to find orders to process in
-#' @param ordertype one of NULL, "market","limit","stoplimit", or "stoptrailing" default NULL
+#' @param ordertype one of NULL, "market","limit","stoplimit","stopenter", or "stoptrailing" default NULL
 #' @param ... any other passthru parameters
 #' @param slippageFUN default  NULL, not yet implemented
 #' @seealso add.rule
@@ -137,13 +137,14 @@ ruleOrderProc <- function(portfolio, symbol, mktdata, timespan=NULL, ordertype=N
                     },
                     limit= ,
                     stoplimit =,
+                    stopenter =,
                     iceberg = {
                         if (!isBBOmktdata) { #(isOHLCmktdata){
                             if( orderType == 'iceberg'){
                                 stop("iceberg orders only supported for BBO data")
                             } 
                             # check to see if price moved through the limit                        
-                            if((orderQty > 0 && orderType != 'stoplimit') || (orderQty < 0 && orderType == 'stoplimit') ) {  
+                            if((orderQty > 0 && orderType != 'stoplimit' && orderType != 'stopenter') || (orderQty < 0 && (orderType=='stoplimit' || orderType=='stopenter'))) {
                                 # buy limit, or sell stoplimit
                                 if( (has.Lo(mktdata) && orderPrice > as.numeric(Lo(mktdataTimestamp))) || 
                                     (!has.Lo(mktdata) && orderPrice >= as.numeric(getPrice(mktdataTimestamp, prefer=prefer))))
@@ -151,7 +152,7 @@ ruleOrderProc <- function(portfolio, symbol, mktdata, timespan=NULL, ordertype=N
                                     txnprice = orderPrice
                                     txntime = timestamp
                                 } else next() # price did not move through my order, should go to next order  
-                            } else if((orderQty < 0 && orderType != 'stoplimit') || (orderQty > 0 && orderType == 'stoplimit')) { 
+                            } else if((orderQty < 0 && orderType != 'stoplimit' && orderType != 'stopenter') || (orderQty > 0 && (orderType=='stoplimit' || orderType=='stopenter'))) { 
                                 # sell limit or buy stoplimit
                                 if ( (has.Hi(mktdata) && orderPrice < as.numeric(Hi(mktdataTimestamp))) ||
                                      (!has.Hi(mktdata) && orderPrice <= as.numeric(getPrice(mktdataTimestamp,prefer=prefer))) )

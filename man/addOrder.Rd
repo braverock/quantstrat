@@ -25,12 +25,13 @@
   inserted}
 
   \item{ordertype}{one of "market","limit","stoplimit",
-  "stoptrailing",or "iceberg"}
+  "stoptrailing", "stopenter", or "iceberg"}
 
   \item{side}{one of either "long" or "short"}
 
   \item{threshold}{numeric threshold to apply to limit,
-  stoplimit, stoptrailing and iceberg orders, default NULL}
+  stoplimit, stoptrailing, stopenter and iceberg orders,
+  default NULL}
 
   \item{orderset}{set a tag identifying the orderset}
 
@@ -121,15 +122,20 @@
   relation to the threshold, and will result in fewer
   unintended consequences and more understandable behavior.
 
-  The 'limit', 'stoplimit', 'stoptrailing' and 'iceberg'
-  order types are the only order types that make use of the
-  order \code{threshold}. Scalar thresholds
-  \code{tmult=FALSE} on stoplimit or stoptrailing orders
-  will be added to the current market price to set the
-  limit price.  In other worlds, a scalar threshold is the
-  difference either positive or negative from the current
-  price when the order is entered. With a stoptrailing
-  order, the order may be moved ("replaced") frequently.
+  We have also modeled a 'stopenter' order, which will
+  enter a position when current price + threshold is being
+  triggered.
+
+  The 'limit', 'stoplimit', 'stoptrailing', 'stopenter' and
+  'iceberg' order types are the only order types that make
+  use of the order \code{threshold}. Scalar thresholds
+  \code{tmult=FALSE} on stoplimit, stoptrailing or
+  stopenter orders will be added to the current market
+  price to set the limit price.  In other worlds, a scalar
+  threshold is the difference either positive or negative
+  from the current price when the order is entered. With a
+  stoptrailing order, the order may be moved ("replaced")
+  frequently.
 
   Some markets and brokers recognize a stop that triggers a
   market order, when the stop is triggered, a market order

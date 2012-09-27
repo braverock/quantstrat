@@ -22,8 +22,8 @@
   period to find orders to process in}
 
   \item{ordertype}{one of NULL,
-  "market","limit","stoplimit", or "stoptrailing" default
-  NULL}
+  "market","limit","stoplimit","stopenter", or
+  "stoptrailing" default NULL}
 
   \item{...}{any other passthru parameters}
 

@@ -19,8 +19,8 @@
   period to find orders of the given status and ordertype}
 
   \item{ordertype}{one of NULL,
-  "market","limit","stoplimit", or "stoptrailing" default
-  NULL}
+  "market","limit","stoplimit","stopenter" or
+  "stoptrailing" default NULL}
 
   \item{side}{one of NULL, "long" or "short", default NULL}
 
