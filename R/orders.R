@@ -260,9 +260,19 @@ addOrder <- function(portfolio,
                     stoptrailing = {
                         if(isTRUE(tmult))
                         {
-                            if(threshold<1) threshold = price*threshold
+                            threshold = price*threshold
                             tmult=FALSE
                         } 
+                        if(!is.null(side)&& ordertype!='iceberg'){
+                            #check to make sure the order wouldn't instantly cross, reverse threshold if that's the case
+                            if(side=='long') {
+                                #this is a stop exit, so it will sell *lower* than the current market
+                                if(price+threshold>price) threshold=-threshold 
+                            } else { #side=='short'
+                                #this is a stop exit, so it will buy *higher* than the current market
+                                if(price+threshold<price) threshold=-threshold 
+                            }
+                        }
                         price = price+threshold                        
                     }
             ) #end type switch
