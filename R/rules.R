@@ -258,79 +258,8 @@ applyRules <- function(portfolio,
     
     Dates=unique(index(mktdata)) # should this be index() instead?  
     
-    ruleProc <- function (ruletypelist,timestamp=NULL, path.dep, ruletype, ...){
-        for (rule in ruletypelist){
-            #TODO check to see if they've already been calculated
-            if (!rule$path.dep==path.dep) next()
-            if(!is.function(rule$name)) {
-                if(!is.function(get(rule$name))){
-                    if(!is.function(get(paste("sig",rule$name,sep='.')))){
-                        message(paste("Skipping rule",rule$name,"because there is no function by that name to call"))
-                        next()      
-                    } else {
-                        rule$name<-paste("sig",rule$name,sep='.')
-                    }
-                }   
-            }
-            
-            if(!isTRUE(rule$enabled)) next()
-            
-            # check to see if we should run in this timespan
-            if(!is.null(rule$timespan) && nrow(mktdata[timestamp][rule$timespan])==0) next()
-
-            # see 'S Programming' p. 67 for this matching
-            if(is.function(rule$name)) fun <- rule$name
-            else fun<-match.fun(rule$name)
-            
-            nargs <-list(...)
-            if(length(nargs)==0) nargs=NULL
-            if (length('...')==0 | is.null('...')) {
-                rm('...')
-                nargs=NULL
-            }
-
-            .formals  <- formals(fun)
-            
-            onames <- names(.formals)
-            rule$arguments$timestamp = timestamp
-            rule$arguments$ruletype  = ruletype
-            rule$arguments$label = rule$label
-            pm <- pmatch(names(rule$arguments), onames, nomatch = 0L)
-            # if (any(pm == 0L)) message(paste("some arguments stored for",rule$name,"do not match"))
-            names(rule$arguments[pm > 0L]) <- onames[pm]
-            .formals[pm] <- rule$arguments[pm > 0L]
-
-            # now add arguments from parameters
-            if(length(parameters)){
-                pm <- pmatch(names(parameters), onames, nomatch = 0L)
-                names(parameters[pm > 0L]) <- onames[pm]
-                .formals[pm] <- parameters[pm > 0L]
-            }
-
-            #now add dots
-            if (length(nargs)) {
-                pm <- pmatch(names(nargs), onames, nomatch = 0L)
-                names(nargs[pm > 0L]) <- onames[pm]
-                .formals[pm] <- nargs[pm > 0L]
-            }
-            .formals$... <- NULL
-
-            # any rule-specific prefer-parameters should override global prefer parameter
-            if(!is.null(rule$arguments$prefer)) .formals$prefer = rule$arguments$prefer
-            
-            tmp_val<-do.call(fun,.formals)
-
-            mktdata <<- mktdata
-            ret <<- ret
-            hold <<- hold #TODO FIXME hold processing doesn't work unless custom rule has set it with <<-
-            holdtill <<- holdtill 
-            
-#            print(paste('tmp_val ==', tmp_val))
-        } #end rules loop
-    } # end sub process function ruleProc
-
     #we could maybe do something more sophisticated, but this should work
-    if(isTRUE(path.dep)){
+    if(isTRUE(path.dep)){ #initialize the dimension reduction index (dindex)
         dindex<-c(1,length(Dates))# -1) # set the dimension reduction/loop jumping index vector
         assign.dindex(dindex)
         #pre-process for dimension reduction here
@@ -650,7 +579,7 @@ applyRules <- function(portfolio,
         if(is.null(rule.order)){
             types <- sort(factor(names(strategy$rules), levels=c("pre","risk","order","rebalance","exit","enter","chain","post")))
         } else {
-            print("Be aware that order of operations matters, and poor choises in rule order can create unintended consequences.")
+            print("Be aware that order of operations matters, and poor choices in rule order can create unintended consequences.")
             types <- rule.order
         }
         for ( type in types ) {
@@ -687,10 +616,10 @@ applyRules <- function(portfolio,
                             {
                                 # there should be a nicer way to do this in R :-) JH
                                 rules <- list()
-                                for(rule in chain.rules)
+                                for(rule in chain.rules) {
                                     if(!is.null(rule$parent) && rule$parent == parent)
                                         rules = c(rules, list(rule))
-
+                                }
                                 if(length(rules) > 0)
                                 {
                                     ruleProc(rules, timestamp=timestamp, path.dep=path.dep, mktdata=mktdata, portfolio=portfolio, symbol=symbol, ruletype=type, mktinstr=mktinstr, ...)
@@ -698,15 +627,9 @@ applyRules <- function(portfolio,
                             }
                         }
                     },
-                    rebalance =, exit = , enter = {
+                    exit = , enter = {
                         if(isTRUE(hold)) next()
-#                        if(type=='exit'){
-#                            if(length(strategy$rules$exit)==length(grep('market',strategy$rules$exit))){
-#                                # all exit orders are of type 'market'
-#                                # so we must have a position for exit rules to fire / be evaluated
-#                                if (getPosQty(Portfolio=portfolio,Symbol=symbol,Date=timestamp)==0) next()
-#                            }
-#                        }
+
                         if(length(strategy$rules[[type]])>=1) {
                             ruleProc(strategy$rules[[type]],timestamp=timestamp, path.dep=path.dep, mktdata=mktdata,portfolio=portfolio, symbol=symbol, ruletype=type, mktinstr=mktinstr, ...)
                         }
@@ -737,6 +660,78 @@ applyRules <- function(portfolio,
     else return(ret)
 }
 
+# private function ruleProc, used by applyRules and applyStrategy.rebalancing
+ruleProc <- function (ruletypelist,timestamp=NULL, path.dep, ruletype, ...){
+    for (rule in ruletypelist){
+        #TODO check to see if they've already been calculated
+        if (!rule$path.dep==path.dep) next()
+        if(!is.function(rule$name)) {
+            if(!is.function(get(rule$name))){
+                if(!is.function(get(paste("sig",rule$name,sep='.')))){
+                    message(paste("Skipping rule",rule$name,"because there is no function by that name to call"))
+                    next()      
+                } else {
+                    rule$name<-paste("sig",rule$name,sep='.')
+                }
+            }   
+        }
+        
+        if(!isTRUE(rule$enabled)) next()
+        
+        # check to see if we should run in this timespan
+        if(!is.null(rule$timespan) && nrow(mktdata[timestamp][rule$timespan])==0) next()
+        
+        # see 'S Programming' p. 67 for this matching
+        if(is.function(rule$name)) fun <- rule$name
+        else fun<-match.fun(rule$name)
+        
+        nargs <-list(...)
+        if(length(nargs)==0) nargs=NULL
+        if (length('...')==0 | is.null('...')) {
+            rm('...')
+            nargs=NULL
+        }
+        
+        .formals  <- formals(fun)
+        
+        onames <- names(.formals)
+        rule$arguments$timestamp = timestamp
+        rule$arguments$ruletype  = ruletype
+        rule$arguments$label = rule$label
+        pm <- pmatch(names(rule$arguments), onames, nomatch = 0L)
+        # if (any(pm == 0L)) message(paste("some arguments stored for",rule$name,"do not match"))
+        names(rule$arguments[pm > 0L]) <- onames[pm]
+        .formals[pm] <- rule$arguments[pm > 0L]
+        
+        # now add arguments from parameters
+        if(length(parameters)){
+            pm <- pmatch(names(parameters), onames, nomatch = 0L)
+            names(parameters[pm > 0L]) <- onames[pm]
+            .formals[pm] <- parameters[pm > 0L]
+        }
+        
+        #now add dots
+        if (length(nargs)) {
+            pm <- pmatch(names(nargs), onames, nomatch = 0L)
+            names(nargs[pm > 0L]) <- onames[pm]
+            .formals[pm] <- nargs[pm > 0L]
+        }
+        .formals$... <- NULL
+        
+        # any rule-specific prefer-parameters should override global prefer parameter
+        if(!is.null(rule$arguments$prefer)) .formals$prefer = rule$arguments$prefer
+        
+        tmp_val<-do.call(fun,.formals)
+        
+        mktdata <<- mktdata
+        ret <<- ret
+        hold <<- hold #TODO FIXME hold processing doesn't work unless custom rule has set it with <<-
+        holdtill <<- holdtill 
+        
+#            print(paste('tmp_val ==', tmp_val))
+    } #end rules loop
+} # end sub process function ruleProc
+
 ###############################################################################
 # R (http://r-project.org/) Quantitative Strategy Model Framework
 #
@@ -750,4 +745,3 @@ applyRules <- function(portfolio,
 # $Id$
 #
 ###############################################################################
-
