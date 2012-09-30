@@ -15,8 +15,9 @@
 #'   \item{rebalance}{ rules executed specifically in a portfolio context, unnecessary in univariate strategies}
 #'   \item{exit}{ rules to determine whether to exit a position}
 #'   \item{enter}{ rules to determine whether to enter or increase a position}
-#'   \item{chain}{ rules executed upon fill of the corresponding order, identified by label
-#' }  
+#'   \item{chain}{ rules executed upon fill of the corresponding order, identified by label }
+#' } 
+#'  
 #' The rules will be executed by type, in the order listed above.  
 #' Multiple rules of each type may be defined, as with signals and indicators, 
 #' they will be executed in order by index number with any other rules sharing the same 
@@ -56,8 +57,8 @@
 #' and \code{sigval}.  If these are present and function in a manner similar to 
 #' \code{\link{ruleSignal}} we can do some preprocessing to significantly reduce the 
 #' dimensionality of the index we need to loop over.  The speedup is the ratio of 
-#' (symbols*total observations)/signal observations, so it can be significant for many strategies.
-#'    
+#' (symbols\*total observations)/signal observations, so it can be significant for many strategies.
+#' 
 #' @param strategy an object of type 'strategy' to add the rule to
 #' @param name name of the rule, must correspond to an R function
 #' @param arguments named list of default arguments to be passed to an rule function when executed
@@ -586,17 +587,17 @@ applyRules <- function(portfolio,
             switch( type ,
                     pre = {
                         if(length(strategy$rules[[type]])>=1){
-                            ruleProc(strategy$rules$pre,timestamp=timestamp, path.dep=path.dep, mktdata=mktdata,portfolio=portfolio, symbol=symbol, ruletype=type, mktinstr=mktinstr, ...)
+                            ruleProc(strategy$rules$pre,timestamp=timestamp, path.dep=path.dep, mktdata=mktdata,portfolio=portfolio, symbol=symbol, ruletype=type, mktinstr=mktinstr, parameters=parameters, ...)
                         }
                     },
                     risk = {
                         if(length(strategy$rules$risk)>=1){
-                            ruleProc(strategy$rules$risk,timestamp=timestamp, path.dep=path.dep, mktdata=mktdata,portfolio=portfolio, symbol=symbol, ruletype=type, mktinstr=mktinstr, ...)
+                            ruleProc(strategy$rules$risk,timestamp=timestamp, path.dep=path.dep, mktdata=mktdata,portfolio=portfolio, symbol=symbol, ruletype=type, mktinstr=mktinstr,parameters=parameters, ...)
                         }
                     },
                     order = {
                         if(length(strategy$rules[[type]])>=1) {
-                            ruleProc(strategy$rules[[type]],timestamp=timestamp, path.dep=path.dep, mktdata=mktdata,portfolio=portfolio, symbol=symbol, ruletype=type, mktinstr=mktinstr, ...)
+                            ruleProc(strategy$rules[[type]],timestamp=timestamp, path.dep=path.dep, mktdata=mktdata,portfolio=portfolio, symbol=symbol, ruletype=type, mktinstr=mktinstr, parameters=parameters, ...)
                         } else {
                             #(mktdata, portfolio, symbol, timestamp, slippageFUN=NULL)
 
@@ -622,7 +623,7 @@ applyRules <- function(portfolio,
                                 }
                                 if(length(rules) > 0)
                                 {
-                                    ruleProc(rules, timestamp=timestamp, path.dep=path.dep, mktdata=mktdata, portfolio=portfolio, symbol=symbol, ruletype=type, mktinstr=mktinstr, ...)
+                                    ruleProc(rules, timestamp=timestamp, path.dep=path.dep, mktdata=mktdata, portfolio=portfolio, symbol=symbol, ruletype=type, mktinstr=mktinstr, parameters=parameters, ...)
                                 }
                             }
                         }
@@ -631,7 +632,7 @@ applyRules <- function(portfolio,
                         if(isTRUE(hold)) next()
 
                         if(length(strategy$rules[[type]])>=1) {
-                            ruleProc(strategy$rules[[type]],timestamp=timestamp, path.dep=path.dep, mktdata=mktdata,portfolio=portfolio, symbol=symbol, ruletype=type, mktinstr=mktinstr, ...)
+                            ruleProc(strategy$rules[[type]],timestamp=timestamp, path.dep=path.dep, mktdata=mktdata,portfolio=portfolio, symbol=symbol, ruletype=type, mktinstr=mktinstr, parameters=parameters, ...)
                         }
                         if(isTRUE(path.dep) && length(getOrders(portfolio=portfolio, symbol=symbol, status="open", timespan=timestamp,which.i=TRUE))) {
                             ## TODO FIXME this doesn't appear to work correctly
@@ -644,7 +645,7 @@ applyRules <- function(portfolio,
                     post = {
                         #TODO do we process for hold here, or not?
                         if(length(strategy$rules$post)>=1) {
-                            ruleProc(strategy$rules$post,timestamp=timestamp, path.dep=path.dep, mktdata=mktdata,portfolio=portfolio, symbol=symbol, ruletype=type, mktinstr=mktinstr, ...)
+                            ruleProc(strategy$rules$post,timestamp=timestamp, path.dep=path.dep, mktdata=mktdata,portfolio=portfolio, symbol=symbol, ruletype=type, mktinstr=mktinstr, parameters=parameters, ...)
                         }
                     }
             ) # end switch
@@ -661,7 +662,8 @@ applyRules <- function(portfolio,
 }
 
 # private function ruleProc, used by applyRules and applyStrategy.rebalancing
-ruleProc <- function (ruletypelist,timestamp=NULL, path.dep, ruletype, ...){
+ruleProc <- function (ruletypelist,timestamp=NULL, path.dep, ruletype, ..., parameters=NULL){
+    
     for (rule in ruletypelist){
         #TODO check to see if they've already been calculated
         if (!rule$path.dep==path.dep) next()
@@ -679,7 +681,7 @@ ruleProc <- function (ruletypelist,timestamp=NULL, path.dep, ruletype, ...){
         if(!isTRUE(rule$enabled)) next()
         
         # check to see if we should run in this timespan
-        if(!is.null(rule$timespan) && nrow(mktdata[timestamp][rule$timespan])==0) next()
+        if(!is.null(rule$timespan) && nrow(rule.env$mktdata[timestamp][rule$timespan])==0) next()
         
         # see 'S Programming' p. 67 for this matching
         if(is.function(rule$name)) fun <- rule$name
@@ -722,12 +724,7 @@ ruleProc <- function (ruletypelist,timestamp=NULL, path.dep, ruletype, ...){
         if(!is.null(rule$arguments$prefer)) .formals$prefer = rule$arguments$prefer
         
         tmp_val<-do.call(fun,.formals)
-        
-        mktdata <<- mktdata
-        ret <<- ret
-        hold <<- hold #TODO FIXME hold processing doesn't work unless custom rule has set it with <<-
-        holdtill <<- holdtill 
-        
+                
 #            print(paste('tmp_val ==', tmp_val))
     } #end rules loop
 } # end sub process function ruleProc
