@@ -79,11 +79,13 @@
   whether to exit a position} \item{enter}{ rules to
   determine whether to enter or increase a position}
   \item{chain}{ rules executed upon fill of the
-  corresponding order, identified by label } The rules will
-  be executed by type, in the order listed above. Multiple
-  rules of each type may be defined, as with signals and
-  indicators, they will be executed in order by index
-  number with any other rules sharing the same type.
+  corresponding order, identified by label } }
+
+  The rules will be executed by type, in the order listed
+  above. Multiple rules of each type may be defined, as
+  with signals and indicators, they will be executed in
+  order by index number with any other rules sharing the
+  same type.
 
   The rule execution order was constructed because
   path-dependent rules may modify the ability of rules that
@@ -130,7 +132,7 @@
   \code{\link{ruleSignal}} we can do some preprocessing to
   significantly reduce the dimensionality of the index we
   need to loop over.  The speedup is the ratio of
-  (symbols*total observations)/signal observations, so it
+  (symbols\*total observations)/signal observations, so it
   can be significant for many strategies.
 }
 

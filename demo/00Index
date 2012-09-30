@@ -5,13 +5,15 @@ macd       example of Moving Average Convergence/Divergence (MACD) used as a tre
 maCross    classic 'Golden Cross' 50/200 period moving average cross strategy, long only, with long/short extra rules commented out
 pair_trade simple two-instrument long-short equity strategy demonstrating custom indicator and extended order sizing functionality
 rsi        Relative Strength Index (RSI) strategy demonstrating long-only threshold actions
+bee        Milktrader's Bumblebee FastMA/BBands cross system
 bbandParameters  example of parameter test on bbands demo strategy
 macdParameters  example of parameter test on macd demo strategy
-luxor.1.R  Jaekle&Tomasini: Paragraph 3.2: luxor without any optimizations
-luxor.2.R  Jaekle&Tomasini: Paragraph 3.2: luxor with $30 slippage and transaction costs
-luxor.3.R  Jaekle&Tomasini: Paragraph 3.3 Variation of the input parameters: optimisation and stability diagrams
-luxor.3.Parameters.R  Jaekle&Tomasini: Paragraph 3.3 Variation of the input parameters: optimisation and stability diagrams / scan
-luxor.3.Parameters.tradeGraphs.R  Jaekle&Tomasini: 3D graphs of results for sma scan
-luxor.4.R  Jaekle&Tomasini: Paragraph 3.4: inserting an intraday time filter
-luxor.4.Timespans.R  Jaekle&Tomasini: Paragraph 3.4: inserting an intraday time filter / scan
-luxor.4.Timespan.tradeGraphs.R  Jaekle&Tomasini: 3D graphs of results for timespan scan
+luxor.1  Tomasini & Jaekle: Section 3.2: luxor without any optimizations
+luxor.2  Tomasini & Jaekle: Section 3.2: luxor with $30 slippage and transaction costs
+luxor.3  Tomasini & Jaekle: Section 3.3 Variation of the input parameters: optimization and stability diagrams
+luxor.3.Parameters  Tomasini & Jaekle: Section 3.3 Variation of the input parameters: optimization and stability diagrams / scan
+luxor.3.Parameters.tradeGraphs  Tomasini & Jaekle: 3D graphs of results for SMA scan
+luxor.4  Tomasini & Jaekle: Section 3.4: inserting an intraday time filter
+luxor.4.Timespans  Tomasini & Jaekle: Section 3.4: inserting an intraday time filter / scan
+luxor.4.Timespan.tradeGraphs  Tomasini & Jaekle: 3D graphs of results for timespan scan
+loxor.orderchains   Tomasini & Jaekle: adding order chain logic conditional on fills
