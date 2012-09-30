@@ -16,18 +16,3 @@ Description: Specify, build, and back-test quantitative
 Contributors: Yu Chen, Joe Dunn, Jan Humme
 LazyLoad: yes
 License: GPL-3
-Collate:
-    'applyStrategy.rebalancing.R'
-    'indicators.R'
-    'initialize.R'
-    'match.names.R'
-    'orders.R'
-    'osFUNs.R'
-    'parameters.R'
-    'ruleOrderProc.R'
-    'ruleSignal.R'
-    'rules.R'
-    'signals.R'
-    'strategy.R'
-    'tradeGraphs.R'
-    'wrapup.R'
