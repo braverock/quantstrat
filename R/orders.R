@@ -70,7 +70,7 @@ initOrders <- function(portfolio=NULL, symbols=NULL, initDate = '1999-12-31', ..
 #' @param symbol identfier of the instrument to find orders for.  The name of any associated price objects (xts prices, usually OHLC) should match these
 #' @param status one of "open", "closed", "canceled", or "replaced", default "open"
 #' @param timespan xts-style character timespan to be the period to find orders of the given status and ordertype
-#' @param ordertype one of NULL, "market","limit","stoplimit", "stoptrailing", "stopenter", or "iceberg" default NULL
+#' @param ordertype one of NULL, "market","limit","stoplimit", "stoptrailing" or "iceberg" default NULL
 #' @param side one of NULL, "long" or "short", default NULL 
 #' @param qtysign one of NULL, -1,0,1 ; could be useful when all qty's are reported as positive numbers and need to be identified other ways, default NULL
 #' @param orderset a tag identifying the orderset
@@ -90,8 +90,8 @@ getOrders <- function(portfolio,symbol,status="open",timespan=NULL,ordertype=NUL
     #data quality checks
     if(!is.null(status) & !length(grep(status,c("open", "closed", "canceled","replaced")))==1) stop(paste("order status:",status,' must be one of "open", "closed", "canceled", or "replaced"'))
     if(!is.null(ordertype)) {
-        if(is.na(charmatch(ordertype,c("market","limit","stoplimit","stoptrailing","stopenter","iceberg")))){
-            stop(paste("ordertype:",ordertype,' must be one of "market","limit","stoplimit", "stoptrailing", "stopenter", or "iceberg"'))
+        if(is.na(charmatch(ordertype,c("market","limit","stoplimit","stoptrailing","iceberg")))){
+            stop(paste("ordertype:",ordertype,' must be one of "market","limit","stoplimit", "stoptrailing" or "iceberg"'))
         }
     }
 
@@ -152,11 +152,8 @@ getOrders <- function(portfolio,symbol,status="open",timespan=NULL,ordertype=NUL
 #' than growing or shrinking the threshold distance from the current market price in relation to the threshold,
 #' and will result in fewer unintended consequences and more understandable behavior.
 #' 
-#' We have also modeled a 'stopenter' order, which will enter a position when current price + threshold is being
-#' triggered.
-#'
-#' The 'limit', 'stoplimit', 'stoptrailing', 'stopenter' and 'iceberg' order types are the only order types that make
-#' use of the order \code{threshold}. Scalar thresholds \code{tmult=FALSE} on stoplimit, stoptrailing or stopenter orders
+#' The 'limit', 'stoplimit', 'stoptrailing' and 'iceberg' order types are the only order types that make
+#' use of the order \code{threshold}. Scalar thresholds \code{tmult=FALSE} on stoplimit or stoptrailing orders
 #' will be added to the current market price to set the limit price.  In other worlds, a scalar threshold
 #' is the difference either positive or negative from the current price when the order is entered. With a
 #' stoptrailing order, the order may be moved ("replaced") frequently.
@@ -198,9 +195,9 @@ getOrders <- function(portfolio,symbol,status="open",timespan=NULL,ordertype=NUL
 #' @param timestamp timestamp coercible to POSIXct that will be the time to search for orders before this time 
 #' @param qty numeric quantity of the order
 #' @param price numeric price at which the order is to be inserted
-#' @param ordertype one of "market","limit","stoplimit", "stoptrailing", "stopenter", or "iceberg"
+#' @param ordertype one of "market","limit","stoplimit", "stoptrailing" or "iceberg"
 #' @param side one of either "long" or "short" 
-#' @param threshold numeric threshold to apply to limit, stoplimit, stoptrailing, stopenter and iceberg orders, default NULL
+#' @param threshold numeric threshold to apply to limit, stoplimit, stoptrailing and iceberg orders, default NULL
 #' @param orderset set a tag identifying the orderset
 #' @param status one of "open", "closed", "canceled", or "replaced", default "open"
 #' @param statustimestamp timestamp of a status update, will be blank when order is initiated 
@@ -252,41 +249,54 @@ addOrder <- function(portfolio,
     #if(price==0) warning(paste(ordertype, "order for", qty, "has a price of zero."))
 
     if(!is.null(side) & !length(grep(side,c('long','short')))==1) stop(paste("side:",side," must be one of 'long' or 'short'"))
-    if(is.na(charmatch(ordertype,c("market","limit","stoplimit","stoptrailing","stopenter","iceberg")))) stop(paste("ordertype:",ordertype,' must be one of "market","limit","stoplimit","stoptrailing", "stopenter" or"iceberg"'))
-    if(!is.null(threshold) & length(price)>=1 ) {
-        if(length(grep(paste("^",ordertype,"$",sep=""),c("limit","stoplimit","stoptrailing","stopenter","iceberg")))==1) {
+    if(is.na(charmatch(ordertype,c("market","limit","stoplimit","stoptrailing","iceberg")))) stop(paste("ordertype:",ordertype,' must be one of "market","limit","stoplimit","stoptrailing" or "iceberg"'))
+    if(!is.null(threshold) & length(price)>=1 )
+    {
+        if(length(grep(paste("^",ordertype,"$",sep=""),c("limit","stoplimit","stoptrailing","iceberg")))==1)
+        {
             #we have a threshold set on a stop* order, process it
             switch(ordertype,
-                    limit =, 
-                    stoplimit =, 
-                    iceberg =, 
-                    stoptrailing =,
-                    stopenter = {
-                        if(isTRUE(tmult))
-                        {
-                            threshold = price*threshold
-                            tmult=FALSE
-                        } 
-                        if(!is.null(side)&& ordertype!='iceberg' && ordertype!='limit'){
-                            #check to make sure the order wouldn't instantly cross, reverse threshold if that's the case
-                            if(side=='long') {
-                                if(ordertype=='stopenter') {
-                                    if(price+threshold<price) threshold=-threshold 
-                                } else {
-                                    #this is a stop exit, so it will sell *lower* than the current market
-                                    if(price+threshold>price) threshold=-threshold 
+                limit =, 
+                iceberg =, 
+                stoplimit =, 
+                stoptrailing = {
+                    if(isTRUE(tmult))
+                    {
+                        threshold = price*threshold
+                        tmult=FALSE
+                    } 
+                    if(!is.null(side))
+                    {
+                        switch(ordertype,
+                            limit = {
+                                if(qty == 'all' && side == 'long' || qty != 'all' && as.numeric(qty) < 0) # SELL
+                                {
+                                    #this is a limit exit, so it will sell *higher* than the current market
+                                    if(threshold < 0) threshold = -threshold
                                 }
-                            } else { #side=='short'
-                                if(ordertype=='stopenter') {
-                                    if(price+threshold>price) threshold=-threshold 
-                                } else {
+                                else    # BUY
+                                {
+                                    #this is a limit exit, so it will buy *lower* than the current market
+                                    if(threshold > 0) threshold = -threshold
+                                }
+                            },
+                            stoplimit =,
+                            stoptrailing = {
+                                if(qty == 'all' && side == 'long' || qty != 'all' && as.numeric(qty) < 0) # SELL
+                                {
+                                    #this is a stop exit, so it will sell *lower* than the current market
+                                    if(threshold > 0) threshold = -threshold
+                                }
+                                else    # BUY
+                                {
                                     #this is a stop exit, so it will buy *higher* than the current market
-                                    if(price+threshold<price) threshold=-threshold 
+                                    if(threshold < 0) threshold = -threshold
                                 }
                             }
-                        }
-                        price = price+threshold                        
+                        )
                     }
+                    price = price+threshold                        
+                }
             ) #end type switch
         } else {
             stop(paste("Threshold may only be applied to a limit, stop or iceberg order type",ordertype,threshold))
@@ -389,7 +399,7 @@ addOrder <- function(portfolio,
 #' @param portfolio text name of the portfolio to associate the order book with
 #' @param symbol identfier of the instrument to find orders for.  The name of any associated price objects (xts prices, usually OHLC) should match these
 #' @param timespan xts-style character timespan to be the period to find orders of the given status and ordertype 
-#' @param ordertype one of NULL, "market","limit","stoplimit","stopenter" or "stoptrailing" default NULL
+#' @param ordertype one of NULL, "market","limit","stoplimit" or "stoptrailing" default NULL
 #' @param side one of NULL, "long" or "short", default NULL 
 #' @param qtysign one of NULL, -1,0,1 ; could be useful when all qty's are reported as positive numbers and need to be identified other ways, default NULL
 #' @param orderset set a tag identifying the orderset
@@ -422,8 +432,8 @@ updateOrders <- function(portfolio,
         stop(paste("side:",side," must be one of 'long' or 'short'"))
     if(!is.null(qtysign) && (qtysign != -1 && qtysign != 1 && qtysign != 0))
         stop(paste("qtysign:",qtysign," must be one of NULL, -1, 0, or 1"))
-    if(!is.null(ordertype) && is.na(charmatch(ordertype,c("market","limit","stoplimit","stoptrailing","stopenter","iceberg")))) 
-        stop(paste("ordertype:",ordertype,' must be one of "market","limit","stoplimit","stoptrailing","stopenter", or "iceberg"'))
+    if(!is.null(ordertype) && is.na(charmatch(ordertype,c("market","limit","stoplimit","stoptrailing","iceberg")))) 
+        stop(paste("ordertype:",ordertype,' must be one of "market","limit","stoplimit","stoptrailing" or "iceberg"'))
     if(!is.null(orderset) && newstatus=='replaced'){
         #replace any outstanding orders for this orderset
         ordertype=NULL

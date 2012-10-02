@@ -40,7 +40,7 @@
 #' @param symbol identfier of the instrument to find orders for.  The name of any associated price objects (xts prices, usually OHLC or BBO) should match these
 #' @param mktdata an xts object containing market data.  depending on indicators, may need to be in OHLCV or BBO formats, default NULL
 #' @param timespan xts-style character timespan to be the period to find orders to process in
-#' @param ordertype one of NULL, "market","limit","stoplimit","stopenter", or "stoptrailing" default NULL
+#' @param ordertype one of NULL, "market","limit","stoplimit", or "stoptrailing" default NULL
 #' @param ... any other passthru parameters
 #' @param slippageFUN default  NULL, not yet implemented
 #' @seealso add.rule
@@ -137,14 +137,13 @@ ruleOrderProc <- function(portfolio, symbol, mktdata, timespan=NULL, ordertype=N
                     },
                     limit= ,
                     stoplimit =,
-                    stopenter =,
                     iceberg = {
                         if (!isBBOmktdata) { #(isOHLCmktdata){
                             if( orderType == 'iceberg'){
                                 stop("iceberg orders only supported for BBO data")
                             } 
                             # check to see if price moved through the limit                        
-                            if((orderQty > 0 && orderType != 'stoplimit' && orderType != 'stopenter') || (orderQty < 0 && (orderType=='stoplimit' || orderType=='stopenter'))) {
+                            if((orderQty > 0 && orderType != 'stoplimit') || (orderQty < 0 && (orderType=='stoplimit'))) {
                                 # buy limit, or sell stoplimit
                                 if( (has.Lo(mktdata) && orderPrice > as.numeric(Lo(mktdataTimestamp))) || 
                                     (!has.Lo(mktdata) && orderPrice >= as.numeric(getPrice(mktdataTimestamp, prefer=prefer))))
@@ -152,7 +151,7 @@ ruleOrderProc <- function(portfolio, symbol, mktdata, timespan=NULL, ordertype=N
                                     txnprice = orderPrice
                                     txntime = timestamp
                                 } else next() # price did not move through my order, should go to next order  
-                            } else if((orderQty < 0 && orderType != 'stoplimit' && orderType != 'stopenter') || (orderQty > 0 && (orderType=='stoplimit' || orderType=='stopenter'))) { 
+                            } else if((orderQty < 0 && orderType != 'stoplimit') || (orderQty > 0 && (orderType=='stoplimit'))) { 
                                 # sell limit or buy stoplimit
                                 if ( (has.Hi(mktdata) && orderPrice < as.numeric(Hi(mktdataTimestamp))) ||
                                      (!has.Hi(mktdata) && orderPrice <= as.numeric(getPrice(mktdataTimestamp,prefer=prefer))) )
@@ -167,7 +166,7 @@ ruleOrderProc <- function(portfolio, symbol, mktdata, timespan=NULL, ordertype=N
                         } else if(isBBOmktdata){
                             # check side/qty
                             if(orderQty > 0){ # positive quantity 'buy'
-                                if (orderType == 'stoplimit' || orderType == 'stopenter') {
+                                if (orderType == 'stoplimit') {
                                        if(orderPrice <= as.numeric(getPrice(mktdataTimestamp,prefer='ask')[,1])){
                                         # mktprice moved above our stop buy price 
                                         txnprice = orderPrice #assume we got filled at our stop price
@@ -183,7 +182,7 @@ ruleOrderProc <- function(portfolio, symbol, mktdata, timespan=NULL, ordertype=N
                                     } else next()
                                 }
                             } else { # negative quantity 'sell'
-                                if (orderType == 'stoplimit' || orderType == 'stopenter') {
+                                if (orderType == 'stoplimit') {
                                     if(orderPrice >= as.numeric(getPrice(mktdataTimestamp,prefer='bid')[,1])){
                                         # mktprice moved below our stop sell price
                                         txnprice = orderPrice #assumption is that we're filled at our stop price
