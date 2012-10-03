@@ -25,13 +25,12 @@
   inserted}
 
   \item{ordertype}{one of "market","limit","stoplimit",
-  "stoptrailing", "stopenter", or "iceberg"}
+  "stoptrailing" or "iceberg"}
 
   \item{side}{one of either "long" or "short"}
 
   \item{threshold}{numeric threshold to apply to limit,
-  stoplimit, stoptrailing, stopenter and iceberg orders,
-  default NULL}
+  stoplimit, stoptrailing and iceberg orders, default NULL}
 
   \item{orderset}{set a tag identifying the orderset}
 
@@ -90,52 +89,32 @@
   open orders to be canceled and replaced with the new
   order, set \code{replace=FALSE}.
 
-  We have modeled two types of stop orders, which should be
-  sufficient to model most types of stops.
+  We have modeled a 'limit' order, used to enter or exit a
+  position at a specific price, determined by the prefered
+  price (see \code{prefer}) plus \code{threshold} (see
+  below). We have modeled two types of stop orders, which
+  should be sufficient to model most types of stops.
 
   We have modeled the simplest type, a 'stoplimit' order,
   which is just a limit order used to enter or exit a
-  position at a specific price. Threshold multipliers have
-  also been added for stoplimit.  These allow a threshold
-  to be set as a multiplier of the current price. For
-  example, to set a stoplimit order at the current price
-  minus ten percent, you would set the threshold multiplier
-  to -0.10.  The threshold multiplier on a stoplimit order
-  will be multiplied with the price and added to the
-  prefered price upon order entry. There is no functional
-  difference between a regular 'limit' order and a
-  'stoplimit' order once entered into the order book, but
+  position at a specific price, determined by the prefered
+  price (see \code{prefer}) plus \code{threshold} (see
+  below). The stoplimit order type can be used to implement
+  both stop-enter (long/buy or short/sell) and stop-loss
+  (long/sell or short/buy) style limit orders. There is no
+  functional difference between a regular 'limit' order and
+  a 'stoplimit' order once entered into the order book, but
   the distinction will likely be useful for reporting on
   when stops have been triggered.
 
   We have also modeled a 'stoptrailing' order, which may be
-  used to model dynamic limit-based exit. If you set
-  \code{tmult=TRUE} on a stoptrailing order, the size of
-  the threshold will be calculated upon order entry in the
-  same way as for stoplimit orders; the resulting scalar
-  will remain fixed for the life span of the order.  In
-  this way, a 10 pct trailing exit will not change in size
-  from the current price as the price changes.  While this
-  functionality could change in the future, we believe this
-  is more conservative than growing or shrinking the
-  threshold distance from the current market price in
-  relation to the threshold, and will result in fewer
-  unintended consequences and more understandable behavior.
-
-  We have also modeled a 'stopenter' order, which will
-  enter a position when current price + threshold is being
-  triggered.
-
-  The 'limit', 'stoplimit', 'stoptrailing', 'stopenter' and
-  'iceberg' order types are the only order types that make
-  use of the order \code{threshold}. Scalar thresholds
-  \code{tmult=FALSE} on stoplimit, stoptrailing or
-  stopenter orders will be added to the current market
-  price to set the limit price.  In other worlds, a scalar
-  threshold is the difference either positive or negative
-  from the current price when the order is entered. With a
-  stoptrailing order, the order may be moved ("replaced")
-  frequently.
+  used to model dynamic limit-based exit. The
+  \code{threshold} will be calculated only once upon order
+  entry (see below) and remain fixed for the life span of
+  the order. In this way, a 10 pct trailing exit will not
+  change in size from the current price as the price
+  changes. Be aware that a stoptrailing order may be moved
+  ("replaced") frequently.
 
   Some markets and brokers recognize a stop that triggers a
   market order, when the stop is triggered, a market order
@@ -146,16 +125,31 @@
   type should most often be paired with \code{delay} and
   \code{\link{osMaxPos}}.  The iceberg order when initially
   entered is treated like a limit order, with an optional
-  threshold (which is applied at initial order entry, so be
-  careful).  Right now, they will enter a new order at
-  price+threshold upon any execution of the prior iceberg
-  order.  This process could be infinite if
+  \code{threshold} (which is applied at initial order
+  entry, so be careful).  Right now, they will enter a new
+  order at price+threshold upon any execution of the prior
+  iceberg order.  This process could be infinite if
   \code{\link{osMaxPos}} or an equivalent order sizing
   function is not used to limit total position size. An
   order \code{delay} is also advisable to model the delay
   that occurs between getting the trade confirmation of the
   previous trade and entering the new order into the order
   book.
+
+  The 'limit', 'stoplimit', 'stoptrailing' and 'iceberg'
+  order types are the only order types that make use of the
+  order \code{threshold}. Thresholds may be specified in
+  one of 2 ways: - as a scalar (\code{tmult=FALSE}) or - as
+  a multiplier for the current price (\code{tmult=TRUE})
+  The threshold is then added to the prefered order price
+  upon order entry. The correct sign for the threshold (pos
+  or neg, ie. add or subtract) is automagically figured out
+  from the order side and the order quantity (buy or sell);
+  if the user provides the wrong sign for the threshold,
+  then it will be reversed. In other words, the user may
+  provide all thresholds as a positive number, and the
+  software will automagically figure out whether to add or
+  subtract the threshold amount from the price.
 
   If you ever wanted to move from a backtesting mode to a
   production mode, this function (and the linked funtion
