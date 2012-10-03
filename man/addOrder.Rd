@@ -92,8 +92,10 @@
   We have modeled a 'limit' order, used to enter or exit a
   position at a specific price, determined by the prefered
   price (see \code{prefer}) plus \code{threshold} (see
-  below). We have modeled two types of stop orders, which
-  should be sufficient to model most types of stops.
+  below).
+
+  We have modeled two types of stop orders, which should be
+  sufficient to model most types of stops.
 
   We have modeled the simplest type, a 'stoplimit' order,
   which is just a limit order used to enter or exit a
@@ -139,11 +141,11 @@
   The 'limit', 'stoplimit', 'stoptrailing' and 'iceberg'
   order types are the only order types that make use of the
   order \code{threshold}. Thresholds may be specified in
-  one of 2 ways: - as a scalar (\code{tmult=FALSE}) or - as
-  a multiplier for the current price (\code{tmult=TRUE})
-  The threshold is then added to the prefered order price
-  upon order entry. The correct sign for the threshold (pos
-  or neg, ie. add or subtract) is automagically figured out
+  one of 2 ways: as a scalar (\code{tmult=FALSE}) or as a
+  multiplier for the current price (\code{tmult=TRUE}). The
+  threshold is then added to the prefered order price upon
+  order entry. The correct sign for the threshold (pos or
+  neg, ie. add or subtract) is automagically figured out
   from the order side and the order quantity (buy or sell);
   if the user provides the wrong sign for the threshold,
   then it will be reversed. In other words, the user may
