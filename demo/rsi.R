@@ -1,3 +1,5 @@
+require(quantstrat)
+
 suppressWarnings(rm("order_book.RSI",pos=.strategy))
 suppressWarnings(rm("account.RSI","portfolio.RSI",pos=.blotter))
 suppressWarnings(rm("account.st","portfolio.st","stock.str","stratRSI","initDate","initEq",'start_t','end_t'))
