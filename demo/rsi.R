@@ -81,7 +81,7 @@ for(symbol in symbols){
     plot(add_RSI(n=2))
 }
 
-ret1 <- PortfReturns(account.st)
+ret1 <- PortfReturns(port.st)
 ret1$total <- rowSums(ret1)
 #ret1
 
