@@ -139,7 +139,7 @@ if("package:PerformanceAnalytics" %in% search() || require("PerformanceAnalytics
 	charts.PerformanceSummary(cbind(ret1$total,SPY.ret), geometric=FALSE, wealth.index=TRUE)
 }
 
-faber.stats<-tradeStats('faber')[,c('Net.Trading.PL','maxDrawdown','Num.Trades','Profit.Factor','Std.Dev.Trade.PL','Largest.Winner','Largest.Loser','Max.Equity','Min.Equity')]
+faber.stats<-tradeStats('faber')[,c('Net.Trading.PL','Max.Drawdown','Num.Trades','Profit.Factor','Std.Dev.Trade.PL','Largest.Winner','Largest.Loser','Max.Equity','Min.Equity')]
 faber.stats
 
 ###############################################################################
