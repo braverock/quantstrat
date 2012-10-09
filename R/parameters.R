@@ -215,11 +215,11 @@ getParameterTable<-function (strategy) #,staticSwitch)
 #' 
 #' Each call to the function will set/update the distribution of ONE parameter in the 'parameter distribution object' that is associated with a specific strategy.  
 #' 
-#' When call the function, the user must know the parameter strcture of the strategy, function getParameterTable can be used to layout the parameter structure of a certain strategy.
+#' Upon calling the function, the user must know the parameter structure of the strategy, function getParameterTable can be used to layout the parameter structure of a certain strategy.
 #' Parameter distribution object for one strategy usually won't work for another strategy, because different strategies has different parameter structure.
 #' Type of the parameter and the sequence in that type is needed to specify the exact parameter in THAT STRATEGY.
 #' 
-#' The parameter 'distribution' is a list contains vector of values NAMED WITH THE NAMES OF THE PARAMETERS, the values can be any type (integer, characters, etc) but must match with the leagal value of that parameter.
+#' The parameter 'distribution' is a list contains vector of values NAMED WITH THE NAMES OF THE PARAMETERS, the values can be any type (integer, characters, etc) but must match with the legal value of that parameter.
 #' For example: distribution=list(nFast=(10:30)) or distribution=list(relationship=c('gt','gte'))
 #' 
 #' @examples 
@@ -243,38 +243,47 @@ getParameterTable<-function (strategy) #,staticSwitch)
 #' @return The returned object is a structure contains the distribution of parameters, if the input argument 'paramDist' is provided, the function update the input paramDist object and return the updated one. When specify the distribution of several parameters, usually the first returned object is passed to the next several call of the function as input argument 'paramDist'. See example. 
 #' @author Yu Chen
 #' @export
-setParameterDistribution<-function(paramDist=NULL,type=NULL,indexnum=0,distribution=NULL,weight,label,psindex=NULL){#All is needed, set to illegal values
-    
-    if(!hasArg(paramDist)||!exists(as.character(substitute(paramDist))) ){
+setParameterDistribution<-function(paramDist=NULL,type=NULL,indexnum=0,distribution=NULL,weight,label,psindex=NULL) #All is needed, set to illegal values
+{
+    if(!hasArg(paramDist) || !exists(as.character(substitute(paramDist))))
+    {
         paramDist<-list()
         print('Object for parameter distribution initialized...')
     }
-#   else{
     
-        if (!is.list(distribution)|length(distribution)!=1) stop("distribution must be passed as a named list of length 1")
-        if (!type %in% c("indicator","signal","enter","exit","order","chain")) stop("Type must be a string in: indicator, signal, enter, exit, order","chain")
+    if(!is.list(distribution) || length(distribution) != 1)
+        stop("distribution must be passed as a named list of length 1")
+
+    if(!type %in% c("indicator","signal","enter","exit","order","chain"))
+        stop("Type must be a string in: indicator, signal, enter, exit, order","chain")
+    
+    tmp_paramDist<-list()
+    tmp_paramDist$type<-type
+    tmp_paramDist$indexnum<-indexnum
+    tmp_paramDist$distribution<-distribution
+    
+    if(missing(label))
+    {
+        tmp_paramDist$label<-paste('Param',type,indexnum,names(distribution),sep='.')
+    }
+    else
+    {
+        tmp_paramDist$label<-label
+    }
+    
+    
+    if(!hasArg(weight)) weight<-sample(1/length(distribution[[1]]),length(distribution[[1]]),replace=TRUE)
+    
+    tmp_paramDist$weight<-weight
+    
+    if(!hasArg(psindex) || (hasArg(psindex) && is.null(psindex)))
+        psindex = length(paramDist)+1
+
+    #class(tmp_paramDist)<-'parameter_distribution'
         
-        tmp_paramDist<-list()
-        tmp_paramDist$type<-type
-        tmp_paramDist$indexnum<-indexnum
-        tmp_paramDist$distribution<-distribution
-        
-        if (missing(label)) {
-            tmp_paramDist$label<-paste('Param',type,indexnum,names(distribution),sep='.')
-        }
-        else {tmp_paramDist$label<-label}
-        
-        
-        if(!hasArg(weight)) weight<-sample(1/length(distribution[[1]]),length(distribution[[1]]),replace=TRUE)
-        
-        tmp_paramDist$weight<-weight
-        
-        if(!hasArg(psindex) | (hasArg(psindex) & is.null(psindex))) psindex = length(paramDist)+1
-        #class(tmp_paramDist)<-'parameter_distribution'
-        
-        #TODO put an check to see if the type/indexnum exist already.
-        paramDist[[psindex]]<-tmp_paramDist
-#   }
+    #TODO put an check to see if the type/indexnum exist already.
+    paramDist[[psindex]]<-tmp_paramDist
+
     return(paramDist)
 }
 
