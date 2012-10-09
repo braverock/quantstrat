@@ -335,7 +335,8 @@ setParameterDistribution<-function(paramDist=NULL,type=NULL,indexnum=0,distribut
 #' 
 #' @author Yu Chen
 #' @export
-applyParameter<-function(strategy,portfolios,parameterPool,parameterConstraints,method,sampleSize,verbose=FALSE,...){
+applyParameter<-function(strategy,portfolios,parameterPool,parameterConstraints,method,sampleSize,verbose=FALSE,...)
+{
     #need to create combination of distribution values in each slot of the parameterPool
     
     initialPortf<-getPortfolio(portfolios)
@@ -381,18 +382,33 @@ applyParameter<-function(strategy,portfolios,parameterPool,parameterConstraints,
     
     #TODO make it take sample size etc.
     
-    
+    applyConstraints <- function(param.table, constraints)
+    {
+        for(constraint in constraints)
+        {
+            constraint.fulfilled <- paramConstraint(
+                    label=constraint$constraintLabel,
+                    data=param.table,
+                    columns=merge(paramLabel,data.frame(constraint$paramList),by="label")$varName, #has to keep the order.
+                    relationship=constraint$relationship
+            )
+            param.table <- param.table[which(constraint.fulfilled==TRUE),]
+        }
+        return(param.table)
+    }
     
     if (method=='expand') 
     {
-        paramTable<-expand.grid(paramdist, stringsAsFactors=FALSE)
+        paramTable <- expand.grid(paramdist, stringsAsFactors=FALSE)
+
+        paramTable <- applyConstraints(paramTable, parameterConstraints)
     }
     else if (method=='random')
     {
         if (missing(sampleSize)) {stop ("sampleSize is needed")} 
         #paramTable<-data.frame()
         
-        #genSample update the paramTable with more sample rows.
+        #genSample update the paramTable with more sample rows; this is a recursive function
         genSample<-function(iparamTable,paramdist,tsampleSize,remainSize)
         {
             if (missing(remainSize) ) remainSize=tsampleSize
@@ -406,35 +422,19 @@ applyParameter<-function(strategy,portfolios,parameterPool,parameterConstraints,
                 if (nrow(tparamTable)==0)
                 {
                     tparamTable<-data.frame(sample(paramdist[[i]],remainSize,prob=paramweight[[i]],replace=ireplace),stringsAsFactors=FALSE)
-                    
                 }   
-                else{
+                else
+                {
                     tparamTable<-cbind(tparamTable,data.frame(sample(paramdist[[i]],remainSize,prob=paramweight[[i]],replace=ireplace),stringsAsFactors=FALSE))
                 }                                       
             }
             
             names(tparamTable)<-names(paramdist)
             
-            # put constraint test on tparamTable, before rbind
-            for (k in 1:length(parameterConstraints))
-            {
-                constrintfill<-paramConstraint(label=parameterConstraints[[k]]$constraintLabel,
-                        data=tparamTable,
-                        columns=merge(paramLabel,data.frame(parameterConstraints[[k]]$paramList),by="label")$varName, #has to keep the order.
-                        relationship=parameterConstraints[[k]]$relationship)                
-                
-                
-                #only keep the samples fulfill the constraints.
-                tparamTable<-tparamTable[which(constrintfill==TRUE),]
-            }
-            
+            paramTable <- applyConstraints(tparamTable, parameterConstraints)
             
             iparamTable<-rbind(iparamTable,tparamTable)
-            
             iparamTable<-unique(iparamTable)
-            
-#           if(verbose >=1) print("nnnnnnnnnnnnnnnnnnnnnnn")
-#           if(verbose >=1) print(nrow(iparamTable))
             
             if (nrow(iparamTable)<tsampleSize)
             {
@@ -447,7 +447,6 @@ applyParameter<-function(strategy,portfolios,parameterPool,parameterConstraints,
         
         paramTable<-NULL
         paramTable<-genSample(paramTable,paramdist,sampleSize)      
-        
     }
     
     strategyList<-list()
@@ -464,7 +463,7 @@ applyParameter<-function(strategy,portfolios,parameterPool,parameterConstraints,
             
             {
                 #if(verbose)
-		    print(paste('===> now starting parameter test', i))
+                print(paste('===> now starting parameter test', i))
 
                 require(quantstrat, quietly=TRUE)
                 
@@ -677,41 +676,44 @@ applyParameter<-function(strategy,portfolios,parameterPool,parameterConstraints,
 #' @param data data to apply comparison to
 #' @param columns named columns to apply comparison to
 #' @param relationship one of c("gt","lt","eq","gte","lte","op") or reasonable alternatives
-paramConstraint <- function(label,data=mktdata, columns, relationship=c("gt","lt","eq","gte","lte")) {
-    relationship=relationship[1] #only use the first one
-#   if(verbose >=1) print(columns)
-    if (length(columns)==2){
-        ret_sig=NULL
-        if (relationship=='op'){
-            # (How) can this support "Close"? --jmu
-            if(columns[1] %in% c("Close","Cl","close"))
-                stop("Close not supported with relationship=='op'")
-            switch(columns[1],
-                    Low =, 
-                    low =, 
-                    bid = { relationship = 'lt' },
-                    Hi  =,
-                    High=,
-                    high=,
-                    ask = {relationship = 'gt'}
-            )
-        }
-        
-        colNums <- match.names(columns,colnames(data))
-        
-        opr <- switch( relationship,
-                gt = , '>' = '>', 
-                lt =, '<' = '<', 
-                eq =, "==" =, "=" = "==",
-                gte =, gteq =, ge =, ">=" = ">=",
-                lte =, lteq =, le =, "<=" = "<="
+paramConstraint <- function(label,data=mktdata, columns, relationship=c("gt","lt","eq","gte","lte", "op"))
+{
+    if(length(relationship) != 1)
+        stop('paramConstraint: length(relationship)!=1')
+
+    if(length(columns) != 2)
+        stop('paramConstraint: length(columns)!=2')
+
+    if(relationship == 'op')
+    {
+        # (How) can this support "Close"? --jmu
+        if(columns[1] %in% c("Close","Cl","close"))
+            stop("Close not supported with relationship=='op'")
+
+        switch(columns[1],
+                Low =, 
+                low =, 
+                bid = { relationship = 'lt' },
+                Hi  =,
+                High=,
+                high=,
+                ask = {relationship = 'gt'}
         )
-        
-        ret_sig$tname <- do.call( opr, list(data[,colNums[1]], data[,colNums[2]]))
-        
-    } else {
-        stop("comparison of more than two columns not supported, see sigFormula")
     }
+    
+    colNums <- match.names(columns,colnames(data))
+    
+    opr <- switch( relationship,
+            gt =, '>' = '>', 
+            lt =, '<' = '<', 
+            eq =, "==" =, "=" = "==",
+            gte =, gteq =, ge =, ">=" = ">=",
+            lte =, lteq =, le =, "<=" = "<="
+    )
+    
+    ret_sig <- NULL
+    ret_sig$tname <- do.call(opr, list(data[,colNums[1]], data[,colNums[2]]))
+    
     names(ret_sig)<-label
     return(data.frame(ret_sig))
 }
@@ -741,13 +743,15 @@ paramConstraint <- function(label,data=mktdata, columns, relationship=c("gt","lt
 #' @export
 setParameterConstraint<-function(paramConstraintObj=list(),constraintLabel,paramList,relationship)
 {
-    if(!hasArg(paramConstraintObj)||!exists(as.character(substitute(paramConstraintObj)))){
+    if(!hasArg(paramConstraintObj)||!exists(as.character(substitute(paramConstraintObj))))
+    {
         paramConstraintObj<-list()
         print('Parameter constraint object initialized...')     
     }
-    else{
-        if (!is.list(paramConstraintObj)|length(paramConstraintObj)!=1) stop("Parameter constrain object must be passed as a named list of length 1")
-        
+    else
+    {
+        if (!is.list(paramConstraintObj)|length(paramConstraintObj)!=1)
+            stop("Parameter constrain object must be passed as a named list of length 1")
     }
     
     if (missing(constraintLabel)) {constraintLabel<-paste("parameterConstraint",length(paramConstraintObj)+1)}
