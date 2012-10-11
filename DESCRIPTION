@@ -17,6 +17,7 @@ Contributors: Yu Chen, Joe Dunn, Jan Humme
 LazyLoad: yes
 License: GPL-3
 Collate:
+    'applyStrategy.rebalancing.R'
     'indicators.R'
     'initialize.R'
     'match.names.R'
