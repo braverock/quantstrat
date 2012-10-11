@@ -55,7 +55,10 @@ ruleSignal <- function(data=mktdata, timestamp, sigcol, sigval, orderqty=0, orde
         osFUN<-match.fun(osFUN)
 
 #   if (!is.na(timestamp) && !is.na(data[timestamp][,sigcol]) && data[timestamp][,sigcol] == sigval) {
-    if (!is.na(timestamp) && (ruletype=='chain' || (!is.na(data[timestamp][,sigcol]) && data[timestamp][,sigcol] == sigval)))
+    if (!is.na(timestamp) && 
+            nrow(data[timestamp])>0 && 
+            (ruletype=='chain' || (!is.na(data[timestamp][,sigcol]) && data[timestamp][,sigcol] == sigval))
+    )
     {
         #calculate order price using pricemethod
         pricemethod<-pricemethod[1] #only use the first if not set by calling function

@@ -257,7 +257,7 @@ applyRules <- function(portfolio,
         nargs=NULL
     }
     
-    Dates=unique(index(mktdata)) # should this be index() instead?  
+    Dates=unique(index(mktdata))  
     
     #we could maybe do something more sophisticated, but this should work
     if(isTRUE(path.dep)){ #initialize the dimension reduction index (dindex)
@@ -265,6 +265,7 @@ applyRules <- function(portfolio,
         assign.dindex(dindex)
         #pre-process for dimension reduction here
         for ( type in names(strategy$rules)){
+            if(type=='rebalance') next()
             # check if there's anything to do
             if(length(strategy$rules[[type]])>=1){
                 for (rule in strategy$rules[[type]]){
@@ -284,7 +285,8 @@ applyRules <- function(portfolio,
             }    
         }
         dindex<-get.dindex()
-        if(length(dindex)==0) dindex=1
+        
+        if(length(dindex)==0) dindex=1 #should this just return?
         
         #for debugging, set dindex to all index values:
         #assign.dindex(1:length(index(mktdata)))

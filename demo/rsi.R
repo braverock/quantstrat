@@ -19,12 +19,12 @@ stratRSI <- add.signal(strategy = stratRSI, name="sigThreshold",arguments = list
 stratRSI <- add.signal(strategy = stratRSI, name="sigThreshold",arguments = list(threshold=30, column="RSI",relationship="lt",cross=TRUE),label="RSI.lt.30")
 
 # There are two rules:
-#'## we would Use osMaxPos to put trade on in layers, or to a maximum position. 
+#'## we use osMaxPos to put trade on in layers, or to a maximum position. 
 # The first is to sell when the RSI crosses above the threshold
-stratRSI <- add.rule(strategy = stratRSI, name='ruleSignal', arguments = list(sigcol="RSI.gt.70", sigval=TRUE, orderqty=-1000, ordertype='market', orderside='short', pricemethod='market', replace=FALSE), type='enter', path.dep=TRUE)
+stratRSI <- add.rule(strategy = stratRSI, name='ruleSignal', arguments = list(sigcol="RSI.gt.70", sigval=TRUE, orderqty=-1000, ordertype='market', orderside='short', pricemethod='market', replace=FALSE, osFUN=osMaxPos), type='enter', path.dep=TRUE)
 stratRSI <- add.rule(strategy = stratRSI, name='ruleSignal', arguments = list(sigcol="RSI.lt.30", sigval=TRUE, orderqty='all', ordertype='market', orderside='short', pricemethod='market', replace=FALSE), type='exit', path.dep=TRUE)
 # The second is to buy when the RSI crosses below the threshold
-stratRSI <- add.rule(strategy = stratRSI, name='ruleSignal', arguments = list(sigcol="RSI.lt.30", sigval=TRUE, orderqty= 1000, ordertype='market', orderside='long', pricemethod='market', replace=FALSE), type='enter', path.dep=TRUE)
+stratRSI <- add.rule(strategy = stratRSI, name='ruleSignal', arguments = list(sigcol="RSI.lt.30", sigval=TRUE, orderqty= 1000, ordertype='market', orderside='long', pricemethod='market', replace=FALSE, osFUN=osMaxPos), type='enter', path.dep=TRUE)
 stratRSI <- add.rule(strategy = stratRSI, name='ruleSignal', arguments = list(sigcol="RSI.gt.70", sigval=TRUE, orderqty='all', ordertype='market', orderside='long', pricemethod='market', replace=FALSE), type='exit', path.dep=TRUE)
 
 #add changeable parameters
@@ -52,8 +52,9 @@ initEq=100000
 port.st<-'RSI' #use a string here for easier changing of parameters and re-trying
 
 initPortf(port.st, symbols=symbols, initDate=initDate)
-initAcct(port.st, portfolios=port.st, initDate=initDate)
+initAcct(port.st, portfolios=port.st, initDate=initDate,initEq=initEq)
 initOrders(portfolio=port.st, initDate=initDate)
+for(symbol in symbols){ addPosLimit(port.st, symbol, initDate, 300, 3 ) } #set max pos 
 
 print("setup completed")
 
