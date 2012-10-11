@@ -43,8 +43,8 @@ s<-getStrategy('luxor')
 #parameterTable
 #stop()
 
-tPD2<-setParameterDistribution(strategy=s, type = 'indicator', component='nFast', distribution = list(nFast = .fastRange), label = 'nFast')
-tPD2<-setParameterDistribution(tPD2, strategy=s, type = 'indicator', component='nSlow', distribution = list(nSlow = .slowRange), label = 'nSlow')
+tPD2<-setParameterDistribution(strategy=s, component.type='indicator', component.label='nFast', distribution = list(nFast = .fastRange), label = 'nFast')
+tPD2<-setParameterDistribution(tPD2, strategy=s, component.type='indicator', component.label='nSlow', distribution = list(nSlow = .slowRange), label = 'nSlow')
 
 pConstraint2<-setParameterConstraint(constraintLabel='luxorPC',paramList=c('nFast','nSlow'),relationship='lt')
 

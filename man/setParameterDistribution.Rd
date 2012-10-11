@@ -3,8 +3,8 @@
 \title{Function used to create an object that contains the distribution of parameters to be generated from, before testing parameters of a strategy.}
 \usage{
   setParameterDistribution(paramDist = NULL, strategy,
-    type, component, distribution = NULL, weight, label,
-    psindex = NULL)
+    component.type, component.label, distribution = NULL,
+    weight, label, psindex = NULL)
 }
 \arguments{
   \item{paramDist}{The object in which the parameter list
@@ -13,12 +13,13 @@
 
   \item{strategy}{The strategy object}
 
-  \item{type}{A character string that specifies the type of
-  the parameter, it takes the value in one of 'indicator',
+  \item{component.type}{A character string that specifies
+  the type of the strategy component that contains the
+  parameter, it takes the value in one of 'indicator',
   'signal', 'enter', 'exit', 'order', 'chain'.}
 
-  \item{component}{The label of the strategy component
-  (indicator/signal/rule) that contains the parameter}
+  \item{component.label}{The label that uniquely identifies
+  the strategy component that contains the parameter}
 
   \item{distribution}{Distribution of the parameter, can be
   any function that returns a vector of value. See detail.
@@ -67,12 +68,12 @@
 \examples{
 \dontrun{
 #(For complete demo see parameterTestMACD.R)
-tPD2<-setParameterDistribution(tPD2,strat,'indicator',component='FastSMA',
-     distribution=list(nFast=(10:30)),label='nFast')
-tPD2<-setParameterDistribution(tPD2,strat,'indicator',component='SlowSMA',
-     distribution=list(nSlow=(20:40)),label='nSlow')
-tPD2<-setParameterDistribution(tPD2,strat,'signal',component='go.long',
-     distribution=list(relationship=c('gt','gte')),label='sig1.gtgte')
+tPD2<-setParameterDistribution(tPD2, strat, component.type='indicator', component.label='FastSMA',
+     distribution=list(nFast=(10:30)), label='nFast')
+tPD2<-setParameterDistribution(tPD2, strat, component.type='indicator', component.label='SlowSMA',
+     distribution=list(nSlow=(20:40)), label='nSlow')
+tPD2<-setParameterDistribution(tPD2, strat, component.type='signal', component.label='go.long',
+     distribution=list(relationship=c('gt', 'gte')), label='sig1.gtgte')
 }
 }
 \author{

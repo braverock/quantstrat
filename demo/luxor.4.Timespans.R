@@ -45,7 +45,7 @@ s<-getStrategy('luxor')
 
 parameterTable<-getParameterTable(s)
 
-tPD2<-setParameterDistribution(strategy=s, type = 'enter', component='EnterLONG', distribution = list(timespan = .timespans), label = 'Timespan')
+tPD2<-setParameterDistribution(strategy=s, component.type='enter', component.label='EnterLONG', distribution = list(timespan = .timespans), label = 'Timespan')
 
 registerDoMC(cores=2)
 
