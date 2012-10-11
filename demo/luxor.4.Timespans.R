@@ -30,7 +30,7 @@ method='expand'
 
 ###############################################################################
 
-#require(doMC)
+require(doMC)
 require(foreach,quietly=TRUE)
 # example parallel initialization for doParallel. this or doMC, or doRedis are 
 # most probably preferable to doSMP
@@ -45,7 +45,7 @@ s<-getStrategy('luxor')
 
 parameterTable<-getParameterTable(s)
 
-tPD2<-setParameterDistribution(type = 'enter', indexnum = 1, distribution = list(timespan = .timespans), label = 'Timespan')
+tPD2<-setParameterDistribution(strategy=s, type = 'enter', component='EnterLONG', distribution = list(timespan = .timespans), label = 'Timespan')
 
 registerDoMC(cores=2)
 

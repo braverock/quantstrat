@@ -91,13 +91,50 @@
 #
 ###############################################################################
 
+label2index <- function(strategy, type, label)
+{
+    switch(type,
+        indicator = {
+            specs <- strategy$indicators
+        },
+        signal = {
+            specs <- strategy$signals
+        },
+        enter = {
+            specs <- strategy$rules$enter
+        },
+        exit = {
+            specs <- strategy$rules$exit
+        },
+        order = {
+            specs <- strategy$rules$order
+        },
+        chain = {
+            specs <- strategy$rules$chain
+        },
+        {
+            stop(paste(type, ': no such type in strategy', strategy))
+        }
+    )
+
+    i = 1
+    for(spec in specs)
+    {
+        if(spec$label == label)
+            return(i)
+        i <- i + 1
+    }
+    stop(paste(label, ': no such label with type', type, 'in strategy', strategy))
+
+    print(paste('====== index ==', i))
+}
 
 # Functions for parameter generating and testing.
 # 
 # Author: Yu Chen
 ###############################################################################
 
-#retreave the needed parameters and existing values after add*
+#retrieve the needed parameters and existing values after add*
 
 #' Extract the parameter structure from a strategy object.
 #' 
@@ -215,7 +252,6 @@ getParameterTable<-function (strategy) #,staticSwitch)
 #' 
 #' Each call to the function will set/update the distribution of ONE parameter in the 'parameter distribution object' that is associated with a specific strategy.  
 #' 
-#' Upon calling the function, the user must know the parameter structure of the strategy, function getParameterTable can be used to layout the parameter structure of a certain strategy.
 #' Parameter distribution object for one strategy usually won't work for another strategy, because different strategies has different parameter structure.
 #' Type of the parameter and the sequence in that type is needed to specify the exact parameter in THAT STRATEGY.
 #' 
@@ -225,17 +261,18 @@ getParameterTable<-function (strategy) #,staticSwitch)
 #' @examples 
 #' \dontrun{
 #' #(For complete demo see parameterTestMACD.R)
-#' tPD2<-setParameterDistribution(tPD2,'indicator',indexnum=1,
+#' tPD2<-setParameterDistribution(tPD2,strat,'indicator',component='FastSMA',
 #'      distribution=list(nFast=(10:30)),label='nFast')
-#' tPD2<-setParameterDistribution(tPD2,'indicator',indexnum=1,
+#' tPD2<-setParameterDistribution(tPD2,strat,'indicator',component='SlowSMA',
 #'      distribution=list(nSlow=(20:40)),label='nSlow')
-#' tPD2<-setParameterDistribution(tPD2,'signal',indexnum=1,
+#' tPD2<-setParameterDistribution(tPD2,strat,'signal',component='go.long',
 #'      distribution=list(relationship=c('gt','gte')),label='sig1.gtgte')
 #' }
 #' 
-#' @param paramDist The object that store the parameter list, if this parameter is missing, or object does not exist, the function will return a new object.
+#' @param paramDist The object in which the parameter list is stored; if this parameter is missing, or object does not exist, the function will return a new object.
+#' @param strategy The strategy object
 #' @param type A character string that specifies the type of the parameter, it takes the value in one of 'indicator', 'signal', 'enter', 'exit', 'order', 'chain'.
-#' @param indexnum Tells the sequence within the type, (for example: type = 'signal', indexnum =2 tells the function to update the 2nd signal in the strategy)  
+#' @param component The label of the strategy component (indicator/signal/rule) that contains the parameter
 #' @param distribution Distribution of the parameter, can be any function that returns a vector of value. See detail. (A numerical example: 1:10 or sample(1:20,6)
 #' @param weight The weight of each value in the distribution, if missing, the default value of all equal weights will be taken.
 #' @param label A string label to apply to the parameter distribution
@@ -243,20 +280,33 @@ getParameterTable<-function (strategy) #,staticSwitch)
 #' @return The returned object is a structure contains the distribution of parameters, if the input argument 'paramDist' is provided, the function update the input paramDist object and return the updated one. When specify the distribution of several parameters, usually the first returned object is passed to the next several call of the function as input argument 'paramDist'. See example. 
 #' @author Yu Chen
 #' @export
-setParameterDistribution<-function(paramDist=NULL,type=NULL,indexnum=0,distribution=NULL,weight,label,psindex=NULL) #All is needed, set to illegal values
+setParameterDistribution<-function(paramDist=NULL, strategy, type, component, distribution=NULL, weight, label, psindex=NULL) #All is needed,  set to illegal values
 {
+    missing.msg <- ': missing in call to setParameterDistribution'
+
+    if(!hasArg(strategy))
+        stop(paste('strategy', missing.msg))
+    if(!hasArg(type))
+        stop(paste('type', missing.msg))
+    if(!hasArg(component))
+        stop(paste('component', missing.msg))
+    if(!hasArg(distribution))
+        stop(paste('distribution', missing.msg))
+
+    if(!type %in% c("indicator","signal","enter","exit","order","chain"))
+        stop("Type must be a string in: indicator, signal, enter, exit, order", "chain")
+
+    if(!is.list(distribution) || length(distribution) != 1)
+        stop("distribution must be passed as a named list of length 1")
+
     if(!hasArg(paramDist) || !exists(as.character(substitute(paramDist))))
     {
         paramDist<-list()
         print('Object for parameter distribution initialized...')
     }
-    
-    if(!is.list(distribution) || length(distribution) != 1)
-        stop("distribution must be passed as a named list of length 1")
 
-    if(!type %in% c("indicator","signal","enter","exit","order","chain"))
-        stop("Type must be a string in: indicator, signal, enter, exit, order","chain")
-    
+    indexnum <- label2index(strategy, type, component)
+
     tmp_paramDist<-list()
     tmp_paramDist$type<-type
     tmp_paramDist$indexnum<-indexnum
@@ -270,17 +320,16 @@ setParameterDistribution<-function(paramDist=NULL,type=NULL,indexnum=0,distribut
     {
         tmp_paramDist$label<-label
     }
-    
-    
+
     if(!hasArg(weight)) weight<-sample(1/length(distribution[[1]]),length(distribution[[1]]),replace=TRUE)
-    
+
     tmp_paramDist$weight<-weight
-    
+
     if(!hasArg(psindex) || (hasArg(psindex) && is.null(psindex)))
         psindex = length(paramDist)+1
 
     #class(tmp_paramDist)<-'parameter_distribution'
-        
+
     #TODO put an check to see if the type/indexnum exist already.
     paramDist[[psindex]]<-tmp_paramDist
 
@@ -752,18 +801,22 @@ paramConstraint <- function(label,data=mktdata, columns, relationship=c("gt","lt
 #' @export
 setParameterConstraint<-function(paramConstraintObj=list(),constraintLabel,paramList,relationship)
 {
-    if(!hasArg(paramConstraintObj)||!exists(as.character(substitute(paramConstraintObj))))
+    if(!hasArg(paramConstraintObj) || !exists(as.character(substitute(paramConstraintObj))))
     {
         paramConstraintObj<-list()
         print('Parameter constraint object initialized...')     
     }
     else
     {
-        if (!is.list(paramConstraintObj)|length(paramConstraintObj)!=1)
+        if(!is.list(paramConstraintObj) || length(paramConstraintObj) != 1)
             stop("Parameter constrain object must be passed as a named list of length 1")
     }
     
-    if (missing(constraintLabel)) {constraintLabel<-paste("parameterConstraint",length(paramConstraintObj)+1)}
+    if(missing(constraintLabel))
+    {
+        constraintLabel<-paste("parameterConstraint",length(paramConstraintObj)+1)
+    }
+
     tmp_PC<-list()
     tmp_PC$constraintLabel<-constraintLabel
     #names(paramList)<-"label"

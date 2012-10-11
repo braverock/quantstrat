@@ -27,7 +27,7 @@ addPosLimit(portfolio.st, stock.str, initDate, 200, 2 ) #set max pos
 stratBBands <- strategy("bbands")
 
 #one indicator
-stratBBands <- add.indicator(strategy = stratBBands, name = "BBands", arguments = list(HLC = quote(HLC(mktdata)), maType='SMA'))
+stratBBands <- add.indicator(strategy = stratBBands, name = "BBands", arguments = list(HLC = quote(HLC(mktdata)), maType='SMA'), label='BBands')
 
 
 #add signals:
@@ -77,3 +77,4 @@ plot(add_BBands(on=1,sd=SD,n=N))
 # $Id$
 #
 ###############################################################################
+

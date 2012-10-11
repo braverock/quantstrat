@@ -16,7 +16,8 @@ demo('bbands',ask=FALSE)
 # or this will run in single threaded mode
 
 #please run bbands demo before all these...
-paramStructure<-getParameterTable(stratBBands)
+#paramStructure<-getParameterTable(stratBBands)
+#print(paramStructure)
 
 #tPD<-setParameterDistribution() need no more for initial object. 
 
@@ -38,11 +39,13 @@ paramStructure<-getParameterTable(stratBBands)
 #undebug(applyParameter)
 
 
-# Just provide leagal values and use random sampling.
-tPD<-setParameterDistribution(tPD,'indicator',indexnum=1,distribution=list(sd=(1:3)),weight=c(.25,.25,.5),label='sd')
-tPD<-setParameterDistribution(tPD,'signal',indexnum=2,distribution=list(relationship=c("lt","lte")),label='rel')
-#tPD<-setParameterDistribution(tPD,'signal',indexnum=2,distribution=list(relationship=c("lte")))
-tPD<-setParameterDistribution(tPD,'indicator',indexnum=1,distribution=list(n=20:30),label='n')
+tPD <- NULL
+
+# Just provide legal values and use random sampling.
+tPD<-setParameterDistribution(tPD, strategy=stratBBands, type='indicator', component='BBands', distribution=list(sd=(1:3)), weight=c(.25, .25, .5), label='sd')
+tPD<-setParameterDistribution(tPD, strategy=stratBBands, type='signal', component='Cl.lt.LowerBand', distribution=list(relationship=c("lt", "lte")), label='rel')
+#tPD<-setParameterDistribution(tPD,strategy=stratBBands,'signal',indexnum=2,distribution=list(relationship=c("lte")))
+tPD<-setParameterDistribution(tPD, strategy=stratBBands, type='indicator', component='BBands', distribution=list(n=20:30), label='n')
 
 #pConstr<-setParameterConstraint()
 pConstraint<-setParameterConstraint(constraintLabel='PC1',paramList=c('sd','n'),relationship='gt')
@@ -62,3 +65,4 @@ testPackList<-applyParameter(strategy=stratBBands,portfolios=portfolio.st,parame
 #
 ###############################################################################
 
+print(testPackList$statsTable)

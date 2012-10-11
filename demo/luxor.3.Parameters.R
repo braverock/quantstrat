@@ -14,17 +14,18 @@ verbose = 1
 
 method='expand'
 #method='random'
-#.sampleSize=20
+#.sampleSize=8
 
 #.fastRange=(1:20)
 #.slowRange=(21:80)
 
-.fastRange=(1:5)
+.fastRange=(41:45)
 .slowRange=(41:45)
 
 ###############################################################################
 
 require(foreach,quietly=TRUE)
+require(doMC)
 # example parallel initialization for doParallel. this or doMC, or doRedis are 
 # most probably preferable to doSMP
 #require(doParallel)
@@ -38,11 +39,12 @@ source('luxor.3.R')
 
 s<-getStrategy('luxor')
 
-parameterTable<-getParameterTable(s)
+#parameterTable<-getParameterTable(s)
 #parameterTable
+#stop()
 
-tPD2<-setParameterDistribution(type = 'indicator', indexnum = 1, distribution = list(nFast = .fastRange), label = 'nFast')
-tPD2<-setParameterDistribution(tPD2, type = 'indicator', indexnum = 2, distribution = list(nSlow = .slowRange), label = 'nSlow')
+tPD2<-setParameterDistribution(strategy=s, type = 'indicator', component='nFast', distribution = list(nFast = .fastRange), label = 'nFast')
+tPD2<-setParameterDistribution(tPD2, strategy=s, type = 'indicator', component='nSlow', distribution = list(nSlow = .slowRange), label = 'nSlow')
 
 pConstraint2<-setParameterConstraint(constraintLabel='luxorPC',paramList=c('nFast','nSlow'),relationship='lt')
 
