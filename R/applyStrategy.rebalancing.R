@@ -28,10 +28,10 @@ applyStrategy.rebalancing <- function(strategy ,
    
     ret<-list()
     
-	if (!is.strategy(strategy)) {
-    	s<-try(getStrategy(strategy))
-    	if(inherits(strategy,"try-error"))
-    	    stop ("You must supply an object of type 'strategy'.")
+    if (!is.strategy(strategy)) {
+        s<-try(getStrategy(strategy))
+        if(inherits(s,"try-error"))
+            stop ("You must supply an object of type 'strategy'.")
     } else {
         s <- strategy
     }
@@ -69,10 +69,10 @@ applyStrategy.rebalancing <- function(strategy ,
     
     for (portfolio in portfolios) {
 
-		# initStrategy
+        # initStrategy
         if(isTRUE(initStrat)) initStrategy(strategy=s, portfolio, symbols, ...=...)
         
-   		ret[[portfolio]]<-list() # this is slot [[i]] which we will use later
+        ret[[portfolio]]<-list() # this is slot [[i]] which we will use later
         pobj<-getPortfolio(portfolio)
         symbols<-names(pobj$symbols)
 
@@ -80,29 +80,23 @@ applyStrategy.rebalancing <- function(strategy ,
         #should be able to use this directly
         #assign(st,paste(s$name,'mktdata',sep='.'),pos=.strategy)
         
+        # initialize rebalancing period variables
         if(length(periods)>1){ warning('no guarantee multiple-periodicity rebalancing will work just yet, patches welcome.') }
         st$periods<-periods
-        # get the rebalancing periods list for this portfolio
         plist<-list()
-        for( period in periods ) {
-            from<-as.POSIXlt(index(pobj$summary)[1],tz=indexTZ(pobj$summary))
-            # this sequence should work pretty generically
-            plist[[period]]<-seq(from=from, to=as.POSIXlt(Sys.Date()), by = period)
-            #TODO FIXME sort out a more robust 'to' parameter for this
-        }
-        st$plist<-plist
-        
-        if (length(plist) >1) pindex<-lapply(plist,c)
-        else pindex<-plist[[1]]
-        
-        pindex<-xts(1:length(pindex),order.by=pindex)
-        pindex<-index(pindex)
-        st$rebalance_index<-pindex
-        
+
         #first do the path-independent stuff for indicators and signals
         for (symbol in symbols){
+
             sret<-list()
             if(isTRUE(load.mktdata)) mktdata <- get(symbol)
+
+            if(isTRUE(load.mktdata) || length(plist)==0) {
+                # get the rebalancing periods list for this portfolio
+                for( period in periods ) {
+                    plist[[period]] <- c(as.POSIXct(index(mktdata)[endpoints(mktdata, period)]), plist[[period]])
+                }
+            }
 
             #loop over indicators
             sret$indicators <- applyIndicators(strategy=s , mktdata=mktdata , parameters=parameters, ... )
@@ -125,6 +119,12 @@ applyStrategy.rebalancing <- function(strategy ,
             #TODO capture rebalance periods here?
         
         } # end path-independent loop over indicators and signals by symbol
+
+        st$plist<-plist
+        
+        # combine plist into one sorted index
+        pindex <- sort(do.call(c, c(plist, use.names=FALSE)))
+        st$rebalance_index<-pindex
         
         #now we need to do the endpoints loop. 
         for(i in 2:length(pindex)){
@@ -135,9 +135,9 @@ applyStrategy.rebalancing <- function(strategy ,
                 mktdata<-get(symbol,pos=st)
                 #now subset
                 md_subset<-mktdata[as.POSIXct(index(mktdata))>pindex[i-1]&as.POSIXct(index(mktdata))<=pindex[i]]
-                if(nrow(mktdata)<1) next()
+                if(nrow(md_subset)<1) next()
                 #applyRules to this subset for this instrument  
-                sret$rules$pathdep<-c(sret$rules$pathdep,
+                sret$rules$pathdep<-rbind(sret$rules$pathdep,
                                       applyRules(portfolio=portfolio, symbol=symbol, strategy=s, mktdata=md_subset, Dates=NULL, indicators=sret$indicators, signals=sret$signals, parameters=parameters,  ..., path.dep=TRUE))
                 
                 ret[[portfolio]][[symbol]]<-sret
@@ -157,7 +157,7 @@ applyStrategy.rebalancing <- function(strategy ,
         }
         
         # updateStrat
-        if(isTRUE(updateStrat)) updateStrategy(strategy, portfolio, Symbols=symbols, ...=...)
+        if(isTRUE(updateStrat)) updateStrategy(s, portfolio, Symbols=symbols, ...=...)
         
     }
     
