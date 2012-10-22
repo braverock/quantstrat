@@ -6,7 +6,6 @@
 #
 # From Jaekle & Tamasini: A new approach to system development and portfolio optimisation (ISBN 978-1-905641-79-6)
 #
-# Paragraph 3.4: inserting an intraday time filter
 
 options(width = 240)
 #Sys.setenv(TZ="GMT")
