@@ -1,23 +1,22 @@
 #!/usr/bin/Rscript --vanilla
 
+require(quantstrat)
+
+source('luxor.basic.R')
+
 .FastSMA = (1:20)
 .SlowSMA = (30:80)
 
 .StopLoss = seq(0.1, 2.0, length.out=20)/100
-
 .StopTrailing = seq(0.1, 2.0, length.out=20)/100
-
 .TakeProfit = seq(0.1, 2.0, length.out=20)/100
 
-#require(quantstrat)
-
-source('luxor.orderchains.R')
-
-s<-getStrategy('luxor')
+#s<-getStrategy('luxor')
+s <- 'luxor'
 
 ### SMA paramset
 
-s<-add.distribution(s,
+add.distribution(s,
 	paramset.label = 'SMA',
 	component.type = 'indicator',
 	component.label = 'nFast',
@@ -25,7 +24,7 @@ s<-add.distribution(s,
 	label = 'nFAST'
 )
 
-s<-add.distribution(s,
+add.distribution(s,
 	paramset.label = 'SMA',
 	component.type = 'indicator',
 	component.label = 'nSlow',
@@ -33,7 +32,7 @@ s<-add.distribution(s,
 	label = 'nSLOW'
 )
 
-s<-add.constraint(s,
+add.constraint(s,
 	paramset.label = 'SMA',
 	distribution.label.1 = 'nFAST',
 	distribution.label.2 = 'nSLOW',
@@ -43,7 +42,7 @@ s<-add.constraint(s,
 
 ### Stop Loss paramset
 
-s<-add.distribution(s,
+add.distribution(s,
 	paramset.label = 'StopLoss',
 	component.type = 'chain',
 	component.label = 'StopLossLONG',
@@ -51,7 +50,7 @@ s<-add.distribution(s,
 	label = 'StopLossLONG'
 )
 
-s<-add.distribution(s,
+add.distribution(s,
 	paramset.label = 'StopLoss',
 	component.type = 'chain',
 	component.label = 'StopLossSHORT',
@@ -59,7 +58,7 @@ s<-add.distribution(s,
 	label = 'StopLossSHORT'
 )
 
-s<-add.constraint(s,
+add.constraint(s,
 	paramset.label = 'StopLoss',
 	distribution.label.1 = 'StopLossLONG',
 	distribution.label.2 = 'StopLossSHORT',
@@ -69,7 +68,7 @@ s<-add.constraint(s,
 
 ### Stop Trailing paramset
 
-s<-add.distribution(s,
+add.distribution(s,
 	paramset.label = 'StopTrailing',
 	component.type = 'chain',
 	component.label = 'StopTrailingLONG',
@@ -77,7 +76,7 @@ s<-add.distribution(s,
 	label = 'StopTrailingLONG'
 )
 
-s<-add.distribution(s,
+add.distribution(s,
 	paramset.label = 'StopTrailing',
 	component.type = 'chain',
 	component.label = 'StopTrailingSHORT',
@@ -85,7 +84,7 @@ s<-add.distribution(s,
 	label = 'StopTrailingSHORT'
 )
 
-s<-add.constraint(s,
+add.constraint(s,
 	paramset.label = 'StopTrailing',
 	distribution.label.1 = 'StopTrailingLONG',
 	distribution.label.2 = 'StopTrailingSHORT',
@@ -95,7 +94,7 @@ s<-add.constraint(s,
 
 ### Take Profit paramset
 
-s<-add.distribution(s,
+add.distribution(s,
 	paramset.label = 'TakeProfit',
 	component.type = 'chain',
 	component.label = 'TakeProfitLONG',
@@ -103,7 +102,7 @@ s<-add.distribution(s,
 	label = 'TakeProfitLONG'
 )
 
-s<-add.distribution(s,
+add.distribution(s,
 	paramset.label = 'TakeProfit',
 	component.type = 'chain',
 	component.label = 'TakeProfitSHORT',
@@ -111,7 +110,7 @@ s<-add.distribution(s,
 	label = 'TakeProfitSHORT'
 )
 
-s<-add.constraint(s,
+add.constraint(s,
 	paramset.label = 'TakeProfit',
 	distribution.label.1 = 'TakeProfitLONG',
 	distribution.label.2 = 'TakeProfitSHORT',
@@ -119,3 +118,6 @@ s<-add.constraint(s,
 	label = 'TakeProfit'
 )
 
+###
+
+save.strategy('luxor')

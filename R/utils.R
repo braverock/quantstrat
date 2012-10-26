@@ -26,12 +26,23 @@ must.have.args <- function(supplied.args, mandatory.args)
 must.be.strategy <- function(strategy)
 {
     if(!is.strategy(strategy))
-        stop(paste(strategy, ': not a strategy'))
+    {
+        strategy<-try(getStrategy(strategy))
+
+        if(inherits(strategy,"try-error"))
+            stop(paste(strategy, ': not a strategy'))
+    }
+    return(strategy)
 }
 
 must.be.portfolio <- function(portfolio)
 {
     if(!is.portfolio(portfolio))
-        stop(paste(portfolio, ': not a portfolio'))
+    {
+        portfolio<-try(getPortfolio(portfolio))
+
+        if(inherits(portfolio,"try-error"))
+            stop(paste(portfolio, ': not a portfolio'))
+    }
 }
 

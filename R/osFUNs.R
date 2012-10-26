@@ -108,6 +108,8 @@ osMaxPos <- function(data, timestamp, orderqty, ordertype, orderside, portfolio,
     pos<-getPosQty(portfolio,symbol,timestamp)
     # check against max position
     PosLimit<-getPosLimit(portfolio,symbol,timestamp)
+    if(is.null(PosLimit))
+        stop(paste('no position limit defined for portfolio', portfolio))
 	
 	#TODO add handling for orderqty='all', and handle risk ruletype separately
 	

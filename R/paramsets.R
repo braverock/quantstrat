@@ -13,7 +13,7 @@
 #
 # Authors: Yu Chen, Jan Humme
 #
-# This code is a new implementation of earlier work by Yu Chen
+# This code is a based on earlier work by Yu Chen
 #
 ###############################################################################
 #
@@ -35,6 +35,8 @@
 # param.values: the set of values to be applied to a parameter
 #
 ###############################################################################
+
+# creates a copy of a portfolio, stripping all history (transactions etc)
 
 clone.portfolio <- function(portfolio.st, cloned.portfolio.st, strip.history=TRUE)
 {
@@ -59,6 +61,8 @@ clone.portfolio <- function(portfolio.st, cloned.portfolio.st, strip.history=TRU
     return(cloned.portfolio.st)
 }
 
+# creates a copy of an orderbook, stripping all orders
+
 clone.orderbook <- function(portfolio.st, cloned.portfolio.st, strip.history=TRUE)
 {
     #must.have.args(match.call(), c('portfolio.st', 'cloned.portfolio.st'))
@@ -77,15 +81,13 @@ clone.orderbook <- function(portfolio.st, cloned.portfolio.st, strip.history=TRU
     assign(paste("order_book", cloned.portfolio.st, sep='.'), order.book, envir=.strategy)
 }
 
-################################################################################
+### local functions ############################################################
 
 must.be.paramset <- function(strategy, paramset)
 {
     if(!(paramset %in% names(strategy$paramsets)))
-        stop(paste(paramset, ': not a known paramset in strategy', strategy$name))
+        stop(paste(paramset, ': not a paramset in strategy', strategy$name))
 }
-
-### local functions ############################################################
 
 create.paramset <- function(strategy, paramset.label)
 {
@@ -94,12 +96,6 @@ create.paramset <- function(strategy, paramset.label)
     strategy$paramsets[[paramset.label]]$constraints <- list()
 
     strategy
-}
-
-may.create.paramset <- function(strategy, paramset.label)
-{
-    if(!(paramset.label %in% names(strategy$paramsets)))
-        create.paramset(strategy, paramset.label)
 }
 
 expand.distributions <- function(distributions)
@@ -192,37 +188,61 @@ install.param.combo <- function(strategy, param.combo, paramset.label)
 
 #' Delete a paramset from a strategy
 #' 
-#' @param strategy: the name of the strategy object
-#' @param paramset.label: a label uniquely identifying the paramset within the strategy
+#' Delete a paramset from a strategy, including its distributions and constraints.
+#' 
+#' @param strategy the name of the strategy object
+#' @param paramset.label a label uniquely identifying the paramset within the strategy
 #'
 #' @author Jan Humme
 #' @export
+#' @seealso \code{\link{add.constraint}}, \code{\link{add.constraint}}, \code{\link{apply.paramset}}
 
-delete.paramset <- function(strategy, paramset.label)
+delete.paramset <- function(strategy, paramset.label, store=TRUE)
 {
     must.have.args(match.call(), c('strategy', 'paramset.label'))
 
+    if(!is.strategy(strategy))
+    {
+        strategy <- must.be.strategy(strategy)
+        store <- TRUE
+    }
+
     if(!is.null(strategy$paramsets[[paramset.label]]))
         strategy$paramsets[[paramset.label]] <- NULL
+
+    if(store)
+    {
+        store.strategy(strategy)
+        return(strategy$name)
+    }
+    return(strategy)
 }
 
 #' Adds a distribution to a paramset in a strategy
 #' 
-#' @param strategy: the name of the strategy object
-#' @param paramset.label: a label uniquely identifying the paramset within the strategy
-#' @param component.type: one of c('indicator', 'signal', 'order', 'enter', 'exit', chain')
-#' @param component.label: a label identifying the component. must be unique per component type
-#' @param variable: the name of the variable in the component
-#' @param label: a label uniquely identifying the distribution within the paramset
+#' Creates a distribution in paramset, where a distribution consists of the name of a variable in
+#' a strategy component plus a range of values for this variable.
+#' 
+#' @param strategy the name of the strategy object to add the distribution to
+#' @param paramset.label a label uniquely identifying the paramset within the strategy
+#' @param component.type one of c('indicator', 'signal', 'order', 'enter', 'exit', 'chain')
+#' @param component.label a label identifying the component. must be unique per component type
+#' @param variable the name of the variable in the component
+#' @param label a label uniquely identifying the distribution within the paramset
 #'
 #' @author Jan Humme
 #' @export
+#' @seealso \code{\link{add.constraint}}, \code{\link{delete.paramset}}, \code{\link{apply.paramset}}
 
-add.distribution <- function(strategy, paramset.label, component.type, component.label, variable, weight=NULL, label)
+add.distribution <- function(strategy, paramset.label, component.type, component.label, variable, weight=NULL, label, store=TRUE)
 {
     must.have.args(match.call(), c('strategy', 'paramset.label', 'component.type', 'component.label', 'variable', 'label'))
 
-    must.be.strategy(strategy)
+    if(!is.strategy(strategy))
+    {
+        strategy <- must.be.strategy(strategy)
+        store <- TRUE
+    }
 
     new_distribution <- list()
     new_distribution$component.type <- component.type
@@ -230,52 +250,81 @@ add.distribution <- function(strategy, paramset.label, component.type, component
     new_distribution$variable <- variable
     new_distribution$weight <- weight
 
-    may.create.paramset(strategy, paramset.label)
+    if(!(paramset.label %in% names(strategy$paramsets)))
+        strategy <- create.paramset(strategy, paramset.label)
 
     strategy$paramsets[[paramset.label]]$distributions[[label]] <- new_distribution
 
-    strategy
+    if(store)
+    {
+        store.strategy(strategy)
+        return(strategy$name)
+    }
+    return(strategy)
 }
 
-#' Adds a constraint to 2 distributions within a paramset
+#' Adds a constraint on 2 distributions within a paramset
 #' 
-#' @param strategy: the name of the strategy object
-#' @param paramset.label: a label uniquely identifying the paramset within the strategy
-#' @param distribution.label.1: a label identifying the first distribution
-#' @param distribution.label.2: a label identifying the second distribution
-#' @param operator: an operator specifying the relational constraint between the 2 distributions
-#' @param label: a label uniquely identifying the constraint within the paramset
+#' Creates a constraint on 2 distributions in a paramset, i.e. a restriction limiting the allowed
+#' combinations from the ranges for distribution 1 and distribution 2.
+#' 
+#' @param strategy the name of the strategy object to add the constraint to
+#' @param paramset.label a label uniquely identifying the paramset within the strategy
+#' @param distribution.label.1 a label identifying the first distribution
+#' @param distribution.label.2 a label identifying the second distribution
+#' @param operator an operator specifying the relational constraint between the 2 distributions
+#' @param label a label uniquely identifying the constraint within the paramset
 #'
 #' @author Jan Humme
 #' @export
+#' @seealso \code{\link{add.distribution}}, \code{\link{delete.paramset}}, \code{\link{apply.paramset}}
 
-add.constraint <- function(strategy, paramset.label, distribution.label.1, distribution.label.2, operator, label)
+add.constraint <- function(strategy, paramset.label, distribution.label.1, distribution.label.2, operator, label, store=TRUE)
 {
     must.have.args(match.call(), c('strategy', 'paramset.label', 'distribution.label.1', 'distribution.label.2', 'operator', 'label'))
 
-    must.be.strategy(strategy)
+    if(!is.strategy(strategy))
+    {
+        strategy <- must.be.strategy(strategy)
+        store <- TRUE
+    }
 
     new_constraint <- list()
     new_constraint$distributions <- list(distribution.label.1, distribution.label.2)
     new_constraint$operator <- operator
 
-    may.create.paramset(strategy, paramset.label)
+    if(!(paramset.label %in% names(strategy$paramsets)))
+        strategy <- create.paramset(strategy, paramset.label)
 
     strategy$paramsets[[paramset.label]]$constraints[[label]] <- new_constraint
 
-    strategy
+    if(store)
+    {
+        store.strategy(strategy)
+        return(strategy$name)
+    }
+    return(strategy)
 }
 
 #' Apply a paramset to the strategy
+#'
+#' This function will run applyStrategy() on portfolio.st, once for each parameter combination as specified by
+#' the parameter distributions and constraints in the paramset. Results are gathered and returned as a list
+#' containing a slot for each parameter combination.
+#'
+#' apply.paramset uses the foreach package to start the runs for each parameter combination, and as such allows
+#' for parallel processing. It is up to the caller to load and register an appropriate backend, eg. doMC,
+#' doParallel or doRedis.
 #' 
-#' @param strategy: the name of the strategy object
-#' @param paramset.label: a label uniquely identifying the paramset within the strategy
-#' @param portfolio.st: a string variable
-#' @param nsamples: if > 0 then take a sample of only size nsamples from the paramset
-#' @param verbose
+#' @param strategy the name of the strategy object
+#' @param paramset.label a label uniquely identifying the paramset within the strategy
+#' @param portfolio.st a string variable
+#' @param nsamples if > 0 then take a sample of only size nsamples from the paramset
+#' @param verbose return full information, in particular the .blotter environment, default FALSE
 #'
 #' @author Jan Humme
 #' @export
+#' @seealso \code{\link{add.constraint}}, \code{\link{add.constraint}}, \code{\link{delete.paramset}}
 
 apply.paramset <- function(strategy, paramset.label, portfolio.st, nsamples=0, verbose=FALSE)
 {
@@ -284,7 +333,7 @@ apply.paramset <- function(strategy, paramset.label, portfolio.st, nsamples=0, v
 
     must.have.args(match.call(), c('strategy', 'paramset.label', 'portfolio.st'))
 
-    must.be.strategy(strategy)
+    strategy <- must.be.strategy(strategy)
     must.be.paramset(strategy, paramset.label)
 
     portfolio <- getPortfolio(portfolio.st)
@@ -311,16 +360,16 @@ apply.paramset <- function(strategy, paramset.label, portfolio.st, nsamples=0, v
     {
         if(verbose) print(param.combo)
 
-        # loops must be run with an empty .blotter environment each, or .blotter appears to accumulate 
-        # all portfolios and accounts, passing them from one loop to the next on each CPU - JH July 2012
+        # environment data accumulate with each transition through the foreach loop, so must be cleaned
         rm(list=ls(pos=.blotter), pos=.blotter)
         rm(list=ls(pos=.strategy), pos=.strategy)
         rm(list=ls(pos=FinancialInstrument:::.instrument), pos=FinancialInstrument:::.instrument)
 
         gc(verbose=verbose)
 
-        .getSymbols<-as.environment(symbol.list)
-        for(symbol in symbol.names) { assign(symbol, eval(as.name(symbol)), .GlobalEnv) }
+        .getSymbols <- as.environment(symbol.list)
+        for(symbol in symbol.names)
+            assign(symbol, eval(as.name(symbol)), .GlobalEnv)
 
         list2env(env.blotter, envir=.blotter)
         list2env(env.instrument, envir=FinancialInstrument:::.instrument)

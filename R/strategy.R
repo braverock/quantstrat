@@ -191,6 +191,32 @@ getStrategy <- function(x){
         .strategy <<- new.env()
 }
 
+#' @export
+store.strategy <- function(strategy)
+{
+    assign(strategy$name, strategy, envir=as.environment(.strategy))
+}
+
+# load a strategy object from disk into memory
+#' @export
+load.strategy <- function(strategy.name)
+{
+    file.name <- paste(strategy.name, 'RData', sep='.')
+
+    load(file=file.name, envir=.strategy)
+    assign(.strategy$strategy$name, .strategy$strategy, envir=.strategy)
+}
+
+# save a strategy object from memory onto disk
+#' @export
+save.strategy <- function(strategy.name)
+{
+    strategy <- get(as.character(strategy.name), pos=.strategy, inherits=TRUE)
+    file.name <- paste(strategy.name, 'RData', sep='.')
+
+    save(strategy, pos=.strategy, file=file.name)
+}
+
 ###############################################################################
 # R (http://r-project.org/) Quantitative Strategy Model Framework
 #

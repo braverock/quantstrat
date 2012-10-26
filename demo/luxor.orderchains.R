@@ -2,7 +2,7 @@
 #
 # Jan Humme (@opentrades) - August 2012
 #
-# Tested and found to work correctly using blotter r1123
+# Tested and found to work correctly using blotter r1230
 #
 # From Jaekle & Tamasini: A new approach to system development and portfolio optimisation (ISBN 978-1-905641-79-6)
 #
@@ -129,7 +129,8 @@ add.rule(s, name = 'ruleSignal',
 	),
 	type='chain',
 	parent='EnterLONG',
-	label='StopLossLONG'
+	label='StopLossLONG',
+	storefun=FALSE
 )
 
 add.rule(s, name = 'ruleSignal',
@@ -145,7 +146,8 @@ add.rule(s, name = 'ruleSignal',
 	),
 	type='chain',
 	parent='EnterSHORT',
-	label='StopLossSHORT'
+	label='StopLossSHORT',
+	storefun=FALSE
 )
 
 ### stop-trailing
@@ -165,7 +167,8 @@ add.rule(s, name = 'ruleSignal',
 	),
 	type='chain',
 	parent='EnterLONG',
-	label='StopTrailingLONG'
+	label='StopTrailingLONG',
+	storefun=FALSE
 )
 
 add.rule(s, name = 'ruleSignal',
@@ -181,7 +184,8 @@ add.rule(s, name = 'ruleSignal',
 	),
 	type='chain',
 	parent='EnterSHORT',
-	label='StopTrailingSHORT'
+	label='StopTrailingSHORT',
+	storefun=FALSE
 )
 }
 
@@ -200,7 +204,8 @@ add.rule(s, name = 'ruleSignal',
 	),
 	type='chain',
 	parent='EnterLONG',
-	label='TakeProfitLONG'
+	label='TakeProfitLONG',
+	storefun=FALSE
 )
 
 add.rule(s, name = 'ruleSignal',
@@ -216,7 +221,8 @@ add.rule(s, name = 'ruleSignal',
 	),
 	type='chain',
 	parent='EnterSHORT',
-	label='TakeProfitSHORT'
+	label='TakeProfitSHORT',
+	storefun=FALSE
 )
 
 ### 
@@ -232,7 +238,8 @@ add.rule(s, name = 'ruleSignal',
 	),
 	type='exit',
 	timespan = .timespan,
-	label='Exit2LONG'
+	label='Exit2LONG',
+	storefun=FALSE
 )
 
 add.rule(s, name = 'ruleSignal',
@@ -246,7 +253,9 @@ add.rule(s, name = 'ruleSignal',
 	),
 	type='exit',
 	timespan = .timespan,
-	label='Exit2SHORT')
+	label='Exit2SHORT',
+	storefun=FALSE
+)
 
 add.rule(s, name = 'ruleSignal',
 	arguments=list(sigcol='long' , sigval=TRUE,
@@ -262,7 +271,8 @@ add.rule(s, name = 'ruleSignal',
 	),
 	type='enter',
 	timespan = .timespan,
-	label='EnterLONG'
+	label='EnterLONG',
+	storefun=FALSE
 )
 
 add.rule(s, name = 'ruleSignal',
@@ -279,7 +289,8 @@ add.rule(s, name = 'ruleSignal',
 	),
 	type='enter',
 	timespan = .timespan,
-	label='EnterSHORT'
+	label='EnterSHORT',
+	storefun=FALSE
 )
 
 #
