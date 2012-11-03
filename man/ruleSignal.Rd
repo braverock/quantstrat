@@ -2,7 +2,7 @@
 \alias{ruleSignal}
 \title{default rule to generate a trade order on a signal}
 \usage{
-  ruleSignal(data = mktdata, timestamp, sigcol, sigval,
+  ruleSignal(mktdata = mktdata, timestamp, sigcol, sigval,
     orderqty = 0, ordertype, orderside = NULL,
     orderset = NULL, threshold = NULL, tmult = FALSE,
     replace = TRUE, delay = 1e-04, osFUN = "osNoOp",
@@ -11,7 +11,7 @@
     prefer = NULL, sethold = FALSE, label = "")
 }
 \arguments{
-  \item{data}{an xts object containing market data.
+  \item{mktdata}{an xts object containing market data.
   depending on rules, may need to be in OHLCV or BBO
   formats, and may include indicator and signal
   information}

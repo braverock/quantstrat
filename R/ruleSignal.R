@@ -24,7 +24,7 @@
 #' If \code{orderside} is NULL, the function will attempt to calculate the side from the current position 
 #' (if any), the order quantity, and the order type.    
 #'   
-#' @param data an xts object containing market data.  depending on rules, may need to be in OHLCV or BBO formats, and may include indicator and signal information
+#' @param mktdata an xts object containing market data.  depending on rules, may need to be in OHLCV or BBO formats, and may include indicator and signal information
 #' @param timestamp timestamp coercible to POSIXct that will be the time the order will be inserted on 
 #' @param sigcol column name to check for signal
 #' @param sigval signal value to match against
@@ -49,15 +49,14 @@
 #' @seealso \code{\link{osNoOp}} , \code{\link{add.rule}}
 #' @export
 
-ruleSignal <- function(data=mktdata, timestamp, sigcol, sigval, orderqty=0, ordertype, orderside=NULL, orderset=NULL, threshold=NULL, tmult=FALSE, replace=TRUE, delay=0.0001, osFUN='osNoOp', pricemethod=c('market','opside','active'), portfolio, symbol, ..., ruletype, TxnFees=0, prefer=NULL, sethold=FALSE, label='')
+ruleSignal <- function(mktdata=mktdata, timestamp, sigcol, sigval, orderqty=0, ordertype, orderside=NULL, orderset=NULL, threshold=NULL, tmult=FALSE, replace=TRUE, delay=0.0001, osFUN='osNoOp', pricemethod=c('market','opside','active'), portfolio, symbol, ..., ruletype, TxnFees=0, prefer=NULL, sethold=FALSE, label='')
 {
     if(!is.function(osFUN))
         osFUN<-match.fun(osFUN)
 
-#   if (!is.na(timestamp) && !is.na(data[timestamp][,sigcol]) && data[timestamp][,sigcol] == sigval) {
     if (!is.na(timestamp) && 
-            nrow(data[timestamp])>0 && 
-            (ruletype=='chain' || (!is.na(data[timestamp][,sigcol]) && data[timestamp][,sigcol] == sigval))
+            nrow(mktdata[timestamp])>0 && 
+            (ruletype=='chain' || (!is.na(mktdata[timestamp][,sigcol]) && mktdata[timestamp][,sigcol] == sigval))
     )
     {
         #calculate order price using pricemethod
@@ -76,14 +75,14 @@ ruleSignal <- function(data=mktdata, timestamp, sigcol, sigval, orderqty=0, orde
             {
                 # threshold should be the name of an indicator column in mktdata
 
-                col.idx <- grep(threshold, colnames(data))
+                col.idx <- grep(threshold, colnames(mktdata))
 
                 if(length(col.idx) < 1)
                     stop(paste('no indicator column in mktdata matches threshold name "', threshold, '"', sep=''))
                 if(length(col.idx) > 1)
                     stop(paste('more than one indicator column in mktdata matches threshold name "', threshold, '"', sep=''))
 
-                threshold <- as.numeric(data[,col.idx][timestamp])
+                threshold <- as.numeric(mktdata[,col.idx][timestamp])
             }
         }
 
@@ -91,24 +90,24 @@ ruleSignal <- function(data=mktdata, timestamp, sigcol, sigval, orderqty=0, orde
                 market = ,
                 opside = ,
                 active = {
-                    if(is.BBO(data)){
+                    if(is.BBO(mktdata)){
                         if (orderqty>0) 
                             prefer='ask'  # we're buying, so pay what they're asking
                         else
                             prefer='bid'  # we're selling, so give it to them for what they're bidding  
                     } 
-                    orderprice <- try(getPrice(x=data, prefer=prefer))[timestamp] 
+                    orderprice <- try(getPrice(x=mktdata, prefer=prefer))[timestamp] 
                 },
                 passive =,
                 work =,
                 join = {
-                    if(is.BBO(data)){
+                    if(is.BBO(mktdata)){
                         if (orderqty>0) 
                             prefer='bid'  # we're buying, so work the bid price
                         else
                             prefer='ask'  # we're selling, so work the ask price
                     }
-                    orderprice <- try(getPrice(x=data, prefer=prefer))[timestamp]
+                    orderprice <- try(getPrice(x=mktdata, prefer=prefer))[timestamp]
                 },
                 maker = {
                     if(hasArg(price) & length(match.call(expand.dots=TRUE)$price)>1) {
@@ -116,9 +115,9 @@ ruleSignal <- function(data=mktdata, timestamp, sigcol, sigval, orderqty=0, orde
                         orderprice <- try(match.call(expand.dots=TRUE)$price)
                     } else {
                         if(!is.null(threshold)) {
-                            baseprice<- last(getPrice(x=data)[timestamp]) # this should get either the last trade price or the Close
+                            baseprice<- last(getPrice(x=mktdata)[timestamp]) # this should get either the last trade price or the Close
                             if(hasArg(tmult) & isTRUE(match.call(expand.dots=TRUE)$tmult)) {
-                                baseprice<- last(getPrice(x=data)[timestamp]) # this should get either the last trade price or the Close
+                                baseprice<- last(getPrice(x=mktdata)[timestamp]) # this should get either the last trade price or the Close
                                 # threshold is a multiplier of current price
                                 if (length(threshold)>1){
                                     orderprice <- baseprice * threshold # assume the user has set proper threshold multipliers for each side
@@ -136,7 +135,7 @@ ruleSignal <- function(data=mktdata, timestamp, sigcol, sigval, orderqty=0, orde
                         } else{
                             # no threshold, put it on the averages?
                             stop('maker orders without specified prices and without threholds not (yet?) supported')
-                            if(is.BBO(data)){
+                            if(is.BBO(mktdata)){
 
                             } else {
 
@@ -176,7 +175,7 @@ ruleSignal <- function(data=mktdata, timestamp, sigcol, sigval, orderqty=0, orde
         #TODO add fancy formals matching for osFUN
         if(orderqty!='all')
         {
-            orderqty <- osFUN(strategy=strategy, data=data, timestamp=timestamp, orderqty=orderqty, ordertype=ordertype, orderside=orderside, portfolio=portfolio, symbol=symbol,...=...,ruletype=ruletype, orderprice=as.numeric(orderprice))
+            orderqty <- osFUN(strategy=strategy, data=mktdata, timestamp=timestamp, orderqty=orderqty, ordertype=ordertype, orderside=orderside, portfolio=portfolio, symbol=symbol,...=...,ruletype=ruletype, orderprice=as.numeric(orderprice))
         }
 
         if(!is.null(orderqty) && orderqty!=0 && !is.null(orderprice)) #orderprice could have length > 1

@@ -2,7 +2,7 @@
 #' 
 #' This function is the wrapper that holds together the execution of a strategy with rebalancing rules.
 #' 
-#' @param strategy an object of type 'strategy' to add the indicator to
+#' @param strategy an object of type 'strategy' or the name of a stored strategy to apply
 #' @param portfolios a list of portfolios to apply the strategy to
 #' @param mktdata an xts object containing market data.  depending on indicators, may need to be in OHLCV or BBO formats, default NULL
 #' @param parameters named list of parameters to be applied during evaluation of the strategy, default NULL
@@ -147,7 +147,7 @@ applyStrategy.rebalancing <- function(strategy ,
             #to nest different rebalancing periods, we need to check if the pindex 'i' is in specific rebalance_on periods
             # specifically, we need to check if *this* index is in st$plist$period
             for(period in names(st$plist)){
-                if(i %in% st$plist[[period]]){
+                if(pindex[i] %in% st$plist[[period]]){
                     #this index is a rebalancing index for period
                     #call the rebalance rules for this period
                     #still need to separate the rules by rebalancing period, this will call them all

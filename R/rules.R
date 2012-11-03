@@ -572,6 +572,8 @@ applyRules <- function(portfolio,
     while(curIndex){
         timestamp=Dates[curIndex]    
 
+        #print(paste('timestamp',timestamp,'first',first(index(mktdata)),'last',last(index(mktdata))))
+        
         # check to see if we need to release a hold
         if(isTRUE(hold) & holdtill<timestamp){
             hold=FALSE

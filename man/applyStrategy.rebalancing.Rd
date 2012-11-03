@@ -7,8 +7,8 @@
     symbols = NULL, initStrat = FALSE, updateStrat = FALSE)
 }
 \arguments{
-  \item{strategy}{an object of type 'strategy' to add the
-  indicator to}
+  \item{strategy}{an object of type 'strategy' or the name
+  of a stored strategy to apply}
 
   \item{portfolios}{a list of portfolios to apply the
   strategy to}
