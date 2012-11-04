@@ -87,7 +87,7 @@ ruleOrderProc <- function(portfolio, symbol, mktdata, timespan=NULL, ordertype=N
             orderPrice <- as.numeric(ordersubset[ii,"Order.Price"])
 
             orderQty <- ordersubset[ii,"Order.Qty"]
-            if(orderQty=='all')
+            if(orderQty %in% c('all','trigger'))
             {
                 # this has to be an exit or risk order, so: 
                 orderQty=-1*getPosQty(Portfolio=portfolio,Symbol=symbol,Date=timestamp)
@@ -352,8 +352,11 @@ ruleOrderProc <- function(portfolio, symbol, mktdata, timespan=NULL, ordertype=N
                 }
                 else    #add the transaction
                 {
-                    addTxn(Portfolio=portfolio, Symbol=symbol, TxnDate=txntime, 
-                            TxnQty=orderQty, TxnPrice=txnprice , ...=..., TxnFees=txnfees)
+                    if(ordersubset[ii,"Order.Qty"] != 'trigger')
+                    {
+                        addTxn(Portfolio=portfolio, Symbol=symbol, TxnDate=txntime, 
+                                TxnQty=orderQty, TxnPrice=txnprice , ...=..., TxnFees=txnfees)
+                    }
                     ordersubset[ii,"Order.Status"]<-'closed'
                 }
                 ordersubset[ii,"Order.StatusTime"]<-format(timestamp, "%Y-%m-%d %H:%M:%S")

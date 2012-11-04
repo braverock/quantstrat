@@ -24,7 +24,7 @@
   \item{sigval}{signal value to match against}
 
   \item{orderqty}{numeric quantity of the desired order, or
-  'all', modified by osFUN}
+  one of 'all'/'trigger', modified by osFUN}
 
   \item{ordertype}{one of "market","limit","stoplimit",
   "stoptrailing", or "iceberg"}
@@ -102,6 +102,14 @@
   market making activities by having orders on both sides.
   This will then create an Order.Set, and use the
   \code{threshold} to set the prices for these orders.} }
+
+  \code{orderqty} should be either numeric, or one of
+  'all'/'trigger'. 'all' can only be used with order of
+  ruletype='exit' or 'risk', and will close the entire
+  position. 'trigger' can only be used with
+  ruletype='chain' and is exactly identical to 'all',
+  except that the actual transaction is suppressed, and can
+  be used to kick in a new order chain.
 
   If \code{threshold} is not numeric or \code{NULL} it
   should be the name of an indicator mktdata column holding

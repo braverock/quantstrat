@@ -19,6 +19,8 @@
 #'            This will then create an Order.Set, and use the \code{threshold} to set the prices for these orders.}
 #'      } 
 #' 
+#' \code{orderqty} should be either numeric, or one of 'all'/'trigger'. 'all' can only be used with order of ruletype='exit' or 'risk', and will close the entire position. 'trigger' can only be used with ruletype='chain' and is exactly identical to 'all', except that the actual transaction is suppressed, and can be used to kick in a new order chain.
+#' 
 #' If \code{threshold} is not numeric or \code{NULL} it should be the name of an indicator mktdata column holding the threshold values.
 #' 
 #' If \code{orderside} is NULL, the function will attempt to calculate the side from the current position 
@@ -28,7 +30,7 @@
 #' @param timestamp timestamp coercible to POSIXct that will be the time the order will be inserted on 
 #' @param sigcol column name to check for signal
 #' @param sigval signal value to match against
-#' @param orderqty numeric quantity of the desired order, or 'all', modified by osFUN
+#' @param orderqty numeric quantity of the desired order, or one of 'all'/'trigger', modified by osFUN
 #' @param ordertype one of "market","limit","stoplimit", "stoptrailing", or "iceberg"
 #' @param orderside one of either "long" or "short", default NULL, see details 
 #' @param orderset tag to identify an orderset; if one order of the set is filled, all others are canceled

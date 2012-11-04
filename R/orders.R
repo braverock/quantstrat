@@ -194,7 +194,7 @@ getOrders <- function(portfolio,symbol,status="open",timespan=NULL,ordertype=NUL
 #' @param portfolio text name of the portfolio to associate the order book with
 #' @param symbol identfier of the instrument to find orders for.  The name of any associated price objects (xts prices, usually OHLC) should match these
 #' @param timestamp timestamp coercible to POSIXct that will be the time to search for orders before this time 
-#' @param qty numeric quantity of the order
+#' @param qty numeric quantity of the order, or "all" or "trigger"
 #' @param price numeric price at which the order is to be inserted
 #' @param ordertype one of "market","limit","stoplimit", "stoptrailing" or "iceberg"
 #' @param side one of either "long" or "short" 
@@ -239,8 +239,8 @@ addOrder <- function(portfolio,
     #if(!length(grep(symbol,names(orderbook[[portfolio]])))==1) stop(paste("symbol",symbol,"does not exist in portfolio",portfolio,"having symbols",names(orderbook[[portfolio]])))
 
     #data quality checks
-    if(!is.numeric(qty) && !(qty=='all')) stop (paste("Quantity must be numeric:",qty))
-    if(qty==0) stop("qty",qty,"must positive, negative, or 'all'")
+    if(!is.numeric(qty) && !(qty=='all') && !(qty=='trigger')) stop (paste("Quantity must be numeric:",qty))
+    if(qty==0) stop("qty",qty,"must positive, negative, or 'all' or 'trigger'")
     if(is.null(qty)) stop("qty",qty,"must not be NULL")
     if(is.na(qty)) stop("qty",qty,"must not be NA")
     if(!is.numeric(price)) stop (paste("Price must be numeric:",price))
@@ -270,7 +270,7 @@ addOrder <- function(portfolio,
                     {
                         switch(ordertype,
                             limit = {
-                                if(qty == 'all' && side == 'long' || qty != 'all' && as.numeric(qty) < 0) # SELL
+                                if((qty %in% c('all','trigger')) && side == 'long' || !(qty %in% c('all','trigger')) && as.numeric(qty) < 0) # SELL
                                 {
                                     #this is a limit exit, so it will sell *higher* than the current market
                                     if(threshold < 0) threshold = -threshold
@@ -283,7 +283,7 @@ addOrder <- function(portfolio,
                             },
                             stoplimit =,
                             stoptrailing = {
-                                if(qty == 'all' && side == 'long' || qty != 'all' && as.numeric(qty) < 0) # SELL
+                                if((qty %in% c('all','trigger')) && side == 'long' || !(qty %in% c('all','trigger')) && as.numeric(qty) < 0) # SELL
                                 {
                                     #this is a stop exit, so it will sell *lower* than the current market
                                     if(threshold > 0) threshold = -threshold

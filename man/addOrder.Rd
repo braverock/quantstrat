@@ -19,7 +19,8 @@
   \item{timestamp}{timestamp coercible to POSIXct that will
   be the time to search for orders before this time}
 
-  \item{qty}{numeric quantity of the order}
+  \item{qty}{numeric quantity of the order, or "all" or
+  "trigger"}
 
   \item{price}{numeric price at which the order is to be
   inserted}
