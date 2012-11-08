@@ -1,7 +1,7 @@
 Package: quantstrat
 Type: Package
 Title: Quantitative Strategy Model Framework
-Version: 0.7.3
+Version: 0.7.4
 Date: $Date$
 Author: Peter Carl, Dirk Eddelbuettel, Brian G. Peterson,
     Jeffrey A. Ryan, Joshua Ulrich, Garrett See
@@ -16,21 +16,4 @@ Description: Specify, build, and back-test quantitative
 Contributors: Yu Chen, Joe Dunn, Jan Humme
 LazyLoad: yes
 License: GPL-3
-Collate:
-    'applyStrategy.rebalancing.R'
-    'indicators.R'
-    'initialize.R'
-    'match.names.R'
-    'orders.R'
-    'osFUNs.R'
-    'parameters.R'
-    'paramsets.R'
-    'ruleCancel.R'
-    'ruleOrderProc.R'
-    'rules.R'
-    'ruleSignal.R'
-    'signals.R'
-    'strategy.R'
-    'tradeGraphs.R'
-    'utils.R'
-    'wrapup.R'
+ByteCompile: TRUE
