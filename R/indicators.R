@@ -169,11 +169,13 @@ applyIndicators <- function(strategy, mktdata, parameters=NULL, ...) {
         onames <- names(.formals)
         
         pm <- pmatch(names(indicator$arguments), onames, nomatch = 0L)
-        if (any(pm == 0L))
-            warning(paste("some arguments stored for",indicator$name,"do not match"))
         names(indicator$arguments[pm > 0L]) <- onames[pm]
         .formals[pm] <- indicator$arguments[pm > 0L]
-		
+        if (any(pm == 0L)){
+            warning(paste("some arguments stored for",indicator$name,"do not match"))
+            .formals<-c(.formals,indicator$arguments[pm==0L])
+        }
+        
 		# now add arguments from parameters
 		if(length(parameters)){
 			pm <- pmatch(names(parameters), onames, nomatch = 0L)
