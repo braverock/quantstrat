@@ -151,16 +151,22 @@ install.param.combo <- function(strategy, param.combo, paramset.label)
         component.label <- distribution$component.label
         variable.name <- names(distribution$variable)
 
+        found <- FALSE
         switch(component.type,
             indicator =,
             signal =
             {
-                components.type <- paste(component.type,'s',sep='')
-                for(index in 1:length(strategy[[components.type]]))
+                # indicator and signal slots in strategy list use plural name for some reason:
+                components.type <- paste(component.type,'s',sep='') 
+
+                n <- length(strategy[[components.type]])
+
+                for(index in 1:n)
                 {
                     if(strategy[[components.type]][[index]]$label == component.label)
                     {
                         strategy[[components.type]][[component.label]]$arguments[[variable.name]] <- param.combo[[param.label]]
+                        found <- TRUE
                         break
                     }
                 }
@@ -170,16 +176,20 @@ install.param.combo <- function(strategy, param.combo, paramset.label)
             exit =,
             chain =
             {
-                for(index in 1:length(strategy$rules[[component.type]]))
+                n <- length(strategy$rules[[component.type]])
+
+                for(index in 1:n)
                 {
                     if(strategy$rules[[component.type]][[index]]$label == component.label)
                     {
                         strategy$rules[[component.type]][[index]]$arguments[[variable.name]] <- param.combo[[param.label]]
+                        found <- TRUE
                         break
                     }
                 }
             }
         )
+        if(!found) stop(paste(component.label, ': no such ', component.type, ' rule in strategy ', strategy$name, sep=''))
     }
     return(strategy)
 }
@@ -326,14 +336,14 @@ add.constraint <- function(strategy, paramset.label, distribution.label.1, distr
 #' @export
 #' @seealso \code{\link{add.constraint}}, \code{\link{add.constraint}}, \code{\link{delete.paramset}}
 
-apply.paramset <- function(strategy, paramset.label, portfolio.st, nsamples=0, verbose=FALSE)
+apply.paramset <- function(strategy.st, paramset.label, portfolio.st, nsamples=0, verbose=FALSE)
 {
     require(foreach, quietly=TRUE)
     require(iterators, quietly=TRUE)
 
-    must.have.args(match.call(), c('strategy', 'paramset.label', 'portfolio.st'))
+    must.have.args(match.call(), c('strategy.st', 'paramset.label', 'portfolio.st'))
 
-    strategy <- must.be.strategy(strategy)
+    strategy <- must.be.strategy(strategy.st)
     must.be.paramset(strategy, paramset.label)
 
     portfolio <- getPortfolio(portfolio.st)
