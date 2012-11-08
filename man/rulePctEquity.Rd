@@ -47,7 +47,7 @@
 }
 \examples{
 # example rule definition
-\\code{
+\dontrun{
 add.rule(strategy.name, 'rulePctEquity',
         arguments=list(rebalance_on='months',
                        trade.percent=.02,
