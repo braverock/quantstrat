@@ -25,7 +25,9 @@ applyStrategy.rebalancing <- function(strategy ,
                                       initStrat=FALSE, 
                                       updateStrat=FALSE ) 
 {
-   
+    # TODO request add suite of strategies capability to rebalancing tests, 
+    #      might be here or in a new applyStrategySuite fn (req from Chinmay)
+    
     ret<-list()
     
     if (!is.strategy(strategy)) {
@@ -151,7 +153,14 @@ applyStrategy.rebalancing <- function(strategy ,
                     #this index is a rebalancing index for period
                     #call the rebalance rules for this period
                     #still need to separate the rules by rebalancing period, this will call them all
-                    ruleProc(s$rules$rebalance,timestamp=pindex[i], path.dep=TRUE, 'rebalance', ..., mktdata=md_subset, parameters=parameters)
+                    ruleProc(s$rules$rebalance,
+                             timestamp=pindex[i], 
+                             path.dep=TRUE, 
+                             ruletype='rebalance', 
+                             ..., 
+                             mktdata=md_subset, 
+                             parameters=parameters,
+                             portfolio=portfolio)
                 }
             }
         }
