@@ -160,7 +160,8 @@ applyStrategy.rebalancing <- function(strategy ,
                              ..., 
                              mktdata=md_subset, 
                              parameters=parameters,
-                             portfolio=portfolio)
+                             portfolio=portfolio,
+                             symbol=symbol)
                 }
             }
         }
