@@ -165,7 +165,8 @@ install.param.combo <- function(strategy, param.combo, paramset.label)
                 {
                     if(strategy[[components.type]][[index]]$label == component.label)
                     {
-                        strategy[[components.type]][[component.label]]$arguments[[variable.name]] <- param.combo[[param.label]]
+                        strategy[[components.type]][[index]]$arguments[[variable.name]] <- param.combo[[param.label]]
+
                         found <- TRUE
                         break
                     }
@@ -182,7 +183,11 @@ install.param.combo <- function(strategy, param.combo, paramset.label)
                 {
                     if(strategy$rules[[component.type]][[index]]$label == component.label)
                     {
-                        strategy$rules[[component.type]][[index]]$arguments[[variable.name]] <- param.combo[[param.label]]
+                        if(variable.name %in% c('timespan'))
+                            strategy$rules[[component.type]][[index]][[variable.name]] <- as.character(param.combo[[param.label]])
+                        else
+                            strategy$rules[[component.type]][[index]]$arguments[[variable.name]] <- param.combo[[param.label]]
+
                         found <- TRUE
                         break
                     }
