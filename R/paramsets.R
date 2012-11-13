@@ -379,16 +379,25 @@ apply.paramset <- function(strategy.st, paramset.label, portfolio.st, nsamples=0
         {
             result <- args[[i]]
 
+            full.portfolio.st <- paste('portfolio', result$portfolio.st, sep='.')
+            assign(full.portfolio.st, result$blotter[[full.portfolio.st]], envir=.blotter)
+
+            updatePortf(result$portfolio.st, Dates=paste('::',as.Date(Sys.time()),sep=''))
+
+            result$tradeStats <- tradeStats(result$portfolio.st)
+
+            results$tradeStats <- rbind(results$tradeStats, cbind(result$param.combo, result$tradeStats))
             results[[result$portfolio.st]] <- result
         }
         return(results)
     }
 
-    results <- foreach(param.combo=iter(param.combos,by='row'), .packages='quantstrat',
+    results <- foreach(param.combo=iter(param.combos,by='row'),
+        .verbose=verbose, .packages='quantstrat',
         .combine=combine, .multicombine=TRUE, .maxcombine=100,
         .export=c(env.functions, 'env.blotter', 'env.instrument', 'env.strategy', 'symbol.list', symbol.names)) %dopar%
     {
-        if(verbose) print(param.combo)
+        print(param.combo)
 
         # environment data accumulate with each transition through the foreach loop, so must be cleaned
         rm(list=ls(pos=.blotter), pos=.blotter)
@@ -414,26 +423,16 @@ apply.paramset <- function(strategy.st, paramset.label, portfolio.st, nsamples=0
 
         strategy <- install.param.combo(strategy, param.combo, paramset.label)
 
-        applyStrategy(strategy, portfolios=result$portfolio.st, verbose=TRUE)
-        updatePortf(result$portfolio.st, Dates=paste('::',as.Date(Sys.time()),sep=''))
+        applyStrategy(strategy, portfolios=result$portfolio.st, verbose=verbose)
 
-        result$tradeStats <- tradeStats(result$portfolio.st)
-
-        if(verbose) result$blotter <- as.list(.blotter)
+        result$blotter <- as.list(.blotter)
 
         return(result)
     }
 
-    for(result in results)
-    {
-        results$tradeStats <- rbind(results$tradeStats, cbind(result$param.combo, result$tradeStats))
-    }
+    results$distributions <- distributions
+    results$constraints <- constraints
 
-    if(verbose)
-    {
-        results$distributions <- distributions
-        results$constraints <- constraints
-    }
     return(results)
 }
 
