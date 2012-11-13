@@ -370,7 +370,22 @@ apply.paramset <- function(strategy.st, paramset.label, portfolio.st, nsamples=0
     symbol.list <- as.list(.getSymbols)
     symbol.names <- names(.getSymbols)
 
+    combine <- function(...)
+    {
+        args <- list(...)
+
+        results <- list()
+        for(i in 1:length(args))
+        {
+            result <- args[[i]]
+
+            results[[result$portfolio.st]] <- result
+        }
+        return(results)
+    }
+
     results <- foreach(param.combo=iter(param.combos,by='row'), .packages='quantstrat',
+        .combine=combine, .multicombine=TRUE, .maxcombine=100,
         .export=c(env.functions, 'env.blotter', 'env.instrument', 'env.strategy', 'symbol.list', symbol.names)) %dopar%
     {
         if(verbose) print(param.combo)
