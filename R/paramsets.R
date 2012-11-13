@@ -382,6 +382,9 @@ apply.paramset <- function(strategy.st, paramset.label, portfolio.st, nsamples=0
             full.portfolio.st <- paste('portfolio', result$portfolio.st, sep='.')
             assign(full.portfolio.st, result$blotter[[full.portfolio.st]], envir=.blotter)
 
+            full.order_book.st <- paste('order_book', result$portfolio.st, sep='.')
+            assign(full.order_book.st, result$strategy[[full.order_book.st]], envir=.strategy)
+
             updatePortf(result$portfolio.st, Dates=paste('::',as.Date(Sys.time()),sep=''))
 
             result$tradeStats <- tradeStats(result$portfolio.st)
@@ -393,7 +396,8 @@ apply.paramset <- function(strategy.st, paramset.label, portfolio.st, nsamples=0
     }
 
     results <- foreach(param.combo=iter(param.combos,by='row'),
-        .verbose=verbose, .packages='quantstrat',
+        .verbose=verbose, .errorhandling='pass',
+        .packages='quantstrat',
         .combine=combine, .multicombine=TRUE, .maxcombine=100,
         .export=c(env.functions, 'env.blotter', 'env.instrument', 'env.strategy', 'symbol.list', symbol.names)) %dopar%
     {
@@ -426,6 +430,7 @@ apply.paramset <- function(strategy.st, paramset.label, portfolio.st, nsamples=0
         applyStrategy(strategy, portfolios=result$portfolio.st, verbose=verbose)
 
         result$blotter <- as.list(.blotter)
+        result$strategy <- as.list(.strategy)
 
         return(result)
     }
