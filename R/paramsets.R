@@ -388,8 +388,9 @@ apply.paramset <- function(strategy.st, paramset.label, portfolio.st, nsamples=0
             updatePortf(result$portfolio.st, Dates=paste('::',as.Date(Sys.time()),sep=''))
 
             result$tradeStats <- tradeStats(result$portfolio.st)
+            if(!is.null(result$tradeStats))
+                results$tradeStats <- rbind(results$tradeStats, cbind(result$param.combo, result$tradeStats))
 
-            results$tradeStats <- rbind(results$tradeStats, cbind(result$param.combo, result$tradeStats))
             results[[result$portfolio.st]] <- result
         }
         return(results)
