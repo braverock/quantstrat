@@ -83,26 +83,26 @@ initOrders(portfolio='faber', initDate=initDate)
 print("setup completed")
 
 # Initialize a strategy object
-stratFaber <- strategy("faber")
+strategy("faber", store=TRUE)
 
 # Add an indicator
-stratFaber <- add.indicator(strategy = stratFaber, name = "SMA", arguments = list(x = quote(Cl(mktdata)), n=10), label="SMA10")
+add.indicator('faber', name = "SMA", arguments = list(x = quote(Cl(mktdata)), n=10), label="SMA10")
 
 # There are two signals:
 # The first is when monthly price crosses over the 10-month SMA
-stratFaber <- add.signal(stratFaber,name="sigCrossover",arguments = list(columns=c("Close","SMA10"),relationship="gte"),label="Cl.gt.SMA")
+add.signal('faber',name="sigCrossover",arguments = list(columns=c("Close","SMA10"),relationship="gte"),label="Cl.gt.SMA")
 # The second is when the monthly price crosses under the 10-month SMA
-stratFaber <- add.signal(stratFaber,name="sigCrossover",arguments = list(columns=c("Close","SMA10"),relationship="lt"),label="Cl.lt.SMA")
+add.signal('faber',name="sigCrossover",arguments = list(columns=c("Close","SMA10"),relationship="lt"),label="Cl.lt.SMA")
 
 # There are two rules:
 # The first is to buy when the price crosses above the SMA
-stratFaber <- add.rule(stratFaber, name='ruleSignal', arguments = list(sigcol="Cl.gt.SMA", sigval=TRUE, orderqty=1000, ordertype='market', orderside='long', pricemethod='market',TxnFees=-5), type='enter', path.dep=TRUE)
+add.rule('faber', name='ruleSignal', arguments = list(sigcol="Cl.gt.SMA", sigval=TRUE, orderqty=1000, ordertype='market', orderside='long', pricemethod='market',TxnFees=-5), type='enter', path.dep=TRUE)
 # The second is to sell when the price crosses below the SMA
-stratFaber <- add.rule(stratFaber, name='ruleSignal', arguments = list(sigcol="Cl.lt.SMA", sigval=TRUE, orderqty='all', ordertype='market', orderside='long', pricemethod='market',TxnFees=-5), type='exit', path.dep=TRUE)
+add.rule('faber', name='ruleSignal', arguments = list(sigcol="Cl.lt.SMA", sigval=TRUE, orderqty='all', ordertype='market', orderside='long', pricemethod='market',TxnFees=-5), type='exit', path.dep=TRUE)
 
 # Process the indicators and generate trades
 start_t<-Sys.time()
-out<-try(applyStrategy(strategy=stratFaber , portfolios='faber'))
+out<-try(applyStrategy(strategy='faber' , portfolios='faber'))
 end_t<-Sys.time()
 print("Strategy Loop:")
 print(end_t-start_t)
@@ -112,6 +112,7 @@ print(end_t-start_t)
 
 start_t<-Sys.time()
 updatePortf(Portfolio='faber',Dates=paste('::',as.Date(Sys.time()),sep=''))
+updateAcct('faber')
 end_t<-Sys.time()
 print("trade blotter portfolio update:")
 print(end_t-start_t)
@@ -120,10 +121,11 @@ print(end_t-start_t)
 themelist<-chart_theme()
 themelist$col$up.col<-'lightgreen'
 themelist$col$dn.col<-'pink'
+
+dev.new()
+layout(mat=matrix(1:(length(symbols)+1),ncol=2))
 for(symbol in symbols){
-    dev.new()
-    chart.Posn(Portfolio='faber',Symbol=symbol,theme=themelist)
-    plot(add_SMA(n=10,col='darkgreen', on=1))
+    chart.Posn(Portfolio='faber',Symbol=symbol,theme=themelist,TA="add_SMA(n=10,col='darkgreen')")
 }
 
 ret1 <- PortfReturns('faber')
