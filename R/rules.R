@@ -359,33 +359,33 @@ applyRules <- function(portfolio,
                     tmpqty<-as.numeric(tmpqty)
                     tmpprice <- as.numeric(ordersubset[oo.idx[slorder],'Order.Price'])
                     if (tmpqty > 0) { #buy if mktprice moves above stoplimitorder price
-                    relationship='gte'  #if the Ask or Hi go above threshold our stop will be filled
-                    if(isBBOmktdata) {
-                        col<-first(colnames(mktdata)[has.Ask(mktdata,which=TRUE)])
-                    } else if (isOHLCmktdata) {
-                        col<-first(colnames(mktdata)[has.Hi(mktdata,which=TRUE)])
-                    } else { #univariate or something built with fn_SpreadBuilder  
-                        col<-first(colnames(mktdata)[grep(prefer, colnames(mktdata))])
-                        # perhaps we need a has.Price check
-                    }
-                    if (is.na(col)) stop("no price discernable for stoplimit in applyRules")
+                        relationship='gte'  #if the Ask or Hi go above threshold our stop will be filled
+                        if(isBBOmktdata) {
+                            col<-first(colnames(mktdata)[has.Ask(mktdata,which=TRUE)])
+                        } else if (isOHLCmktdata) {
+                            col<-first(colnames(mktdata)[has.Hi(mktdata,which=TRUE)])
+                        } else { #univariate or something built with fn_SpreadBuilder  
+                            col<-first(colnames(mktdata)[grep(prefer, colnames(mktdata))])
+                            # perhaps we need a has.Price check
+                        }
+                        if (is.na(col)) stop("no price discernable for stoplimit in applyRules")
                     } else { #sell if mktprice moves below stoplimitorder price
-                    relationship="lte" #if Bid or Lo go below threshold, our stop will be filled
-                    if(isBBOmktdata) {
-                        col<-first(colnames(mktdata)[has.Bid(mktdata,which=TRUE)])
-                    } else if (isOHLCmktdata) {
-                        col<-first(colnames(mktdata)[has.Lo(mktdata,which=TRUE)])
-                    } else {
-                        col<-first(colnames(mktdata)[grep(prefer, colnames(mktdata))])
-                    }    
-                    if (is.na(col)) stop("no price discernable for stoplimit in applyRules")                            
+                        relationship="lte" #if Bid or Lo go below threshold, our stop will be filled
+                        if(isBBOmktdata) {
+                            col<-first(colnames(mktdata)[has.Bid(mktdata,which=TRUE)])
+                        } else if (isOHLCmktdata) {
+                            col<-first(colnames(mktdata)[has.Lo(mktdata,which=TRUE)])
+                        } else {
+                            col<-first(colnames(mktdata)[grep(prefer, colnames(mktdata))])
+                        }    
+                        if (is.na(col)) stop("no price discernable for stoplimit in applyRules")                            
                     } 
                     cross<-sigThreshold(label='tmpstop',column=col,threshold=tmpprice,relationship=relationship)
                     if(any(cross[timespan])){
-                    # find first index that would cross after this index
-                    newidx <- curIndex + which(cross[timespan])[1] - 1
-                    # insert that into dindex
-                    assign.dindex(c(get.dindex(),newidx))                  
+                        # find first index that would cross after this index
+                        newidx <- curIndex + which(cross[timespan])[1] - 1
+                        # insert that into dindex
+                        assign.dindex(c(get.dindex(),newidx))                  
                     }
                 }
 
@@ -410,44 +410,44 @@ applyRules <- function(portfolio,
                     tmpprice<-as.numeric(ordersubset[oo.idx[lorder],'Order.Price'])
                     
                     if(tmpqty>0){
-                    #buying
-                    relationship="lte" #look for places where Mkt Ask <= our Bid
-                    if(isBBOmktdata) {
-                        col<-first(colnames(mktdata)[has.Ask(mktdata,which=TRUE)])
-                    } else if (isOHLCmktdata) {
-                        col<-first(colnames(mktdata)[has.Lo(mktdata,which=TRUE)])
+                        #buying
+                        relationship="lte" #look for places where Mkt Ask <= our Bid
+                        if(isBBOmktdata) {
+                            col<-first(colnames(mktdata)[has.Ask(mktdata,which=TRUE)])
+                        } else if (isOHLCmktdata) {
+                            col<-first(colnames(mktdata)[has.Lo(mktdata,which=TRUE)])
+                        } else {
+                            col<-first(colnames(mktdata)[grep(prefer, colnames(mktdata))])
+                        }    
+                        if (is.na(col)) stop("no price discernable for limit in applyRules")
                     } else {
-                        col<-first(colnames(mktdata)[grep(prefer, colnames(mktdata))])
-                    }    
-                    if (is.na(col)) stop("no price discernable for stoplimit in applyRules")
-                    } else {
-                    #selling
-                    relationship="gte" #look for places where Mkt Bid >= our Ask
-                    if(isBBOmktdata) {
-                        col<-first(colnames(mktdata)[has.Bid(mktdata,which=TRUE)])
-                    } else if (isOHLCmktdata) {
-                        col<-first(colnames(mktdata)[has.Hi(mktdata,which=TRUE)])
-                    } else {
-                        col<-first(colnames(mktdata)[grep(prefer, colnames(mktdata))])
-                    }    
-                    if (is.na(col)) stop("no price discernable for stoplimit in applyRules")
+                        #selling
+                        relationship="gte" #look for places where Mkt Bid >= our Ask
+                        if(isBBOmktdata) {
+                            col<-first(colnames(mktdata)[has.Bid(mktdata,which=TRUE)])
+                        } else if (isOHLCmktdata) {
+                            col<-first(colnames(mktdata)[has.Hi(mktdata,which=TRUE)])
+                        } else {
+                            col<-first(colnames(mktdata)[grep(prefer, colnames(mktdata))])
+                        }    
+                        if (is.na(col)) stop("no price discernable for limit in applyRules")
                     }
                     # use sigThreshold
                     cross<-sigThreshold(label='tmplimit',column=col,threshold=tmpprice,relationship=relationship)
                     if(any(cross[timespan])){
-                    # find first index that would cross after this index
-                    newidx <- curIndex + which(cross[timespan])[1] #- 1  #curIndex/timestamp was 1 in the subset, we need a -1 offset?
-                    #if there are is no cross curIndex will be incremented on line 496
-                    # with curIndex<-min(dindex[dindex>curIndex]).                            
-                    #we cannot get filled at this timestamp. The soonest we could get filled is next timestamp...
-                    #see also that market order increments curIndex before returning it. Going by the docs,
-                    #I think this is by design. i.e. no instant fills. -gsee
-                    
-                    # insert that into dindex
-                    assign.dindex(c(get.dindex(),newidx))                  
+                        # find first index that would cross after this index
+                        newidx <- curIndex + which(cross[timespan])[1] #- 1  #curIndex/timestamp was 1 in the subset, we need a -1 offset?
+                        #if there are is no cross curIndex will be incremented on line 496
+                        # with curIndex<-min(dindex[dindex>curIndex]).                            
+                        #we cannot get filled at this timestamp. The soonest we could get filled is next timestamp...
+                        #see also that market order increments curIndex before returning it. Going by the docs,
+                        #I think this is by design. i.e. no instant fills. -gsee
+                        
+                        # insert that into dindex
+                        assign.dindex(c(get.dindex(),newidx))                  
                     } else{
-                    # no cross, move ahead
-                    # nidx=TRUE #WHY WAS THIS HERE?
+                        # no cross, move ahead
+                        # nidx=TRUE #WHY WAS THIS HERE?
                     }
                 } # end loop over open limit orders
 
