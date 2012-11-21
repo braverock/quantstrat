@@ -436,7 +436,14 @@ applyRules <- function(portfolio,
                     cross<-sigThreshold(label='tmplimit',column=col,threshold=tmpprice,relationship=relationship)
                     if(any(cross[timespan])){
                         # find first index that would cross after this index
-                        newidx <- curIndex + which(cross[timespan])[1] #- 1  #curIndex/timestamp was 1 in the subset, we need a -1 offset?
+                        #
+                        # current index = which(cross[timespan])[1]
+                        # since the soonest we can get filled is next timestamp we are looking for which(cross[timespan])[2]. 
+                        # need to subtract 1 index==1 means current position
+                        #
+                        # newidx <- curIndex + which(cross[timespan])[1] #- 1  #curIndex/timestamp was 1 in the subset, we need a -1 offset?
+                        newidx <- curIndex + which(cross[timespan])[2] - 1  #curIndex/timestamp was 1 in the subset, we need a -1 offset?
+
                         #if there are is no cross curIndex will be incremented on line 496
                         # with curIndex<-min(dindex[dindex>curIndex]).                            
                         #we cannot get filled at this timestamp. The soonest we could get filled is next timestamp...

@@ -145,15 +145,23 @@ ruleOrderProc <- function(portfolio, symbol, mktdata, timespan=NULL, ordertype=N
                             # check to see if price moved through the limit                        
                             if((orderQty > 0 && orderType != 'stoplimit') || (orderQty < 0 && (orderType=='stoplimit'))) {
                                 # buy limit, or sell stoplimit
-                                if( (has.Lo(mktdata) && orderPrice > as.numeric(Lo(mktdataTimestamp))) || 
+                                if( (has.Lo(mktdata) && orderPrice >= as.numeric(Lo(mktdataTimestamp))) || 
                                     (!has.Lo(mktdata) && orderPrice >= as.numeric(getPrice(mktdataTimestamp, prefer=prefer))))
                                 {
                                     txnprice = orderPrice
                                     txntime = timestamp
+#            if(ordersubset[ii,'Rule']=='EnterLONG') 
+#            {
+#                print('Hebbes!')
+#                print(ordersubset[ii,])
+#                print(txnprice)
+#                print(txntime)
+#                print('Hebbes!!')
+#            }
                                 } else next() # price did not move through my order, should go to next order  
                             } else if((orderQty < 0 && orderType != 'stoplimit') || (orderQty > 0 && (orderType=='stoplimit'))) { 
                                 # sell limit or buy stoplimit
-                                if ( (has.Hi(mktdata) && orderPrice < as.numeric(Hi(mktdataTimestamp))) ||
+                                if ( (has.Hi(mktdata) && orderPrice <= as.numeric(Hi(mktdataTimestamp))) ||
                                      (!has.Hi(mktdata) && orderPrice <= as.numeric(getPrice(mktdataTimestamp,prefer=prefer))) )
                                 {
                                     txnprice = orderPrice
