@@ -364,6 +364,7 @@ applyRules <- function(portfolio,
                             col<-first(colnames(mktdata)[has.Ask(mktdata,which=TRUE)])
                         } else if (isOHLCmktdata) {
                             col<-first(colnames(mktdata)[has.Hi(mktdata,which=TRUE)])
+                            relationship="gt" #look for places where Mkt Bid >= our Ask
                         } else { #univariate or something built with fn_SpreadBuilder  
                             col<-first(colnames(mktdata)[grep(prefer, colnames(mktdata))])
                             # perhaps we need a has.Price check
@@ -375,6 +376,7 @@ applyRules <- function(portfolio,
                             col<-first(colnames(mktdata)[has.Bid(mktdata,which=TRUE)])
                         } else if (isOHLCmktdata) {
                             col<-first(colnames(mktdata)[has.Lo(mktdata,which=TRUE)])
+                            relationship="lt" #look for places where Mkt Ask <= our Bid
                         } else {
                             col<-first(colnames(mktdata)[grep(prefer, colnames(mktdata))])
                         }    
@@ -416,6 +418,7 @@ applyRules <- function(portfolio,
                             col<-first(colnames(mktdata)[has.Ask(mktdata,which=TRUE)])
                         } else if (isOHLCmktdata) {
                             col<-first(colnames(mktdata)[has.Lo(mktdata,which=TRUE)])
+                            relationship="lt" #look for places where Mkt Ask <= our Bid
                         } else {
                             col<-first(colnames(mktdata)[grep(prefer, colnames(mktdata))])
                         }    
@@ -427,6 +430,7 @@ applyRules <- function(portfolio,
                             col<-first(colnames(mktdata)[has.Bid(mktdata,which=TRUE)])
                         } else if (isOHLCmktdata) {
                             col<-first(colnames(mktdata)[has.Hi(mktdata,which=TRUE)])
+                            relationship="gt" #look for places where Mkt Bid >= our Ask
                         } else {
                             col<-first(colnames(mktdata)[grep(prefer, colnames(mktdata))])
                         }    
