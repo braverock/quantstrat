@@ -68,7 +68,7 @@ initOrders <- function(portfolio=NULL, symbols=NULL, initDate = '1999-12-31', ..
 #' 
 #' @param portfolio text name of the portfolio to associate the order book with
 #' @param symbol identfier of the instrument to find orders for.  The name of any associated price objects (xts prices, usually OHLC) should match these
-#' @param status one of "open", "closed", "canceled", or "replaced", default "open"
+#' @param status one of "open", "closed", "canceled", "revoked", or "replaced", default "open"
 #' @param timespan xts-style character timespan to be the period to find orders of the given status and ordertype
 #' @param ordertype one of NULL, "market","limit","stoplimit", "stoptrailing" or "iceberg" default NULL
 #' @param side one of NULL, "long" or "short", default NULL 
@@ -88,7 +88,7 @@ getOrders <- function(portfolio,symbol,status="open",timespan=NULL,ordertype=NUL
 	    ordersubset<-orderbook[[portfolio]][[symbol]]
 
     #data quality checks
-    if(!is.null(status) & !length(grep(status,c("open", "closed", "canceled","replaced")))==1) stop(paste("order status:",status,' must be one of "open", "closed", "canceled", or "replaced"'))
+    if(!is.null(status) & !length(grep(status,c("open", "closed", "canceled", "revoked","replaced")))==1) stop(paste("order status:",status,' must be one of "open", "closed", "canceled", "revoked", or "replaced"'))
     if(!is.null(ordertype)) {
         if(is.na(charmatch(ordertype,c("market","limit","stoplimit","stoptrailing","iceberg")))){
             stop(paste("ordertype:",ordertype,' must be one of "market","limit","stoplimit", "stoptrailing" or "iceberg"'))
@@ -200,7 +200,7 @@ getOrders <- function(portfolio,symbol,status="open",timespan=NULL,ordertype=NUL
 #' @param side one of either "long" or "short" 
 #' @param threshold numeric threshold to apply to limit, stoplimit, stoptrailing and iceberg orders, default NULL
 #' @param orderset set a tag identifying the orderset
-#' @param status one of "open", "closed", "canceled", or "replaced", default "open"
+#' @param status one of "open", "closed", "canceled", "revoked", or "replaced", default "open"
 #' @param statustimestamp timestamp of a status update, will be blank when order is initiated 
 #' @param delay what delay to add to timestamp when inserting the order into the order book, in seconds
 #' @param tmult if TRUE, threshold is a percent multiplier for \code{price}, not a scalar. Threshold is converted to a scalar by multiplying it with the price, then added to the price just like a scalar threshold. 
@@ -306,7 +306,7 @@ addOrder <- function(portfolio,
 
     if(is.null(threshold)) threshold=NA  #NA is not ignored like NULL is 
 
-    if(!length(grep(status,c("open", "closed", "canceled","replaced",'rejected')))==1) stop(paste("order status:",status,' must be one of "open", "closed", "canceled", "replaced", or "rejected"'))
+    if(!length(grep(status,c("open", "closed", "canceled", "revoked","replaced",'rejected')))==1) stop(paste("order status:",status,' must be one of "open", "closed", "canceled", "revoked", "replaced", or "rejected"'))
     # TODO do we need to check for collision, and increment timestamp?  or alternately update?
 
     # subset by time and symbol
@@ -390,7 +390,7 @@ addOrder <- function(portfolio,
 #' the case of a traditional Cancel/Replace, because of a trailing stop, or in the
 #' case of a partial fill that needs to enter a replaced order for the remainder. 
 #' 
-#' When a risk event or over-limit event happens, typically open orders will be 'canceled'.  
+#' When a risk event or over-limit event happens, typically open orders will be 'revoked'.  
 #' Possibly new orders will be added to close open positions.  
 #' Many models will also want to run a process at the close of market that will cancel all open orders. 
 #' 
@@ -404,8 +404,8 @@ addOrder <- function(portfolio,
 #' @param side one of NULL, "long" or "short", default NULL 
 #' @param qtysign one of NULL, -1,0,1 ; could be useful when all qty's are reported as positive numbers and need to be identified other ways, default NULL
 #' @param orderset set a tag identifying the orderset
-#' @param oldstatus one of NULL, "open", "closed", "canceled", or "replaced", default "open"
-#' @param newstatus one of "open", "closed", "canceled", or "replaced"
+#' @param oldstatus one of NULL, "open", "closed", "canceled", "revoked", or "replaced", default "open"
+#' @param newstatus one of "open", "closed", "canceled", "revoked", or "replaced"
 #' @param statustimestamp timestamp of a status update, will be blank when order is initiated
 #' @seealso addOrder
 #' @seealso getOrders
@@ -425,10 +425,10 @@ updateOrders <- function(portfolio,
                  )
 { 
     #data quality checks
-    if(!is.null(oldstatus) && !length(grep(oldstatus,c("open", "closed", "canceled","replaced",'rejected')))==1) 
-        stop(paste("old order status:",oldstatus,' must be one of "open", "closed", "canceled", "replaced", or "rejected"'))
-    if(!length(grep(newstatus,c("open", "closed", "canceled","replaced",'rejected')))==1) 
-        stop(paste("new order status:",newstatus,' must be one of "open", "closed", "canceled", "replaced", or "rejected"'))
+    if(!is.null(oldstatus) && !length(grep(oldstatus,c("open", "closed", "canceled", "revoked","replaced",'rejected')))==1) 
+        stop(paste("old order status:",oldstatus,' must be one of "open", "closed", "canceled", "revoked", "replaced", or "rejected"'))
+    if(!length(grep(newstatus,c("open", "closed", "canceled", "revoked","replaced",'rejected')))==1) 
+        stop(paste("new order status:",newstatus,' must be one of "open", "closed", "canceled", "revoked", "replaced", or "rejected"'))
     if(!is.null(side) && !length(grep(side,c('long','short')))==1) 
         stop(paste("side:",side," must be one of 'long' or 'short'"))
     if(!is.null(qtysign) && (qtysign != -1 && qtysign != 1 && qtysign != 0))

@@ -5,7 +5,7 @@
   addOrder(portfolio, symbol, timestamp, qty, price,
     ordertype, side, threshold = NULL, orderset = "",
     status = "open", statustimestamp = "", prefer = NULL,
-    delay = 1e-05, tmult = FALSE, replace = TRUE,
+    delay = 0.00001, tmult = FALSE, replace = TRUE,
     return = FALSE, ..., TxnFees = 0, label = "")
 }
 \arguments{
@@ -35,8 +35,8 @@
 
   \item{orderset}{set a tag identifying the orderset}
 
-  \item{status}{one of "open", "closed", "canceled", or
-  "replaced", default "open"}
+  \item{status}{one of "open", "closed", "canceled",
+  "revoked", or "replaced", default "open"}
 
   \item{statustimestamp}{timestamp of a status update, will
   be blank when order is initiated}

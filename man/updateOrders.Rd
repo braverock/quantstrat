@@ -31,10 +31,10 @@
   \item{orderset}{set a tag identifying the orderset}
 
   \item{oldstatus}{one of NULL, "open", "closed",
-  "canceled", or "replaced", default "open"}
+  "canceled", "revoked", or "replaced", default "open"}
 
-  \item{newstatus}{one of "open", "closed", "canceled", or
-  "replaced"}
+  \item{newstatus}{one of "open", "closed", "canceled",
+  "revoked", or "replaced"}
 
   \item{statustimestamp}{timestamp of a status update, will
   be blank when order is initiated}
@@ -53,7 +53,7 @@
   remainder.
 
   When a risk event or over-limit event happens, typically
-  open orders will be 'canceled'. Possibly new orders will
+  open orders will be 'revoked'. Possibly new orders will
   be added to close open positions. Many models will also
   want to run a process at the close of market that will
   cancel all open orders.
