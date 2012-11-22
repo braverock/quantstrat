@@ -25,8 +25,6 @@ ruleRevoke <- function(data=mktdata, timestamp, sigcol, sigval, orderside=NULL, 
     pos <- getPosQty(portfolio, symbol, timestamp)
     if(pos == 0)
     {
-        #if(is.null(orderset)) orderset=NA
-
         updateOrders(portfolio=portfolio, 
                   symbol=symbol, 
                   timespan=timespan,

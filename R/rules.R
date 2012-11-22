@@ -272,7 +272,11 @@ applyRules <- function(portfolio,
                     if(isTRUE(rule$path.dep)){ # only apply to path dependent rule
                         # check for sigcol, sigval, otherwise use all
                         if(is.null(rule$arguments$sigcol) | is.null(rule$arguments$sigval) ){
-                            assign.dindex(1:length(Dates))
+                            if(is.null(rule$timespan)) {
+                                assign.dindex(1:length(Dates))
+                            } else {
+                                assign.dindex(c(get.dindex(), which(.index(mktdata) %in% .index(mktdata[rule$timespan]))))
+                            }
                         } else {
                             if(is.null(rule$timespan)) {
                                 assign.dindex(c(get.dindex(),which(mktdata[,rule$arguments$sigcol] == rule$arguments$sigval)))
