@@ -2,7 +2,7 @@
 \alias{apply.paramset}
 \title{Apply a paramset to the strategy}
 \usage{
-  apply.paramset(strategy, paramset.label, portfolio.st,
+  apply.paramset(strategy.st, paramset.label, portfolio.st,
     nsamples = 0, verbose = FALSE)
 }
 \arguments{

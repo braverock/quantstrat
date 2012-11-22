@@ -26,7 +26,7 @@
 #' 
 #' @examples 
 #' # example rule definition
-#' \code{
+#' \dontrun{
 #' add.rule(strategy.name, 'rulePctEquity',
 #'         arguments=list(rebalance_on='months',
 #'                        trade.percent=.02,
@@ -62,6 +62,47 @@ rulePctEquity <- function (trade.percent=.02,
                 minpos = -tradeSize, 
                 shortlevels = shortlevels)
 }
+
+ruleWeights <- function (weights=NULL,
+        ...,
+        longlevels=1, 
+        shortlevels=1, 
+        digits=NULL,
+        portfolio,
+        symbol,
+        account=NULL,
+        timestamp)
+{
+    #update portfolio
+    dummy <- updatePortf(Portfolio=portfolio,
+            Dates=paste('::',timestamp,sep=''))
+    
+    #get total account equity
+    if(!is.null(account)){
+        dummy <- updateAcct(Account=account,
+                Dates=paste('::',timestamp,sep=''))
+        dummy <- updateEndEq(Account=account,
+                Dates=paste('::',timestamp,sep=''))
+        total.equity<-getEndEq(account)
+    } else {
+        trading.pl <- sum(getPortfolio(portfolio)$summary$Net.Trading.PL)
+        total.equity <- initEq+trading.pl
+    }
+    
+    if(!is.null(digits)) tradeSize<-round(tradeSize,digits)
+    addPosLimit(portfolio = portfolio, 
+            symbol = symbol, 
+            timestamp = timestamp, 
+            maxpos = tradeSize, 
+            longlevels = longlevels, 
+            minpos = -tradeSize, 
+            shortlevels = shortlevels)
+}
+
+#TODO weights rule that takes or calculates max position based on weights
+#TODO active weights rule that moved from current positions to target positions
+#TODO PortfolioAnalytics sizing
+#TODO LSPM sizing
 
 ###############################################################################
 # R (http://r-project.org/) Quantitative Strategy Model Framework

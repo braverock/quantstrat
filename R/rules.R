@@ -617,11 +617,11 @@ applyRules <- function(portfolio,
                             #(mktdata, portfolio, symbol, timestamp, slippageFUN=NULL)
 
                             if (isTRUE(path.dep))
-                                timespan <- format(timestamp, "::%Y-%m-%d %H:%M:%OS6")
+                                timespan <- format(timestamp, "::%Y-%m-%d %H:%M:%OS6") #may be unecessary
                             else
-                                timespan=NULL
+                                timestamp=NULL
 
-                            closed.orders <- ruleOrderProc(portfolio=portfolio, symbol=symbol, mktdata=mktdata, timespan=timespan, ...)
+                            closed.orders <- ruleOrderProc(portfolio=portfolio, symbol=symbol, mktdata=mktdata, timestamp=timestamp, ...)
                         }
                     },
                     chain = {

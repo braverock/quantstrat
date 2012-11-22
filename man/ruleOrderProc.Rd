@@ -3,7 +3,7 @@
 \title{process open orders at time \emph{t}, generating transactions or new orders}
 \usage{
   ruleOrderProc(portfolio, symbol, mktdata,
-    timespan = NULL, ordertype = NULL, ...,
+    timestamp = NULL, ordertype = NULL, ...,
     slippageFUN = NULL)
 }
 \arguments{
@@ -18,8 +18,8 @@
   depending on indicators, may need to be in OHLCV or BBO
   formats, default NULL}
 
-  \item{timespan}{xts-style character timespan to be the
-  period to find orders to process in}
+  \item{timestamp}{timestamp coercible to POSIXct that will
+  be the time the order will be processed on}
 
   \item{ordertype}{one of NULL,
   "market","limit","stoplimit", or "stoptrailing" default

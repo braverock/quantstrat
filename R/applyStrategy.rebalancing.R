@@ -139,8 +139,9 @@ applyStrategy.rebalancing <- function(strategy ,
                 md_subset<-mktdata[as.POSIXct(index(mktdata))>pindex[i-1]&as.POSIXct(index(mktdata))<=pindex[i]]
                 if(nrow(md_subset)<1) next()
                 #applyRules to this subset for this instrument  
-                sret$rules$pathdep<-rbind(sret$rules$pathdep,
-                                      applyRules(portfolio=portfolio, symbol=symbol, strategy=s, mktdata=md_subset, Dates=NULL, indicators=sret$indicators, signals=sret$signals, parameters=parameters,  ..., path.dep=TRUE))
+                #sret$rules$pathdep<-rbind(sret$rules$pathdep,
+                                      applyRules(portfolio=portfolio, symbol=symbol, strategy=s, mktdata=md_subset, Dates=NULL, indicators=sret$indicators, signals=sret$signals, parameters=parameters,  ..., path.dep=TRUE)
+                #)
                 
                 ret[[portfolio]][[symbol]]<-sret
             } #end loop over symbols for this sub-period

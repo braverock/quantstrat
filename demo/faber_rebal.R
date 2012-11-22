@@ -80,6 +80,12 @@ initPortf('faber', symbols=symbols, initDate=initDate)
 initAcct('faber', portfolios='faber', initDate=initDate, initEq=100000)
 initOrders(portfolio='faber', initDate=initDate)
 
+# set intial position limits
+posval<-initEq/length(symbols)
+for(symbol in symbols){
+    pos<-round((posval/first(getPrice(get(symbol)))),-2)
+    addPosLimit('faber',symbol,initDate, maxpos=pos,minpos=-pos)
+}
 print("setup completed")
 
 # Initialize a strategy object
@@ -96,13 +102,24 @@ add.signal('faber',name="sigCrossover",arguments = list(columns=c("Close","SMA10
 
 # There are two rules:
 # The first is to buy when the price crosses above the SMA
-add.rule('faber', name='ruleSignal', arguments = list(sigcol="Cl.gt.SMA", sigval=TRUE, orderqty=500, ordertype='market', orderside='long', pricemethod='market',TxnFees=-5), type='enter', path.dep=TRUE)
+add.rule('faber', name='ruleSignal', arguments = list(sigcol="Cl.gt.SMA", sigval=TRUE, orderqty=100000, osFUN='osMaxPos', ordertype='market', orderside='long', pricemethod='market',TxnFees=-5), type='enter', path.dep=TRUE)
 # The second is to sell when the price crosses below the SMA
 add.rule('faber', name='ruleSignal', arguments = list(sigcol="Cl.lt.SMA", sigval=TRUE, orderqty='all', ordertype='market', orderside='long', pricemethod='market',TxnFees=-5), type='exit', path.dep=TRUE)
 
-# Process the indicators and generate trades
+# add quaterly rebalancing
+add.rule('faber', 'rulePctEquity',
+        arguments=list(rebalance_on='quarters',
+                trade.percent=1/length(symbols),
+                refprice=quote(last(getPrice(mktdata)[paste('::',timestamp,sep='')])),
+                digits=0
+        ),
+        type='rebalance',
+        label='rebalance'
+)
+
+# Process the strategy and generate trades
 start_t<-Sys.time()
-out<-try(applyStrategy(strategy='faber' , portfolios='faber'))
+out<-applyStrategy.rebalancing(strategy='faber' , portfolios='faber')
 end_t<-Sys.time()
 print("Strategy Loop:")
 print(end_t-start_t)

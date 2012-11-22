@@ -39,7 +39,7 @@
 #' @param portfolio text name of the portfolio to associate the order book with
 #' @param symbol identfier of the instrument to find orders for.  The name of any associated price objects (xts prices, usually OHLC or BBO) should match these
 #' @param mktdata an xts object containing market data.  depending on indicators, may need to be in OHLCV or BBO formats, default NULL
-#' @param timespan xts-style character timespan to be the period to find orders to process in
+#' @param timestamp timestamp coercible to POSIXct that will be the time the order will be processed on 
 #' @param ordertype one of NULL, "market","limit","stoplimit", or "stoptrailing" default NULL
 #' @param ... any other passthru parameters
 #' @param slippageFUN default  NULL, not yet implemented
@@ -49,29 +49,26 @@
 #' @seealso addOrder
 #' @seealso updateOrders
 #' @export
-ruleOrderProc <- function(portfolio, symbol, mktdata, timespan=NULL, ordertype=NULL, ..., slippageFUN=NULL)
+ruleOrderProc <- function(portfolio, symbol, mktdata, timestamp=NULL, ordertype=NULL, ..., slippageFUN=NULL)
 {
-    if(is.null(timespan)) return()
+    if(is.null(timestamp)) return()
     orderbook <- getOrderBook(portfolio)
     ordersubset <- orderbook[[portfolio]][[symbol]]
     
     # get open orders
     OpenOrders.i=NULL
+    #TODO calculate timespan here?
     OpenOrders.i<-getOrders(portfolio=portfolio, symbol=symbol, status="open", timespan=timespan, ordertype=ordertype, which.i=TRUE)
 
     if(hasArg(prefer)) prefer=match.call(expand.dots=TRUE)$prefer
     else prefer = NULL
 
     # check for open orders
-    if (length(OpenOrders.i)>=1){
-        # get previous bar
-        prevtime  <- time(mktdata[last(mktdata[timespan, which.i = TRUE])-1]) 
-        timestamp <- time(last(mktdata[timespan]))
-        #switch on frequency
-        freq = periodicity(mktdata)
+    if (!(length(OpenOrders.i)>=1)){
+        return(NULL)  
+    } else {
         mktdataTimestamp <- mktdata[timestamp]
-        #str(mktdataTimestamp)
-        # Should we only keep the last observation per time stamp?
+        # only keep the last observation per time stamp
         if( NROW(mktdataTimestamp) > 1 ) mktdataTimestamp <- last(mktdataTimestamp)
         isOHLCmktdata <- is.OHLC(mktdata)
         isBBOmktdata  <- is.BBO(mktdata)
@@ -109,6 +106,8 @@ ruleOrderProc <- function(portfolio, symbol, mktdata, timespan=NULL, ordertype=N
 
             orderType <- ordersubset[ii,"Order.Type"]
 
+            freq = periodicity(mktdata)
+            #switch on frequency
             switch(orderType,
                     market = {
                         switch(freq$scale,
@@ -117,7 +116,7 @@ ruleOrderProc <- function(portfolio, symbol, mktdata, timespan=NULL, ordertype=N
                                 monthly = {
                                     txntime=as.character(index(ordersubset[ii,])) # transacts on this bar, e.g. in the intraday cross, or leading into the end of month, quarter, etc.
                                     # txntime=as.character(timestamp) # use this if you wanted to transact on the close of the next bar
-                                    txnprice=as.numeric(getPrice(last(mktdata[txntime]), prefer=prefer)[,1])
+                                    txnprice=as.numeric(getPrice(mktdataTimestamp, prefer=prefer)[,1])
                                 }, #end daily
                                 { 
                                     txntime = timestamp
@@ -338,7 +337,7 @@ ruleOrderProc <- function(portfolio, symbol, mktdata, timespan=NULL, ordertype=N
                             }
                         }
 
-                    }
+                    } # end stoptrailing
             )
 
             if(!is.null(txnprice) && !isTRUE(is.na(txnprice)))
