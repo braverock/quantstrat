@@ -2,7 +2,7 @@
 
 require(quantstrat)
 
-source('luxor.basic.R')
+source('luxor.strategy.R')
 
 .FastSMA = (1:20)
 .SlowSMA = (30:80)
