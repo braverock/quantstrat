@@ -36,8 +36,8 @@ exchange_rate(c('GBPUSD'), tick_size=0.0001)
 
 ###
 
-setSymbolLookup.FI('~/R.symbols/', 'GBPUSD')
-#setSymbolLookup.FI('../data/', 'GBPUSD')
+#setSymbolLookup.FI('~/R.symbols/', 'GBPUSD')
+setSymbolLookup.FI('../data/', 'GBPUSD')
 
 getSymbols('GBPUSD', from=.from, to=.to, verbose=FALSE)
 GBPUSD = to.minutes30(GBPUSD)
@@ -68,10 +68,10 @@ load.strategy(strategy.st)
 
 require(foreach)
 
-registerDoSEQ()
+#registerDoSEQ()
 
-#require(doMC)
-#registerDoMC(cores=2)
+require(doMC)
+registerDoMC(cores=2)
 
 #require(doParallel)
 #registerDoParallel(cores=2)
