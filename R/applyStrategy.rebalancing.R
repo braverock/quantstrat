@@ -125,46 +125,49 @@ applyStrategy.rebalancing <- function(strategy ,
         st$plist<-plist
         
         # combine plist into one sorted index
-        pindex <- sort(do.call(c, c(plist, use.names=FALSE)))
+        pindex <- unique(sort(do.call(c, c(plist, use.names=FALSE))))
         st$rebalance_index<-pindex
         
         #now we need to do the endpoints loop. 
         for(i in 2:length(pindex)){
             #the proper endpoints for each symbol will vary, so we need to get them separately, and subset each one
             for (symbol in symbols){
-                sret<-ret[[portfolio]][[symbol]]
-
+                #sret<-ret[[portfolio]][[symbol]]
                 mktdata<-get(symbol,pos=st)
                 #now subset
                 md_subset<-mktdata[as.POSIXct(index(mktdata))>pindex[i-1]&as.POSIXct(index(mktdata))<=pindex[i]]
-                if(nrow(md_subset)<1) next()
-                #applyRules to this subset for this instrument  
-                #sret$rules$pathdep<-rbind(sret$rules$pathdep,
-                                      applyRules(portfolio=portfolio, symbol=symbol, strategy=s, mktdata=md_subset, Dates=NULL, indicators=sret$indicators, signals=sret$signals, parameters=parameters,  ..., path.dep=TRUE)
-                #)
-                
-                ret[[portfolio]][[symbol]]<-sret
-            } #end loop over symbols for this sub-period
-            
-            #now call the rebalancing rules
-            #to nest different rebalancing periods, we need to check if the pindex 'i' is in specific rebalance_on periods
-            # specifically, we need to check if *this* index is in st$plist$period
-            for(period in names(st$plist)){
-                if(pindex[i] %in% st$plist[[period]]){
-                    #this index is a rebalancing index for period
-                    #call the rebalance rules for this period
-                    #still need to separate the rules by rebalancing period, this will call them all
-                    ruleProc(s$rules$rebalance,
-                             timestamp=pindex[i], 
-                             path.dep=TRUE, 
-                             ruletype='rebalance', 
-                             ..., 
-                             mktdata=md_subset, 
-                             parameters=parameters,
-                             portfolio=portfolio,
-                             symbol=symbol)
+                if(nrow(md_subset)<1) {
+                    print('next')
+                    next()
+                } else{
+                    #applyRules to this subset for this instrument  
+                    #sret$rules$pathdep<-rbind(sret$rules$pathdep,
+                    applyRules(portfolio=portfolio, symbol=symbol, strategy=s, mktdata=md_subset, Dates=NULL, indicators=sret$indicators, signals=sret$signals, parameters=parameters,  ..., path.dep=TRUE)
+                    #)
                 }
-            }
+                
+                #ret[[portfolio]][[symbol]]<-sret
+                
+                #now call the rebalancing rules
+                #to nest different rebalancing periods, we need to check if the pindex 'i' is in specific rebalance_on periods
+                # specifically, we need to check if *this* index is in st$plist$period
+                for(period in names(st$plist)){
+                    if(pindex[i] %in% st$plist[[period]]){
+                        #this index is a rebalancing index for period
+                        #call the rebalance rules for this period
+                        #still need to separate the rules by rebalancing period, this will call them all
+                        ruleProc(s$rules$rebalance,
+                                timestamp=pindex[i], 
+                                path.dep=TRUE, 
+                                ruletype='rebalance', 
+                                ..., 
+                                mktdata=md_subset, 
+                                parameters=parameters,
+                                portfolio=portfolio,
+                                symbol=symbol)
+                    }
+                }
+            } #end loop over symbols for this sub-period
         }
         
         # updateStrat
