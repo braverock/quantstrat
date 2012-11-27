@@ -137,7 +137,6 @@ applyStrategy.rebalancing <- function(strategy ,
                 #now subset
                 md_subset<-mktdata[as.POSIXct(index(mktdata))>pindex[i-1]&as.POSIXct(index(mktdata))<=pindex[i]]
                 if(nrow(md_subset)<1) {
-                    print('next')
                     next()
                 } else{
                     #applyRules to this subset for this instrument  
