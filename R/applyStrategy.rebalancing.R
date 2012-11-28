@@ -144,19 +144,17 @@ applyStrategy.rebalancing <- function(strategy ,
                     applyRules(portfolio=portfolio, symbol=symbol, strategy=s, mktdata=md_subset, Dates=NULL, indicators=sret$indicators, signals=sret$signals, parameters=parameters,  ..., path.dep=TRUE)
                     #)
                 }
-            } #end loop over symbols for this sub-period
-            
+                
                 #ret[[portfolio]][[symbol]]<-sret
                 
-            #now call the rebalancing rules
-            #to nest different rebalancing periods, we need to check if the pindex 'i' is in specific rebalance_on periods
-            # specifically, we need to check if *this* index is in st$plist$period
-            for(period in names(st$plist)){
-                if(pindex[i] %in% st$plist[[period]]){
-                    #this index is a rebalancing index for period
-                    #call the rebalance rules for this period
-                    #still need to separate the rules by rebalancing period, this will call them all
-                    for (symbol in symbols){
+                #now call the rebalancing rules
+                #to nest different rebalancing periods, we need to check if the pindex 'i' is in specific rebalance_on periods
+                # specifically, we need to check if *this* index is in st$plist$period
+                for(period in names(st$plist)){
+                    if(pindex[i] %in% st$plist[[period]]){
+                        #this index is a rebalancing index for period
+                        #call the rebalance rules for this period
+                        #still need to separate the rules by rebalancing period, this will call them all
                         ruleProc(s$rules$rebalance,
                                 timestamp=pindex[i], 
                                 path.dep=TRUE, 
@@ -168,7 +166,7 @@ applyStrategy.rebalancing <- function(strategy ,
                                 symbol=symbol)
                     }
                 }
-            }
+            } #end loop over symbols for this sub-period
         }
         
         # updateStrat
