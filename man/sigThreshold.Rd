@@ -14,7 +14,7 @@
 
   \item{column}{named column to apply comparison to}
 
-  \item{threshold}{numeric threhold to test for}
+  \item{threshold}{numeric threshold to test for}
 
   \item{relationship}{one of c("gt","lt","eq","gte","lte")
   or reasonable alternatives}

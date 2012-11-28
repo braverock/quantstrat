@@ -173,8 +173,10 @@ applySignals <- function(strategy, mktdata, indicators=NULL, parameters=NULL, ..
 #' @param data data to apply comparison to
 #' @param columns named columns to apply comparison to
 #' @param relationship one of c("gt","lt","eq","gte","lte","op") or reasonable alternatives
+#' @param offset1 numeric offset to be added to the first column prior to comparison
+#' @param offset2 numeric offset to be added to the second column prior to comparison
 #' @export
-sigComparison <- function(label,data=mktdata, columns, relationship=c("gt","lt","eq","gte","lte")) {
+sigComparison <- function(label,data=mktdata, columns, relationship=c("gt","lt","eq","gte","lte"), offset1=0, offset2=0) {
     relationship=relationship[1] #only use the first one
     if (length(columns)==2){
         ret_sig=NULL
@@ -203,7 +205,7 @@ sigComparison <- function(label,data=mktdata, columns, relationship=c("gt","lt",
 					 	lte =, lteq =, le =, "<=" = "<="
 					 )
 
-		ret_sig <- do.call( opr, list(data[,colNums[1]], data[,colNums[2]]))
+		ret_sig <- do.call( opr, list(data[,colNums[1]]+offset1, data[,colNums[2]]+offset2))
 
     } else {
         stop("comparison of more than two columns not supported, see sigFormula")
@@ -226,12 +228,14 @@ sigComparison <- function(label,data=mktdata, columns, relationship=c("gt","lt",
 #' @param data data to apply crossover to
 #' @param columns named columns to apply crossover of the first against the second
 #' @param relationship one of c("gt","lt","eq","gte","lte") or reasonable alternatives
+#' @param offset1 numeric offset to be added to the first column prior to comparison
+#' @param offset2 numeric offset to be added to the second column prior to comparison
 #' @export
-sigCrossover <- function(label,data=mktdata, columns, relationship=c("gt","lt","eq","gte","lte")) {
+sigCrossover <- function(label,data=mktdata, columns, relationship=c("gt","lt","eq","gte","lte"), offset1=0, offset2=0) {
     ret_sig = FALSE
     lng<-length(columns)
     for (i in 1:(lng-1)) {
-        ret_sig = suppressWarnings(ret_sig | diff(sigComparison(label=label,data=data,columns=columns[c(i,lng)],relationship=relationship))==1)
+        ret_sig = suppressWarnings(ret_sig | diff(sigComparison(label=label,data=data,columns=columns[c(i,lng)],relationship=relationship,offset1=offset1, offset2=offset2))==1)
     }
     is.na(ret_sig) <- which(!ret_sig)
     colnames(ret_sig)<-label
@@ -271,7 +275,7 @@ sigPeak <- function(label,data,column, direction=c("peak","bottom")){
 #' @param label text label to apply to the output
 #' @param data data to apply comparison to
 #' @param column named column to apply comparison to
-#' @param threshold numeric threhold to test for
+#' @param threshold numeric threshold to test for
 #' @param relationship one of c("gt","lt","eq","gte","lte") or reasonable alternatives
 #' @param cross if TRUE, will return TRUE only for the first observation to cross the threshold in a run
 #' @export

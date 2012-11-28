@@ -3,7 +3,8 @@
 \title{generate a crossover signal}
 \usage{
   sigCrossover(label, data = mktdata, columns,
-    relationship = c("gt", "lt", "eq", "gte", "lte"))
+    relationship = c("gt", "lt", "eq", "gte", "lte"),
+    offset1 = 0, offset2 = 0)
 }
 \arguments{
   \item{label}{text label to apply to the output}
@@ -15,6 +16,12 @@
 
   \item{relationship}{one of c("gt","lt","eq","gte","lte")
   or reasonable alternatives}
+
+  \item{offset1}{numeric offset to be added to the first
+  column prior to comparison}
+
+  \item{offset2}{numeric offset to be added to the second
+  column prior to comparison}
 }
 \description{
   This will generate a crossover signal, which is a
