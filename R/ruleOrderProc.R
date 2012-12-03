@@ -54,7 +54,7 @@ ruleOrderProc <- function(portfolio, symbol, mktdata, timestamp=NULL, ordertype=
     if(is.null(timestamp)) return()
     orderbook <- getOrderBook(portfolio)
     ordersubset <- orderbook[[portfolio]][[symbol]]
-    
+
     # get open orders
     OpenOrders.i=NULL
     #TODO calculate timespan here?
@@ -67,6 +67,7 @@ ruleOrderProc <- function(portfolio, symbol, mktdata, timestamp=NULL, ordertype=
     if (!(length(OpenOrders.i)>=1)){
         return(NULL)  
     } else {
+    	
         mktdataTimestamp <- mktdata[timestamp]
         # only keep the last observation per time stamp
         if( NROW(mktdataTimestamp) > 1 ) mktdataTimestamp <- last(mktdataTimestamp)
@@ -80,6 +81,9 @@ ruleOrderProc <- function(portfolio, symbol, mktdata, timestamp=NULL, ordertype=
             txnprice=NULL
 
             txnfees=ordersubset[ii,"Txn.Fees"]
+            
+            orderPrefer=ordersubset[ii, "Prefer"]
+            if(!orderPrefer=="") prefer=orderPrefer
 
             orderPrice <- as.numeric(ordersubset[ii,"Order.Price"])
 
