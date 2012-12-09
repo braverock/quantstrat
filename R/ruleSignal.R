@@ -88,12 +88,41 @@ ruleSignal <- function(mktdata=mktdata, timestamp, sigcol, sigval, orderqty=0, o
             }
         }
 
+        if(is.null(orderside) & !isTRUE(orderqty == 0))
+        {
+            curqty<-getPosQty(Portfolio=portfolio, Symbol=symbol, Date=timestamp)
+            if (curqty>0 ){
+                #we have a long position
+                orderside<-'long'
+            } else if (curqty<0){
+                #we have a short position
+                orderside<-'short'
+            } else {
+                # no current position, which way are we going?
+                if (orderqty>0) 
+                    orderside<-'long'
+                else
+                    orderside<-'short'
+            }
+        }
+        
+        if(orderqty=='all'){
+            if (orderside=='long'){
+                #we're flattenting a long position
+                tmpqty <-  1
+            } else {
+                tmpqty <- -1
+            }
+        } else {
+            tmpqty <- orderqty
+        }
+        
         switch(pricemethod,
                 market = ,
                 opside = ,
                 active = {
                     if(is.BBO(mktdata)){
-                        if (orderqty>0) 
+                        if (tmpqty>0) 
                             prefer='ask'  # we're buying, so pay what they're asking
                         else
                             prefer='bid'  # we're selling, so give it to them for what they're bidding  
@@ -104,7 +133,7 @@ ruleSignal <- function(mktdata=mktdata, timestamp, sigcol, sigval, orderqty=0, o
                 work =,
                 join = {
                     if(is.BBO(mktdata)){
-                        if (orderqty>0) 
+                        if (tmpqty>0) 
                             prefer='bid'  # we're buying, so work the bid price
                         else
                             prefer='ask'  # we're selling, so work the ask price
@@ -151,24 +180,6 @@ ruleSignal <- function(mktdata=mktdata, timestamp, sigcol, sigval, orderqty=0, o
         if(inherits(orderprice,'try-error')) orderprice<-NULL
         if(length(orderprice>1) && !pricemethod=='maker') orderprice<-last(orderprice[timestamp])
         if(!is.null(orderprice) && !is.null(ncol(orderprice))) orderprice <- orderprice[,1]
-
-        if(is.null(orderside) & !isTRUE(orderqty == 0))
-        {
-            curqty<-getPosQty(Portfolio=portfolio, Symbol=symbol, Date=timestamp)
-            if (curqty>0 ){
-                #we have a long position
-                orderside<-'long'
-            } else if (curqty<0){
-                #we have a short position
-                orderside<-'short'
-            } else {
-                # no current position, which way are we going?
-                if (orderqty>0) 
-                    orderside<-'long'
-                else
-                    orderside<-'short'
-            }
-        }
 
         if(is.null(orderset)) orderset=NA
 
