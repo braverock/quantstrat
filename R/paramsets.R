@@ -399,7 +399,7 @@ apply.paramset <- function(strategy.st, paramset.label, portfolio.st, nsamples=0
     results <- foreach(param.combo=iter(param.combos,by='row'),
         .verbose=verbose, .errorhandling='pass',
         .packages='quantstrat',
-        .combine=combine, .multicombine=TRUE,
+        .combine=combine, .multicombine=TRUE, .maxcombine=nrow(param.combos),
         .export=c(env.functions, 'env.blotter', 'env.instrument', 'env.strategy', 'symbol.list', symbol.names)) %dopar%
     {
         print(param.combo)
