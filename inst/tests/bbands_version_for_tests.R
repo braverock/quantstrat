@@ -1,8 +1,12 @@
-require(quantstrat)
+#################### CLEANUP PREVIOUS TEST ######################
 
-suppressWarnings(rm("order_book.bbands",pos=.strategy))
-suppressWarnings(rm("account.bbands","portfolio.bbands",pos=.blotter))
-suppressWarnings(rm("account.st","portfolio.st","stock.str","stratBBands","initDate","initEq",'start_t','end_t'))
+suppressWarnings(rm(list=ls(.strategy), pos=.strategy))
+suppressWarnings(rm(list=ls(.blotter), pos=.blotter))
+suppressWarnings(rm(list=ls()))
+
+################### LOAD QUANTSTRAT #################
+
+suppressMessages(require(quantstrat))
 
 ###################### LOAD TTRC ######################
 
@@ -11,6 +15,7 @@ TTRC = xts(ttrc[,-1],ttrc[,1])
 TTRC = head(TTRC, n=500)
 
 ###################### DEFINE VARIABLES #################
+
 SD = 2 
 N = 20
 currency('USD')
