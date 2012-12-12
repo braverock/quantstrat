@@ -4,9 +4,9 @@ require(testthat)
 
 source('bee_version_for_tests.R')
 
-bing = ls()
-bang = ls(.strategy)
-boom = ls(.blotter)
+#  bing = ls()
+#  bang = ls(.strategy)
+#  boom = ls(.blotter)
 
 stratstat   = tradeStats(port)
 
@@ -18,9 +18,9 @@ LLoser    = stratstat$Largest.Loser
 MaxDD     = stratstat$Max.Drawdown
 
 
-suppressWarnings(rm(list=bing))
-suppressWarnings(rm(list=bang, pos=.strategy))
-suppressWarnings(rm(list=boom, pos=.blotter))
+# suppressWarnings(rm(list=ls()))
+# suppressWarnings(rm(list=ls(), pos=.strategy))
+# suppressWarnings(rm(list=ls(), pos=.blotter))
 
 ######################## RUN TEST SUITE #######################
 

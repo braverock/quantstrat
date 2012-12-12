@@ -13,10 +13,10 @@ LWinner   = stratstat$Largest.Winner
 LLoser    = stratstat$Largest.Loser
 MaxDD     = stratstat$Max.Drawdown
 
-suppressWarnings(rm("order_book.bbands",pos=.strategy))
-suppressWarnings(rm("account.bbands","portfolio.bbands",pos=.blotter))
-suppressWarnings(rm("account.st","portfolio.st","stock.str","stratBBands","initDate","initEq",'start_t','end_t'))
-
+# suppressWarnings(rm("order_book.bbands",pos=.strategy))
+# suppressWarnings(rm("account.bbands","portfolio.bbands",pos=.blotter))
+# suppressWarnings(rm("account.st","portfolio.st","stock.str","stratBBands","initDate","initEq",'start_t','end_t'))
+# 
 ######################## RUN TEST SUITE #######################
 
 context('Consistent trade statistics for bbands.R')
