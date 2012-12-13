@@ -1,36 +1,34 @@
 #################### CLEANUP PREVIOUS TEST ######################
 
-# suppressWarnings(rm(list=ls(.strategy), pos=.strategy))
-# suppressWarnings(rm(list=ls(.blotter), pos=.blotter))
-# suppressWarnings(rm(list=ls()))
+ suppressWarnings(rm(list=ls(.strategy), pos=.strategy))
+ suppressWarnings(rm(list=ls(.blotter), pos=.blotter))
+ suppressWarnings(rm(list=ls()))
 
 ################### LOAD QUANTSTRAT #################
 
 suppressMessages(require(quantstrat))
 
-###################### LOAD TTRC ######################
+###################### LOAD DATA ######################
 
-data('ttrc')
-TTRC = xts(ttrc[,-1],ttrc[,1])
-TTRC = head(TTRC, n=500)
+data('spx')
 
 ###################### DEFINE VARIABLES #################
 
 SD = 2 
 N = 20
 currency('USD')
-stock('TTRC', currency='USD', multiplier=1)
-initDate='1984-12-31'
+stock('spx', currency='USD', multiplier=1)
+initDate='1969-12-31'
 initEq=1000000
 portfolio.st='bbands'
 account.st='bbands'
 
 ############################ INITIALIZE AND POSITION LOGIC ################
 
-initPortf(portfolio.st,symbols='TTRC', initDate=initDate)
+initPortf(portfolio.st,symbols='spx', initDate=initDate)
 initAcct(account.st,portfolios='bbands', initDate=initDate)
 initOrders(portfolio=portfolio.st,initDate=initDate)
-addPosLimit(portfolio.st, 'TTRC', initDate, 200, 2 ) #set max pos
+addPosLimit(portfolio.st, 'spx', initDate, 200, 2 ) #set max pos
 stratBBands <- strategy("bbands")
 
 ############################ INDICATOR ############################

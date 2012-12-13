@@ -1,26 +1,25 @@
 
 #################### CLEANUP PREVIOUS TEST ######################
 # 
-# suppressWarnings(rm(list=ls(.strategy), pos=.strategy))
-# suppressWarnings(rm(list=ls(.blotter), pos=.blotter))
-# suppressWarnings(rm(list=ls()))
+ suppressWarnings(rm(list=ls(.strategy), pos=.strategy))
+ suppressWarnings(rm(list=ls(.blotter), pos=.blotter))
+ suppressWarnings(rm(list=ls()))
 # 
 ################### LOAD QUANTSTRAT #################
 
 suppressMessages(require(quantstrat))
 
-###################### LOAD TTRC ######################
+###################### LOAD DATA ######################
 
-data('ttrc')
-TTRC = xts(ttrc[,-1],ttrc[,1])
+data('spx')
 
 ############################# DEFINE VARIABLES ##############################
 
-sym           = head(TTRC, n=500)
+sym           = spx
 port          = 'bug'
 acct          = 'colony'
 initEq        = 100000
-initDate      = '1984-12-31'
+initDate      = '1969-12-31'
 fast          = 10
 slow          = 30
 sd            = 0.5
