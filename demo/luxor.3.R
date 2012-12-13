@@ -166,13 +166,15 @@ updatePortf(p, Symbols='GBPUSD', ,Dates=paste('::',as.Date(Sys.time()),sep=''))
 ###############################################################################
 
 chart.Posn(p, "GBPUSD")
+add_SMA(n=.slow,col='darkblue',on=1)
+add_SMA(n=.fast,col='lightblue',on=1)
 
-print(getOrderBook(p))
+View(getOrderBook(p))
 
 #txns <- getTxns(p, 'GBPUSD')
 #txns
 ###txns$Net 
 #cat('Net profit:', sum(txns$Net.Txn.Realized.PL), '\n')
 
-tradeStats(p, 'GBPUSD')
+View(tradeStats(p, 'GBPUSD'))
 
