@@ -169,7 +169,7 @@ chart.Posn(p, "GBPUSD")
 add_SMA(n=.slow,col='darkblue',on=1)
 add_SMA(n=.fast,col='lightblue',on=1)
 
-View(getOrderBook(p))
+View(getOrderBook(p)$forex$GBPUSD)
 
 #txns <- getTxns(p, 'GBPUSD')
 #txns
