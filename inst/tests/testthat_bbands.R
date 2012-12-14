@@ -2,7 +2,7 @@ require(testthat)
 
 ################## bee.r  #########################
 
-source('bbands_version_for_tests.r')
+source('bbands_version_for_tests.R')
 
 stratstat   = tradeStats(portfolio.st)
 
