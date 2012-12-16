@@ -341,7 +341,7 @@ add.constraint <- function(strategy, paramset.label, distribution.label.1, distr
 #' @export
 #' @seealso \code{\link{add.constraint}}, \code{\link{add.constraint}}, \code{\link{delete.paramset}}
 
-apply.paramset <- function(strategy.st, paramset.label, portfolio.st, nsamples=0, verbose=FALSE)
+apply.paramset <- function(strategy.st, paramset.label, portfolio.st, mktdata, nsamples=0, verbose=FALSE)
 {
     require(foreach, quietly=TRUE)
     require(iterators, quietly=TRUE)
@@ -428,7 +428,7 @@ apply.paramset <- function(strategy.st, paramset.label, portfolio.st, nsamples=0
 
         strategy <- install.param.combo(strategy, param.combo, paramset.label)
 
-        applyStrategy(strategy, portfolios=result$portfolio.st, verbose=verbose)
+        applyStrategy(strategy, portfolios=result$portfolio.st, mktdata=mktdata, verbose=verbose)
 
         result$blotter <- as.list(.blotter)
         result$strategy <- as.list(.strategy)
