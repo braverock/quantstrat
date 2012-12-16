@@ -97,6 +97,6 @@ stratBBands <- add.rule(stratBBands,
 
 ######################## APPLY STRAT  ###################################################
 
-out<-try(applyStrategy(strategy=stratBBands , portfolios='bbands',parameters=list(sd=SD,n=N)) )
+out<-try(applyStrategy(strategy=stratBBands , portfolios='bbands',parameters=list(sd=SD,n=N), verbose=FALSE))
 
 updatePortf(Portfolio='bbands',Dates=paste('::',as.Date(Sys.time()),sep=''))
