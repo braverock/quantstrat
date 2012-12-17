@@ -1,9 +1,11 @@
 #!/usr/bin/Rscript --vanilla
 #
-# cross_test.R
+# blue.R
 #
 # this produces trade statistics that can be compared 
 # with results from other frameworks
+#
+# the data is SPX daily data from 1/1/1970 to 12/31/1972
 #
 # copyright (c) 2009-2012, Algorithm Alpha, LLC
 # Licensed GPL-2
@@ -18,10 +20,9 @@ data('spx')
 
 ############################# DEFINE VARIABLES ##############################
 
-sym           = spx
-port          = 'test_port'
-acct          = 'test_acct'
-initEq        = 100000
+port          = 'bluePort'
+acct          = 'blueAcct'
+initEq        = 1e6
 initDate      = '1969-12-31'
 fast          = 3 
 slow          = 8
@@ -29,32 +30,23 @@ slow          = 8
 ############################# INITIALIZE ####################################
 
 currency('USD')
-stock('sym' ,currency='USD', multiplier=1)
-initPortf(port, 'sym', initDate=initDate)
+stock('spx' ,currency='USD', multiplier=1)
+initPortf(port, 'spx', initDate=initDate)
 initAcct(acct, port, initEq=initEq, initDate=initDate)
 initOrders(port, initDate=initDate )
-cross_test = strategy(port)
+blue = strategy(port)
 
-############################# MAX POSITION LOGIC ############################
-# 
- addPosLimit(
-             portfolio=port,
-             symbol='sym', 
-             timestamp=initDate,  
-             maxpos=100)
-# 
-# 
 ############################# INDICATORS ####################################
 
-cross_test <- add.indicator(
-                     strategy  = cross_test, 
+blue <- add.indicator(
+                     strategy  = blue, 
                      name      = 'SMA', 
                      arguments = list(x=quote(Cl(mktdata)), 
                                       n=fast),
                      label     = 'fast' )
 
-cross_test <- add.indicator(
-                     strategy  = cross_test, 
+blue <- add.indicator(
+                     strategy  = blue, 
                      name      = 'SMA', 
                      arguments = list(x=quote(Cl(mktdata)), 
                                       n=slow),
@@ -62,15 +54,15 @@ cross_test <- add.indicator(
 
 ############################# SIGNALS #######################################
 
-cross_test <- add.signal(
-                  strategy  = cross_test,
+blue <- add.signal(
+                  strategy  = blue,
                   name      = 'sigCrossover',
                   arguments = list(columns=c('fast','slow'), 
                                    relationship='lt'),
                   label     = 'fast.lt.slow')
 
-cross_test <- add.signal(
-                  strategy  = cross_test,
+blue <- add.signal(
+                  strategy  = blue,
                   name      = 'sigCrossover',
                   arguments = list(columns=c('fast','slow'),
                                    relationship='gt'),
@@ -78,21 +70,20 @@ cross_test <- add.signal(
 
 ############################# RULES #########################################
 
-cross_test <- add.rule(
-                strategy  = cross_test,
+blue <- add.rule(
+                strategy  = blue,
                 name      = 'ruleSignal',
                 arguments = list(sigcol    = 'fast.gt.slow',
                                  sigval    = TRUE,
                                  orderqty  = 100,
                                  ordertype = 'market',
-                                 orderside = 'long',
-                                 osFUN     = 'osMaxPos'),
+                                 orderside = 'long'),
 
                 type      = 'enter',
                 label     = 'EnterLONG')
 
-cross_test <- add.rule(
-                strategy  = cross_test,
+blue <- add.rule(
+                strategy  = blue,
                 name      = 'ruleSignal',
                 arguments = list(sigcol    = 'fast.lt.slow',
                                  sigval    = TRUE,
@@ -102,20 +93,19 @@ cross_test <- add.rule(
                 type      = 'exit',
                 label     = 'ExitLONG')
 
-cross_test <- add.rule(
-                strategy  = cross_test,
+blue <- add.rule(
+                strategy  = blue,
                 name      = 'ruleSignal',
                 arguments = list(sigcol     = 'fast.lt.slow',
                                   sigval    = TRUE,
                                   orderqty  =  -100,
                                   ordertype = 'market',
-                                  orderside = 'short',
-                                  osFUN     = 'osMaxPos'),
+                                  orderside = 'short'),
                 type      = 'enter',
                 label     = 'EnterSHORT')
 
-cross_test <- add.rule(
-                strategy  = cross_test,
+blue <- add.rule(
+                strategy  = blue,
                 name      = 'ruleSignal',
                 arguments = list(sigcol     = 'fast.gt.slow',
                                  sigval     = TRUE,
@@ -127,13 +117,14 @@ cross_test <- add.rule(
 
 ############################# APPLY STRATEGY ################################
 
-applyStrategy(cross_test, port, prefer='Open', verbose=FALSE)
+applyStrategy(blue, port, prefer='Open', verbose=FALSE)
 
 ############################# UPDATE ########################################
 
-updatePortf(port, 'sym', Date=paste('::',as.Date(Sys.time()),sep=''))
+updatePortf(port, 'spx', Date=paste('::',as.Date(Sys.time()),sep=''))
 
 ########################### USEFUL CONTAINERS #############################
 
-resultsToCompare = tradeStats(port)
+blueStats = tradeStats(port)
+
 
