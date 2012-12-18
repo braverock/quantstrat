@@ -73,18 +73,6 @@ blue <- add.signal(
 blue <- add.rule(
                 strategy  = blue,
                 name      = 'ruleSignal',
-                arguments = list(sigcol    = 'fast.gt.slow',
-                                 sigval    = TRUE,
-                                 orderqty  = 100,
-                                 ordertype = 'market',
-                                 orderside = 'long'),
-
-                type      = 'enter',
-                label     = 'EnterLONG')
-
-blue <- add.rule(
-                strategy  = blue,
-                name      = 'ruleSignal',
                 arguments = list(sigcol    = 'fast.lt.slow',
                                  sigval    = TRUE,
                                  orderqty  = 'all',
@@ -92,17 +80,6 @@ blue <- add.rule(
                                  orderside = 'long'),
                 type      = 'exit',
                 label     = 'ExitLONG')
-
-blue <- add.rule(
-                strategy  = blue,
-                name      = 'ruleSignal',
-                arguments = list(sigcol     = 'fast.lt.slow',
-                                  sigval    = TRUE,
-                                  orderqty  =  -100,
-                                  ordertype = 'market',
-                                  orderside = 'short'),
-                type      = 'enter',
-                label     = 'EnterSHORT')
 
 blue <- add.rule(
                 strategy  = blue,
@@ -115,6 +92,29 @@ blue <- add.rule(
                 type      = 'exit',
                 label     = 'ExitSHORT')
 
+blue <- add.rule(
+                strategy  = blue,
+                name      = 'ruleSignal',
+                arguments = list(sigcol    = 'fast.gt.slow',
+                                 sigval    = TRUE,
+                                 orderqty  = 100,
+                                 ordertype = 'market',
+                                 orderside = 'long'),
+
+                type      = 'enter',
+                label     = 'EnterLONG')
+
+blue <- add.rule(
+                strategy  = blue,
+                name      = 'ruleSignal',
+                arguments = list(sigcol     = 'fast.lt.slow',
+                                  sigval    = TRUE,
+                                  orderqty  =  -100,
+                                  ordertype = 'market',
+                                  orderside = 'short'),
+                type      = 'enter',
+                label     = 'EnterSHORT')
+
 ############################# APPLY STRATEGY ################################
 
 applyStrategy(blue, port, prefer='Open', verbose=FALSE)
@@ -123,8 +123,8 @@ applyStrategy(blue, port, prefer='Open', verbose=FALSE)
 
 updatePortf(port, 'spx', Date=paste('::',as.Date(Sys.time()),sep=''))
 
-########################### USEFUL CONTAINERS #############################
+########################### CONTAINERS CALLED IN TESTING #####################
 
-blueStats = tradeStats(port)
+book = getOrderBook(port)
 
 
