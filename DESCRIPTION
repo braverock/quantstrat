@@ -8,7 +8,8 @@ Depends:
     xts(>= 0.8-2),TTR(>= 0.2),blotter(>= 0.7.2),
     FinancialInstrument(>= 0.12.5)
 Suggests:
-    PerformanceAnalytics,PortfolioAnalytics,rgl, testthat
+    PerformanceAnalytics,PortfolioAnalytics,rgl,
+    testthat
 Maintainer: Brian G. Peterson <brian@braverock.com>
 Description: Specify, build, and back-test quantitative
     financial trading and portfolio strategies
@@ -16,3 +17,23 @@ Contributors: Yu Chen, Joe Dunn, Dirk Eddelbuettel, Jeffrey A. Ryan, Garrett See
 LazyLoad: yes
 License: GPL-3
 ByteCompile: TRUE
+Collate:
+    'applyStrategy.rebalancing.R'
+    'indicators.R'
+    'initialize.R'
+    'match.names.R'
+    'orders.R'
+    'osFUNs.R'
+    'parameters.R'
+    'paramsets.R'
+    'rebalance.rules.R'
+    'ruleOrderProc.R'
+    'ruleRevoke.R'
+    'rules.R'
+    'ruleSignal.R'
+    'signals.R'
+    'strategy.R'
+    'tradeGraphs.R'
+    'utils.R'
+    'walk.forward.R'
+    'wrapup.R'

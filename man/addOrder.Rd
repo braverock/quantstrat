@@ -5,7 +5,7 @@
   addOrder(portfolio, symbol, timestamp, qty, price,
     ordertype, side, threshold = NULL, orderset = "",
     status = "open", statustimestamp = "", prefer = NULL,
-    delay = 1e-05, tmult = FALSE, replace = TRUE,
+    delay = 0.00001, tmult = FALSE, replace = TRUE,
     return = FALSE, ..., TxnFees = 0, label = "")
 }
 \arguments{

@@ -3,7 +3,7 @@
 \title{Apply a paramset to the strategy}
 \usage{
   apply.paramset(strategy.st, paramset.label, portfolio.st,
-    nsamples = 0, verbose = FALSE)
+    mktdata, nsamples = 0, verbose = FALSE)
 }
 \arguments{
   \item{strategy}{the name of the strategy object}
