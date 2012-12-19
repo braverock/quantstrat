@@ -41,7 +41,15 @@ max.Net.Trading.PL <- function(tradeStats.list)
 #' @param objective a user provided function returning the best param.combo from the paramset, based on training results; a default function is provided that returns the number of the param.combo that brings the highest Net.Trading.PL
 #' @param verbose dumps a lot of info during the run if set to TRUE, defaults to FALSE
 #'
+#' @return a list consisting of a slot containing detailed results for each training + testing period, as well as the results of tradeStats() on the portfolio for the entire WFA over all testing periods
+#'
+#' @seealso applyStrategy apply.paramset endpoints tradeStats
+#'
+#' @examples
+#' res <- walk.forward(strategy.st, paramset.label='SMA', portfolio.st=portfolio.st, on='months', k.training=3, k.testing=1, verbose=FALSE)
+#'
 #' @author Jan Humme
+#'
 #' @export
 
 walk.forward <- function(portfolio.st, strategy.st, paramset.label, period, k.training, nsamples=0, k.testing, objective=max.Net.Trading.PL, verbose=FALSE)
