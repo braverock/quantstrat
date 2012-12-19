@@ -76,21 +76,26 @@ walk.forward <- function(portfolio.st, strategy.st, paramset.label, period, k.tr
 			result <- list()
 
 			training.start <- ep[k] + 1
-			training.end  <- ep[k + k.training]
+			training.end   <- ep[k + k.training]
 
 			if(is.na(training.end))
 				break
 
-			result$training <- list()
-			result$training$start <- index(symbol[training.start])
-			result$training$end <- index(symbol[training.end])
+            training.timespan <- paste(index(symbol[training.start]), index(symbol[training.end]), sep='/')
 
-			print(paste('=== training', paramset.label, 'on', paste(result$training$start, result$training$end, sep='/')))
+			result$training.timespan <- training.timespan
 
-			result$training$results <- apply.paramset(strategy.st=strategy.st, paramset.label=paramset.label, portfolio.st=portfolio.st, mktdata=symbol[training.start:training.end], nsamples=nsamples, verbose=verbose)
+			if(verbose) print(paste('=== training', paramset.label, 'on', training.timespan))
 
-			if(!missing(k.testing) && k.testing>0)
+			result$apply.paramset <- apply.paramset(strategy.st=strategy.st, paramset.label=paramset.label,
+                portfolio.st=portfolio.st, mktdata=symbol[training.timespan], nsamples=nsamples, verbose=verbose)
+
+			if(missing(k.testing) || k.testing==0)
 			{
+                k <- k + 1
+            }
+            else
+            {
 				if(!is.function(objective))
 					stop(paste(objective, 'unknown objective function', sep=': '))
 
@@ -100,25 +105,23 @@ walk.forward <- function(portfolio.st, strategy.st, paramset.label, period, k.tr
 				if(is.na(testing.end))
 					break
 
-				result$testing <- list()
-				result$testing$start <- index(symbol[testing.start])
-				result$testing$end <- index(symbol[testing.end])
+                testing.timespan <- paste(index(symbol[testing.start]), index(symbol[testing.end]), sep='/')
 
-				tradeStats.list <- result$training$results$tradeStats
+                tradeStats.list <- result$apply.paramset$tradeStats
+
 				param.combo.nr <- do.call(objective, list('tradeStats.list'=tradeStats.list))
-				result$testing$param.combo.nr <- param.combo.nr
-
-				last.param.combo.column.nr <- grep('Portfolio', names(tradeStats.list)) - 1
-				param.combo <- tradeStats.list[param.combo.nr,1:last.param.combo.column.nr]
-				result$testing$param.combo <- param.combo
+				param.combo <- tradeStats.list[param.combo.nr, 1:grep('Portfolio', names(tradeStats.list)) - 1]
 
 				strategy <- quantstrat:::install.param.combo(strategy, param.combo, paramset.label)
-				result$testing$strategy <- param.combo
 
-				print(paste('--- testing param.combo', param.combo.nr, 'on', paste(result$testing$start, result$testing$end, sep='/')))
+                result$testing.timespan <- testing.timespan
+				result$param.combo.nr <- param.combo.nr
+				result$param.combo <- param.combo
+				result$strategy <- strategy
 
-#browser()
-				applyStrategy(strategy, portfolios=portfolio.st, mktdata=symbol[testing.start:testing.end])
+				print(paste('--- testing param.combo', param.combo.nr, 'on', testing.timespan))
+
+				applyStrategy(strategy, portfolios=portfolio.st, mktdata=symbol[testing.timespan])
 			}
 			results[[k]] <- result
 
