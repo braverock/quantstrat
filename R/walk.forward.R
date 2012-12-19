@@ -122,7 +122,7 @@ walk.forward <- function(portfolio.st, strategy.st, paramset.label, period, k.tr
 			}
 			results[[k]] <- result
 
-			k <- k + k.training
+			k <- k + k.testing
 		}
 	}
 	updatePortf(portfolio.st, Dates=paste('::',as.Date(Sys.time()),sep=''))
