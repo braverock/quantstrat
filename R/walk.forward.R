@@ -79,43 +79,49 @@ walk.forward <- function(portfolio.st, strategy.st, paramset.label, period, k.tr
         {
             result <- list()
 
+            # start and end of training window
             training.start <- ep[k] + 1
             training.end   <- ep[k + k.training]
 
+            # stop if training.end is beyond last data
             if(is.na(training.end))
                 break
 
             training.timespan <- paste(index(symbol[training.start]), index(symbol[training.end]), sep='/')
 
-            result$training.timespan <- training.timespan
-
-            if(verbose) print(paste('=== training', paramset.label, 'on', training.timespan))
-
-            result$apply.paramset <- apply.paramset(strategy.st=strategy.st, paramset.label=paramset.label,
-                portfolio.st=portfolio.st, mktdata=symbol[training.timespan], nsamples=nsamples, verbose=verbose)
-
-            if(missing(k.testing) || k.testing==0)
+            if(!missing(k.testing) && k.testing>0)
             {
-                k <- k + 1
-            }
-            else
-            {
-                if(!is.function(objective))
-                    stop(paste(objective, 'unknown objective function', sep=': '))
-
+                # start and end of testing window
                 testing.start <- ep[k + k.training] + 1
                 testing.end   <- ep[k + k.training + k.testing]
 
+                # stop if testing.end is beyond last data
                 if(is.na(testing.end))
                     break
 
                 testing.timespan <- paste(index(symbol[testing.start]), index(symbol[testing.end]), sep='/')
+            }
 
-                tradeStats.list <- result$apply.paramset$tradeStats
+            result$training.timespan <- training.timespan
 
+            print(paste('=== training', paramset.label, 'on', training.timespan))
+
+            # run backtests on training window
+            result$apply.paramset <- apply.paramset(strategy.st=strategy.st, paramset.label=paramset.label,
+                portfolio.st=portfolio.st, mktdata=symbol[training.timespan], nsamples=nsamples, verbose=verbose)
+
+            tradeStats.list <- result$apply.paramset$tradeStats
+
+            if(!missing(k.testing) && k.testing>0)
+            {
+                if(!is.function(objective))
+                    stop(paste(objective, 'unknown objective function', sep=': '))
+
+                # select best param.combo
                 param.combo.nr <- do.call(objective, list('tradeStats.list'=tradeStats.list))
                 param.combo <- tradeStats.list[param.combo.nr, 1:grep('Portfolio', names(tradeStats.list)) - 1]
 
+                # configure strategy to use selected param.combo
                 strategy <- quantstrat:::install.param.combo(strategy, param.combo, paramset.label)
 
                 result$testing.timespan <- testing.timespan
@@ -123,10 +129,20 @@ walk.forward <- function(portfolio.st, strategy.st, paramset.label, period, k.tr
                 result$param.combo <- param.combo
                 result$strategy <- strategy
 
-                if(verbose) print(paste('=== testing param.combo', param.combo.nr, 'on', testing.timespan))
+                print(paste('=== testing param.combo', param.combo.nr, 'on', testing.timespan))
+                print(param.combo)
 
+                # run backtest using selected param.combo
                 applyStrategy(strategy, portfolios=portfolio.st, mktdata=symbol[testing.timespan])
             }
+            else
+            {
+                if(is.null(tradeStats.list))
+                    warning(paste('no trades in training window', training.timespan, '; skipping test'))
+
+                k <- k + 1
+            }
+
             results[[k]] <- result
 
             k <- k + k.testing
