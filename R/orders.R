@@ -67,7 +67,7 @@ initOrders <- function(portfolio=NULL, symbols=NULL, initDate = '1999-12-31', ..
 #' should this be symbols instead of symbol?
 #' 
 #' @param portfolio text name of the portfolio to associate the order book with
-#' @param symbol identfier of the instrument to find orders for.  The name of any associated price objects (xts prices, usually OHLC) should match these
+#' @param symbol identifier of the instrument to find orders for.  The name of any associated price objects (xts prices, usually OHLC) should match these
 #' @param status one of "open", "closed", "canceled", "revoked", or "replaced", default "open"
 #' @param timespan xts-style character timespan to be the period to find orders of the given status and ordertype
 #' @param ordertype one of NULL, "market","limit","stoplimit", "stoptrailing" or "iceberg" default NULL
