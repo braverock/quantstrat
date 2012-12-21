@@ -46,7 +46,7 @@ initStrategy <- function(strategy, portfolio, symbols, parameters=NULL, get.Symb
         store=TRUE    
     } 
 
-    #set default values that will break the intialization
+    #set default values that will break the initialization
     if(!hasArg(currency)){
         if(!is.null(strategy$currency)) currency <- strategy$currency
         else currency<-'USD'
