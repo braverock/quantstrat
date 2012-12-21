@@ -25,7 +25,7 @@ getOrderBook <- function(portfolio) #should symbol subsets be supported too?  pr
 #' to retrieve the symbols list from the portfolio in the trade blotter.
 #' 
 #' @param portfolio text name of the portfolio to associate the order book with
-#' @param symbols a list of identfiers of the instruments to be contained in the Portfolio.  The name of any associated price objects (xts prices, usually OHLC) should match these
+#' @param symbols a list of identifiers of the instruments to be contained in the Portfolio.  The name of any associated price objects (xts prices, usually OHLC) should match these
 #' @param initDate date (ISO8601) prior to the first close price given in mktdata, used to initialize the order book with a dummy order
 #' @param \dots any other passthrough parameters
 #' @concept order book
