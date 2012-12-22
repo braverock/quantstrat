@@ -14,6 +14,10 @@
 
 suppressMessages(require(quantstrat))
 
+############################# FIX TIME ZONE #########################
+
+Sys.setenv(TZ="America/New_York")
+
 ###################### LOAD DATA ######################
 
 data('spx')
