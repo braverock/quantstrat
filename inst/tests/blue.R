@@ -14,13 +14,14 @@
 
 suppressMessages(require(quantstrat))
 
-############################# FIX TIME ZONE #########################
-
-Sys.setenv(TZ="America/New_York")
-
 ###################### LOAD DATA ######################
 
 data('spx')
+
+############### TIMEZONE INIT #########################
+
+local_time = Sys.timezone()
+attr(attr(spx,"index"),"tzone") <- local_time 
 
 ############################# DEFINE VARIABLES ##############################
 
