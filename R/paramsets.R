@@ -335,13 +335,14 @@ add.constraint <- function(strategy, paramset.label, distribution.label.1, distr
 #' @param paramset.label a label uniquely identifying the paramset within the strategy
 #' @param portfolio.st a string variable
 #' @param nsamples if > 0 then take a sample of only size nsamples from the paramset
+#' @param mode 'slave' to run updatePortfolio() and tradesStats() on the slave and return all portfolios and orderbooks as a list: higher parallelization but more data transfer between master and slave; 'master' to have updatePortf() and tradeStats() run at the master and return all portfolios and orderbooks in the .blotter and .strategy environments resp: less parallelization but also less data transfer between slave and master; default is 'master'
 #' @param verbose return full information, in particular the .blotter environment, default FALSE
 #'
 #' @author Jan Humme
 #' @export
 #' @seealso \code{\link{add.constraint}}, \code{\link{add.constraint}}, \code{\link{delete.paramset}}
 
-apply.paramset <- function(strategy.st, paramset.label, portfolio.st, mktdata, nsamples=0, verbose=FALSE)
+apply.paramset <- function(strategy.st, paramset.label, portfolio.st, mktdata, nsamples=0, mode='master', verbose=FALSE)
 {
     require(foreach, quietly=TRUE)
     require(iterators, quietly=TRUE)
@@ -363,9 +364,10 @@ apply.paramset <- function(strategy.st, paramset.label, portfolio.st, mktdata, n
         param.combos <- select.samples(nsamples, param.combos)
 
     env.functions <- c('clone.portfolio', 'clone.orderbook', 'install.param.combo')
-    env.blotter <- as.list(.blotter)
     env.instrument <- as.list(FinancialInstrument:::.instrument)
-    env.strategy <- as.list(.strategy)
+
+    order_book.st <- paste('order_book', portfolio.st, sep='.')
+    order_book <- get(order_book.st, envir=.strategy)
 
     symbol.list <- as.list(.getSymbols)
     symbol.names <- names(.getSymbols)
@@ -377,61 +379,91 @@ apply.paramset <- function(strategy.st, paramset.label, portfolio.st, mktdata, n
         results <- list()
         for(i in 1:length(args))
         {
-            result <- args[[i]]
+            r <- args[[i]]
 
-            full.portfolio.st <- paste('portfolio', result$portfolio.st, sep='.')
-            assign(full.portfolio.st, result$blotter[[full.portfolio.st]], envir=.blotter)
+            switch(mode,
 
-            full.order_book.st <- paste('order_book', result$portfolio.st, sep='.')
-            assign(full.order_book.st, result$strategy[[full.order_book.st]], envir=.strategy)
+                slave = {
+                    # compute results on slave and return as list
+                    
+                    # so we're done: slave already computed all info and left it in its returned list
+                    results[[r$portfolio.st]] <- r
+                },
 
-            updatePortf(result$portfolio.st, Dates=paste('::',as.Date(Sys.time()),sep=''))
+                master = {
+                    # compute results of master and return portfolio and order_book in environment
 
-            result$tradeStats <- tradeStats(result$portfolio.st)
-            if(!is.null(result$tradeStats))
-                results$tradeStats <- rbind(results$tradeStats, cbind(result$param.combo, result$tradeStats))
+                    # move portfolio from returned list into .blotter environment
+                    full.portfolio.st <- paste('portfolio', r$portfolio.st, sep='.')
+                    assign(full.portfolio.st, r$portfolio, envir=.blotter)
+                    r$portfolio <- NULL
 
-            results[[result$portfolio.st]] <- result
+                    # move order_book from returned list into .strategy environment
+                    full.order_book.st <- paste('order_book', r$portfolio.st, sep='.')
+                    assign(full.order_book.st, r$order_book, envir=.strategy)
+                    r$order_book <- NULL
+
+                    # now calculate tradeStats on portfolio
+                    updatePortf(r$portfolio.st, Dates=paste('::',as.Date(Sys.time()),sep=''))
+                    r$tradeStats <- tradeStats(r$portfolio.st)
+                }
+            )
+
+            # add copy of tradeStats to summary list for convenience
+            if(!is.null(r$tradeStats))
+                results$tradeStats <- rbind(results$tradeStats, cbind(r$param.combo, r$tradeStats))
         }
         return(results)
     }
 
+    # doSEQ and doMC make all environments available to the slabe, but doRedis only provides the .GlobalEnv
+    # so we need to copy all necessary data to .GlobalEnv from.blotter and .strategy using .export
     results <- foreach(param.combo=iter(param.combos,by='row'),
         .verbose=verbose, .errorhandling='pass',
         .packages='quantstrat',
         .combine=combine, .multicombine=TRUE, .maxcombine=nrow(param.combos),
-        .export=c(env.functions, 'env.blotter', 'env.instrument', 'env.strategy', 'symbol.list', symbol.names)) %dopar%
+        .export=c(env.functions, 'env.instrument')) %dopar%
     {
         print(param.combo)
 
-        # environment data accumulate with each transition through the foreach loop, so must be cleaned
+        # doSEQ and doMC make all environments available to the slave, but
+        # doRedis only provides the .GlobalEnv, so we erase both .blotter
+        # and .strategy environments to make sure that envs are clean
+        # regardless of backend
+        #
+        # environments persist in each slave, so data may be accumulating
+        # for each transition through the foreach loop
+        #
         rm(list=ls(pos=.blotter), pos=.blotter)
         rm(list=ls(pos=.strategy), pos=.strategy)
-        rm(list=ls(pos=FinancialInstrument:::.instrument), pos=FinancialInstrument:::.instrument)
 
-        gc(verbose=verbose)
-
-        .getSymbols <- as.environment(symbol.list)
-        for(symbol in symbol.names)
-            assign(symbol, eval(as.name(symbol)), .GlobalEnv)
-
-        list2env(env.blotter, envir=.blotter)
         list2env(env.instrument, envir=FinancialInstrument:::.instrument)
-        list2env(env.strategy, envir=.strategy)
+
+        blotter.portfolio.st <- paste('portfolio', portfolio.st, sep='.')
+        assign(blotter.portfolio.st, portfolio, envir=.blotter)
+
+        strategy.order_book.st <- paste('order_book', portfolio.st, sep='.')
+        assign(strategy.order_book.st, order_book, envir=.strategy)
+
+        assign(strategy.st, strategy, envir=.strategy)
 
         result <- list()
         result$param.combo <- param.combo
-        result$portfolio.st <- paste(portfolio.st, '.', rownames(param.combo), sep='')
+        result$portfolio.st <- paste(portfolio.st, rownames(param.combo), sep='.')
 
         clone.portfolio(portfolio.st, result$portfolio.st)
         clone.orderbook(portfolio.st, result$portfolio.st)
 
         strategy <- install.param.combo(strategy, param.combo, paramset.label)
-
         applyStrategy(strategy, portfolios=result$portfolio.st, mktdata=mktdata, verbose=verbose)
 
-        result$blotter <- as.list(.blotter)
-        result$strategy <- as.list(.strategy)
+        if(mode == 'slave')
+        {
+            updatePortf(result$portfolio.st, Dates=paste('::',as.Date(Sys.time()),sep=''))
+            result$tradeStats <- tradeStats(result$portfolio.st)
+        }
+        result$portfolio <- getPortfolio(result$portfolio.st)
+        result$order_book <- getOrderBook(result$portfolio.st)
 
         return(result)
     }

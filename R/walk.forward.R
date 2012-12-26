@@ -108,7 +108,7 @@ walk.forward <- function(portfolio.st, strategy.st, paramset.label, period, k.tr
 
             # run backtests on training window
             result$apply.paramset <- apply.paramset(strategy.st=strategy.st, paramset.label=paramset.label,
-                portfolio.st=portfolio.st, mktdata=symbol[training.timespan], nsamples=nsamples, verbose=verbose)
+                portfolio.st=portfolio.st, mktdata=symbol[training.timespan], nsamples=nsamples, mode='slave', verbose=verbose)
 
             tradeStats.list <- result$apply.paramset$tradeStats
 

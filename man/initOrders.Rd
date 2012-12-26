@@ -9,8 +9,8 @@
   \item{portfolio}{text name of the portfolio to associate
   the order book with}
 
-  \item{symbols}{a list of identfiers of the instruments to
-  be contained in the Portfolio.  The name of any
+  \item{symbols}{a list of identifiers of the instruments
+  to be contained in the Portfolio.  The name of any
   associated price objects (xts prices, usually OHLC)
   should match these}
 

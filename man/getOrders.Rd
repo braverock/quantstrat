@@ -10,7 +10,7 @@
   \item{portfolio}{text name of the portfolio to associate
   the order book with}
 
-  \item{symbol}{identfier of the instrument to find orders
+  \item{symbol}{identifier of the instrument to find orders
   for.  The name of any associated price objects (xts
   prices, usually OHLC) should match these}
 
