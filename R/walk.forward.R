@@ -15,13 +15,6 @@
 #
 ###############################################################################
 
-max.Net.Trading.PL <- function(tradeStats.list)
-{
-    which(max(tradeStats.list$Net.Trading.PL) == tradeStats.list$Net.Trading.PL)
-}
-
-### exported functions ############################################################
-
 #' Rolling Walk Forward Analysis
 #' 
 #' A wrapper for apply.paramset() and applyStrategy(), implementing a Rolling Walk Forward Analysis (WFA).
@@ -42,7 +35,8 @@ max.Net.Trading.PL <- function(tradeStats.list)
 #' @param k.training the number of periods to use for training, eg. '3' months
 #' @param nsamples the number of sample param.combos to draw from the paramset for training; 0 means all samples (see also apply.paramset)
 #' @param k.testing the number of periods to use for testing, eg. '1 month'
-#' @param objective a user provided function returning the best param.combo from the paramset, based on training results; a default function is provided that returns the number of the param.combo that brings the highest Net.Trading.PL
+#' @param objective_func a user provided function returning the best param.combo from the paramset, based on training results; defaults to 'max'
+#' @param objective_arg a user provided argument to objective_func, defaults to quote(tradeStats.list$Net.Trading.PL)
 #' @param verbose dumps a lot of info during the run if set to TRUE, defaults to FALSE
 #'
 #' @return a list consisting of a slot containing detailed results for each training + testing period, as well as the portfolio and the tradeStats() for the portfolio
@@ -56,7 +50,7 @@ max.Net.Trading.PL <- function(tradeStats.list)
 #'
 #' @export
 
-walk.forward <- function(portfolio.st, strategy.st, paramset.label, period, k.training, nsamples=0, k.testing, objective=max.Net.Trading.PL, verbose=FALSE)
+walk.forward <- function(portfolio.st, strategy.st, paramset.label, period, k.training, nsamples=0, k.testing, objective_func=max, objective_arg=quote(tradeStats.list$Net.Trading.PL), verbose=FALSE)
 {
     warning('walk.forward() is still under development! expect changes in arguments and results at any time JH')
 
@@ -108,17 +102,18 @@ walk.forward <- function(portfolio.st, strategy.st, paramset.label, period, k.tr
 
             # run backtests on training window
             result$apply.paramset <- apply.paramset(strategy.st=strategy.st, paramset.label=paramset.label,
-                portfolio.st=portfolio.st, mktdata=symbol[training.timespan], nsamples=nsamples, mode='slave', verbose=verbose)
+                portfolio.st=portfolio.st, mktdata=symbol[training.timespan], nsamples=nsamples, calc='slave', verbose=verbose)
 
             tradeStats.list <- result$apply.paramset$tradeStats
 
             if(!missing(k.testing) && k.testing>0)
             {
-                if(!is.function(objective))
-                    stop(paste(objective, 'unknown objective function', sep=': '))
+                if(!is.function(objective_func))
+                    stop(paste(objective_func, 'unknown objective function', sep=': '))
 
                 # select best param.combo
-                param.combo.nr <- do.call(objective, list('tradeStats.list'=tradeStats.list))
+                #param.combo.nr <- do.call(objective, list('tradeStats.list'=tradeStats.list))
+                param.combo.nr <- which(do.call(objective_func, list(objective_arg)) == eval(objective_arg))
                 param.combo <- tradeStats.list[param.combo.nr, 1:grep('Portfolio', names(tradeStats.list)) - 1]
 
                 # configure strategy to use selected param.combo

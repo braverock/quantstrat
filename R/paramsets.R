@@ -335,14 +335,14 @@ add.constraint <- function(strategy, paramset.label, distribution.label.1, distr
 #' @param paramset.label a label uniquely identifying the paramset within the strategy
 #' @param portfolio.st a string variable
 #' @param nsamples if > 0 then take a sample of only size nsamples from the paramset
-#' @param mode 'slave' to run updatePortfolio() and tradesStats() on the slave and return all portfolios and orderbooks as a list: higher parallelization but more data transfer between master and slave; 'master' to have updatePortf() and tradeStats() run at the master and return all portfolios and orderbooks in the .blotter and .strategy environments resp: less parallelization but also less data transfer between slave and master; default is 'master'
+#' @param calc 'slave' to run updatePortfolio() and tradesStats() on the slave and return all portfolios and orderbooks as a list: higher parallelization but more data transfer between master and slave; 'master' to have updatePortf() and tradeStats() run at the master and return all portfolios and orderbooks in the .blotter and .strategy environments resp: less parallelization but also less data transfer between slave and master; default is 'master'
 #' @param verbose return full information, in particular the .blotter environment, default FALSE
 #'
 #' @author Jan Humme
 #' @export
 #' @seealso \code{\link{add.constraint}}, \code{\link{add.constraint}}, \code{\link{delete.paramset}}
 
-apply.paramset <- function(strategy.st, paramset.label, portfolio.st, mktdata, nsamples=0, mode='master', verbose=FALSE)
+apply.paramset <- function(strategy.st, paramset.label, portfolio.st, mktdata, nsamples=0, calc='master', verbose=FALSE)
 {
     require(foreach, quietly=TRUE)
     require(iterators, quietly=TRUE)
@@ -381,7 +381,7 @@ apply.paramset <- function(strategy.st, paramset.label, portfolio.st, mktdata, n
         {
             r <- args[[i]]
 
-            switch(mode,
+            switch(calc,
 
                 slave = {
                     # compute results on slave and return as list
@@ -457,7 +457,7 @@ apply.paramset <- function(strategy.st, paramset.label, portfolio.st, mktdata, n
         strategy <- install.param.combo(strategy, param.combo, paramset.label)
         applyStrategy(strategy, portfolios=result$portfolio.st, mktdata=mktdata, verbose=verbose)
 
-        if(mode == 'slave')
+        if(calc == 'slave')
         {
             updatePortf(result$portfolio.st, Dates=paste('::',as.Date(Sys.time()),sep=''))
             result$tradeStats <- tradeStats(result$portfolio.st)

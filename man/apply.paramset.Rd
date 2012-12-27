@@ -3,7 +3,7 @@
 \title{Apply a paramset to the strategy}
 \usage{
   apply.paramset(strategy.st, paramset.label, portfolio.st,
-    mktdata, nsamples = 0, mode = "master",
+    mktdata, nsamples = 0, calc = "master",
     verbose = FALSE)
 }
 \arguments{
@@ -17,7 +17,7 @@
   \item{nsamples}{if > 0 then take a sample of only size
   nsamples from the paramset}
 
-  \item{mode}{'slave' to run updatePortfolio() and
+  \item{calc}{'slave' to run updatePortfolio() and
   tradesStats() on the slave and return all portfolios and
   orderbooks as a list: higher parallelization but more
   data transfer between master and slave; 'master' to have
