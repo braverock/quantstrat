@@ -52,8 +52,6 @@
 
 walk.forward <- function(portfolio.st, strategy.st, paramset.label, period, k.training, nsamples=0, k.testing, objective_func=max, objective_arg=quote(tradeStats.list$Net.Trading.PL), verbose=FALSE)
 {
-    warning('walk.forward() is still under development! expect changes in arguments and results at any time JH')
-
     must.have.args(match.call(), c('portfolio.st', 'strategy.st', 'paramset.label', 'k.training'))
 
     strategy <- must.be.strategy(strategy.st)
