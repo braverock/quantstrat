@@ -23,9 +23,6 @@ test_that("The first trade is a long entry",
 test_that("The first short exit order is rejected", 
           { expect_that(as.character(status[2]) =="rejected", is_true()) })
 
-test_that("The first short exit order is rejected", 
-          { expect_that(as.character(status[2]) =="rejected", is_true()) })
-
 test_that("The first long signal is entered long", 
           { expect_that(as.character(qty[3]) =="100", is_true()) })
 
