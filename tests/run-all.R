@@ -1,4 +1,4 @@
 library(testthat)
 library(quantstrat)
 
-test_package("quantstrat")
+#test_package("quantstrat")
