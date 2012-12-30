@@ -12,16 +12,16 @@
 #
 ################### LOAD QUANTSTRAT #################
 
-suppressMessages(require(quantstrat))
+require(quantstrat))
 
 ###################### LOAD DATA ######################
 
-data('spx')
+data(spx)
 
-############### TIMEZONE INIT #########################
+############### TIMEZONE HOUSEKEEPING #########################
 
-local_time = Sys.timezone()
-attr(attr(spx,"index"),"tzone") <- local_time 
+local_TZ = Sys.getenv("TZ")
+Sys.unsetenv("TZ")
 
 ############################# DEFINE VARIABLES ##############################
 
@@ -131,4 +131,6 @@ updatePortf(port, 'spx', Date=paste('::',as.Date(Sys.time()),sep=''))
 
 book = getOrderBook(port)
 
+############################### RESET TZ TO ORIGINAL SETTING ########
 
+Sys.setenv(TZ = local_TZ)
