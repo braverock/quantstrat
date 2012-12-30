@@ -29,8 +29,8 @@ port          = 'bluePort'
 acct          = 'blueAcct'
 initEq        = 1e6
 initDate      = '1969-12-31'
-fast          = 3 
-slow          = 8
+fast          = 10 
+slow          = 30
 
 ############################# INITIALIZE ####################################
 
@@ -78,6 +78,17 @@ blue <- add.signal(
 blue <- add.rule(
                 strategy  = blue,
                 name      = 'ruleSignal',
+                arguments = list(sigcol    = 'fast.gt.slow',
+                                 sigval    = TRUE,
+                                 orderqty  = 100,
+                                 ordertype = 'market',
+                                 orderside = 'long'),
+
+                type      = 'enter',
+                label     = 'EnterLONG')
+blue <- add.rule(
+                strategy  = blue,
+                name      = 'ruleSignal',
                 arguments = list(sigcol    = 'fast.lt.slow',
                                  sigval    = TRUE,
                                  orderqty  = 'all',
@@ -89,29 +100,6 @@ blue <- add.rule(
 blue <- add.rule(
                 strategy  = blue,
                 name      = 'ruleSignal',
-                arguments = list(sigcol     = 'fast.gt.slow',
-                                 sigval     = TRUE,
-                                 orderqty   = 'all',
-                                 ordertype  = 'market',
-                                 orderside  = 'short'),
-                type      = 'exit',
-                label     = 'ExitSHORT')
-
-blue <- add.rule(
-                strategy  = blue,
-                name      = 'ruleSignal',
-                arguments = list(sigcol    = 'fast.gt.slow',
-                                 sigval    = TRUE,
-                                 orderqty  = 100,
-                                 ordertype = 'market',
-                                 orderside = 'long'),
-
-                type      = 'enter',
-                label     = 'EnterLONG')
-
-blue <- add.rule(
-                strategy  = blue,
-                name      = 'ruleSignal',
                 arguments = list(sigcol     = 'fast.lt.slow',
                                   sigval    = TRUE,
                                   orderqty  =  -100,
@@ -119,6 +107,17 @@ blue <- add.rule(
                                   orderside = 'short'),
                 type      = 'enter',
                 label     = 'EnterSHORT')
+
+blue <- add.rule(
+                strategy  = blue,
+                name      = 'ruleSignal',
+                arguments = list(sigcol     = 'fast.gt.slow',
+                                 sigval     = TRUE,
+                                 orderqty   = 'all',
+                                 ordertype  = 'market',
+                                 orderside  = 'short'),
+                type      = 'exit',
+                label     = 'ExitSHORT')
 
 ############################# APPLY STRATEGY ################################
 
