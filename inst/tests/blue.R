@@ -12,7 +12,7 @@
 #
 ################### LOAD QUANTSTRAT #################
 
-require(quantstrat))
+require(quantstrat)
 
 ###################### LOAD DATA ######################
 
