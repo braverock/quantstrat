@@ -18,11 +18,6 @@ require(quantstrat)
 
 data(spx)
 
-############### TIMEZONE HOUSEKEEPING #########################
-
-local_TZ = Sys.getenv("TZ")
-Sys.unsetenv("TZ")
-
 ############################# DEFINE VARIABLES ##############################
 
 port          = 'aquaPort'
@@ -109,6 +104,3 @@ updatePortf(port, 'spx', Date=paste('::',as.Date(Sys.time()),sep=''))
 
 book = getOrderBook(port)
 
-############################### RESET TZ TO ORIGINAL SETTING ########
-
-Sys.setenv(TZ = local_TZ)
