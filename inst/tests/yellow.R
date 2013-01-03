@@ -1,5 +1,5 @@
 #!/usr/bin/Rscript --vanilla
-#
+
 # yellow.R
 #
 # long only simple moving average crossover
@@ -11,7 +11,7 @@
 #
 ################### LOAD QUANTSTRAT #################
 
-require(quantstrat)
+suppressMessages(require(quantstrat))
 
 ###################### LOAD DATA ######################
 
