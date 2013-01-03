@@ -86,7 +86,7 @@ clone.orderbook <- function(portfolio.st, cloned.portfolio.st, strip.history=TRU
 must.be.paramset <- function(strategy, paramset)
 {
     if(!(paramset %in% names(strategy$paramsets)))
-        stop(paste(paramset, ': not a paramset in strategy', strategy$name))
+        stop(paste(paramset, ': no such paramset in strategy', strategy$name))
 }
 
 create.paramset <- function(strategy, paramset.label)

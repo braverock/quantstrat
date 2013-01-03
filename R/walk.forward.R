@@ -50,7 +50,7 @@
 #'
 #' @export
 
-walk.forward <- function(portfolio.st, strategy.st, paramset.label, period, k.training, nsamples=0, k.testing, objective_func=max, objective_arg=quote(tradeStats.list$Net.Trading.PL), verbose=FALSE)
+walk.forward <- function(portfolio.st, strategy.st, paramset.label, period, k.training, nsamples=0, k.testing, objective_func=function(x){which(x==max(x))}, objective_args=list(x=quote(tradeStats.list$Net.Trading.PL)), verbose=FALSE)
 {
     must.have.args(match.call(), c('portfolio.st', 'strategy.st', 'paramset.label', 'k.training'))
 
@@ -100,7 +100,8 @@ walk.forward <- function(portfolio.st, strategy.st, paramset.label, period, k.tr
 
             # run backtests on training window
             result$apply.paramset <- apply.paramset(strategy.st=strategy.st, paramset.label=paramset.label,
-                portfolio.st=portfolio.st, mktdata=symbol[training.timespan], nsamples=nsamples, calc='slave', verbose=verbose)
+            #portfolio.st=portfolio.st, mktdata=symbol[training.timespan], nsamples=nsamples, calc='slave', verbose=verbose)
+            portfolio.st=portfolio.st, mktdata=symbol[training.timespan], nsamples=nsamples, calc='master', verbose=verbose)
 
             tradeStats.list <- result$apply.paramset$tradeStats
 
@@ -110,8 +111,7 @@ walk.forward <- function(portfolio.st, strategy.st, paramset.label, period, k.tr
                     stop(paste(objective_func, 'unknown objective function', sep=': '))
 
                 # select best param.combo
-                #param.combo.nr <- do.call(objective, list('tradeStats.list'=tradeStats.list))
-                param.combo.nr <- which(do.call(objective_func, list(objective_arg)) == eval(objective_arg))
+                param.combo.nr <- do.call(objective_func, objective_args)
                 param.combo <- tradeStats.list[param.combo.nr, 1:grep('Portfolio', names(tradeStats.list)) - 1]
 
                 # configure strategy to use selected param.combo
