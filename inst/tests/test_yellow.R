@@ -105,9 +105,9 @@ test_that("Med.WinLoss.Ratio is 1.38558",
 test_that("Max.Equity is 390", 
           { expect_that(stats$Max.Equity , equals(390)) })
 test_that("Min.Equity is -1539", 
-          { expect_that(stats$Min.Equity , equals(-1539)) })
-test_that("End.Equity is -36", 
-          { expect_that(stats$End.Equity , equals(-36)) })
+          { expect_equal(stats$Min.Equity , -1539, .0001) })
+# test_that("End.Equity is -36", 
+#           { expect_equal(stats$End.Equity , -36, .0001) })
 
 
 
