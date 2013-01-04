@@ -11,7 +11,7 @@
 #
 ################### LOAD QUANTSTRAT #################
 
-suppressMessages(require(quantstrat))
+require(quantstrat)
 
 ###################### LOAD DATA ######################
 

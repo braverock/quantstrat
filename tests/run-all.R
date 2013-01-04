@@ -1,4 +1,5 @@
-library(testthat)
-library(quantstrat)
+require(testthat)
+require(quantstrat)
 
 try(test_package("quantstrat"))
+
