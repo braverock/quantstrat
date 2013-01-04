@@ -342,7 +342,7 @@ add.constraint <- function(strategy, paramset.label, distribution.label.1, distr
 #' @export
 #' @seealso \code{\link{add.constraint}}, \code{\link{add.constraint}}, \code{\link{delete.paramset}}
 
-apply.paramset <- function(strategy.st, paramset.label, portfolio.st, mktdata, nsamples=0, calc='master', verbose=FALSE)
+apply.paramset <- function(strategy.st, paramset.label, portfolio.st, account.st, mktdata, nsamples=0, user.func=NULL, args.list=NULL, calc='master', verbose=FALSE)
 {
     require(foreach, quietly=TRUE)
     require(iterators, quietly=TRUE)
@@ -354,6 +354,8 @@ apply.paramset <- function(strategy.st, paramset.label, portfolio.st, mktdata, n
 
     portfolio <- getPortfolio(portfolio.st)
     symbols <- names(portfolio$symbols)
+
+    account <- getAccount(account.st)
 
     distributions <- strategy$paramsets[[paramset.label]]$distributions
     constraints <- strategy$paramsets[[paramset.label]]$constraints
@@ -381,37 +383,35 @@ apply.paramset <- function(strategy.st, paramset.label, portfolio.st, mktdata, n
         {
             r <- args[[i]]
 
-            switch(calc,
+            # move portfolio from returned list into .blotter environment
+            full.portfolio.st <- paste('portfolio', r$portfolio.st, sep='.')
+            assign(full.portfolio.st, r$portfolio, envir=.blotter)
+            r$portfolio <- NULL
 
-                slave = {
-                    # compute results on slave and return as list
-                    
-                    # so we're done: slave already computed all info and left it in its returned list
-                    results[[r$portfolio.st]] <- r
-                },
+            # move order_book from returned list into .strategy environment
+            full.order_book.st <- paste('order_book', r$portfolio.st, sep='.')
+            assign(full.order_book.st, r$order_book, envir=.strategy)
+            r$order_book <- NULL
 
-                master = {
-                    # compute results of master and return portfolio and order_book in environment
+            if(calc == 'master')
+            {
+                # calculate tradeStats on portfolio
+                updatePortf(r$portfolio.st, Dates=paste('::',as.Date(Sys.time()),sep=''))
+                r$tradeStats <- tradeStats(r$portfolio.st)
 
-                    # move portfolio from returned list into .blotter environment
-                    full.portfolio.st <- paste('portfolio', r$portfolio.st, sep='.')
-                    assign(full.portfolio.st, r$portfolio, envir=.blotter)
-                    r$portfolio <- NULL
+                if(!is.null(user.func) && !is.null(args.list))
+                    r$user.func <- do.call(user.func, args.list)
+            }
 
-                    # move order_book from returned list into .strategy environment
-                    full.order_book.st <- paste('order_book', r$portfolio.st, sep='.')
-                    assign(full.order_book.st, r$order_book, envir=.strategy)
-                    r$order_book <- NULL
-
-                    # now calculate tradeStats on portfolio
-                    updatePortf(r$portfolio.st, Dates=paste('::',as.Date(Sys.time()),sep=''))
-                    r$tradeStats <- tradeStats(r$portfolio.st)
-                }
-            )
-
+            results[[r$portfolio.st]] <- r
+            
             # add copy of tradeStats to summary list for convenience
             if(!is.null(r$tradeStats))
                 results$tradeStats <- rbind(results$tradeStats, cbind(r$param.combo, r$tradeStats))
+
+            # add copy of user.func results to summary list for convenience
+            if(!is.null(r$user.func))
+                results$user.func <- rbind(results$user.func, cbind(r$param.combo, r$user.func))
         }
         return(results)
     }
@@ -442,6 +442,9 @@ apply.paramset <- function(strategy.st, paramset.label, portfolio.st, mktdata, n
         blotter.portfolio.st <- paste('portfolio', portfolio.st, sep='.')
         assign(blotter.portfolio.st, portfolio, envir=.blotter)
 
+        blotter.account.st <- paste('account', account.st, sep='.')
+        assign(blotter.account.st, account, envir=.blotter)
+
         strategy.order_book.st <- paste('order_book', portfolio.st, sep='.')
         assign(strategy.order_book.st, order_book, envir=.strategy)
 
@@ -461,6 +464,9 @@ apply.paramset <- function(strategy.st, paramset.label, portfolio.st, mktdata, n
         {
             updatePortf(result$portfolio.st, Dates=paste('::',as.Date(Sys.time()),sep=''))
             result$tradeStats <- tradeStats(result$portfolio.st)
+
+            if(!is.null(user.func) && !is.null(args.list))
+                result$user.func <- do.call(user.func, args.list)
         }
         result$portfolio <- getPortfolio(result$portfolio.st)
         result$order_book <- getOrderBook(result$portfolio.st)

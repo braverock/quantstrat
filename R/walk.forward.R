@@ -50,7 +50,9 @@
 #'
 #' @export
 
-walk.forward <- function(portfolio.st, strategy.st, paramset.label, period, k.training, nsamples=0, k.testing, objective_func=function(x){which(x==max(x))}, objective_args=list(x=quote(tradeStats.list$Net.Trading.PL)), verbose=FALSE)
+walk.forward <- function(strategy.st, paramset.label, portfolio.st, account.st, period, k.training, nsamples=0, k.testing,
+    objective_func=function(x){which(x==max(x))}, objective_args=list(x=quote(tradeStats.list$Net.Trading.PL)),
+    user.func=NULL, args.list=NULL, verbose=FALSE)
 {
     must.have.args(match.call(), c('portfolio.st', 'strategy.st', 'paramset.label', 'k.training'))
 
@@ -100,8 +102,10 @@ walk.forward <- function(portfolio.st, strategy.st, paramset.label, period, k.tr
 
             # run backtests on training window
             result$apply.paramset <- apply.paramset(strategy.st=strategy.st, paramset.label=paramset.label,
+                portfolio.st=portfolio.st, account.st=account.st, mktdata=symbol[training.timespan], nsamples=nsamples,
+                calc='slave', user.func=user.func, args.list=args.list, verbose=verbose)
+                #calc='master', user.func=user.func, args.list=args.list, verbose=verbose)
             #portfolio.st=portfolio.st, mktdata=symbol[training.timespan], nsamples=nsamples, calc='slave', verbose=verbose)
-            portfolio.st=portfolio.st, mktdata=symbol[training.timespan], nsamples=nsamples, calc='master', verbose=verbose)
 
             tradeStats.list <- result$apply.paramset$tradeStats
 
