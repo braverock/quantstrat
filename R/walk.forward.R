@@ -35,8 +35,8 @@
 #' @param k.training the number of periods to use for training, eg. '3' months
 #' @param nsamples the number of sample param.combos to draw from the paramset for training; 0 means all samples (see also apply.paramset)
 #' @param k.testing the number of periods to use for testing, eg. '1 month'
-#' @param objective_func a user provided function returning the best param.combo from the paramset, based on training results; defaults to 'max'
-#' @param objective_arg a user provided argument to objective_func, defaults to quote(tradeStats.list$Net.Trading.PL)
+#' @param objective.func a user provided function returning the best param.combo from the paramset, based on training results; defaults to 'max'
+#' @param objective.arg a user provided argument to objective.func, defaults to quote(tradeStats.list$Net.Trading.PL)
 #' @param verbose dumps a lot of info during the run if set to TRUE, defaults to FALSE
 #'
 #' @return a list consisting of a slot containing detailed results for each training + testing period, as well as the portfolio and the tradeStats() for the portfolio
@@ -51,8 +51,8 @@
 #' @export
 
 walk.forward <- function(strategy.st, paramset.label, portfolio.st, account.st, period, k.training, nsamples=0, k.testing,
-    objective_func=function(x){which(x==max(x))}, objective_args=list(x=quote(tradeStats.list$Net.Trading.PL)),
-    user.func=NULL, args.list=NULL, verbose=FALSE)
+    objective.func=function(x){which(x==max(x))}, objective.args=list(x=quote(tradeStats.list$Net.Trading.PL)),
+    ..., verbose=FALSE)
 {
     must.have.args(match.call(), c('portfolio.st', 'strategy.st', 'paramset.label', 'k.training'))
 
@@ -103,7 +103,8 @@ walk.forward <- function(strategy.st, paramset.label, portfolio.st, account.st, 
             # run backtests on training window
             result$apply.paramset <- apply.paramset(strategy.st=strategy.st, paramset.label=paramset.label,
                 portfolio.st=portfolio.st, account.st=account.st, mktdata=symbol[training.timespan], nsamples=nsamples,
-                calc='slave', user.func=user.func, args.list=args.list, verbose=verbose)
+                calc='slave', ...=..., verbose=verbose)
+                #calc='slave', user.func=user.func, args.list=args.list, verbose=verbose)
                 #calc='master', user.func=user.func, args.list=args.list, verbose=verbose)
             #portfolio.st=portfolio.st, mktdata=symbol[training.timespan], nsamples=nsamples, calc='slave', verbose=verbose)
 
@@ -111,11 +112,11 @@ walk.forward <- function(strategy.st, paramset.label, portfolio.st, account.st, 
 
             if(!missing(k.testing) && k.testing>0)
             {
-                if(!is.function(objective_func))
-                    stop(paste(objective_func, 'unknown objective function', sep=': '))
+                if(!is.function(objective.func))
+                    stop(paste(objective.func, 'unknown objective function', sep=': '))
 
                 # select best param.combo
-                param.combo.nr <- do.call(objective_func, objective_args)
+                param.combo.nr <- do.call(objective.func, objective.args)
                 param.combo <- tradeStats.list[param.combo.nr, 1:grep('Portfolio', names(tradeStats.list)) - 1]
 
                 # configure strategy to use selected param.combo

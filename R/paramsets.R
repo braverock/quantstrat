@@ -335,6 +335,8 @@ add.constraint <- function(strategy, paramset.label, distribution.label.1, distr
 #' @param paramset.label a label uniquely identifying the paramset within the strategy
 #' @param portfolio.st a string variable
 #' @param nsamples if > 0 then take a sample of only size nsamples from the paramset
+#' @param user.func an optional user-supplied function to be run for each param.combo at the end, either on the slave or on the master (see calc)
+#' @param user.args user-supplied list of arguments for user.func
 #' @param calc 'slave' to run updatePortfolio() and tradesStats() on the slave and return all portfolios and orderbooks as a list: higher parallelization but more data transfer between master and slave; 'master' to have updatePortf() and tradeStats() run at the master and return all portfolios and orderbooks in the .blotter and .strategy environments resp: less parallelization but also less data transfer between slave and master; default is 'master'
 #' @param verbose return full information, in particular the .blotter environment, default FALSE
 #'
@@ -342,7 +344,7 @@ add.constraint <- function(strategy, paramset.label, distribution.label.1, distr
 #' @export
 #' @seealso \code{\link{add.constraint}}, \code{\link{add.constraint}}, \code{\link{delete.paramset}}
 
-apply.paramset <- function(strategy.st, paramset.label, portfolio.st, account.st, mktdata, nsamples=0, user.func=NULL, args.list=NULL, calc='master', verbose=FALSE)
+apply.paramset <- function(strategy.st, paramset.label, portfolio.st, account.st, mktdata, nsamples=0, user.func=NULL, user.args=NULL, calc='master', verbose=FALSE)
 {
     require(foreach, quietly=TRUE)
     require(iterators, quietly=TRUE)
@@ -399,8 +401,8 @@ apply.paramset <- function(strategy.st, paramset.label, portfolio.st, account.st
                 updatePortf(r$portfolio.st, Dates=paste('::',as.Date(Sys.time()),sep=''))
                 r$tradeStats <- tradeStats(r$portfolio.st)
 
-                if(!is.null(user.func) && !is.null(args.list))
-                    r$user.func <- do.call(user.func, args.list)
+                if(!is.null(user.func) && !is.null(user.args))
+                    r$user.func <- do.call(user.func, user.args)
             }
 
             results[[r$portfolio.st]] <- r
@@ -465,8 +467,8 @@ apply.paramset <- function(strategy.st, paramset.label, portfolio.st, account.st
             updatePortf(result$portfolio.st, Dates=paste('::',as.Date(Sys.time()),sep=''))
             result$tradeStats <- tradeStats(result$portfolio.st)
 
-            if(!is.null(user.func) && !is.null(args.list))
-                result$user.func <- do.call(user.func, args.list)
+            if(!is.null(user.func) && !is.null(user.args))
+                result$user.func <- do.call(user.func, user.args)
         }
         result$portfolio <- getPortfolio(result$portfolio.st)
         result$order_book <- getOrderBook(result$portfolio.st)

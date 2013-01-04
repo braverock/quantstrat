@@ -3,8 +3,8 @@
 \title{Apply a paramset to the strategy}
 \usage{
   apply.paramset(strategy.st, paramset.label, portfolio.st,
-    mktdata, nsamples = 0, calc = "master",
-    verbose = FALSE)
+    account.st, mktdata, nsamples = 0, user.func = NULL,
+    user.args = NULL, calc = "master", verbose = FALSE)
 }
 \arguments{
   \item{strategy}{the name of the strategy object}
@@ -16,6 +16,13 @@
 
   \item{nsamples}{if > 0 then take a sample of only size
   nsamples from the paramset}
+
+  \item{user.func}{an optional user-supplied function to be
+  run for each param.combo at the end, either on the slave
+  or on the master (see calc)}
+
+  \item{user.args}{user-supplied list of arguments for
+  user.func}
 
   \item{calc}{'slave' to run updatePortfolio() and
   tradesStats() on the slave and return all portfolios and
