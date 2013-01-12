@@ -436,9 +436,7 @@ apply.paramset <- function(strategy.st, paramset.label, portfolio.st, account.st
         list2env(env.instrument, envir=FinancialInstrument:::.instrument)
 
         put.portfolio(portfolio.st, portfolio)
-
-        blotter.account.st <- paste('account', account.st, sep='.')
-        assign(blotter.account.st, account, envir=.blotter)
+        put.account(account.st, account)
 
         strategy.order_book.st <- paste('order_book', portfolio.st, sep='.')
         assign(strategy.order_book.st, order_book, envir=.strategy)
