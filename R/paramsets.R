@@ -67,18 +67,18 @@ clone.orderbook <- function(portfolio.st, cloned.portfolio.st, strip.history=TRU
 {
     #must.have.args(match.call(), c('portfolio.st', 'cloned.portfolio.st'))
 
-    order.book <- getOrderBook(portfolio.st)
+    orderbook <- getOrderBook(portfolio.st)
 
     i <- 1  # TODO: find index number by name
-    names(order.book)[i] <- cloned.portfolio.st
+    names(orderbook)[i] <- cloned.portfolio.st
 
     if(strip.history == TRUE)
     {
-        for(symbol in names(order.book[[portfolio.st]]))
-            order.book[[portfolio.st]][[symbol]] <- order.book[[portfolio.st]][[symbol]][1,]
+        for(symbol in names(orderbook[[portfolio.st]]))
+            orderbook[[portfolio.st]][[symbol]] <- orderbook[[portfolio.st]][[symbol]][1,]
     }
 
-    assign(paste("order_book", cloned.portfolio.st, sep='.'), order.book, envir=.strategy)
+    put.orderbook(cloned.portfolio.st, orderbook)
 }
 
 ### local functions ############################################################
@@ -355,9 +355,7 @@ apply.paramset <- function(strategy.st, paramset.label, portfolio.st, account.st
     must.be.paramset(strategy, paramset.label)
 
     portfolio <- getPortfolio(portfolio.st)
-
-    order_book.st <- paste('order_book', portfolio.st, sep='.')
-    order_book <- get(order_book.st, envir=.strategy)
+    orderbook <- getOrderBook(portfolio.st)
 
     account <- getAccount(account.st)
 
@@ -385,10 +383,9 @@ apply.paramset <- function(strategy.st, paramset.label, portfolio.st, account.st
             put.portfolio(r$portfolio.st, r$portfolio)
             r$portfolio <- NULL
 
-            # move order_book from slave returned list into .strategy environment
-            full.order_book.st <- paste('order_book', r$portfolio.st, sep='.')
-            assign(full.order_book.st, r$order_book, envir=.strategy)
-            r$order_book <- NULL
+            # move orderbook from slave returned list into .strategy environment
+            put.orderbook(r$portfolio.st, r$orderbook)
+            r$orderbook <- NULL
 
             if(calc == 'master')
             {
@@ -437,9 +434,7 @@ apply.paramset <- function(strategy.st, paramset.label, portfolio.st, account.st
 
         put.portfolio(portfolio.st, portfolio)
         put.account(account.st, account)
-
-        strategy.order_book.st <- paste('order_book', portfolio.st, sep='.')
-        assign(strategy.order_book.st, order_book, envir=.strategy)
+        put.orderbook(portfolio.st, orderbook)
 
         assign(strategy.st, strategy, envir=.strategy)
 
@@ -462,7 +457,7 @@ apply.paramset <- function(strategy.st, paramset.label, portfolio.st, account.st
                 result$user.func <- do.call(user.func, user.args)
         }
         result$portfolio <- getPortfolio(result$portfolio.st)
-        result$order_book <- getOrderBook(result$portfolio.st)
+        result$orderbook <- getOrderBook(result$portfolio.st)
 
         return(result)
     }

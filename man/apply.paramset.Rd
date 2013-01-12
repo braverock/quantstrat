@@ -4,7 +4,7 @@
 \usage{
   apply.paramset(strategy.st, paramset.label, portfolio.st,
     account.st, mktdata, nsamples = 0, user.func = NULL,
-    user.args = NULL, calc = "master", verbose = FALSE)
+    user.args = NULL, calc = "slave", verbose = FALSE)
 }
 \arguments{
   \item{strategy}{the name of the strategy object}
@@ -32,7 +32,7 @@
   return all portfolios and orderbooks in the .blotter and
   .strategy environments resp: less parallelization but
   also less data transfer between slave and master; default
-  is 'master'}
+  is 'slave'}
 
   \item{verbose}{return full information, in particular the
   .blotter environment, default FALSE}

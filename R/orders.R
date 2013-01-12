@@ -17,6 +17,31 @@ getOrderBook <- function(portfolio) #should symbol subsets be supported too?  pr
     return(orders)
 }
 
+#' put a orderbook object in .strategy env
+#' @param portfolio.st string identifying portfolio
+#' @param orderbook orderbook object
+#' @seealso getOrderBook
+#' @concept order book
+#' @export
+
+put.orderbook <- function(portfolio.st, orderbook)
+{
+    strategy.orderbook.st <- paste('order_book', portfolio.st, sep='.')
+    assign(strategy.orderbook.st, orderbook, envir=.strategy)
+}
+
+###############################################################################
+# Blotter: Tools for transaction-oriented trading systems development
+# for R (see http://r-project.org/) 
+# Copyright (c) 2008-2011 Peter Carl and Brian G. Peterson
+#
+# This library is distributed under the terms of the GNU Public License (GPL)
+# for full details see the file COPYING
+#
+# $Id$
+#
+###############################################################################
+
 #' initialize order container
 #' 
 #' This function sets up the order container by portfolio.
