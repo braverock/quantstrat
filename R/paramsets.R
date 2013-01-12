@@ -56,7 +56,7 @@ clone.portfolio <- function(portfolio.st, cloned.portfolio.st, strip.history=TRU
         }
         portfolio$summary <- portfolio$summary[1,]
     }
-    assign(paste("portfolio", as.character(cloned.portfolio.st), sep='.'), portfolio, envir=.blotter)
+    put.portfolio(as.character(cloned.portfolio.st), portfolio)
 
     return(cloned.portfolio.st)
 }
@@ -382,8 +382,7 @@ apply.paramset <- function(strategy.st, paramset.label, portfolio.st, account.st
             r <- args[[i]]
 
             # move portfolio from slave returned list into .blotter environment
-            full.portfolio.st <- paste('portfolio', r$portfolio.st, sep='.')
-            assign(full.portfolio.st, r$portfolio, envir=.blotter)
+            put.portfolio(r$portfolio.st, r$portfolio)
             r$portfolio <- NULL
 
             # move order_book from slave returned list into .strategy environment
@@ -436,8 +435,7 @@ apply.paramset <- function(strategy.st, paramset.label, portfolio.st, account.st
 
         list2env(env.instrument, envir=FinancialInstrument:::.instrument)
 
-        blotter.portfolio.st <- paste('portfolio', portfolio.st, sep='.')
-        assign(blotter.portfolio.st, portfolio, envir=.blotter)
+        put.portfolio(portfolio.st, portfolio)
 
         blotter.account.st <- paste('account', account.st, sep='.')
         assign(blotter.account.st, account, envir=.blotter)
