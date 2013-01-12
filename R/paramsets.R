@@ -337,14 +337,14 @@ add.constraint <- function(strategy, paramset.label, distribution.label.1, distr
 #' @param nsamples if > 0 then take a sample of only size nsamples from the paramset
 #' @param user.func an optional user-supplied function to be run for each param.combo at the end, either on the slave or on the master (see calc)
 #' @param user.args user-supplied list of arguments for user.func
-#' @param calc 'slave' to run updatePortfolio() and tradesStats() on the slave and return all portfolios and orderbooks as a list: higher parallelization but more data transfer between master and slave; 'master' to have updatePortf() and tradeStats() run at the master and return all portfolios and orderbooks in the .blotter and .strategy environments resp: less parallelization but also less data transfer between slave and master; default is 'master'
+#' @param calc 'slave' to run updatePortfolio() and tradesStats() on the slave and return all portfolios and orderbooks as a list: higher parallelization but more data transfer between master and slave; 'master' to have updatePortf() and tradeStats() run at the master and return all portfolios and orderbooks in the .blotter and .strategy environments resp: less parallelization but also less data transfer between slave and master; default is 'slave'
 #' @param verbose return full information, in particular the .blotter environment, default FALSE
 #'
 #' @author Jan Humme
 #' @export
 #' @seealso \code{\link{add.constraint}}, \code{\link{add.constraint}}, \code{\link{delete.paramset}}
 
-apply.paramset <- function(strategy.st, paramset.label, portfolio.st, account.st, mktdata, nsamples=0, user.func=NULL, user.args=NULL, calc='master', verbose=FALSE)
+apply.paramset <- function(strategy.st, paramset.label, portfolio.st, account.st, mktdata, nsamples=0, user.func=NULL, user.args=NULL, calc='slave', verbose=FALSE)
 {
     require(foreach, quietly=TRUE)
     require(iterators, quietly=TRUE)
@@ -355,7 +355,9 @@ apply.paramset <- function(strategy.st, paramset.label, portfolio.st, account.st
     must.be.paramset(strategy, paramset.label)
 
     portfolio <- getPortfolio(portfolio.st)
-    symbols <- names(portfolio$symbols)
+
+    order_book.st <- paste('order_book', portfolio.st, sep='.')
+    order_book <- get(order_book.st, envir=.strategy)
 
     account <- getAccount(account.st)
 
@@ -370,12 +372,6 @@ apply.paramset <- function(strategy.st, paramset.label, portfolio.st, account.st
     env.functions <- c('clone.portfolio', 'clone.orderbook', 'install.param.combo')
     env.instrument <- as.list(FinancialInstrument:::.instrument)
 
-    order_book.st <- paste('order_book', portfolio.st, sep='.')
-    order_book <- get(order_book.st, envir=.strategy)
-
-    symbol.list <- as.list(.getSymbols)
-    symbol.names <- names(.getSymbols)
-
     combine <- function(...)
     {
         args <- list(...)
@@ -385,12 +381,12 @@ apply.paramset <- function(strategy.st, paramset.label, portfolio.st, account.st
         {
             r <- args[[i]]
 
-            # move portfolio from returned list into .blotter environment
+            # move portfolio from slave returned list into .blotter environment
             full.portfolio.st <- paste('portfolio', r$portfolio.st, sep='.')
             assign(full.portfolio.st, r$portfolio, envir=.blotter)
             r$portfolio <- NULL
 
-            # move order_book from returned list into .strategy environment
+            # move order_book from slave returned list into .strategy environment
             full.order_book.st <- paste('order_book', r$portfolio.st, sep='.')
             assign(full.order_book.st, r$order_book, envir=.strategy)
             r$order_book <- NULL
@@ -398,9 +394,10 @@ apply.paramset <- function(strategy.st, paramset.label, portfolio.st, account.st
             if(calc == 'master')
             {
                 # calculate tradeStats on portfolio
-                updatePortf(r$portfolio.st, Dates=paste('::',as.Date(Sys.time()),sep=''))
+                updatePortf(r$portfolio.st, Dates=paste('::',as.Date(Sys.time()),sep=''), Prices=mktdata)
                 r$tradeStats <- tradeStats(r$portfolio.st)
 
+                # run user specified function, if they provided one
                 if(!is.null(user.func) && !is.null(user.args))
                     r$user.func <- do.call(user.func, user.args)
             }
@@ -418,8 +415,6 @@ apply.paramset <- function(strategy.st, paramset.label, portfolio.st, account.st
         return(results)
     }
 
-    # doSEQ and doMC make all environments available to the slabe, but doRedis only provides the .GlobalEnv
-    # so we need to copy all necessary data to .GlobalEnv from.blotter and .strategy using .export
     results <- foreach(param.combo=iter(param.combos,by='row'),
         .verbose=verbose, .errorhandling='pass',
         .packages='quantstrat',
@@ -433,7 +428,7 @@ apply.paramset <- function(strategy.st, paramset.label, portfolio.st, account.st
         # and .strategy environments to make sure that envs are clean
         # regardless of backend
         #
-        # environments persist in each slave, so data may be accumulating
+        # also, environments persist in each slave, so data may be accumulating
         # for each transition through the foreach loop
         #
         rm(list=ls(pos=.blotter), pos=.blotter)
@@ -464,7 +459,7 @@ apply.paramset <- function(strategy.st, paramset.label, portfolio.st, account.st
 
         if(calc == 'slave')
         {
-            updatePortf(result$portfolio.st, Dates=paste('::',as.Date(Sys.time()),sep=''))
+            updatePortf(result$portfolio.st, Dates=paste('::',as.Date(Sys.time()),sep=''), Prices=mktdata)
             result$tradeStats <- tradeStats(result$portfolio.st)
 
             if(!is.null(user.func) && !is.null(user.args))

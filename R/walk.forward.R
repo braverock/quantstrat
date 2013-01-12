@@ -50,7 +50,8 @@
 #'
 #' @export
 
-walk.forward <- function(strategy.st, paramset.label, portfolio.st, account.st, period, k.training, nsamples=0, k.testing,
+walk.forward <- function(strategy.st, paramset.label, portfolio.st, account.st,
+    period, k.training, nsamples=0, k.testing,
     obj.func=function(x){which(x==max(x))}, obj.args=list(x=quote(tradeStats.list$Net.Trading.PL)),
     ..., verbose=FALSE)
 {
@@ -102,11 +103,9 @@ walk.forward <- function(strategy.st, paramset.label, portfolio.st, account.st, 
 
             # run backtests on training window
             result$apply.paramset <- apply.paramset(strategy.st=strategy.st, paramset.label=paramset.label,
-                portfolio.st=portfolio.st, account.st=account.st, mktdata=symbol[training.timespan], nsamples=nsamples,
-                calc='slave', ...=..., verbose=verbose)
-                #calc='slave', user.func=user.func, args.list=args.list, verbose=verbose)
-                #calc='master', user.func=user.func, args.list=args.list, verbose=verbose)
-            #portfolio.st=portfolio.st, mktdata=symbol[training.timespan], nsamples=nsamples, calc='slave', verbose=verbose)
+                portfolio.st=portfolio.st, account.st=account.st,
+                mktdata=symbol[training.timespan], nsamples=nsamples,
+                calc='slave', verbose=verbose, ...=...)
 
             tradeStats.list <- result$apply.paramset$tradeStats
 
