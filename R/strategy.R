@@ -191,8 +191,11 @@ getStrategy <- function(x){
         .strategy <<- new.env()
 }
 
+#' put a strategy object in .strategy env
+#' @param strategy object; name will be extracted as strategy$name
+#' @seealso getStrategy
 #' @export
-store.strategy <- function(strategy)
+put.strategy <- function(strategy)
 {
     assign(strategy$name, strategy, envir=as.environment(.strategy))
 }

@@ -227,7 +227,7 @@ delete.paramset <- function(strategy, paramset.label, store=TRUE)
 
     if(store)
     {
-        store.strategy(strategy)
+        put.strategy(strategy)
         return(strategy$name)
     }
     return(strategy)
@@ -272,7 +272,7 @@ add.distribution <- function(strategy, paramset.label, component.type, component
 
     if(store)
     {
-        store.strategy(strategy)
+        put.strategy(strategy)
         return(strategy$name)
     }
     return(strategy)
@@ -315,7 +315,7 @@ add.constraint <- function(strategy, paramset.label, distribution.label.1, distr
 
     if(store)
     {
-        store.strategy(strategy)
+        put.strategy(strategy)
         return(strategy$name)
     }
     return(strategy)
@@ -355,9 +355,8 @@ apply.paramset <- function(strategy.st, paramset.label, portfolio.st, account.st
     must.be.paramset(strategy, paramset.label)
 
     portfolio <- getPortfolio(portfolio.st)
-    orderbook <- getOrderBook(portfolio.st)
-
     account <- getAccount(account.st)
+    orderbook <- getOrderBook(portfolio.st)
 
     distributions <- strategy$paramsets[[paramset.label]]$distributions
     constraints <- strategy$paramsets[[paramset.label]]$constraints
@@ -435,8 +434,7 @@ apply.paramset <- function(strategy.st, paramset.label, portfolio.st, account.st
         put.portfolio(portfolio.st, portfolio)
         put.account(account.st, account)
         put.orderbook(portfolio.st, orderbook)
-
-        assign(strategy.st, strategy, envir=.strategy)
+        put.strategy(strategy)
 
         result <- list()
         result$param.combo <- param.combo

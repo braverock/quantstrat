@@ -17,7 +17,7 @@ getOrderBook <- function(portfolio) #should symbol subsets be supported too?  pr
     return(orders)
 }
 
-#' put a orderbook object in .strategy env
+#' put an orderbook object in .strategy env
 #' @param portfolio.st string identifying portfolio
 #' @param orderbook orderbook object
 #' @seealso getOrderBook
