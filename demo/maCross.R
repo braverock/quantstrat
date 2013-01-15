@@ -13,7 +13,7 @@ Sys.setenv(TZ='UTC')
 
 suppressWarnings(rm("order_book.macross",pos=.strategy))
 suppressWarnings(rm("account.macross","portfolio.macross",pos=.blotter))
-suppressWarnings(rm("account.st","portfolio.st","stock.str","stratMACROSS","initDate","initEq",'start_t','end_t'))
+suppressWarnings(rm("account.st","portfolio.st","stock.str","stratMACROSS",'start_t','end_t'))
 
 
 stock.str='AAPL' # what are we trying it on
