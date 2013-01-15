@@ -94,6 +94,7 @@ yellow <- add.rule(
 ############################# APPLY STRATEGY ################################
 
 applyStrategy(yellow, port, prefer='Open', verbose=FALSE)
+#applyStrategy(yellow, port, verbose=FALSE)
 
 ############################# UPDATE ########################################
 

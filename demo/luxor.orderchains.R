@@ -48,8 +48,7 @@ currency(c('GBP', 'USD'))
 
 exchange_rate(c('GBPUSD'), tick_size=0.0001)
 
-#setSymbolLookup.FI('~/R.symbols/', 'GBPUSD')
-setSymbolLookup.FI('../data/', 'GBPUSD')
+setSymbolLookup.FI(system.file('extdata',package='quantstrat'), 'GBPUSD')
 
 ###
 
