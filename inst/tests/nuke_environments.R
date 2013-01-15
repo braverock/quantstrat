@@ -1,3 +1,4 @@
-suppressWarnings(rm(list=ls(.strategy), pos=.strategy))
-suppressWarnings(rm(list=ls(.blotter), pos=.blotter))
-suppressWarnings(rm(list=ls()))
+rm(list=ls(.strategy), pos=.strategy)
+rm(list=ls(.blotter), pos=.blotter)
+rm_instruments( keep.currencies = FALSE)
+rm(list=ls())
