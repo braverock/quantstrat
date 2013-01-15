@@ -20,7 +20,8 @@ stock.str='AAPL' # what are we trying it on
 currency('USD')
 stock(stock.str,currency='USD',multiplier=1)
 
-if(!isTRUE(in_test)){
+#specify initDate and endDate if we're not inside the test wrappers
+if(!exists('in_test') || !isTRUE(in_test)){
     initDate='2005-12-31'
     endDate=Sys.Date()
 }
