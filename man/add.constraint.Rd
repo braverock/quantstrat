@@ -24,6 +24,9 @@
 
   \item{label}{a label uniquely identifying the constraint
   within the paramset}
+
+  \item{store}{indicates whether to store the strategy in
+  the .strategy environment}
 }
 \description{
   Creates a constraint on 2 distributions in a paramset,

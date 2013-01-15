@@ -227,6 +227,7 @@ getOrders <- function(portfolio,symbol,status="open",timespan=NULL,ordertype=NUL
 #' @param orderset set a tag identifying the orderset
 #' @param status one of "open", "closed", "canceled", "revoked", or "replaced", default "open"
 #' @param statustimestamp timestamp of a status update, will be blank when order is initiated 
+#' @param prefer the prefered order price (eg. 'Close')
 #' @param delay what delay to add to timestamp when inserting the order into the order book, in seconds
 #' @param tmult if TRUE, threshold is a percent multiplier for \code{price}, not a scalar. Threshold is converted to a scalar by multiplying it with the price, then added to the price just like a scalar threshold. 
 #' @param replace TRUE/FALSE, whether to replace any other open order(s) on this symbol with the same properties as this order, default TRUE, see Details 

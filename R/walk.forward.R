@@ -29,6 +29,7 @@
 #' For a complete description, see Jaekle&Tomasini chapter 6.
 #' 
 #' @param portfolio.st the name of the portfolio object
+#' @param account.st the name of the account object
 #' @param strategy.st the name of the strategy object
 #' @param paramset.label a label uniquely identifying within the strategy the paramset to be tested
 #' @param period the period unit, as a character string, eg. 'days' or 'months'
@@ -42,9 +43,6 @@
 #' @return a list consisting of a slot containing detailed results for each training + testing period, as well as the portfolio and the tradeStats() for the portfolio
 #'
 #' @seealso \code{\link{applyStrategy}} \code{\link{apply.paramset}} \code{\link{endpoints}} \code{\link{tradeStats}}
-#'
-#' @examples
-#' res <- walk.forward(strategy.st, paramset.label='SMA', portfolio.st=portfolio.st, on='months', k.training=3, k.testing=1, verbose=FALSE)
 #'
 #' @author Jan Humme
 #'

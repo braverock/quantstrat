@@ -41,6 +41,8 @@
   \item{statustimestamp}{timestamp of a status update, will
   be blank when order is initiated}
 
+  \item{prefer}{the prefered order price (eg. 'Close')}
+
   \item{delay}{what delay to add to timestamp when
   inserting the order into the order book, in seconds}
 

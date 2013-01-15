@@ -7,12 +7,17 @@
     user.args = NULL, calc = "slave", verbose = FALSE)
 }
 \arguments{
-  \item{strategy}{the name of the strategy object}
+  \item{strategy.st}{the name of the strategy object}
 
   \item{paramset.label}{a label uniquely identifying the
   paramset within the strategy}
 
-  \item{portfolio.st}{a string variable}
+  \item{portfolio.st}{the name of the portfolio}
+
+  \item{account.st}{the name of the account}
+
+  \item{mktdata}{optional xts mktdata object, will be
+  passed unchanged to applyStrategy}
 
   \item{nsamples}{if > 0 then take a sample of only size
   nsamples from the paramset}

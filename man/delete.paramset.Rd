@@ -9,6 +9,9 @@
 
   \item{paramset.label}{a label uniquely identifying the
   paramset within the strategy}
+
+  \item{store}{indicates whether to store the strategy in
+  the .strategy environment}
 }
 \description{
   Delete a paramset from a strategy, including its

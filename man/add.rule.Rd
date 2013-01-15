@@ -29,6 +29,8 @@
   "risk","order","rebalance","exit","enter","chain" see
   Details}
 
+  \item{parent}{the parent rule for a chain rule}
+
   \item{...}{any other passthru parameters}
 
   \item{enabled}{TRUE/FALSE whether the rule is enabled for

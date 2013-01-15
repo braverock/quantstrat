@@ -65,6 +65,7 @@
 #' @param parameters vector of strings naming parameters to be saved for apply-time definition
 #' @param label arbitrary text label for rule output, NULL default will be converted to '<name>.rule'
 #' @param type one of "risk","order","rebalance","exit","enter","chain" see Details
+#' @param parent the parent rule for a chain rule
 #' @param ... any other passthru parameters
 #' @param enabled TRUE/FALSE whether the rule is enabled for use in applying the strategy, default TRUE
 #' @param indexnum if you are updating a specific rule, the index number in the $rules[type] list to update

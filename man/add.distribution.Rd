@@ -24,6 +24,11 @@
 
   \item{label}{a label uniquely identifying the
   distribution within the paramset}
+
+  \item{weight}{vector}
+
+  \item{store}{indicates whether to store the strategy in
+  the .strategy environment}
 }
 \description{
   Creates a distribution in paramset, where a distribution

@@ -6,7 +6,8 @@ Date: $Date$
 Author: Peter Carl, Brian G. Peterson, Joshua Ulrich, Jan Humme
 Depends:
     xts(>= 0.8-2),TTR(>= 0.2),blotter(>= 0.7.2),
-    FinancialInstrument(>= 0.12.5)
+    FinancialInstrument(>= 0.12.5),
+    foreach(>= 1.4.0)
 Suggests:
     PerformanceAnalytics,PortfolioAnalytics,rgl,
     testthat

@@ -36,6 +36,11 @@
 #
 ###############################################################################
 
+#require(foreach, quietly=TRUE)
+require('foreach')
+#require(iterators, quietly=TRUE)
+require('iterators')
+
 # creates a copy of a portfolio, stripping all history (transactions etc)
 
 clone.portfolio <- function(portfolio.st, cloned.portfolio.st, strip.history=TRUE)
@@ -207,6 +212,7 @@ install.param.combo <- function(strategy, param.combo, paramset.label)
 #' 
 #' @param strategy the name of the strategy object
 #' @param paramset.label a label uniquely identifying the paramset within the strategy
+#' @param store indicates whether to store the strategy in the .strategy environment
 #'
 #' @author Jan Humme
 #' @export
@@ -244,6 +250,8 @@ delete.paramset <- function(strategy, paramset.label, store=TRUE)
 #' @param component.label a label identifying the component. must be unique per component type
 #' @param variable the name of the variable in the component
 #' @param label a label uniquely identifying the distribution within the paramset
+#' @param weight vector
+#' @param store indicates whether to store the strategy in the .strategy environment
 #'
 #' @author Jan Humme
 #' @export
@@ -289,6 +297,7 @@ add.distribution <- function(strategy, paramset.label, component.type, component
 #' @param distribution.label.2 a label identifying the second distribution
 #' @param operator an operator specifying the relational constraint between the 2 distributions
 #' @param label a label uniquely identifying the constraint within the paramset
+#' @param store indicates whether to store the strategy in the .strategy environment
 #'
 #' @author Jan Humme
 #' @export
@@ -331,9 +340,11 @@ add.constraint <- function(strategy, paramset.label, distribution.label.1, distr
 #' for parallel processing. It is up to the caller to load and register an appropriate backend, eg. doMC,
 #' doParallel or doRedis.
 #' 
-#' @param strategy the name of the strategy object
+#' @param strategy.st the name of the strategy object
 #' @param paramset.label a label uniquely identifying the paramset within the strategy
-#' @param portfolio.st a string variable
+#' @param portfolio.st the name of the portfolio
+#' @param account.st the name of the account
+#' @param mktdata optional xts mktdata object, will be passed unchanged to applyStrategy
 #' @param nsamples if > 0 then take a sample of only size nsamples from the paramset
 #' @param user.func an optional user-supplied function to be run for each param.combo at the end, either on the slave or on the master (see calc)
 #' @param user.args user-supplied list of arguments for user.func
@@ -346,9 +357,6 @@ add.constraint <- function(strategy, paramset.label, distribution.label.1, distr
 
 apply.paramset <- function(strategy.st, paramset.label, portfolio.st, account.st, mktdata, nsamples=0, user.func=NULL, user.args=NULL, calc='slave', verbose=FALSE)
 {
-    require(foreach, quietly=TRUE)
-    require(iterators, quietly=TRUE)
-
     must.have.args(match.call(), c('strategy.st', 'paramset.label', 'portfolio.st'))
 
     strategy <- must.be.strategy(strategy.st)
