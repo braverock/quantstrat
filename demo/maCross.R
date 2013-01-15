@@ -5,13 +5,26 @@
 #########################################################################################################################################################################
 
 require(quantstrat)
+
+###############
+# workaround to xts Date handling, remove later
+ttz<-Sys.getenv('TZ')
+Sys.setenv(TZ='UTC')
+
 suppressWarnings(rm("order_book.macross",pos=.strategy))
 suppressWarnings(rm("account.macross","portfolio.macross",pos=.blotter))
 suppressWarnings(rm("account.st","portfolio.st","stock.str","stratMACROSS","initDate","initEq",'start_t','end_t'))
+
+
 stock.str='AAPL' # what are we trying it on
 currency('USD')
 stock(stock.str,currency='USD',multiplier=1)
-initDate='2005-12-31'
+
+if(!isTRUE(in_test)){
+    initDate='2005-12-31'
+    endDate=Sys.Date()
+}
+
 initEq=1000000
 portfolio.st='macross'
 account.st='macross'
@@ -35,7 +48,7 @@ stratMACROSS <- add.rule(strategy = stratMACROSS,name='ruleSignal', arguments = 
 # stratMACROSS <- add.rule(strategy = stratMACROSS,name='ruleSignal', arguments = list(sigcol="ma50.lt.ma200",sigval=TRUE, orderqty=-100, ordertype='market', orderside='short'),type='enter')
 # stratMACROSS <- add.rule(strategy = stratMACROSS,name='ruleSignal', arguments = list(sigcol="ma50.gt.ma200",sigval=TRUE, orderqty=100, ordertype='market', orderside='short'),type='exit')
 
-getSymbols(stock.str,from=initDate)
+getSymbols(stock.str,from=initDate,to=endDate)
 for(i in stock.str)
   assign(i, adjustOHLC(get(i),use.Adjusted=TRUE))
 
@@ -53,6 +66,12 @@ print(end_t-start_t)
 chart.Posn(Portfolio='macross',Symbol=stock.str)
 add_SMA(n=50 , on=1,col='blue')
 add_SMA(n=200, on=1)
+
+book = getOrderBook('macross')
+stats = tradeStats('macross')
+
+#Date workaround, remove later
+Sys.setenv(TZ=ttz)
 
 ###############################################################################
 # R (http://r-project.org/) Quantitative Strategy Model Framework
