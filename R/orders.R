@@ -3,14 +3,15 @@
 #' I don't think this should be exported, but it is for now while we're in test mode.
 #' 
 #' @param portfolio text name of the portfolio the order book is associated with
+#' @param envir the environment to retrieve the orderbook object from, defaults to .strategy
 #' @seealso addOrder
 #' @seealso getOrders
 #' @concept order book
 #' @export
-getOrderBook <- function(portfolio) #should symbol subsets be supported too?  probably not.
+getOrderBook <- function(portfolio, envir=.strategy) #should symbol subsets be supported too?  probably not.
 { 
-    if(!grepl("order_book",portfolio)) orders<-try(get(paste("order_book",portfolio,sep='.'),envir=.strategy),silent=TRUE)
-    else orders<-try(get(portfolio,envir=.strategy),silent=TRUE)
+    if(!grepl("order_book",portfolio)) orders<-try(get(paste("order_book",portfolio,sep='.'),envir=envir),silent=TRUE)
+    else orders<-try(get(portfolio,envir=envir),silent=TRUE)
     if(inherits(orders,"try-error"))
         stop(paste("Orders for ",portfolio," not found, use initOrders() to create a new order book for this portfolio"))
     if(!inherits(orders,"order_book")) stop("Order Book for portfolio",portfolio,"does not appear to name an order book object.")

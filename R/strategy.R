@@ -175,9 +175,10 @@ is.strategy <- function( x ) {
 
 #' retrieve strategy from the container environment
 #' @param x string name of object to be retrieved
+#' @param envir the environment to retrieve the strategy object from, defaults to .strategy
 #' @export
-getStrategy <- function(x){
-    tmp_strat<-get(as.character(x),pos=.strategy, inherits=TRUE)
+getStrategy <- function(x, envir=.strategy){
+    tmp_strat<-get(as.character(x),pos=envir, inherits=TRUE)
     if( inherits(tmp_strat,"try-error") | !is.strategy(tmp_strat) ) {
         warning(paste("Strategy",x," not found, please create it first."))
         return(FALSE)
