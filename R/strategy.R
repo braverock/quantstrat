@@ -193,11 +193,12 @@ getStrategy <- function(x){
 
 #' put a strategy object in .strategy env
 #' @param strategy object; name will be extracted as strategy$name
+#' @param envir the environment to store the strategy in, defaults to .strategy
 #' @seealso getStrategy
 #' @export
-put.strategy <- function(strategy)
+put.strategy <- function(strategy, envir=.strategy)
 {
-    assign(strategy$name, strategy, envir=as.environment(.strategy))
+    assign(strategy$name, strategy, envir=as.environment(envir))
 }
 
 # load a strategy object from disk into memory

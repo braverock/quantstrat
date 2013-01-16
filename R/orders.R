@@ -20,14 +20,16 @@ getOrderBook <- function(portfolio) #should symbol subsets be supported too?  pr
 #' put an orderbook object in .strategy env
 #' @param portfolio.st string identifying portfolio
 #' @param orderbook orderbook object
+#' @param envir the environment to store the orderbook object in, defaults to .strategy
 #' @seealso getOrderBook
 #' @concept order book
 #' @export
 
-put.orderbook <- function(portfolio.st, orderbook)
+put.orderbook <- function(portfolio.st, orderbook, envir=.strategy)
 {
     strategy.orderbook.st <- paste('order_book', portfolio.st, sep='.')
-    assign(strategy.orderbook.st, orderbook, envir=.strategy)
+
+    assign(strategy.orderbook.st, orderbook, envir=envir)
 }
 
 ###############################################################################
