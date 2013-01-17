@@ -18,6 +18,13 @@ options(width = 240)
 .th=0.0005
 .txn=-30
 
+##### PLACE THIS BLOCK AHEAD OF DATE INITS IN DEMO SCRIPT ######
+# if(!exists('in_test') || !isTRUE(in_test)){
+#     initDate='2005-12-31' # ensure this is demo default
+#     endDate=Sys.Date()    # ensure this is demo default
+# }
+################################################################
+
 initDate = '2002-10-21'
 .from='2002-10-21'
 #.to='2008-07-04'
@@ -177,3 +184,8 @@ View(getOrderBook(p)$forex$GBPUSD)
 
 View(tradeStats(p, 'GBPUSD'))
 
+##### PLACE THIS BLOCK AT END OF DEMO SCRIPT ################### 
+# book  = getOrderBook(port)
+# stats = tradeStats(port)
+# rets  = PortfReturns(acct)
+################################################################

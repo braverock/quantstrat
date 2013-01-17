@@ -20,6 +20,13 @@ stock.str='AAPL' # what are we trying it on
 currency('USD')
 stock(stock.str,currency='USD',multiplier=1)
 
+##### PLACE THIS BLOCK AHEAD OF DATE INITS IN DEMO SCRIPT ######
+# if(!exists('in_test') || !isTRUE(in_test)){
+#     initDate='2005-12-31' # ensure this is demo default
+#     endDate=Sys.Date()    # ensure this is demo default
+# }
+################################################################
+
 #specify initDate and endDate if we're not inside the test wrappers
 if(!exists('in_test') || !isTRUE(in_test)){
     initDate='2005-12-31'
@@ -68,9 +75,6 @@ chart.Posn(Portfolio='macross',Symbol=stock.str)
 add_SMA(n=50 , on=1,col='blue')
 add_SMA(n=200, on=1)
 
-book = getOrderBook('macross')
-stats = tradeStats('macross')
-
 #Date workaround, remove later
 Sys.setenv(TZ=ttz)
 
@@ -87,3 +91,9 @@ Sys.setenv(TZ=ttz)
 # $Id$
 #
 ###############################################################################
+#
+##### PLACE THIS BLOCK AT END OF DEMO SCRIPT ################### 
+# book  = getOrderBook(port)
+# stats = tradeStats(port)
+# rets  = PortfReturns(acct)
+################################################################

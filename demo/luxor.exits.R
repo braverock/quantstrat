@@ -4,6 +4,13 @@ require(quantstrat)
 
 source('luxor.strategy.R')
 
+##### PLACE THIS BLOCK AHEAD OF DATE INITS IN DEMO SCRIPT ######
+# if(!exists('in_test') || !isTRUE(in_test)){
+#     initDate='2005-12-31' # ensure this is demo default
+#     endDate=Sys.Date()    # ensure this is demo default
+# }
+################################################################
+
 .FastSMA = (1:20)
 .SlowSMA = (30:80)
 
@@ -121,3 +128,9 @@ add.constraint(s,
 ###
 
 save.strategy('luxor')
+
+##### PLACE THIS BLOCK AT END OF DEMO SCRIPT ################### 
+# book  = getOrderBook(port)
+# stats = tradeStats(port)
+# rets  = PortfReturns(acct)
+################################################################

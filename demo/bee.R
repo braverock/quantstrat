@@ -15,10 +15,17 @@ fast          = 10
 slow          = 30
 sd            = 0.5
 
+##### PLACE THIS BLOCK AHEAD OF DATE INITS IN DEMO SCRIPT ######
+if(!exists('in_test') || !isTRUE(in_test)){
+    initDate="2000-01-01" # ensure this is demo default
+    endDate=Sys.Date()    # ensure this is demo default
+}
+################################################################
+
 ############################# GET DATA ######################################
 
 suppressMessages(require(quantstrat))
-getSymbols(sym, from='2000-01-01', index.class=c("POSIXt","POSIXct"))
+getSymbols(sym, from=initDate, to=Sys.Date(), index.class=c("POSIXt","POSIXct"))
 
 ############################# INITIALIZE ####################################
 
@@ -142,3 +149,8 @@ suppressMessages(require(PerformanceAnalytics))
 
 cat('Sortino Ratio for bumblebee is: ', SortinoRatio(stratReturns), '\n')
 
+##### PLACE THIS BLOCK AT END OF DEMO SCRIPT ################### 
+book  = getOrderBook(port)
+stats = tradeStats(port)
+rets  = PortfReturns(acct)
+################################################################

@@ -226,3 +226,8 @@ txns
 
 cat('Net profit:', sum(txns$Net.Txn.Realized.PL), '\n')
 
+##### PLACE THIS BLOCK AT END OF DEMO SCRIPT ################### 
+# book  = getOrderBook(port)
+# stats = tradeStats(port)
+# rets  = PortfReturns(acct)
+################################################################

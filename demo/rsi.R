@@ -46,6 +46,12 @@ for(symbol in symbols){ # establish trade-able instruments
 # you can test with something like this:
 # applySignals(strategy=stratRSI, mktdata=applyIndicators(strategy=stratRSI, mktdata=symbols[1]))
 
+##### PLACE THIS BLOCK AHEAD OF DATE INITS IN DEMO SCRIPT ######
+# if(!exists('in_test') || !isTRUE(in_test)){
+#     initDate='2005-12-31' # ensure this is demo default
+#     endDate=Sys.Date()    # ensure this is demo default
+# }
+################################################################
 
 initDate='1997-12-31'
 initEq=100000
@@ -105,3 +111,9 @@ if("package:PerformanceAnalytics" %in% search() || require("PerformanceAnalytics
 # $Id$
 #
 ###############################################################################
+
+##### PLACE THIS BLOCK AT END OF DEMO SCRIPT ################### 
+# book  = getOrderBook(port)
+# stats = tradeStats(port)
+# rets  = PortfReturns(acct)
+################################################################

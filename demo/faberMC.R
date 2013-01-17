@@ -51,6 +51,13 @@ suppressWarnings(rm("account.faber","account.faberMC","portfolio.faber","portfol
 suppressWarnings(rm("ltaccount","ltportfolio","ClosePrice","CurrentDate","equity","stratFaber","initDate","initEq","Posn","UnitSize","verbose"))
 suppressWarnings(rm("order_book.faber","order_book.combMC", "order_book.GDAXI", "order_book.GSPC", "order_book.N225", pos=.strategy))
 
+##### PLACE THIS BLOCK AHEAD OF DATE INITS IN DEMO SCRIPT ######
+# if(!exists('in_test') || !isTRUE(in_test)){
+#     initDate='2005-12-31' # ensure this is demo default
+#     endDate=Sys.Date()    # ensure this is demo default
+# }
+################################################################
+
 # Set initial values
 initDate='2000-01-01'
 initEq=100000
@@ -161,3 +168,9 @@ for(symbol in symbols){
 # $Id: faber.R 371 2010-08-12 20:18:09Z braverock $
 #
 ###############################################################################
+
+##### PLACE THIS BLOCK AT END OF DEMO SCRIPT ################### 
+# book  = getOrderBook(port)
+# stats = tradeStats(port)
+# rets  = PortfReturns(acct)
+################################################################

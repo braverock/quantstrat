@@ -23,6 +23,14 @@ suppressWarnings(rm("initDate", "endDate", "startDate", "initEq", "SD", "N", "sy
 	"portfolio1.st", "account.st", "pairStrat", "out1"))
 
 require(quantstrat)
+
+##### PLACE THIS BLOCK AHEAD OF DATE INITS IN DEMO SCRIPT ######
+# if(!exists('in_test') || !isTRUE(in_test)){
+#     initDate='2005-12-31' # ensure this is demo default
+#     endDate=Sys.Date()    # ensure this is demo default
+# }
+################################################################
+
 initDate = '2009-01-01'		
 endDate = '2011-05-01'
 startDate = '2009-01-02'
@@ -211,3 +219,9 @@ if("package:PerformanceAnalytics" %in% search() || require("PerformanceAnalytics
 # $Id$
 #
 ###############################################################################
+
+##### PLACE THIS BLOCK AT END OF DEMO SCRIPT ################### 
+# book  = getOrderBook(port)
+# stats = tradeStats(port)
+# rets  = PortfReturns(acct)
+################################################################

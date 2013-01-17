@@ -31,6 +31,12 @@ stock(stock.str,currency='USD',multiplier=1)
 #data(sample_matrix)                 # data included in package xts
 #sample_matrix<-as.xts(sample_matrix)
 
+##### PLACE THIS BLOCK AHEAD OF DATE INITS IN DEMO SCRIPT ######
+# if(!exists('in_test') || !isTRUE(in_test)){
+#     initDate='2005-12-31' # ensure this is demo default
+#     endDate=Sys.Date()    # ensure this is demo default
+# }
+################################################################
 
 initDate='2006-12-31'
 initEq=1000000
@@ -100,3 +106,9 @@ getOrderBook('macd')
 # $Id$
 #
 ##############################################################################
+
+##### PLACE THIS BLOCK AT END OF DEMO SCRIPT ################### 
+# book  = getOrderBook(port)
+# stats = tradeStats(port)
+# rets  = PortfReturns(acct)
+################################################################

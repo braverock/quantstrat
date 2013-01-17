@@ -51,6 +51,13 @@ suppressWarnings(rm("ltaccount", "ltportfolio", "ClosePrice", "CurrentDate", "eq
             "GSPC", "stratFaber", "initDate", "initEq", "Posn", "UnitSize", "verbose"))
 suppressWarnings(rm("order_book.faber",pos=.strategy))
 
+##### PLACE THIS BLOCK AHEAD OF DATE INITS IN DEMO SCRIPT ######
+# if(!exists('in_test') || !isTRUE(in_test)){
+#     initDate='2005-12-31' # ensure this is demo default
+#     endDate=Sys.Date()    # ensure this is demo default
+# }
+################################################################
+
 # Set initial values
 initDate='1997-12-31'
 initEq=100000
@@ -174,3 +181,9 @@ faber.stats
 # $Id$
 #
 ###############################################################################
+
+##### PLACE THIS BLOCK AT END OF DEMO SCRIPT ################### 
+# book  = getOrderBook(port)
+# stats = tradeStats(port)
+# rets  = PortfReturns(acct)
+################################################################

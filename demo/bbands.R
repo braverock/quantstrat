@@ -14,6 +14,13 @@ N = 20 # how many periods for the moving average, traditionally 20
 currency('USD')
 stock(stock.str,currency='USD',multiplier=1)
 
+##### PLACE THIS BLOCK AHEAD OF DATE INITS IN DEMO SCRIPT ######
+# if(!exists('in_test') || !isTRUE(in_test)){
+#     initDate='2005-12-31' # ensure this is demo default
+#     endDate=Sys.Date()    # ensure this is demo default
+# }
+################################################################
+
 initDate='2006-12-31'
 initEq=1000000
 
@@ -78,3 +85,8 @@ plot(add_BBands(on=1,sd=SD,n=N))
 #
 ###############################################################################
 
+##### PLACE THIS BLOCK AT END OF DEMO SCRIPT ################### 
+# book  = getOrderBook(port)
+# stats = tradeStats(port)
+# rets  = PortfReturns(acct)
+################################################################

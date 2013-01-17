@@ -23,6 +23,13 @@ options(width = 240)
 .stoptrailing=0.0015
 .takeprofit=0.003
 
+##### PLACE THIS BLOCK AHEAD OF DATE INITS IN DEMO SCRIPT ######
+# if(!exists('in_test') || !isTRUE(in_test)){
+#     initDate='2005-12-31' # ensure this is demo default
+#     endDate=Sys.Date()    # ensure this is demo default
+# }
+################################################################
+
 initDate = '2002-10-21'
 .from='2002-10-21'
 #.to='2008-07-04'
@@ -314,3 +321,8 @@ print(getOrderBook(p))
 
 print(tradeStats(p, 'GBPUSD'))
 
+##### PLACE THIS BLOCK AT END OF DEMO SCRIPT ################### 
+# book  = getOrderBook(port)
+# stats = tradeStats(port)
+# rets  = PortfReturns(acct)
+################################################################
