@@ -1,6 +1,14 @@
 require(testthat)
 #source('nuke_environments.R')
 
+################## SOURCE EXISTING DEMO ###############
+
+##### in_test   <-TRUE
+##### initDate <- '1998-01-01'
+##### endDate  <- '2012-12-31'
+##### 
+##### demo('macross', ask=FALSE, echo=FALSE)
+##### 
 ######################## DEFINE VARIABLES TO BE TESTED #######
 
 source('yellow.R')
@@ -12,8 +20,6 @@ side   = book$yellowPort$spx[,'Order.Side']
 status = book$yellowPort$spx[,'Order.Status']
 fees   = book$yellowPort$spx[,'Txn.Fees']
 rule   = book$yellowPort$spx[,'Rule']
-
-
 
 ######################## ORDER BOOK ######################
 
@@ -109,15 +115,3 @@ test_that("Min.Equity is -1539",
 test_that("End.Equity is -36", 
           { expect_equal(stats$End.Equity , -36, .0001) })
 
-test_that("Buy.And.Hold is implemented", 
-          { expect_that(stats$Buy.And.Hold , equals(1)) })
-test_that("Time.In.Market is implemented", 
-          { expect_that(stats$Time.In.Market , equals(1)) })
-test_that("RINA.Index is implemented", 
-          { expect_that(stats$RINA.Index , equals(1)) })
-test_that("Sharpe.Ratio is implemented", 
-          { expect_that(stats$Sharpe.Ratio , equals(1)) })
-test_that("Sortino.Ratio is implemented", 
-          { expect_that(stats$Sortino.Ratio , equals(1)) })
-test_that("K.Ratio is implemented", 
-          { expect_that(stats$K.Ratio , equals(1)) })
