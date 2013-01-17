@@ -4,7 +4,8 @@
 \usage{
   apply.paramset(strategy.st, paramset.label, portfolio.st,
     account.st, mktdata, nsamples = 0, user.func = NULL,
-    user.args = NULL, calc = "slave", verbose = FALSE)
+    user.args = NULL, calc = "slave", audit.st = NULL,
+    verbose = FALSE)
 }
 \arguments{
   \item{strategy.st}{the name of the strategy object}
@@ -38,6 +39,9 @@
   .strategy environments resp: less parallelization but
   also less data transfer between slave and master; default
   is 'slave'}
+
+  \item{audit.st}{optional filename for storage of audit
+  data}
 
   \item{verbose}{return full information, in particular the
   .blotter environment, default FALSE}

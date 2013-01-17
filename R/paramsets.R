@@ -349,13 +349,14 @@ add.constraint <- function(strategy, paramset.label, distribution.label.1, distr
 #' @param user.func an optional user-supplied function to be run for each param.combo at the end, either on the slave or on the master (see calc)
 #' @param user.args user-supplied list of arguments for user.func
 #' @param calc 'slave' to run updatePortfolio() and tradesStats() on the slave and return all portfolios and orderbooks as a list: higher parallelization but more data transfer between master and slave; 'master' to have updatePortf() and tradeStats() run at the master and return all portfolios and orderbooks in the .blotter and .strategy environments resp: less parallelization but also less data transfer between slave and master; default is 'slave'
+#' @param audit.st optional filename for storage of audit data
 #' @param verbose return full information, in particular the .blotter environment, default FALSE
 #'
 #' @author Jan Humme
 #' @export
 #' @seealso \code{\link{add.constraint}}, \code{\link{add.constraint}}, \code{\link{delete.paramset}}
 
-apply.paramset <- function(strategy.st, paramset.label, portfolio.st, account.st, mktdata, nsamples=0, user.func=NULL, user.args=NULL, calc='slave', verbose=FALSE)
+apply.paramset <- function(strategy.st, paramset.label, portfolio.st, account.st, mktdata, nsamples=0, user.func=NULL, user.args=NULL, calc='slave', audit.st=NULL, verbose=FALSE)
 {
     must.have.args(match.call(), c('strategy.st', 'paramset.label', 'portfolio.st'))
 
@@ -377,6 +378,8 @@ apply.paramset <- function(strategy.st, paramset.label, portfolio.st, account.st
     env.functions <- c('clone.portfolio', 'clone.orderbook', 'install.param.combo')
     env.instrument <- as.list(FinancialInstrument:::.instrument)
 
+    .audit <- new.env()
+
     combine <- function(...)
     {
         args <- list(...)
@@ -387,11 +390,11 @@ apply.paramset <- function(strategy.st, paramset.label, portfolio.st, account.st
             r <- args[[i]]
 
             # move portfolio from slave returned list into .blotter environment
-            put.portfolio(r$portfolio.st, r$portfolio)
+            put.portfolio(r$portfolio.st, r$portfolio, envir=.audit)
             r$portfolio <- NULL
 
             # move orderbook from slave returned list into .strategy environment
-            put.orderbook(r$portfolio.st, r$orderbook)
+            put.orderbook(r$portfolio.st, r$orderbook, envir=.audit)
             r$orderbook <- NULL
 
             if(calc == 'master')
@@ -470,6 +473,9 @@ apply.paramset <- function(strategy.st, paramset.label, portfolio.st, account.st
 
     results$distributions <- distributions
     results$constraints <- constraints
+
+    if(!is.null(audit.st))
+        save(.audit, file=paste(audit.st, 'RData', sep='.'))
 
     return(results)
 }

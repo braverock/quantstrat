@@ -35,6 +35,7 @@
 #' @param period the period unit, as a character string, eg. 'days' or 'months'
 #' @param k.training the number of periods to use for training, eg. '3' months
 #' @param nsamples the number of sample param.combos to draw from the paramset for training; 0 means all samples (see also apply.paramset)
+#' @param audit.prefix prefix to generate filenames for storage of audit data
 #' @param k.testing the number of periods to use for testing, eg. '1 month'
 #' @param obj.func a user provided function returning the best param.combo from the paramset, based on training results; defaults to 'max'
 #' @param obj.args a user provided argument to obj.func, defaults to quote(tradeStats.list$Net.Trading.PL)
@@ -49,8 +50,9 @@
 #' @export
 
 walk.forward <- function(strategy.st, paramset.label, portfolio.st, account.st,
-    period, k.training, nsamples=0, k.testing,
-    obj.func=function(x){which(x==max(x))}, obj.args=list(x=quote(tradeStats.list$Net.Trading.PL)),
+    period, k.training, nsamples=0, audit.prefix=NULL, k.testing,
+    obj.func=function(x){which(x==max(x))},
+    obj.args=list(x=quote(tradeStats.list$Net.Trading.PL)),
     ..., verbose=FALSE)
 {
     must.have.args(match.call(), c('portfolio.st', 'strategy.st', 'paramset.label', 'k.training'))
@@ -99,11 +101,14 @@ walk.forward <- function(strategy.st, paramset.label, portfolio.st, account.st,
 
             print(paste('=== training', paramset.label, 'on', training.timespan))
 
+            if(!is.null(audit.prefix))
+                audit.st <- paste(audit.prefix, index(symbol[training.start]), index(symbol[training.end]), sep='.')
+
             # run backtests on training window
             result$apply.paramset <- apply.paramset(strategy.st=strategy.st, paramset.label=paramset.label,
                 portfolio.st=portfolio.st, account.st=account.st,
                 mktdata=symbol[training.timespan], nsamples=nsamples,
-                calc='slave', verbose=verbose, ...=...)
+                calc='slave', audit.st=audit.st, verbose=verbose, ...=...)
 
             tradeStats.list <- result$apply.paramset$tradeStats
 
