@@ -101,22 +101,15 @@ walk.forward <- function(strategy.st, paramset.label, portfolio.st, account.st,
 
             print(paste('=== training', paramset.label, 'on', training.timespan))
 
-            audit.env <- NULL
+            .audit <- NULL
             if(!is.null(audit.prefix))
-                audit.env <- new.env()
+                .audit <- new.env()
 
             # run backtests on training window
             result$apply.paramset <- apply.paramset(strategy.st=strategy.st, paramset.label=paramset.label,
                 portfolio.st=portfolio.st, account.st=account.st,
                 mktdata=symbol[training.timespan], nsamples=nsamples,
-                calc='slave', audit=audit.env, verbose=verbose, ...=...)
-
-            if(!is.null(audit.prefix))
-            {
-                save(audit.env, file=paste(audit.prefix, index(symbol[training.start]), index(symbol[training.end]), 'RData', sep='.'))
-
-                audit.env <- NULL
-            }
+                calc='slave', audit=.audit, verbose=verbose, ...=...)
 
             tradeStats.list <- result$apply.paramset$tradeStats
 
@@ -128,6 +121,10 @@ walk.forward <- function(strategy.st, paramset.label, portfolio.st, account.st,
                 # select best param.combo
                 param.combo.nr <- do.call(obj.func, obj.args)
                 param.combo <- tradeStats.list[param.combo.nr, 1:grep('Portfolio', names(tradeStats.list)) - 1]
+
+                assign('obj.func', obj.func, envir=.audit)
+                assign('param.combo.nr', param.combo.nr, envir=.audit)
+                assign('param.combo', param.combo, envir=.audit)
 
                 # configure strategy to use selected param.combo
                 strategy <- quantstrat:::install.param.combo(strategy, param.combo, paramset.label)
@@ -149,6 +146,13 @@ walk.forward <- function(strategy.st, paramset.label, portfolio.st, account.st,
                     warning(paste('no trades in training window', training.timespan, '; skipping test'))
 
                 k <- k + 1
+            }
+
+            if(!is.null(audit.prefix))
+            {
+                save(.audit, file=paste(audit.prefix, index(symbol[training.start]), index(symbol[training.end]), 'RData', sep='.'))
+
+                .audit <- NULL
             }
 
             results[[k]] <- result

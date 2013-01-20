@@ -476,11 +476,21 @@ apply.paramset <- function(strategy.st, paramset.label, portfolio.st, account.st
         return(result)
     }
 
-    results$distributions <- distributions
-    results$constraints <- constraints
+    #results$distributions <- distributions
+    #results$constraints <- constraints
 
     if(is.null(audit))
         .audit <- NULL
+    else
+    {
+        assign('distributions', distributions, envir=.audit)
+        assign('constraints', constraints, envir=.audit)
+        assign('paramset.label', paramset.label, envir=.audit)
+        assign('param.combos', param.combos, envir=.audit)
+        assign('param.combos', param.combos, envir=.audit)
+        assign('tradeStats', results$tradeStats, envir=.audit)
+        assign('user.func', results$user.func, envir=.audit)
+    }
 
     return(results)
 }
