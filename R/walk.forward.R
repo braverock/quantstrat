@@ -101,14 +101,22 @@ walk.forward <- function(strategy.st, paramset.label, portfolio.st, account.st,
 
             print(paste('=== training', paramset.label, 'on', training.timespan))
 
+            audit.env <- NULL
             if(!is.null(audit.prefix))
-                audit.st <- paste(audit.prefix, index(symbol[training.start]), index(symbol[training.end]), sep='.')
+                audit.env <- new.env()
 
             # run backtests on training window
             result$apply.paramset <- apply.paramset(strategy.st=strategy.st, paramset.label=paramset.label,
                 portfolio.st=portfolio.st, account.st=account.st,
                 mktdata=symbol[training.timespan], nsamples=nsamples,
-                calc='slave', audit.st=audit.st, verbose=verbose, ...=...)
+                calc='slave', audit=audit.env, verbose=verbose, ...=...)
+
+            if(!is.null(audit.prefix))
+            {
+                save(audit.env, file=paste(audit.prefix, index(symbol[training.start]), index(symbol[training.end]), 'RData', sep='.'))
+
+                audit.env <- NULL
+            }
 
             tradeStats.list <- result$apply.paramset$tradeStats
 

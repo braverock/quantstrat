@@ -349,19 +349,21 @@ add.constraint <- function(strategy, paramset.label, distribution.label.1, distr
 #' @param user.func an optional user-supplied function to be run for each param.combo at the end, either on the slave or on the master (see calc)
 #' @param user.args user-supplied list of arguments for user.func
 #' @param calc 'slave' to run updatePortfolio() and tradesStats() on the slave and return all portfolios and orderbooks as a list: higher parallelization but more data transfer between master and slave; 'master' to have updatePortf() and tradeStats() run at the master and return all portfolios and orderbooks in the .blotter and .strategy environments resp: less parallelization but also less data transfer between slave and master; default is 'slave'
-#' @param audit.st optional filename for storage of audit data
+#' @param audit a user-specified environment to store a copy of all portfolios, orderbooks and other data from the tests, or NULL to trash this information
 #' @param verbose return full information, in particular the .blotter environment, default FALSE
 #'
 #' @author Jan Humme
 #' @export
 #' @seealso \code{\link{add.constraint}}, \code{\link{add.constraint}}, \code{\link{delete.paramset}}
 
-apply.paramset <- function(strategy.st, paramset.label, portfolio.st, account.st, mktdata, nsamples=0, user.func=NULL, user.args=NULL, calc='slave', audit.st=NULL, verbose=FALSE)
+apply.paramset <- function(strategy.st, paramset.label, portfolio.st, account.st, mktdata, nsamples=0, user.func=NULL, user.args=NULL, calc='slave', audit=NULL, verbose=FALSE)
 {
     must.have.args(match.call(), c('strategy.st', 'paramset.label', 'portfolio.st'))
 
     strategy <- must.be.strategy(strategy.st)
     must.be.paramset(strategy, paramset.label)
+
+    if(!is.null(audit)) must.be.environment(audit)
 
     portfolio <- getPortfolio(portfolio.st)
     account <- getAccount(account.st)
@@ -378,7 +380,10 @@ apply.paramset <- function(strategy.st, paramset.label, portfolio.st, account.st
     env.functions <- c('clone.portfolio', 'clone.orderbook', 'install.param.combo')
     env.instrument <- as.list(FinancialInstrument:::.instrument)
 
-    .audit <- new.env()
+    if(is.null(audit))
+        .audit <- new.env()
+    else
+        .audit <- audit
 
     combine <- function(...)
     {
@@ -474,8 +479,8 @@ apply.paramset <- function(strategy.st, paramset.label, portfolio.st, account.st
     results$distributions <- distributions
     results$constraints <- constraints
 
-    if(!is.null(audit.st))
-        save(.audit, file=paste(audit.st, 'RData', sep='.'))
+    if(is.null(audit))
+        .audit <- NULL
 
     return(results)
 }

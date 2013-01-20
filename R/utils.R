@@ -23,6 +23,12 @@ must.have.args <- function(supplied.args, mandatory.args)
     }
 }
 
+must.be.environment <- function(e)
+{
+    if(!is.environment(e))
+        stop(paste(e, ': not an environment', sep=''))
+}
+
 must.be.strategy <- function(strategy)
 {
     if(!is.strategy(strategy))

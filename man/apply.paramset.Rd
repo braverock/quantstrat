@@ -4,7 +4,7 @@
 \usage{
   apply.paramset(strategy.st, paramset.label, portfolio.st,
     account.st, mktdata, nsamples = 0, user.func = NULL,
-    user.args = NULL, calc = "slave", audit.st = NULL,
+    user.args = NULL, calc = "slave", audit = NULL,
     verbose = FALSE)
 }
 \arguments{
@@ -40,8 +40,9 @@
   also less data transfer between slave and master; default
   is 'slave'}
 
-  \item{audit.st}{optional filename for storage of audit
-  data}
+  \item{audit}{a user-specified environment to store a copy
+  of all portfolios, orderbooks and other data from the
+  tests, or NULL to trash this information}
 
   \item{verbose}{return full information, in particular the
   .blotter environment, default FALSE}
