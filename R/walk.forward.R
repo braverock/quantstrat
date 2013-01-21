@@ -39,6 +39,7 @@
 #' @param k.testing the number of periods to use for testing, eg. '1 month'
 #' @param obj.func a user provided function returning the best param.combo from the paramset, based on training results; defaults to 'max'
 #' @param obj.args a user provided argument to obj.func, defaults to quote(tradeStats.list$Net.Trading.PL)
+#' @param ... optional parameters to pass to apply.paramset()
 #' @param verbose dumps a lot of info during the run if set to TRUE, defaults to FALSE
 #'
 #' @return a list consisting of a slot containing detailed results for each training + testing period, as well as the portfolio and the tradeStats() for the portfolio

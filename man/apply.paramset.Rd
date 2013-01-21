@@ -3,9 +3,9 @@
 \title{Apply a paramset to the strategy}
 \usage{
   apply.paramset(strategy.st, paramset.label, portfolio.st,
-    account.st, mktdata, nsamples = 0, user.func = NULL,
-    user.args = NULL, calc = "slave", audit = NULL,
-    verbose = FALSE)
+    account.st, mktdata = NULL, nsamples = 0,
+    user.func = NULL, user.args = NULL, calc = "slave",
+    audit = NULL, verbose = FALSE)
 }
 \arguments{
   \item{strategy.st}{the name of the strategy object}
