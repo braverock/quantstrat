@@ -226,6 +226,17 @@ txns
 
 cat('Net profit:', sum(txns$Net.Txn.Realized.PL), '\n')
 
+##### PLACE DEMO AND TEST DATES HERE #################
+#
+#if(isTRUE(options('in_test')$in_test))
+#  # use test dates
+#  {initDate="2011-01-01" 
+#  endDate="2012-12-31"   
+#  } else
+#  # use demo defaults
+#  {initDate="1999-12-31"
+#  endDate=Sys.Date()}
+
 ##### PLACE THIS BLOCK AT END OF DEMO SCRIPT ################### 
 # book  = getOrderBook(port)
 # stats = tradeStats(port)

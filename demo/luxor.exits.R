@@ -4,12 +4,16 @@ require(quantstrat)
 
 source('luxor.strategy.R')
 
-##### PLACE THIS BLOCK AHEAD OF DATE INITS IN DEMO SCRIPT ######
-# if(!exists('in_test') || !isTRUE(in_test)){
-#     initDate='2005-12-31' # ensure this is demo default
-#     endDate=Sys.Date()    # ensure this is demo default
-# }
-################################################################
+##### PLACE DEMO AND TEST DATES HERE #################
+#
+#if(isTRUE(options('in_test')$in_test))
+#  # use test dates
+#  {initDate="2011-01-01" 
+#  endDate="2012-12-31"   
+#  } else
+#  # use demo defaults
+#  {initDate="1999-12-31"
+#  endDate=Sys.Date()}
 
 .FastSMA = (1:20)
 .SlowSMA = (30:80)

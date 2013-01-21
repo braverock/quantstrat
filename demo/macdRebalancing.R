@@ -31,12 +31,16 @@ stock(stock.str,currency='USD',multiplier=1)
 #data(sample_matrix)                 # data included in package xts
 #sample_matrix<-as.xts(sample_matrix)
 
-##### PLACE THIS BLOCK AHEAD OF DATE INITS IN DEMO SCRIPT ######
-# if(!exists('in_test') || !isTRUE(in_test)){
-#     initDate='2005-12-31' # ensure this is demo default
-#     endDate=Sys.Date()    # ensure this is demo default
-# }
-################################################################
+##### PLACE DEMO AND TEST DATES HERE #################
+#
+#if(isTRUE(options('in_test')$in_test))
+#  # use test dates
+#  {initDate="2011-01-01" 
+#  endDate="2012-12-31"   
+#  } else
+#  # use demo defaults
+#  {initDate="1999-12-31"
+#  endDate=Sys.Date()}
 
 initDate='2006-12-31'
 initEq=1000000

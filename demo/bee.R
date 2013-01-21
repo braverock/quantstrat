@@ -4,28 +4,31 @@
 # copyright (c) 2009-2012, Algorithm Alpha, LLC
 # Licensed GPL-2
 #
+##### PLACE DEMO AND TEST DATES HERE #################
+
+if(isTRUE(options('in_test')$in_test))
+  # use test dates
+  {initDate="2011-01-01" 
+  endDate="2012-12-31"   
+  } else
+  # use demo defaults
+  {initDate="1999-12-31"
+  endDate=Sys.Date()}
+
 ############################# DEFINE VARIABLES ##############################
 
 sym           = 'GLD'
 port          = 'bug'
 acct          = 'colony'
 initEq        = 100000
-initDate      = '1999-12-31'
 fast          = 10
 slow          = 30
 sd            = 0.5
 
-##### PLACE THIS BLOCK AHEAD OF DATE INITS IN DEMO SCRIPT ######
-if(!exists('in_test') || !isTRUE(in_test)){
-    initDate="2000-01-01" # ensure this is demo default
-    endDate=Sys.Date()    # ensure this is demo default
-}
-################################################################
-
 ############################# GET DATA ######################################
 
 suppressMessages(require(quantstrat))
-getSymbols(sym, from=initDate, to=Sys.Date(), index.class=c("POSIXt","POSIXct"))
+getSymbols(sym, from=initDate, to=endDate, index.class=c("POSIXt","POSIXct"))
 
 ############################# INITIALIZE ####################################
 

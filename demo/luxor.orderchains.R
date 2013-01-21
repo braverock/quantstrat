@@ -23,12 +23,16 @@ options(width = 240)
 .stoptrailing=0.0015
 .takeprofit=0.003
 
-##### PLACE THIS BLOCK AHEAD OF DATE INITS IN DEMO SCRIPT ######
-# if(!exists('in_test') || !isTRUE(in_test)){
-#     initDate='2005-12-31' # ensure this is demo default
-#     endDate=Sys.Date()    # ensure this is demo default
-# }
-################################################################
+##### PLACE DEMO AND TEST DATES HERE #################
+#
+#if(isTRUE(options('in_test')$in_test))
+#  # use test dates
+#  {initDate="2011-01-01" 
+#  endDate="2012-12-31"   
+#  } else
+#  # use demo defaults
+#  {initDate="1999-12-31"
+#  endDate=Sys.Date()}
 
 initDate = '2002-10-21'
 .from='2002-10-21'

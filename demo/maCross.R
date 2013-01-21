@@ -20,18 +20,16 @@ stock.str='AAPL' # what are we trying it on
 currency('USD')
 stock(stock.str,currency='USD',multiplier=1)
 
-##### PLACE THIS BLOCK AHEAD OF DATE INITS IN DEMO SCRIPT ######
-# if(!exists('in_test') || !isTRUE(in_test)){
-#     initDate='2005-12-31' # ensure this is demo default
-#     endDate=Sys.Date()    # ensure this is demo default
-# }
-################################################################
-
-#specify initDate and endDate if we're not inside the test wrappers
-if(!exists('in_test') || !isTRUE(in_test)){
-    initDate='2005-12-31'
-    endDate=Sys.Date()
-}
+##### PLACE DEMO AND TEST DATES HERE #################
+#
+#if(isTRUE(options('in_test')$in_test))
+#  # use test dates
+#  {initDate="2011-01-01" 
+#  endDate="2012-12-31"   
+#  } else
+#  # use demo defaults
+#  {initDate="1999-12-31"
+#  endDate=Sys.Date()}
 
 initEq=1000000
 portfolio.st='macross'
