@@ -1,54 +1,26 @@
-
-##### PLACE THIS BLOCK AHEAD OF DATE INITS IN DEMO SCRIPT ######
-#
-# if(!exists('in_test') || !isTRUE(in_test)){
-#     initDate='2005-12-31' # ensure this is demo default
-#     endDate=Sys.Date()    # ensure this is demo default
-# }
-################################################################
-
-##### PLACE THIS BLOCK AT END OF DEMO SCRIPT ################### 
-#
-# book  = getOrderBook(port)
-# stats = tradeStats(port)
-# rets  = PortfReturns(acct)
-################################################################
-
-
-################## TEMPLATE FILL OUT ###########################
-#####                                                       ####
-##### DEMO      =  %s/DEMO/_the_name_of_my_demo/g           ####
-##### PORTFOLIO =  %s/PORTFOLIO/_the_name_of_my_portfolio/g ####
-##### STOCK     =  %s/STOCK/_the_name_of_my_stock/g         ####
-#####                                                       ####
-################################################################
-
 ################## LOAD TESTING FRAMEWORK ######################
 
 require(testthat)
 require(PortfolioAnalytics)
 
-######### INITIALIZE DATES AND SOURCE DEMO #####################
+######### ACTIVATE TEST DATES AND SOURCE BEE #####################
 
-in_test   <- TRUE
-initDate  <- "2011-01-01"
-endDate   <- "2012-12-31"
- 
-demo("DEMO", ask=FALSE, echo=FALSE)
+options(in_test=TRUE)
+source('bee.R')
 
 ################### DEFINE VARIABLES TO BE TESTED ##############
 
-qty    = book$PORTFOLIO$STOCK[,"Order.Qty"]
-price  = book$PORTFOLIO$STOCK[,"Order.Price"]
-type   = book$PORTFOLIO$STOCK[,"Order.Type"]
-side   = book$PORTFOLIO$STOCK[,"Order.Side"]
-status = book$PORTFOLIO$STOCK[,"Order.Status"]
-fees   = book$PORTFOLIO$STOCK[,"Txn.Fees"]
-rule   = book$PORTFOLIO$STOCK[,"Rule"]
+qty    = book$bug$GLD[,"Order.Qty"]
+price  = book$bug$GLD[,"Order.Price"]
+type   = book$bug$GLD[,"Order.Type"]
+side   = book$bug$GLD[,"Order.Side"]
+status = book$bug$GLD[,"Order.Status"]
+fees   = book$bug$GLD[,"Txn.Fees"]
+rule   = book$bug$GLD[,"Rule"]
 
 ######################## ORDER BOOK ############################
 
-context("DEMO order book is consistent ")
+context("bee order book is consistent ")
 
 ## quantity
 test_that("The first entry is 100", 
@@ -83,7 +55,7 @@ test_that("The second transaction is an exit long",
 
 ######################## STATS  #################################
 
-context("DEMO trade statistics are consistent ")
+context("bee trade statistics are consistent ")
 
 test_that("Num.Txns is 19", 
           { expect_that(stats$Num.Txns , equals(19)) })
@@ -140,9 +112,9 @@ test_that("Min.Equity is -1539",
 test_that("End.Equity is -36", 
           { expect_equal(stats$End.Equity , -36, .0001) })
 
-######################## PORTFOLIO RETURNS ######################
+######################## bug RETURNS ######################
 
-context("DEMO portfolio returns are consistent ")
+context("bee portfolio returns are consistent ")
 
 test_that("min return is -0.00597", 
           { expect_equal(min(rets), -0.00597, .0001) })

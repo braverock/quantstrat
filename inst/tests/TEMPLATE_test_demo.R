@@ -1,9 +1,15 @@
-##### PLACE THIS BLOCK AHEAD OF DATE INITS IN DEMO SCRIPT ######
-# if(!exists('in_test') || !isTRUE(in_test)){
-#     initDate='2005-12-31' # ensure this is demo default
-#     endDate=Sys.Date()    # ensure this is demo default
-# }
-################################################################
+##### PLACE DEMO AND TEST DATES HERE #################
+# 
+# if(isTRUE(options('in_test')$in_test))
+#   # use test dates
+#   {initDate="2011-01-01" 
+#   endDate="2012-12-31"   
+#   } else
+#   # use demo defaults
+#   {initDate="1999-12-31"
+#   endDate=Sys.Date()}
+#       
+###############################################################
 
 ##### PLACE THIS BLOCK AT END OF DEMO SCRIPT ################### 
 # book  = getOrderBook(port)
@@ -25,13 +31,10 @@
 require(testthat)
 require(PortfolioAnalytics)
 
-######### INITIALIZE DATES AND SOURCE DEMO #####################
+######### ACTIVATE TEST DATES AND SOURCE DEMO #####################
 
-in_test   <- TRUE
-initDate  <- "2011-01-01"
-endDate   <- "2012-12-31"
- 
-demo("DEMO", ask=FALSE, echo=FALSE)
+options(in_test=TRUE)
+source('DEMO.R')
 
 ################### DEFINE VARIABLES TO BE TESTED ##############
 
