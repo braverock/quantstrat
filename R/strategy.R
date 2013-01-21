@@ -112,7 +112,7 @@ applyStrategy <- function(strategy , portfolios, mktdata=NULL , parameters=NULL,
     	    stop ("You must supply an object of type 'strategy'.")
     } 
 	
-    if (missing(mktdata)) load.mktdata=TRUE else load.mktdata=FALSE
+    if (missing(mktdata) || is.null(mktdata)) load.mktdata=TRUE else load.mktdata=FALSE
 	
     for (portfolio in portfolios) {
         

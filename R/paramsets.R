@@ -356,7 +356,7 @@ add.constraint <- function(strategy, paramset.label, distribution.label.1, distr
 #' @export
 #' @seealso \code{\link{add.constraint}}, \code{\link{add.constraint}}, \code{\link{delete.paramset}}
 
-apply.paramset <- function(strategy.st, paramset.label, portfolio.st, account.st, mktdata, nsamples=0, user.func=NULL, user.args=NULL, calc='slave', audit=NULL, verbose=FALSE)
+apply.paramset <- function(strategy.st, paramset.label, portfolio.st, account.st, mktdata=NULL, nsamples=0, user.func=NULL, user.args=NULL, calc='slave', audit=NULL, verbose=FALSE)
 {
     must.have.args(match.call(), c('strategy.st', 'paramset.label', 'portfolio.st'))
 
