@@ -14,7 +14,7 @@ require(PortfolioAnalytics)
 ######### ACTIVATE TEST DATES AND SOURCE DEMO #####################
 
 options(in_test=TRUE)
-source('DEMO.R')
+source(system.file("demo/DEMO.R", package="quantstrat"))
 
 ################### DEFINE VARIABLES TO BE TESTED ##############
 

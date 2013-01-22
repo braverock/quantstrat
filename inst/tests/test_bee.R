@@ -6,7 +6,7 @@ require(PortfolioAnalytics)
 ######### ACTIVATE TEST DATES AND SOURCE BEE #####################
 
 options(in_test=TRUE)
-source('bee.R')
+source(system.file("demo/bee.R", package="quantstrat"))
 
 ################### DEFINE VARIABLES TO BE TESTED ##############
 
