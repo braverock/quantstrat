@@ -487,7 +487,6 @@ apply.paramset <- function(strategy.st, paramset.label, portfolio.st, account.st
         assign('constraints', constraints, envir=.audit)
         assign('paramset.label', paramset.label, envir=.audit)
         assign('param.combos', param.combos, envir=.audit)
-        assign('param.combos', param.combos, envir=.audit)
         assign('tradeStats', results$tradeStats, envir=.audit)
         assign('user.func', results$user.func, envir=.audit)
     }

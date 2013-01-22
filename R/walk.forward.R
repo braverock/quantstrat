@@ -120,20 +120,28 @@ walk.forward <- function(strategy.st, paramset.label, portfolio.st, account.st,
                     stop(paste(obj.func, 'unknown obj function', sep=': '))
 
                 # select best param.combo
-                param.combo.nr <- do.call(obj.func, obj.args)
-                param.combo <- tradeStats.list[param.combo.nr, 1:grep('Portfolio', names(tradeStats.list)) - 1]
+                param.combo.idx <- do.call(obj.func, obj.args)
+                if(length(param.combo.idx) == 0)
+                    stop('obj.func() returned empty result')
 
-                assign('obj.func', obj.func, envir=.audit)
-                assign('param.combo.nr', param.combo.nr, envir=.audit)
-                assign('param.combo', param.combo, envir=.audit)
+                param.combo <- tradeStats.list[param.combo.idx, 1:grep('Portfolio', names(tradeStats.list)) - 1]
+                param.combo.nr <- row.names(tradeStats.list)[param.combo.idx]
+
+                if(!is.null(.audit))
+                {
+                    assign('obj.func', obj.func, envir=.audit)
+                    assign('param.combo.idx', param.combo.idx, envir=.audit)
+                    assign('param.combo.nr', param.combo.nr, envir=.audit)
+                    assign('param.combo', param.combo, envir=.audit)
+                }
 
                 # configure strategy to use selected param.combo
                 strategy <- quantstrat:::install.param.combo(strategy, param.combo, paramset.label)
 
                 result$testing.timespan <- testing.timespan
-                result$param.combo.nr <- param.combo.nr
-                result$param.combo <- param.combo
-                result$strategy <- strategy
+#                result$param.combo.idx <- param.combo.idx
+#                result$param.combo <- param.combo
+#                result$strategy <- strategy
 
                 print(paste('=== testing param.combo', param.combo.nr, 'on', testing.timespan))
                 print(param.combo)
@@ -149,7 +157,7 @@ walk.forward <- function(strategy.st, paramset.label, portfolio.st, account.st,
                 k <- k + 1
             }
 
-            if(!is.null(audit.prefix))
+            if(!is.null(.audit))
             {
                 save(.audit, file=paste(audit.prefix, index(symbol[training.start]), index(symbol[training.end]), 'RData', sep='.'))
 
