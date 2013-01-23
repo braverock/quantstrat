@@ -18,7 +18,14 @@ status = book$bug$GLD[,"Order.Status"]
 fees   = book$bug$GLD[,"Txn.Fees"]
 rule   = book$bug$GLD[,"Rule"]
 
-######################## ORDER BOOK ############################
+Tqty   = txns$Txn.Qty
+Tprice = txns$Txn.Price
+Tfees  = txns$Txn.Fees
+Tvalue = txns$Txn.Value
+Tcost  = txns$Txn.Cost
+TPL    = txns$Txn.PL
+
+###################### BEE ORDER BOOK ############################
 
 context("Bee order book is consistent ")
 
@@ -52,7 +59,7 @@ test_that("The run in late-July 2012 is entered long",
 test_that("The run in late-July 2012 is exited short", 
           { expect_that(as.character(rule[26]) =="ExitSHORT", is_true()) })
 
-######################## STATS  #################################
+######################## BEE TRADE STATS  ###############################
 
 context("Bee trade statistics are consistent ")
 
@@ -60,69 +67,105 @@ test_that("Num.Txns is 27",
           { expect_that(stats$Num.Txns , equals(27)) })
 test_that("Num.Trades is 13", 
           { expect_that(stats$Num.Trades , equals(13)) })
-test_that("Net.Trading.PL is -4802", 
-          { expect_that(stats$Net.Trading.PL, equals(-4802)) })
-test_that("Avg.Trade.PL is -360.7692", 
-          { expect_equal(stats$Avg.Trade.PL, -360.7692, .0001) })
-test_that("Med.Trade.PL is -455", 
-          { expect_that(stats$Med.Trade.PL, equals(-455)) })
-test_that("Largest.Winnner is 1426", 
-          { expect_that(stats$Largest.Winner, equals(1426)) })
-test_that("Largest.Loser is -1324", 
-          { expect_that(stats$Largest.Loser, equals(-1324)) })
-test_that("Gross.Profits is 1820", 
-          { expect_that(stats$Gross.Profits, equals(1820)) })
-test_that("Gross.Losses is -6510", 
-          { expect_that(stats$Gross.Losses, equals(-6510)) })
-test_that("Std.Dev.Trade.PL is 749.0479", 
-          { expect_equal(stats$Std.Dev.Trade.PL, 749.0479, .0001) })
-test_that("Percent.Positive is 30.76923", 
-          { expect_equal(stats$Percent.Positive, 30.76923, .0001) })
-test_that("Percent.Negative is 69.23077", 
-          { expect_equal(stats$Percent.Negative, 69.23077, .0001) })
-test_that("Profit.Factor is 0.2795699", 
-          { expect_equal(stats$Profit.Factor, 0.2795699, .0001) })
-test_that("Avg.Win.Trade is 455", 
-          { expect_that(stats$Avg.Win.Trade, equals(455)) })
-test_that("Med.Win.Trade is 164", 
-          { expect_that(stats$Med.Win.Trade, equals(164)) })
-test_that("Avg.Losing.Trade is -723.3333", 
-          { expect_equal(stats$Avg.Losing.Trade, -723.3333, .0001)})
-test_that("Med.Losing.Trade is -685", 
-          { expect_equal(stats$Med.Losing.Trade, -685, .0001) })
-test_that("Avg.Daily.PL is -360.7692", 
-          { expect_equal(stats$Avg.Daily.PL, -360.7692, .0001) })
-test_that("Med.Daily.PL is -455", 
-          { expect_that(stats$Med.Daily.PL, equals(-455)) })
-test_that("Std.Dev.Daily.PL is 749.0479", 
-          { expect_equal(stats$Std.Dev.Daily.PL, 749.0479, .0001) })
-test_that("Max.Drawdown is -6253", 
-          { expect_that(stats$Max.Drawdown, equals(-6253)) })
-test_that("Profit.To.Max.Draw is -0.02012297", 
-          { expect_equal(stats$Profit.To.Max.Draw, -0.7679514, .0001) })
-test_that("Avg.WinLoss.Ratio is 0.6290323", 
-          { expect_equal(stats$Avg.WinLoss.Ratio, 0.6290323, .0001) })
-test_that("Med.WinLoss.Ratio is 0.2394161", 
-          { expect_equal(stats$Med.WinLoss.Ratio, 0.2394161, .0001) })
-test_that("Max.Equity is 1446", 
-          { expect_that(stats$Max.Equity, equals(1446)) })
-test_that("Min.Equity is -4807", 
-          { expect_equal(stats$Min.Equity, -4807, .0001) })
-test_that("End.Equity is -4802", 
-          { expect_equal(stats$End.Equity, -4802, .0001) })
+test_that("Net.Trading.PL is 2126", 
+          { expect_that(stats$Net.Trading.PL, equals(2126)) })
+test_that("Avg.Trade.PL is 131.3846", 
+          { expect_equal(stats$Avg.Trade.PL, 131.3846, .0001) })
+test_that("Med.Trade.PL is 214", 
+          { expect_that(stats$Med.Trade.PL, equals(214)) })
+test_that("Largest.Winnner is 1242", 
+          { expect_that(stats$Largest.Winner, equals(1242)) })
+test_that("Largest.Loser is -1147", 
+          { expect_that(stats$Largest.Loser, equals(-1147)) })
+test_that("Gross.Profits is 4458", 
+          { expect_that(stats$Gross.Profits, equals(4458)) })
+test_that("Gross.Losses is -2750", 
+          { expect_that(stats$Gross.Losses, equals(-2750)) })
+test_that("Std.Dev.Trade.PL is 688.8931", 
+          { expect_equal(stats$Std.Dev.Trade.PL, 688.8931, .0001) })
+test_that("Percent.Positive is 61.53846", 
+          { expect_equal(stats$Percent.Positive, 61.53846, .0001) })
+test_that("Percent.Negative is 38.46154", 
+          { expect_equal(stats$Percent.Negative, 38.46154, .0001) })
+test_that("Profit.Factor is 1.621091", 
+          { expect_equal(stats$Profit.Factor, 1.621091, .0001) })
+test_that("Avg.Win.Trade is 557.25", 
+          { expect_that(stats$Avg.Win.Trade, equals(557.25)) })
+test_that("Med.Win.Trade is 401", 
+          { expect_that(stats$Med.Win.Trade, equals(401)) })
+test_that("Avg.Losing.Trade is -550", 
+          { expect_equal(stats$Avg.Losing.Trade, -550, .0001)})
+test_that("Med.Losing.Trade is -402", 
+          { expect_equal(stats$Med.Losing.Trade, -402, .0001) })
+test_that("Avg.Daily.PL is 131.3846", 
+          { expect_equal(stats$Avg.Daily.PL, 131.3846, .0001) })
+test_that("Med.Daily.PL is 214", 
+          { expect_that(stats$Med.Daily.PL, equals(214)) })
+test_that("Std.Dev.Daily.PL is 688.8931", 
+          { expect_equal(stats$Std.Dev.Daily.PL, 688.8931, .0001) })
+test_that("Max.Drawdown is -4431", 
+          { expect_that(stats$Max.Drawdown, equals(-4431)) })
+test_that("Profit.To.Max.Draw is 0.4798014", 
+          { expect_equal(stats$Profit.To.Max.Draw, 0.4798014, .0001) })
+test_that("Avg.WinLoss.Ratio is 1.013182", 
+          { expect_equal(stats$Avg.WinLoss.Ratio, 1.013182, .0001) })
+test_that("Med.WinLoss.Ratio is 0.9975124", 
+          { expect_equal(stats$Med.WinLoss.Ratio, 0.9975124, .0001) })
+test_that("Max.Equity is 3007", 
+          { expect_that(stats$Max.Equity, equals(3007)) })
+test_that("Min.Equity is -1424", 
+          { expect_equal(stats$Min.Equity, -1424, .0001) })
+test_that("End.Equity is 2126", 
+          { expect_equal(stats$End.Equity, 2126, .0001) })
 
-######################## bug RETURNS ######################
+######################## BEE RETURNS ######################
 
 context("bee portfolio returns are consistent ")
 
 
-test_that("min return is -0.00597", 
-          { expect_that(min(rets),equals(-0.00597))})
-test_that("max return is 0.0092", 
-          { expect_that(max(rets), equals(0.0092))})
-test_that("skewness of returns is 0.1321215", 
-          { expect_equal(skewness(rets), 0.1321215, .0001) })
-test_that("kurtosis of returns is 3.063772", 
-          { expect_equal(kurtosis(rets), 3.063772, .0001) })
+test_that("min return is -0.00925", 
+          { expect_that(min(rets), equals(-0.00925))})
+test_that("max return is 0.00597", 
+          { expect_that(max(rets), equals(0.00597))})
+test_that("skewness of returns is -0.4637252", 
+          { expect_equal(skewness(rets), -0.4637252, .0001) })
+test_that("kurtosis of returns is 3.926906", 
+          { expect_equal(kurtosis(rets), 3.926906, .0001) })
 
+######################## BEE TRANSACTIONS ######################
 
+context("Bee transactions are consistent ")
+
+Tqty   = txns$Txn.Qty
+Tprice = txns$Txn.Price
+Tfees  = txns$Txn.Fees
+Tvalue = txns$Txn.Value
+Tcost  = txns$Txn.Avg.Cost
+TPL    = txns$Net.Txn.Realized.PL
+
+## Transaction qty
+test_that("The max position is 100 shares",
+          { expect_that(max(Tqty) == 100, is_true()) })
+test_that("The min position is -100 shares",
+          { expect_that(min(Tqty) == -100, is_true()) })
+## Transaction price
+test_that("The first transacted price is the open of the day after the first signal",
+          { expect_that(as.numeric(Tprice[2]) == 136.92, is_true()) })
+## Transaction fees
+test_that("There are no transaction fees",
+          { expect_that(sum(Tfees) == 0, is_true()) })
+## Transaction value
+test_that("The system exits and enters with equal value",
+          { expect_that(as.numeric(Tvalue[3]) - as.numeric(Tvalue[4]) == 0, is_true()) })
+## Transaction cost
+test_that("The transaction cost is equal to the transaction price (no fees)",
+          { expect_that(as.numeric(Tcost[2]) == as.numeric(Tprice[2]), is_true()) })
+## Transaction PL
+test_that("The Net PnL on the first trade is 1004",
+          { expect_equal(as.numeric(TPL[3]), 1004, .0001) })
+test_that("The sum of Net PnL is 1708",
+          { expect_equal(sum(TPL), 1708, .0001) })
+test_that("The max of Net PnL is 1242",
+          { expect_equal(max(TPL), 1242, .0001) })
+test_that("The min of Net PnL is -1147",
+          { expect_equal(min(TPL), -1147, .0001) })

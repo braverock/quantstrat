@@ -156,4 +156,5 @@ cat('Sortino Ratio for bumblebee is: ', SortinoRatio(stratReturns), '\n')
 book  = getOrderBook(port)
 stats = tradeStats(port)
 rets  = PortfReturns(acct)
+txns  = getTxns(port, sym)
 ################################################################
