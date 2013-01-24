@@ -349,6 +349,7 @@ add.constraint <- function(strategy, paramset.label, distribution.label.1, distr
 #' @param user.func an optional user-supplied function to be run for each param.combo at the end, either on the slave or on the master (see calc)
 #' @param user.args user-supplied list of arguments for user.func
 #' @param calc 'slave' to run updatePortfolio() and tradesStats() on the slave and return all portfolios and orderbooks as a list: higher parallelization but more data transfer between master and slave; 'master' to have updatePortf() and tradeStats() run at the master and return all portfolios and orderbooks in the .blotter and .strategy environments resp: less parallelization but also less data transfer between slave and master; default is 'slave'
+#' @param packages a vector specifying names of R packages to be loaded by the slave, default NULL
 #' @param audit a user-specified environment to store a copy of all portfolios, orderbooks and other data from the tests, or NULL to trash this information
 #' @param verbose return full information, in particular the .blotter environment, default FALSE
 #'
@@ -356,7 +357,7 @@ add.constraint <- function(strategy, paramset.label, distribution.label.1, distr
 #' @export
 #' @seealso \code{\link{add.constraint}}, \code{\link{add.constraint}}, \code{\link{delete.paramset}}
 
-apply.paramset <- function(strategy.st, paramset.label, portfolio.st, account.st, mktdata=NULL, nsamples=0, user.func=NULL, user.args=NULL, calc='slave', audit=NULL, verbose=FALSE)
+apply.paramset <- function(strategy.st, paramset.label, portfolio.st, account.st, mktdata=NULL, nsamples=0, user.func=NULL, user.args=NULL, calc='slave', audit=NULL, packages=NULL, verbose=FALSE)
 {
     must.have.args(match.call(), c('strategy.st', 'paramset.label', 'portfolio.st'))
 
@@ -428,7 +429,7 @@ apply.paramset <- function(strategy.st, paramset.label, portfolio.st, account.st
 
     results <- foreach(param.combo=iter(param.combos,by='row'),
         .verbose=verbose, .errorhandling='pass',
-        .packages='quantstrat',
+        .packages=c('quantstrat', packages),
         .combine=combine, .multicombine=TRUE, .maxcombine=nrow(param.combos),
         .export=c(env.functions, 'env.instrument')) %dopar%
     {

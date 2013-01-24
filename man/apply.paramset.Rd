@@ -5,7 +5,7 @@
   apply.paramset(strategy.st, paramset.label, portfolio.st,
     account.st, mktdata = NULL, nsamples = 0,
     user.func = NULL, user.args = NULL, calc = "slave",
-    audit = NULL, verbose = FALSE)
+    audit = NULL, packages = NULL, verbose = FALSE)
 }
 \arguments{
   \item{strategy.st}{the name of the strategy object}
@@ -39,6 +39,9 @@
   .strategy environments resp: less parallelization but
   also less data transfer between slave and master; default
   is 'slave'}
+
+  \item{packages}{a vector specifying names of R packages
+  to be loaded by the slave, default NULL}
 
   \item{audit}{a user-specified environment to store a copy
   of all portfolios, orderbooks and other data from the
