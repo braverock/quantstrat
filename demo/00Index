@@ -12,8 +12,19 @@ luxor.1  Tomasini & Jaekle: Section 3.2: luxor without any optimizations
 luxor.2  Tomasini & Jaekle: Section 3.2: luxor with $30 slippage and transaction costs
 luxor.3  Tomasini & Jaekle: Section 3.3 Variation of the input parameters: optimization and stability diagrams
 luxor.3.Parameters  Tomasini & Jaekle: Section 3.3 Variation of the input parameters: optimization and stability diagrams / scan
-luxor.3.Parameters.tradeGraphs  Tomasini & Jaekle: 3D graphs of results for SMA scan
+luxor.3.Parameters.tradegraphs  Tomasini & Jaekle: 3D graphs of results for SMA scan
 luxor.4  Tomasini & Jaekle: Section 3.4: inserting an intraday time filter
 luxor.4.Timespans  Tomasini & Jaekle: Section 3.4: inserting an intraday time filter / scan
-luxor.4.Timespan.tradeGraphs  Tomasini & Jaekle: 3D graphs of results for timespan scan
-loxor.orderchains   Tomasini & Jaekle: adding order chain logic conditional on fills
+luxor.4.Timespans.tradegraphs  Tomasini & Jaekle: 3D graphs of results for timespan scan
+luxor.orderchains   Tomasini & Jaekle: adding order chain logic conditional on fills
+luxor.Stop
+luxor-3.11
+luxor-3.12
+luxor-3.16
+luxor.3
+luxor.4
+luxor.StopLoss
+luxor.StopTrailing
+luxor.TakeProfit
+luxor.exits
+luxor.strategy
