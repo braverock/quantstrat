@@ -10,16 +10,19 @@ Depends:
     foreach(>= 1.4.0)
 Suggests:
     PerformanceAnalytics,PortfolioAnalytics,rgl,
-    testthat
+    testthat,
+    xtsExtra
 Maintainer: Brian G. Peterson <brian@braverock.com>
 Description: Specify, build, and back-test quantitative
     financial trading and portfolio strategies
-Contributors: Yu Chen, Joe Dunn, Dirk Eddelbuettel, Jeffrey A. Ryan, Garrett See
+Contributors: Yu Chen, Joe Dunn, Dirk Eddelbuettel, Jeffrey A. Ryan, Garrett
+    See, Jan Humme
 LazyLoad: yes
 License: GPL-3
 ByteCompile: TRUE
 Collate:
     'applyStrategy.rebalancing.R'
+    'chart.forward.R'
     'indicators.R'
     'initialize.R'
     'match.names.R'
