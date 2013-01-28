@@ -22,7 +22,8 @@ License: GPL-3
 ByteCompile: TRUE
 Collate:
     'applyStrategy.rebalancing.R'
-    'chart.forward.R'
+    'chart.forward.testing.R'
+    'chart.forward.training.R'
     'indicators.R'
     'initialize.R'
     'match.names.R'
