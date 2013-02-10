@@ -721,7 +721,7 @@ applyParameter<-function(strategy,portfolios,parameterPool,parameterConstraints,
 #}
 
 
-#' Internal function used in applyParameter function for process constraints on relationship between two parameter values. Basicly is the same as sigComparison function in signal.R written by Brian, with miner change.
+#' Internal function used in applyParameter function for process constraints on relationship between two parameter values. Basicly is the same as sigComparison function in signal.R written by Brian, with minor change.
 #' 
 #' Currently, this function compares two columns.  
 #' Patches to compare an arbitrary number of columns would be gladly accepted.
