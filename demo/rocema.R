@@ -62,7 +62,7 @@ require(quantstrat)
 
 currency('USD')
 
-future('ES', "USD", multiplier=1000, tick_size=.25, exchange="Comex", description="SP500 Future")
+future('ES', "USD", multiplier=50, tick_size=.25, exchange="CME Globex", description="SP500 Future")
 
 #setSymbolLookup.FI('~/R.symbols/', 'ES')
 setSymbolLookup.FI('../sandbox/', 'ES')
