@@ -470,7 +470,6 @@ applyRules <- function(portfolio,
                 trailorders<-grep('^stoptrailing$', ordersubset[oo.idx,'Order.Type'])
                 for(torder in trailorders)
                 {
-                    dindex<-get.dindex()
                     firsttime<-NULL
                     neworders<-NULL
                     onum<-oo.idx[torder]
@@ -532,12 +531,10 @@ applyRules <- function(portfolio,
                     }
                     tmpidx<-NULL
                     if(any(move_order)){
-                        dindex<-get.dindex()
                         #print(firsttime)
                         # find first index where we would move an order
                         orderidx<-first(which(move_order)) 
-                        if(is.null(tmpidx))
-                            tmpidx <- format(index(move_order[orderidx,]), "%Y-%m-%d %H:%M:%OS6")
+                        tmpidx <- format(index(move_order[orderidx,]), "%Y-%m-%d %H:%M:%OS6")
                         trailspan <- paste(format(firsttime, "%Y-%m-%d %H:%M:%OS6"),"::",tmpidx,sep='')
                         #make sure we don't cross before then 
                         # use sigThreshold
@@ -550,7 +547,7 @@ applyRules <- function(portfolio,
                             assign.dindex(c(get.dindex(),newidx))
                         } else {
                             #if we don't cross, do this
-                            moveidx<-index(mktdata[index(move_order[orderidx,]),which.i=TRUE])
+                            moveidx <- curIndex + orderidx - 1
                             assign.dindex(c(get.dindex(),moveidx))
                         }    
                     } # end any(move_order) check                            
@@ -561,7 +558,6 @@ applyRules <- function(portfolio,
         if(curIndex){
             if(hasmktord) { 
                 curIndex <- curIndex+1
-                dindex<-get.dindex()
             } else {
                 dindex<-get.dindex()
                 if (any(dindex > curIndex)) {
