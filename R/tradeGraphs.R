@@ -24,6 +24,8 @@ tradeGraphs <- function(stats, free.params, params.filter = NULL, statistics, ti
     # TODO: fix axes to use non scientific notation
     # TODO: fix use of full rainbow for small fractions (eg. Profit.Factor, now only uses red)
 
+    if(!require(rgl, quietly=TRUE)) stop('The "rgl" package is required to use this function')
+
     if(!require(reshape2, quietly=TRUE))    stop('The "reshape2" package is required to use this function')
    
     if(missing(stats))      stop('stats undefined')
