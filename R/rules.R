@@ -647,15 +647,13 @@ applyRules <- function(portfolio,
                     exit = , enter = {
                         if(isTRUE(hold)) next()
 
+                        if(isTRUE(path.dep)) openOrdersLen <- length(getOrders(portfolio=portfolio, symbol=symbol, status="open", timespan=timestamp,which.i=TRUE))
+
                         if(length(strategy$rules[[type]])>=1) {
                             ruleProc(strategy$rules[[type]],timestamp=timestamp, path.dep=path.dep, mktdata=mktdata,portfolio=portfolio, symbol=symbol, ruletype=type, mktinstr=mktinstr, parameters=parameters, ...)
                         }
-                        if(isTRUE(path.dep) && length(getOrders(portfolio=portfolio, symbol=symbol, status="open", timespan=timestamp,which.i=TRUE))) {
-                            ## TODO FIXME this doesn't appear to work correctly
-                            # we opened orders in this timestamp, make sure to increment dindex w/ curIndex+1 so the order slot gets checked next index ?
-                            #browser()
-                            #assign.dindex(c(get.dindex(),curIndex+1))
-                            #
+                        if(isTRUE(path.dep) && length(getOrders(portfolio=portfolio, symbol=symbol, status="open", timespan=timestamp,which.i=TRUE)) != openOrdersLen) {
+                            assign.dindex(c(get.dindex(),curIndex+1))
                         }
                     },
                     post = {
