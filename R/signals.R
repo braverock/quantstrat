@@ -133,7 +133,7 @@ applySignals <- function(strategy, mktdata, indicators=NULL, parameters=NULL, ..
         .formals$... <- NULL
         
         tmp_val<-do.call(fun,.formals)
-        if(is.null(colnames(tmp_val))) {
+        if(is.null(colnames(tmp_val)) || !is.null(signal$label)) {
             if (ncol(tmp_val)==1) { #no names, only one column
                 colnames(tmp_val)<-signal$label 
             } else { #no names, more than one column
