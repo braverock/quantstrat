@@ -48,10 +48,11 @@
 #' @param prefer price method for getPrice
 #' @param sethold boolean, puts entry Rule processing on hold, default FALSE
 #' @param label rule label, default '', added by \code{\link{applyRules}}
+#' @param orderprice a fixed order price, will overrule all mktdata lookup, only meant for internal use really, default NULL
 #' @seealso \code{\link{osNoOp}} , \code{\link{add.rule}}
 #' @export
 
-ruleSignal <- function(mktdata=mktdata, timestamp, sigcol, sigval, orderqty=0, ordertype, orderside=NULL, orderset=NULL, threshold=NULL, tmult=FALSE, replace=TRUE, delay=0.0001, osFUN='osNoOp', pricemethod=c('market','opside','active'), portfolio, symbol, ..., ruletype, TxnFees=0, prefer=NULL, sethold=FALSE, label='')
+ruleSignal <- function(mktdata=mktdata, timestamp, sigcol, sigval, orderqty=0, ordertype, orderside=NULL, orderset=NULL, threshold=NULL, tmult=FALSE, replace=TRUE, delay=0.0001, osFUN='osNoOp', pricemethod=c('market','opside','active'), portfolio, symbol, ..., ruletype, TxnFees=0, prefer=NULL, sethold=FALSE, label='', orderprice=NULL)
 {
     if(!is.function(osFUN))
         osFUN<-match.fun(osFUN)
@@ -116,70 +117,73 @@ ruleSignal <- function(mktdata=mktdata, timestamp, sigcol, sigval, orderqty=0, o
         } else {
             tmpqty <- orderqty
         }
-        
-        switch(pricemethod,
-                market = ,
-                opside = ,
-                active = {
-                    if(is.BBO(mktdata)){
-                        if (tmpqty>0) 
-                            prefer='ask'  # we're buying, so pay what they're asking
-                        else
-                            prefer='bid'  # we're selling, so give it to them for what they're bidding  
-                    } 
-                    orderprice <- try(getPrice(x=mktdata, prefer=prefer))[timestamp] 
-                },
-                passive =,
-                work =,
-                join = {
-                    if(is.BBO(mktdata)){
-                        if (tmpqty>0) 
-                            prefer='bid'  # we're buying, so work the bid price
-                        else
-                            prefer='ask'  # we're selling, so work the ask price
-                    }
-                    orderprice <- try(getPrice(x=mktdata, prefer=prefer))[timestamp]
-                },
-                maker = {
-                    if(hasArg(price) & length(match.call(expand.dots=TRUE)$price)>1) {
-                        # we have prices, just use them
-                        orderprice <- try(match.call(expand.dots=TRUE)$price)
-                    } else {
-                        if(!is.null(threshold)) {
-                            baseprice<- last(getPrice(x=mktdata)[timestamp]) # this should get either the last trade price or the Close
-                            if(hasArg(tmult) & isTRUE(match.call(expand.dots=TRUE)$tmult)) {
-                                baseprice<- last(getPrice(x=mktdata)[timestamp]) # this should get either the last trade price or the Close
-                                # threshold is a multiplier of current price
-                                if (length(threshold)>1){
-                                    orderprice <- baseprice * threshold # assume the user has set proper threshold multipliers for each side
-                                } else {
-                                    orderprice <- c(baseprice*threshold,baseprice*(1+1-threshold)) #just bracket on both sides
-                                }
-                            } else {
-                                # tmult is FALSE or NULL, threshold is numeric
-                                if (length(threshold)>1){
-                                    orderprice <- baseprice + threshold # assume the user has set proper threshold numerical offsets for each order
-                                } else {
-                                    orderprice <- c(baseprice+threshold,baseprice+(-threshold)) #just bracket on both sides
-                                }
-                            }
-                        } else{
-                            # no threshold, put it on the averages?
-                            stop('maker orders without specified prices and without threholds not (yet?) supported')
-                            if(is.BBO(mktdata)){
 
-                            } else {
+	if(is.null(orderprice))
+	{
+		switch(pricemethod,
+			market = ,
+			opside = ,
+			active = {
+			    if(is.BBO(mktdata)){
+				if (tmpqty>0) 
+				    prefer='ask'  # we're buying, so pay what they're asking
+				else
+				    prefer='bid'  # we're selling, so give it to them for what they're bidding  
+			    } 
+			    orderprice <- try(getPrice(x=mktdata, prefer=prefer))[timestamp] 
+			},
+			passive =,
+			work =,
+			join = {
+			    if(is.BBO(mktdata)){
+				if (tmpqty>0) 
+				    prefer='bid'  # we're buying, so work the bid price
+				else
+				    prefer='ask'  # we're selling, so work the ask price
+			    }
+			    orderprice <- try(getPrice(x=mktdata, prefer=prefer))[timestamp]
+			},
+			maker = {
+			    if(hasArg(price) & length(match.call(expand.dots=TRUE)$price)>1) {
+				# we have prices, just use them
+				orderprice <- try(match.call(expand.dots=TRUE)$price)
+			    } else {
+				if(!is.null(threshold)) {
+				    baseprice<- last(getPrice(x=mktdata)[timestamp]) # this should get either the last trade price or the Close
+				    if(hasArg(tmult) & isTRUE(match.call(expand.dots=TRUE)$tmult)) {
+					baseprice<- last(getPrice(x=mktdata)[timestamp]) # this should get either the last trade price or the Close
+					# threshold is a multiplier of current price
+					if (length(threshold)>1){
+					    orderprice <- baseprice * threshold # assume the user has set proper threshold multipliers for each side
+					} else {
+					    orderprice <- c(baseprice*threshold,baseprice*(1+1-threshold)) #just bracket on both sides
+					}
+				    } else {
+					# tmult is FALSE or NULL, threshold is numeric
+					if (length(threshold)>1){
+					    orderprice <- baseprice + threshold # assume the user has set proper threshold numerical offsets for each order
+					} else {
+					    orderprice <- c(baseprice+threshold,baseprice+(-threshold)) #just bracket on both sides
+					}
+				    }
+				} else{
+				    # no threshold, put it on the averages?
+				    stop('maker orders without specified prices and without threholds not (yet?) supported')
+				    if(is.BBO(mktdata)){
 
-                            }
-                        }
-                    }
-                    if(length(orderqty)==1) orderqty <- c(orderqty,-orderqty) #create paired market maker orders at the same size
-                }
-        ) # end switch
+				    } else {
 
-        if(inherits(orderprice,'try-error')) orderprice<-NULL
-        if(length(orderprice>1) && !pricemethod=='maker') orderprice<-last(orderprice[timestamp])
-        if(!is.null(orderprice) && !is.null(ncol(orderprice))) orderprice <- orderprice[,1]
+				    }
+				}
+			    }
+			    if(length(orderqty)==1) orderqty <- c(orderqty,-orderqty) #create paired market maker orders at the same size
+			}
+		) # end switch
+
+		if(inherits(orderprice,'try-error')) orderprice<-NULL
+		if(length(orderprice>1) && !pricemethod=='maker') orderprice<-last(orderprice[timestamp])
+		if(!is.null(orderprice) && !is.null(ncol(orderprice))) orderprice <- orderprice[,1]
+	}
 
         if(is.null(orderset)) orderset=NA
 

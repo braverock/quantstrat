@@ -639,7 +639,7 @@ applyRules <- function(portfolio,
                                 }
                                 if(length(rules) > 0)
                                 {
-                                    ruleProc(rules, timestamp=timestamp, path.dep=path.dep, mktdata=mktdata, portfolio=portfolio, symbol=symbol, ruletype=type, mktinstr=mktinstr, parameters=parameters, ...)
+                                    ruleProc(rules, timestamp=timestamp, path.dep=path.dep, mktdata=mktdata, portfolio=portfolio, symbol=symbol, ruletype=type, mktinstr=mktinstr, parameters=list('orderprice'=as.numeric(closed.orders$Order.Price), ...))
                                 }
                             }
                         }

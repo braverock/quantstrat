@@ -5,10 +5,11 @@
   ruleSignal(mktdata = mktdata, timestamp, sigcol, sigval,
     orderqty = 0, ordertype, orderside = NULL,
     orderset = NULL, threshold = NULL, tmult = FALSE,
-    replace = TRUE, delay = 0.0001, osFUN = "osNoOp",
+    replace = TRUE, delay = 1e-04, osFUN = "osNoOp",
     pricemethod = c("market", "opside", "active"),
     portfolio, symbol, ..., ruletype, TxnFees = 0,
-    prefer = NULL, sethold = FALSE, label = "")
+    prefer = NULL, sethold = FALSE, label = "",
+    orderprice = NULL)
 }
 \arguments{
   \item{mktdata}{an xts object containing market data.
@@ -79,6 +80,10 @@
 
   \item{label}{rule label, default '', added by
   \code{\link{applyRules}}}
+
+  \item{orderprice}{a fixed order price, will overrule all
+  mktdata lookup, only meant for internal use really,
+  default NULL}
 }
 \description{
   As described elsewhere in the documentation, quantstrat
