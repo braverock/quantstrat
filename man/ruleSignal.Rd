@@ -9,7 +9,7 @@
     pricemethod = c("market", "opside", "active"),
     portfolio, symbol, ..., ruletype, TxnFees = 0,
     prefer = NULL, sethold = FALSE, label = "",
-    orderprice = NULL)
+    order.price = NULL, chain.price = NULL)
 }
 \arguments{
   \item{mktdata}{an xts object containing market data.
@@ -81,9 +81,15 @@
   \item{label}{rule label, default '', added by
   \code{\link{applyRules}}}
 
-  \item{orderprice}{a fixed order price, will overrule all
-  mktdata lookup, only meant for internal use really,
-  default NULL}
+  \item{order.price}{the order price to use, will overrule
+  any mktdata lookup as well as chain.price (see below),
+  meant to specify eg. a stop-loss price that is unrelated
+  to the fill price (see chain.price)}
+
+  \item{chain.price}{the price that the parent order got
+  filled for, used to pass to children in the order chain,
+  will overrule all mktdata lookup, only meant for internal
+  use really, default NULL}
 }
 \description{
   As described elsewhere in the documentation, quantstrat

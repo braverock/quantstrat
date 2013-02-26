@@ -48,11 +48,12 @@
 #' @param prefer price method for getPrice
 #' @param sethold boolean, puts entry Rule processing on hold, default FALSE
 #' @param label rule label, default '', added by \code{\link{applyRules}}
-#' @param orderprice a fixed order price, will overrule all mktdata lookup, only meant for internal use really, default NULL
+#' @param order.price the order price to use, will overrule any mktdata lookup as well as chain.price (see below), meant to specify eg. a stop-loss price that is unrelated to the fill price (see chain.price)
+#' @param chain.price the price that the parent order got filled for, used to pass to children in the order chain, will overrule all mktdata lookup, only meant for internal use really, default NULL
 #' @seealso \code{\link{osNoOp}} , \code{\link{add.rule}}
 #' @export
 
-ruleSignal <- function(mktdata=mktdata, timestamp, sigcol, sigval, orderqty=0, ordertype, orderside=NULL, orderset=NULL, threshold=NULL, tmult=FALSE, replace=TRUE, delay=0.0001, osFUN='osNoOp', pricemethod=c('market','opside','active'), portfolio, symbol, ..., ruletype, TxnFees=0, prefer=NULL, sethold=FALSE, label='', orderprice=NULL)
+ruleSignal <- function(mktdata=mktdata, timestamp, sigcol, sigval, orderqty=0, ordertype, orderside=NULL, orderset=NULL, threshold=NULL, tmult=FALSE, replace=TRUE, delay=0.0001, osFUN='osNoOp', pricemethod=c('market','opside','active'), portfolio, symbol, ..., ruletype, TxnFees=0, prefer=NULL, sethold=FALSE, label='', order.price=NULL, chain.price=NULL)
 {
     if(!is.function(osFUN))
         osFUN<-match.fun(osFUN)
@@ -118,7 +119,16 @@ ruleSignal <- function(mktdata=mktdata, timestamp, sigcol, sigval, orderqty=0, o
             tmpqty <- orderqty
         }
 
-	if(is.null(orderprice))
+	if(!is.null(order.price))
+	{
+print(paste('--- order.price =', order.price))
+		orderprice <- order.price
+	}
+	else if(!is.null(chain.price))
+	{
+		orderprice <- chain.price
+	}
+	else
 	{
 		switch(pricemethod,
 			market = ,
@@ -186,7 +196,7 @@ ruleSignal <- function(mktdata=mktdata, timestamp, sigcol, sigval, orderqty=0, o
 	}
 
         if(is.null(orderset)) orderset=NA
-
+print(paste('=== orderprice =', orderprice))
         
         ## now size the order
         #TODO add fancy formals matching for osFUN
