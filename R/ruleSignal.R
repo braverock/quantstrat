@@ -121,7 +121,6 @@ ruleSignal <- function(mktdata=mktdata, timestamp, sigcol, sigval, orderqty=0, o
 
 	if(!is.null(order.price))
 	{
-print(paste('--- order.price =', order.price))
 		orderprice <- order.price
 	}
 	else if(!is.null(chain.price))
@@ -196,7 +195,6 @@ print(paste('--- order.price =', order.price))
 	}
 
         if(is.null(orderset)) orderset=NA
-print(paste('=== orderprice =', orderprice))
         
         ## now size the order
         #TODO add fancy formals matching for osFUN
