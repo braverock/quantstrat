@@ -29,7 +29,8 @@
   "risk","order","rebalance","exit","enter","chain" see
   Details}
 
-  \item{parent}{the parent rule for a chain rule}
+  \item{parent}{the label of the parent rule for a chain
+  rule}
 
   \item{...}{any other passthru parameters}
 
@@ -80,8 +81,9 @@
   univariate strategies} \item{exit}{ rules to determine
   whether to exit a position} \item{enter}{ rules to
   determine whether to enter or increase a position}
-  \item{chain}{ rules executed upon fill of the
-  corresponding order, identified by label } }
+  \item{chain}{ rules executed upon fill of an order
+  corresponding to the label of the parent rule identified
+  by the \code{parent} arg. } }
 
   The rules will be executed by type, in the order listed
   above. Multiple rules of each type may be defined, as

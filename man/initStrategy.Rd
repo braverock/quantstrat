@@ -42,8 +42,8 @@
   \item{init.Portf}{if TRUE, will call
   \code{\link[blotter]{initPortf}} to initialize the
   portfolio object} \item{init.Acct}{if TRUE, will call
-  \code{\link[blotter]{initAccount}} to initialize the
-  account object} \item{init.Orders}{if TRUE, will call
+  \code{\link[blotter]{initAcct}} to initialize the account
+  object} \item{init.Orders}{if TRUE, will call
   \code{\link{initOrders}} to initialize the order book for
   this test} \item{unique}{not yet implemented, will force
   a unique portfolio and account name if the portfolio,

@@ -15,7 +15,7 @@
 #'   \item{rebalance}{ rules executed specifically in a portfolio context, unnecessary in univariate strategies}
 #'   \item{exit}{ rules to determine whether to exit a position}
 #'   \item{enter}{ rules to determine whether to enter or increase a position}
-#'   \item{chain}{ rules executed upon fill of the corresponding order, identified by label }
+#'   \item{chain}{ rules executed upon fill of an order corresponding to the label of the parent rule identified by the \code{parent} arg. }
 #' } 
 #'  
 #' The rules will be executed by type, in the order listed above.  
@@ -65,7 +65,7 @@
 #' @param parameters vector of strings naming parameters to be saved for apply-time definition
 #' @param label arbitrary text label for rule output, NULL default will be converted to '<name>.rule'
 #' @param type one of "risk","order","rebalance","exit","enter","chain" see Details
-#' @param parent the parent rule for a chain rule
+#' @param parent the label of the parent rule for a chain rule
 #' @param ... any other passthru parameters
 #' @param enabled TRUE/FALSE whether the rule is enabled for use in applying the strategy, default TRUE
 #' @param indexnum if you are updating a specific rule, the index number in the $rules[type] list to update
@@ -104,7 +104,7 @@ add.rule <- function(strategy, name, arguments, parameters=NULL, label=NULL, typ
     tmp_rule$type<-type
     if(type == 'chain')
     {
-        if(is.null(parent)) stop("You must specify a parent if ruletype=='chain'")
+        if(is.null(parent)) stop("You must specify the label of the parent rule if ruletype=='chain'")
         tmp_rule$parent<-parent
     }
     tmp_rule$enabled<-enabled
@@ -541,8 +541,7 @@ applyRules <- function(portfolio,
                         cross<-sigThreshold(data=mkt_price_series, label='tmptrail',column=col,threshold=tmpprice,relationship=relationship)
                         # find first index that would cross after this index
                         if (any(cross[trailspan])){
-                            newidx <- curIndex + which(cross[trailspan])[1] - 1  #curIndex/firsttime was 1 in the subset, we need a -1 offset?
-                            newidx <- index(mktdata[index(which(cross[trailspan])[1]),which.i=TRUE])
+                            newidx <- curIndex + index(mktdata[index(which(cross[trailspan])[1]),which.i=TRUE])
                             # insert that into dindex
                             assign.dindex(c(get.dindex(),newidx))
                         } else {

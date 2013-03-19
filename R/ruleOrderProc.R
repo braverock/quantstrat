@@ -109,6 +109,9 @@ ruleOrderProc <- function(portfolio, symbol, mktdata, timestamp=NULL, ordertype=
             #if( NROW(mktdataTimestamp) > 1 ) mktdataTimestamp <- last(mktdataTimestamp)
 
             orderType <- ordersubset[ii,"Order.Type"]
+            
+            if(hasArg(allowMagicalThinking)) allowMagicalThinking=match.call(expand.dots=TRUE)$allowMagicalThinking
+            else allowMagicalThinking = FALSE
 
             freq = periodicity(mktdata)
             #switch on frequency
@@ -120,7 +123,18 @@ ruleOrderProc <- function(portfolio, symbol, mktdata, timestamp=NULL, ordertype=
                                 monthly = {
                                     txntime=as.character(index(ordersubset[ii,])) # transacts on this bar, e.g. in the intraday cross, or leading into the end of month, quarter, etc.
                                     # txntime=as.character(timestamp) # use this if you wanted to transact on the close of the next bar
-                                    txnprice=as.numeric(getPrice(mktdataTimestamp, prefer=prefer)[,1])
+                                    # txnprice=as.numeric(getPrice(mktdataTimestamp, prefer=prefer)[,1])
+									txnprice = orderPrice
+                                },
+                                daily = {
+                                    if(isTRUE(allowMagicalThinking)){
+                                        txntime=as.character(index(ordersubset[ii,])) # transacts on this bar, e.g. in the intraday cross, or leading into the end of month, quarter, etc.
+                                        #txnprice=as.numeric(getPrice(mktdataTimestamp, prefer=prefer)[,1])
+										txnprice = orderPrice
+                                    } else {
+                                        txntime = timestamp
+                                        txnprice = as.numeric(getPrice(mktdataTimestamp, prefer=prefer)[,1]) #filled at now-prevailing 'price'
+                                    }
                                 }, #end daily
                                 { 
                                     txntime = timestamp
