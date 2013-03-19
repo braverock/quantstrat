@@ -1,6 +1,6 @@
 \name{ruleRevoke}
 \alias{ruleRevoke}
-\title{rule to revoke an unfilled limit order on a signal}
+\title{rule to revoke(cancel) an unfilled limit order on a signal}
 \usage{
   ruleRevoke(data = mktdata, timestamp, sigcol, sigval,
     orderside = NULL, orderset = NULL, portfolio, symbol,
@@ -40,8 +40,12 @@
   revokeled manually or replaced by other orders.
 }
 \details{
-  This function is used for revokeing the orders based on a
-  signal.
+  This function is used for revoking or canceling the
+  orders based on a signal. Order status will be changed to
+  'revoked', to separate it from cancelations or
+  replacements from other causes.  THis may make it easier
+  it decipher the order book to figure out what the
+  strategy ewas doing.
 }
 \author{
   Niklas Kolster, Jan Humme

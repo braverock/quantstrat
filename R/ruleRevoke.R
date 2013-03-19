@@ -1,10 +1,13 @@
-#' rule to revoke an unfilled limit order on a signal
+#' rule to revoke(cancel) an unfilled limit order on a signal
 #' 
 #' As described elsewhere in the documentation, quantstrat models 
 #' \emph{orders}.  All orders in quantstrat are GTC orders, which means that
 #' unfilled limit orders have to be revokeled manually or replaced by other orders.
 #' 
-#' This function is used for revokeing the orders based on a signal.
+#' This function is used for revoking or canceling the orders based on a signal.  
+#' Order status will be changed to 'revoked', to separate it from cancelations or
+#' replacements from other causes.  THis may make it easier it decipher the order book 
+#' to figure out what the strategy ewas doing.
 #' 
 #' @param data an xts object containing market data.  depending on rules, may need to be in OHLCV or BBO formats, and may include indicator and signal information
 #' @param timestamp timestamp coercible to POSIXct that will be the time the order will be inserted on 
@@ -18,9 +21,9 @@
 #' @author Niklas Kolster, Jan Humme
 #' @seealso \code{\link{osNoOp}} , \code{\link{add.rule}}
 #' @export
-ruleRevoke <- function(data=mktdata, timestamp, sigcol, sigval, orderside=NULL, orderset=NULL, portfolio, symbol, ruletype)
+ruleRevoke <- ruleCancel <- function(data=mktdata, timestamp, sigcol, sigval, orderside=NULL, orderset=NULL, portfolio, symbol, ruletype)
 {
-    if(ruletype!='risk') stop('Ruletype for ruleRevoke must be risk')
+    if(ruletype!='risk') stop('Ruletype for ruleRevoke or ruleCancel must be "risk".')
 
     pos <- getPosQty(portfolio, symbol, timestamp)
     if(pos == 0)
