@@ -192,15 +192,9 @@ applyIndicators <- function(strategy, mktdata, parameters=NULL, ...) {
         .formals$... <- NULL
         
         tmp_val<-do.call(fun,.formals)
-        if(is.null(colnames(tmp_val)) || !is.null(indicator$label)) {
-            if (ncol(tmp_val)==1) { #no names, only one column
-                colnames(tmp_val)<-indicator$label 
-            } else { #no names, more than one column
-                colnames(tmp_val) <- paste(indicator$label,seq(1,ncol(tmp_val)),sep='.') 
-            }  
-        } else { #we have column names, so paste
-            if(ncol(tmp_val)>1) colnames(tmp_val) <- paste(indicator$label,colnames(tmp_val),sep='.')
-        }
+        if(is.null(colnames(tmp_val)))
+            colnames(tmp_val) <- seq(ncol(tmp_val))
+        colnames(tmp_val) <- paste(indicator$label,colnames(tmp_val),sep='.')
 
         if (nrow(mktdata)==nrow(tmp_val) | length(mktdata)==length(tmp_val)) {
             # the indicator returned a time series, so we'll name it and cbind it
