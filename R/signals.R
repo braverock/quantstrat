@@ -318,7 +318,7 @@ sigFormula <- function(label, data=mktdata, formula ,cross=FALSE){
 	# Vijay's PAST/AAII/SIPRO example
 	# fieldVals <- try(eval(parse(text=expression), data))
 	ret_sig=NULL
-	ret_sig <- try(xts(eval(parse(text=formula), as.data.frame(data)),order.by=index(data)))
+	ret_sig <- try(.xts(eval(parse(text=formula), as.list(data)),order.by=.index(data)))
 	if(is.xts(ret_sig)){
 		if(isTRUE(cross)) ret_sig <- diff(ret_sig)==1
 		colnames(ret_sig)<-label
