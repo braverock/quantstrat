@@ -23,5 +23,14 @@
   This small utility exists to do the matching in a
   centralized location so that more robust error handling
   and reporting can be conducted.
+
+  The process to be followed is that first,
+  \code{\link{grep}} will be called without modification,
+  assuming that a unique match has been supplied by the
+  user.  If this fails, a match will be attempted by
+  appending '$' to the regex, searching for a match at the
+  end of the column name, as would be constructed by the
+  \code{\link{paste}} in e.g.
+  \code{\link{applyIndicators}}.
 }
 

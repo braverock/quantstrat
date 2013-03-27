@@ -35,7 +35,7 @@
 #' there already exists an indicator with that label in which case it will be appended
 #' with a number (i.e. '<name>.ind.2', '<name>.ind.3', etc.).
 #' If the indicator function returns multiple columns, the label will be 
-#' \code{\link{paste}}'d to either the returned column names or the 
+#' \code{\link{paste}}'d to the end of either the returned column names or the 
 #' respective column number when applying it to \code{mktdata}.
 #' 
 #' @param strategy an object (or the name of an object) type 'strategy' to add the indicator to
@@ -102,6 +102,25 @@ add.indicator <- function(strategy, name, arguments, parameters=NULL, label=NULL
 }
 
 #' apply the indicators in the strategy to arbitrary market data
+#' 
+#' \code{applyIndicators} will take the \code{mktdata} object, 
+#' and will apply each indicator specified in the strategy definition to it.
+#' 
+#' If the indicator function returns an xts object or a vector of the same length 
+#' as mktdata, the columns created by the indicator function will be added to the 
+#' mktdata object via \code{\link{cbind}}. 
+#' 
+#' If the indicator function returns multiple columns, the label will be 
+#' \code{\link{paste}}'d to the end of either the returned column names or the 
+#' respective column number when applying it to \code{mktdata}.
+#' 
+#' If the indicator returns some more complexobject, it will be added to a list 
+#' in the $indicators slot inside the \code{\link{applyStrategy}} execution frame.
+#' If you want your indicators to return a more complex object, 
+#' (such as a model specification and output from a regression), be advised
+#' that your signal generator, and potentially your rule function, will need
+#' to understand, anticipate, and know how to manipulate the internal strategy frame.
+#'   
 #' @param strategy an object of type 'strategy' to add the indicator to
 #' @param mktdata an xts object containing market data.  depending on indicators, may need to be in OHLCV or BBO formats
 #' @param parameters named list of parameters to be applied during evaluation of the strategy
@@ -192,9 +211,12 @@ applyIndicators <- function(strategy, mktdata, parameters=NULL, ...) {
         .formals$... <- NULL
         
         tmp_val<-do.call(fun,.formals)
+		
+		#add label
         if(is.null(colnames(tmp_val)))
             colnames(tmp_val) <- seq(ncol(tmp_val))
-        colnames(tmp_val) <- paste(indicator$label,colnames(tmp_val),sep='.')
+        if(!identical(colnames(tmp_val),indicator$label)) 
+			colnames(tmp_val) <- paste(colnames(tmp_val),indicator$label,sep='.')
 
         if (nrow(mktdata)==nrow(tmp_val) | length(mktdata)==length(tmp_val)) {
             # the indicator returned a time series, so we'll name it and cbind it

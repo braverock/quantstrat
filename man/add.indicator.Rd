@@ -101,8 +101,9 @@
   appended with a number (i.e. '<name>.ind.2',
   '<name>.ind.3', etc.). If the indicator function returns
   multiple columns, the label will be \code{\link{paste}}'d
-  to either the returned column names or the respective
-  column number when applying it to \code{mktdata}.
+  to the end of either the returned column names or the
+  respective column number when applying it to
+  \code{mktdata}.
 }
 \examples{
 \dontrun{

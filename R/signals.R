@@ -133,16 +133,14 @@ applySignals <- function(strategy, mktdata, indicators=NULL, parameters=NULL, ..
         .formals$... <- NULL
         
         tmp_val<-do.call(fun,.formals)
-        if(is.null(colnames(tmp_val)) || !is.null(signal$label)) {
-            if (ncol(tmp_val)==1) { #no names, only one column
-                colnames(tmp_val)<-signal$label 
-            } else { #no names, more than one column
-                colnames(tmp_val) <- paste(signal$label,seq(1,ncol(tmp_val)),sep='.') 
-            }  
-        } else { #we have column names, so paste
-            if(ncol(tmp_val)>1) colnames(tmp_val) <- paste(signal$label,colnames(tmp_val),sep='.')
-        }
-        if (nrow(mktdata)==nrow(tmp_val) | length(mktdata)==length(tmp_val)) {
+		
+		#add label
+		if(is.null(colnames(tmp_val)))
+			colnames(tmp_val) <- seq(ncol(tmp_val))
+		if(!identical(colnames(tmp_val),signal$label)) 
+			colnames(tmp_val) <- paste(colnames(tmp_val),signal$label,sep='.')
+		
+		if (nrow(mktdata)==nrow(tmp_val) | length(mktdata)==length(tmp_val)) {
             # the signal returned a time series, so we'll name it and cbind it
             mktdata<-cbind(mktdata,tmp_val)
         } else {

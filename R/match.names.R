@@ -10,13 +10,23 @@
 #' This small utility exists to do the matching in a centralized location 
 #' so that more robust error handling and reporting can be conducted.
 #'    
+#' The process to be followed is that first, \code{\link{grep}} will
+#' be called without modification, assuming that a unique match has 
+#' been supplied by the user.  If this fails, a match will be attempted
+#' by appending '$' to the regex, searching for a match at the end of the 
+#' column name, as would be constructed by the \code{\link{paste}} in
+#' e.g. \code{\link{applyIndicators}}. 
+#'  
 #' @param data_names names for the data to be matched to
 #' @param match_names names to match
 #' @export
 match.names <- function(match_names,data_names) {
     loc<-NULL
     for (mname in match_names){
-        t<-grep(paste(mname,"$",sep=""),data_names)
+        t<-grep(mname,data_names)
+		if(length(t)>1){
+			t<-grep(paste(mname,"$",sep=""),data_names)
+		}
         if(is.null(loc)) loc<-t
         else loc <- c(loc,t)
     }
