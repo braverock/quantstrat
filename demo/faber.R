@@ -45,6 +45,11 @@
 # Load required libraries
 require(quantstrat)
 
+#correct for TZ issues if they crop up
+oldtz<-Sys.getenv('TZ')
+if(oldtz=='') {
+	Sys.setenv(TZ="GMT")
+}
 # Try to clean up in case the demo was run previously
 suppressWarnings(rm("account.faber","portfolio.faber",pos=.blotter))
 suppressWarnings(rm("ltaccount", "ltportfolio", "ClosePrice", "CurrentDate", "equity", 
@@ -140,13 +145,14 @@ for(symbol in symbols){
 }
 
 ret1 <- PortfReturns('faber')
+ret1$total<-rowSums(ret1)
 View(ret1)
 
 if("package:PerformanceAnalytics" %in% search() || require("PerformanceAnalytics",quietly=TRUE)){
 	getSymbols("SPY", src='yahoo', index.class=c("POSIXt","POSIXct"), from='1999-01-01')
 	SPY<-to.monthly(SPY)
 	SPY.ret<-Return.calculate(SPY$SPY.Close)
-	index(SPY.ret)<-c(as.Date('1999-01-01'),index(ret1))
+	index(SPY.ret)<-index(ret1)
 	dev.new()
 	charts.PerformanceSummary(cbind(ret1$total,SPY.ret), geometric=FALSE, wealth.index=TRUE)
 }
@@ -154,6 +160,7 @@ if("package:PerformanceAnalytics" %in% search() || require("PerformanceAnalytics
 faber.stats<-tradeStats('faber')[,c('Net.Trading.PL','Max.Drawdown','Num.Trades','Profit.Factor','Std.Dev.Trade.PL','Largest.Winner','Largest.Loser','Max.Equity','Min.Equity')]
 faber.stats
 
+Sys.setenv(TZ=oldtz)
 ###############################################################################
 # R (http://r-project.org/) Quantitative Strategy Model Framework
 #
