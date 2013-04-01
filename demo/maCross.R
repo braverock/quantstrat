@@ -22,14 +22,15 @@ stock(stock.str,currency='USD',multiplier=1)
 
 ##### PLACE DEMO AND TEST DATES HERE #################
 #
-#if(isTRUE(options('in_test')$in_test))
-#  # use test dates
-#  {initDate="2011-01-01" 
-#  endDate="2012-12-31"   
-#  } else
-#  # use demo defaults
-#  {initDate="1999-12-31"
-#  endDate=Sys.Date()}
+if(isTRUE(options('in_test')$in_test))
+  # use test dates
+  {initDate="2011-01-01" 
+  endDate="2012-12-31"   
+  } else {
+  # use demo defaults
+  initDate="1999-12-31"
+  endDate=Sys.Date()
+}
 
 initEq=1000000
 portfolio.st='macross'
@@ -41,7 +42,7 @@ initOrders(portfolio=portfolio.st,initDate=initDate)
 stratMACROSS<- strategy(portfolio.st)
 
 stratMACROSS <- add.indicator(strategy = stratMACROSS, name = "SMA", arguments = list(x=quote(Cl(mktdata)), n=50),label= "ma50" )
-stratMACROSS <- add.indicator(strategy = stratMACROSS, name = "SMA", arguments = list(x=quote(Cl(mktdata)), n=200),label= "ma200")
+stratMACROSS <- add.indicator(strategy = stratMACROSS, name = "SMA", arguments = list(x=quote(Cl(mktdata)[,1]), n=200),label= "ma200")
 
 stratMACROSS <- add.signal(strategy = stratMACROSS,name="sigCrossover",arguments = list(columns=c("ma50","ma200"), relationship="gte"),label="ma50.gt.ma200")
 stratMACROSS <- add.signal(strategy = stratMACROSS,name="sigCrossover",arguments = list(column=c("ma50","ma200"),relationship="lt"),label="ma50.lt.ma200")
@@ -59,7 +60,7 @@ for(i in stock.str)
   assign(i, adjustOHLC(get(i),use.Adjusted=TRUE))
 
 start_t<-Sys.time()
-out<-try(applyStrategy(strategy=stratMACROSS , portfolios=portfolio.st))
+out<-applyStrategy(strategy=stratMACROSS , portfolios=portfolio.st)
 end_t<-Sys.time()
 print(end_t-start_t)
 
