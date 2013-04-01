@@ -74,7 +74,7 @@ strategy(s, store=TRUE)
 
 add.indicator(s, name = "SMA",
 	arguments = list(
-		x = quote(Cl(mktdata)),
+		x = quote(Cl(mktdata)[,1]),
 		n = .fast
 	),
 	label="nFast"
@@ -82,7 +82,7 @@ add.indicator(s, name = "SMA",
 
 add.indicator(s, name="SMA",
 	arguments = list(
-		x = quote(Cl(mktdata)),
+		x = quote(Cl(mktdata)[,1]),
 		n = .slow
 	),
 	label="nSlow"
