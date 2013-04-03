@@ -477,6 +477,8 @@ updateOrders <- function(portfolio,
         side=NULL
         qtysign=NULL    
     }
+
+    if(is.na(orderset)) orderset=NULL
     # need the ability to pass a range like we do in blotter
     updatedorders<-getOrders(portfolio=portfolio, 
                              symbol=symbol, 
