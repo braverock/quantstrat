@@ -176,7 +176,7 @@ print(getOrderBook(portfolio.st))
 
 ###############################################################################
 
-updatePortf(portfolio.st, Symbols='GBPUSD', ,Dates=paste('::',as.Date(Sys.time()),sep=''))
+updatePortf(portfolio.st, Symbols='GBPUSD', Dates=paste('::',as.Date(Sys.time()),sep=''))
 
 chart.Posn(portfolio.st, "GBPUSD")
 
