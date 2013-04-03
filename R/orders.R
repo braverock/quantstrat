@@ -361,23 +361,27 @@ addOrder <- function(portfolio,
     orders<-NULL
     for (i in 1:length(price)) {
         if(is.null(prefer[i])) prefer[i] = ''
-        neworder<-xts(as.matrix(t(c(as.character(qty[i]), 
-                                        price[i], 
-                                        ordertype[i], 
-                                        side, 
-                                        threshold[i], 
-                                        status, 
-                                        statustimestamp, 
-                                        prefer[i],
-                                        orderset[i], 
-                                        TxnFees, label))), 
-                      order.by=(ordertime))
-              
-        if(is.null(orders)) orders<-neworder
-        else orders <- rbind(orders,neworder)
+
+        if(qty[i] != 'all' || getPosQty(portfolio, symbol, timestamp) != 0)
+        {
+            neworder<-xts(as.matrix(t(c(as.character(qty[i]), 
+                                            price[i], 
+                                            ordertype[i], 
+                                            side, 
+                                            threshold[i], 
+                                            status, 
+                                            statustimestamp, 
+                                            prefer[i],
+                                            orderset[i], 
+                                            TxnFees, label))), 
+                          order.by=(ordertime))
+                  
+            if(is.null(orders)) orders<-neworder
+            else orders <- rbind(orders,neworder)
+        }
     }
 
-    if(ncol(orders)!=11) {
+    if(!is.null(orders) && ncol(orders)!=11) {
         print("bad order(s):")
         print(orders)
         return()
@@ -399,11 +403,14 @@ addOrder <- function(portfolio,
                          statustimestamp=timestamp)
         }
         # get order book
-        orderbook <- getOrderBook(portfolio)
-        orderbook[[portfolio]][[symbol]]<-rbind(orderbook[[portfolio]][[symbol]],orders)
-        # assign order book back into place (do we need a non-exported "put" function?)
-        assign(paste("order_book",portfolio,sep='.'),orderbook,envir=.strategy)
-        rm(orderbook)
+        if(!is.null(orders))
+        {
+            orderbook <- getOrderBook(portfolio)
+            orderbook[[portfolio]][[symbol]]<-rbind(orderbook[[portfolio]][[symbol]],orders)
+            # assign order book back into place (do we need a non-exported "put" function?)
+            assign(paste("order_book",portfolio,sep='.'),orderbook,envir=.strategy)
+            rm(orderbook)
+        }
         return()
     } else {
         return(orders)
