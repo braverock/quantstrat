@@ -1,22 +1,23 @@
 #!/usr/bin/Rscript --vanilla
 #
-# Jan Humme (@opentrades) - August 2012
+# Jan Humme (@opentrades) - August 2012, revised April 2013
 #
-# Tested and found to work correctly using blotter r1123
+# Tested and found to work correctly using blotter r1420
 #
 # From Jaekle & Tamasini: A new approach to system development and portfolio optimisation (ISBN 978-1-905641-79-6)
 #
 # Paragraph 3.2: luxor without any optimizations
 
 options(width = 240)
-#Sys.setenv(TZ="GMT")
+Sys.setenv(TZ="UTC")
+
+###
 
 .fast = 10
 .slow = 30
 
-.qty=100000
-.th=0.0005
-.txn=0
+.orderqty=100000
+.threshold=0.0005
 
 ##### PLACE DEMO AND TEST DATES HERE #################
 #
@@ -30,49 +31,62 @@ options(width = 240)
 #  endDate=Sys.Date()}
 
 initDate = '2002-10-21'
+
 .from='2002-10-21'
 #.to='2008-07-04'
-#.to='2003-12-31'
 .to='2002-10-31'
 
 ####
 
-s = 'luxor'
-p = 'forex'
-a = 'IB1'
+strategy.st = 'luxor'
+portfolio.st = 'forex'
+account.st = 'IB1'
 
-###
+### packages
+#
+# quantstrat package will pull in many other packages:
+# FinancialInstrument, quantmod, blotter, xts
 
 require(quantstrat)
 
+### FinancialInstrument
+
 currency(c('GBP', 'USD'))
 
-exchange_rate(c('GBPUSD'), tick_size=0.0001)
+exchange_rate('GBPUSD', tick_size=0.0001)
 
-setSymbolLookup.FI(system.file('extdata',package='quantstrat'), 'GBPUSD')
+### quantmod
 
-###
+getSymbols.FI(Symbols='GBPUSD',
+	      dir=system.file('extdata',package='quantstrat'),
+	      from=.from, to=.to
+)
 
-getSymbols('GBPUSD', from=.from, to=.to, verbose=FALSE)
+# ALTERNATIVE WAY TO FETCH SYMBOL DATA
+#setSymbolLookup.FI(system.file('extdata',package='quantstrat'), 'GBPUSD')
+#getSymbols('GBPUSD', from=.from, to=.to, verbose=FALSE)
+
+### xts
+
 GBPUSD = to.minutes30(GBPUSD)
 GBPUSD = align.time(to.minutes30(GBPUSD), 1800)
 
-###
+### blotter
 
-initPortf(p, symbols='GBPUSD', initDate=initDate, currency='USD')
-initAcct(a, portfolios=p, initDate=initDate, currency='USD')
+initPortf(portfolio.st, symbols='GBPUSD', initDate=initDate, currency='USD')
+initAcct(account.st, portfolios=portfolio.st, initDate=initDate, currency='USD')
 
-###
+### quantstrat
 
-initOrders(p, initDate=initDate)
+initOrders(portfolio.st, initDate=initDate)
 
-### strategy ######################################################################
+### define strategy
 
-strategy(s, store=TRUE)
+strategy(strategy.st, store=TRUE)
 
 ### indicators
 
-add.indicator(s, name = "SMA",
+add.indicator(strategy.st, name = "SMA",
 	arguments = list(
 		x = quote(Cl(mktdata)[,1]),
 		n = .fast
@@ -80,7 +94,7 @@ add.indicator(s, name = "SMA",
 	label="nFast"
 )
 
-add.indicator(s, name="SMA",
+add.indicator(strategy.st, name="SMA",
 	arguments = list(
 		x = quote(Cl(mktdata)[,1]),
 		n = .slow
@@ -90,7 +104,7 @@ add.indicator(s, name="SMA",
 
 ### signals
 
-add.signal(s, 'sigCrossover',
+add.signal(strategy.st, 'sigCrossover',
 	arguments = list(
 		columns=c("nFast","nSlow"),
 		relationship="gte"
@@ -98,7 +112,7 @@ add.signal(s, 'sigCrossover',
 	label='long'
 )
 
-add.signal(s, 'sigCrossover',
+add.signal(strategy.st, 'sigCrossover',
 	arguments = list(
 		columns=c("nFast","nSlow"),
 		relationship="lt"
@@ -108,82 +122,66 @@ add.signal(s, 'sigCrossover',
 
 ### rules
 
-add.rule(s, 'ruleSignal',
+add.rule(strategy.st, 'ruleSignal',
 	arguments=list(sigcol='long' , sigval=TRUE,
-		replace=TRUE,
 		orderside='short',
 		ordertype='market',
-		TxnFees=.txn,
 		orderqty='all',
-		orderset='ocoshort'
+		replace=TRUE
 	),
 	type='exit',
 	label='Exit2LONG'
 )
 
-add.rule(s, 'ruleSignal',
+add.rule(strategy.st, 'ruleSignal',
 	arguments=list(sigcol='short', sigval=TRUE,
-		replace=TRUE,
 		orderside='long' ,
 		ordertype='market',
-		TxnFees=.txn,
 		orderqty='all',
-		orderset='ocolong'
+		replace=TRUE
 	),
 	type='exit',
 	label='Exit2SHORT')
 
-add.rule(s, 'ruleSignal',
+add.rule(strategy.st, 'ruleSignal',
 	arguments=list(sigcol='long' , sigval=TRUE,
-		replace=FALSE,
 		orderside='long' ,
 		ordertype='stoplimit',
 		prefer='High',
-		threshold=.th,
-		TxnFees=0,
-		orderqty=+.qty,
-		orderset='ocolong'
+		threshold=.threshold,
+		orderqty=+.orderqty,
+		replace=FALSE
 	),
 	type='enter',
 	label='EnterLONG'
 )
 
-add.rule(s, 'ruleSignal',
+add.rule(strategy.st, 'ruleSignal',
 	arguments=list(sigcol='short', sigval=TRUE,
-		replace=FALSE,
 		orderside='short',
 		ordertype='stoplimit',
 		prefer='Low',
-		threshold=-.th,
-		TxnFees=0,
-		orderqty=-.qty,
-		orderset='ocoshort'
+		threshold=-.threshold,
+		orderqty=-.orderqty,
+		replace=FALSE
 	),
 	type='enter',
 	label='EnterSHORT'
 )
 
-#
+###############################################################################
+
+applyStrategy(strategy.st, portfolio.st, verbose = FALSE)
+
+print(getOrderBook(portfolio.st))
 
 ###############################################################################
 
-applyStrategy(s, p, verbose = FALSE)
-#applyStrategy(s, p, prefer='Open', verbose = FALSE)
+updatePortf(portfolio.st, Symbols='GBPUSD', ,Dates=paste('::',as.Date(Sys.time()),sep=''))
 
-updatePortf(p, Symbols='GBPUSD', ,Dates=paste('::',as.Date(Sys.time()),sep=''))
+chart.Posn(portfolio.st, "GBPUSD")
 
-###############################################################################
-
-chart.Posn(p, "GBPUSD")
-
-print(getOrderBook(p))
-
-#txns <- getTxns(p, 'GBPUSD')
-#txns
-###txns$Net 
-#cat('Net profit:', sum(txns$Net.Txn.Realized.PL), '\n')
-
-tradeStats(p, 'GBPUSD')
+tradeStats(portfolio.st, 'GBPUSD')
 
 ##### PLACE THIS BLOCK AT END OF DEMO SCRIPT ################### 
 # book  = getOrderBook(port)
