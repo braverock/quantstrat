@@ -35,7 +35,7 @@
 #' @param orderside one of either "long" or "short", default NULL, see details 
 #' @param orderset tag to identify an orderset; if one order of the set is filled, all others are canceled
 #' @param threshold numeric or name of indicator column in mktdata, default NULL, see Details
-#' @param tmult if TRUE, threshold is a percent multiplier for \code{price}, not a scalar to be added/subtracted from price.  threshold will be dynamically converted to a scalar at time of order entry
+#' @param tmult if TRUE, threshold is a percent multiplier for \code{price}, not a scalar. Threshold is converted to a scalar by multiplying it with the price at the time of order entry (i.e. the scalar will not change if the order is updated, as in the case of a trailing stop), then it is added to the price just like a scalar threshold. 
 #' @param replace TRUE/FALSE, whether to replace any other open order(s) on this portfolio symbol, default TRUE 
 #' @param delay what delay to add to timestamp when inserting the order into the order book, in seconds
 #' @param osFUN function or text descriptor of function to use for order sizing, default \code{\link{osNoOp}}
