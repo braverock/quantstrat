@@ -76,9 +76,7 @@ initOrders <- function(portfolio=NULL, symbols=NULL, initDate = '1999-12-31', ..
         symbols<-names(pfolio$symbols)
     }
     if(!is.null(symbols)){
-        for (symbol in symbols){
-            orders[[portfolio]][[symbol]] <- ordertemplate
-        }
+        orders[[portfolio]][symbols] <- list(NULL)
     } else {
         stop("You must specify a symbols list or a valid portfolio to retrieve the list from.")
     }
@@ -114,6 +112,8 @@ getOrders <- function(portfolio,symbol,status="open",timespan=NULL,ordertype=NUL
     orderbook <- getOrderBook(portfolio)
     if(!any(names(orderbook[[portfolio]]) == symbol)) stop(paste("symbol",symbol,"does not exist in portfolio",portfolio,"having symbols",names(orderbook[[portfolio]])))
 	    ordersubset<-orderbook[[portfolio]][[symbol]]
+    if(is.null(ordersubset))
+        return(NULL)
 
     #data quality checks
     if(!is.null(status) & !length(grep(status,c("open", "closed", "canceled", "revoked","replaced")))==1) stop(paste("order status:",status,' must be one of "open", "closed", "canceled", "revoked", or "replaced"'))
@@ -366,17 +366,12 @@ addOrder <- function(portfolio,
 
         if(qty[i] != 'all' || getPosQty(portfolio, symbol, timestamp) != 0)
         {
-            neworder<-xts(as.matrix(t(c(as.character(qty[i]), 
-                                            price[i], 
-                                            ordertype[i], 
-                                            side, 
-                                            threshold[i], 
-                                            status, 
-                                            statustimestamp, 
-                                            prefer[i],
-                                            orderset[i], 
-                                            TxnFees, label))), 
-                          order.by=(ordertime))
+            neworder <- xts(t(c(as.character(qty[i]), price[i], ordertype[i], 
+                side, threshold[i], status, statustimestamp, prefer[i],
+                orderset[i], TxnFees, label)), order.by=ordertime,
+                dimnames=list(NULL, c("Order.Qty", "Order.Price", "Order.Type",
+                  "Order.Side", "Order.Threshold", "Order.Status", "Order.StatusTime",
+                  "Prefer", "Order.Set", "Txn.Fees", "Rule")))
                   
             if(is.null(orders)) orders<-neworder
             else orders <- rbind(orders,neworder)

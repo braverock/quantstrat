@@ -152,7 +152,7 @@ applyStrategy <- function(strategy , portfolios, mktdata=NULL , parameters=NULL,
 			
 			## Check for open orders
 			rem.orders <- suppressWarnings(getOrders(portfolio=portfolio, symbol=symbol, status="open")) #, timespan=timespan, ordertype=ordertype,which.i=TRUE)
-			if(nrow(rem.orders)>0){pd <- TRUE}
+			if(NROW(rem.orders)>0){pd <- TRUE}
             if(pd==TRUE){sret$rules$pathdep<-applyRules(portfolio=portfolio, symbol=symbol, strategy=strategy, mktdata=mktdata, Dates=NULL, indicators=sret$indicators, signals=sret$signals, parameters=parameters,  ..., path.dep=TRUE)}
 
 			ret[[portfolio]][[symbol]]<-sret
