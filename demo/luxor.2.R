@@ -16,9 +16,9 @@ Sys.setenv(TZ="UTC")
 .fast = 10
 .slow = 30
 
-.orderqty=100000
-.threshold=0.0005
-.txn.fees=-30
+.orderqty = 100000
+.threshold = 0.0005
+.txn.fees = -30
 
 ##### PLACE DEMO AND TEST DATES HERE #################
 #
@@ -45,7 +45,7 @@ account.st = 'IB1'
 
 ### packages
 #
-# quantstrat package will pull in many other packages:
+# quantstrat package will pull in some other packages:
 # FinancialInstrument, quantmod, blotter, xts
 
 require(quantstrat)
@@ -172,7 +172,7 @@ add.rule(strategy.st, 'ruleSignal',
 
 applyStrategy(strategy.st, portfolio.st, verbose = FALSE)
 
-print(getOrderBook(portfolio.st))
+View(getOrderBook(portfolio.st)[[portfolio.st]]$GBPUSD)
 
 ###############################################################################
 
@@ -180,7 +180,15 @@ updatePortf(portfolio.st, Symbols='GBPUSD', Dates=paste('::',as.Date(Sys.time())
 
 chart.Posn(portfolio.st, "GBPUSD")
 
-tradeStats(portfolio.st, 'GBPUSD')
+###############################################################################
+
+View(tradeStats(portfolio.st, 'GBPUSD'))
+
+###############################################################################
+
+# save the strategy in an .RData object for later retrieval
+
+save.strategy(strategy.st)
 
 ##### PLACE THIS BLOCK AT END OF DEMO SCRIPT ################### 
 # book  = getOrderBook(port)

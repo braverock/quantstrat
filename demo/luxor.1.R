@@ -16,8 +16,8 @@ Sys.setenv(TZ="UTC")
 .fast = 10
 .slow = 30
 
-.orderqty=100000
-.threshold=0.0005
+.orderqty = 100000
+.threshold = 0.0005
 
 ##### PLACE DEMO AND TEST DATES HERE #################
 #
@@ -44,7 +44,7 @@ account.st = 'IB1'
 
 ### packages
 #
-# quantstrat package will pull in many other packages:
+# quantstrat package will pull in some other packages:
 # FinancialInstrument, quantmod, blotter, xts
 
 require(quantstrat)
@@ -146,9 +146,7 @@ add.rule(strategy.st, 'ruleSignal',
 add.rule(strategy.st, 'ruleSignal',
 	arguments=list(sigcol='long' , sigval=TRUE,
 		orderside='long' ,
-		ordertype='stoplimit',
-		prefer='High',
-		threshold=.threshold,
+		ordertype='stoplimit', prefer='High', threshold=.threshold,
 		orderqty=+.orderqty,
 		replace=FALSE
 	),
@@ -159,9 +157,7 @@ add.rule(strategy.st, 'ruleSignal',
 add.rule(strategy.st, 'ruleSignal',
 	arguments=list(sigcol='short', sigval=TRUE,
 		orderside='short',
-		ordertype='stoplimit',
-		prefer='Low',
-		threshold=-.threshold,
+		ordertype='stoplimit', prefer='Low', threshold=-.threshold,
 		orderqty=-.orderqty,
 		replace=FALSE
 	),
@@ -173,7 +169,7 @@ add.rule(strategy.st, 'ruleSignal',
 
 applyStrategy(strategy.st, portfolio.st, verbose = FALSE)
 
-print(getOrderBook(portfolio.st))
+View(getOrderBook(portfolio.st)[[portfolio.st]]$GBPUSD)
 
 ###############################################################################
 
@@ -181,7 +177,9 @@ updatePortf(portfolio.st, Symbols='GBPUSD', Dates=paste('::',as.Date(Sys.time())
 
 chart.Posn(portfolio.st, "GBPUSD")
 
-tradeStats(portfolio.st, 'GBPUSD')
+###############################################################################
+
+View(tradeStats(portfolio.st, 'GBPUSD'))
 
 ##### PLACE THIS BLOCK AT END OF DEMO SCRIPT ################### 
 # book  = getOrderBook(port)
