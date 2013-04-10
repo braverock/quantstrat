@@ -388,9 +388,10 @@ applyRules <- function(portfolio,
                         if (is.na(col)) stop("no price discernable for stoplimit in applyRules")                            
                     } 
                     cross<-sigThreshold(label='tmpstop',column=col,threshold=tmpprice,relationship=relationship)
-                    if(any(cross[timespan])){
+                    cross <- cross[timespan][-1]  # don't look for crosses on curIndex
+                    if(any(cross)){
                         # find first index that would cross after this index
-                        newidx <- curIndex + which(cross[timespan])[1] - 1
+                        newidx <- curIndex + which(cross)[1]
                         # insert that into dindex
                         assign.dindex(c(get.dindex(),newidx))                  
                     }
@@ -443,7 +444,8 @@ applyRules <- function(portfolio,
                     }
                     # use sigThreshold
                     cross<-sigThreshold(label='tmplimit',column=col,threshold=tmpprice,relationship=relationship)
-                    if(any(cross[timespan])){
+                    cross <- cross[timespan][-1]  # don't look for crosses on curIndex
+                    if(any(cross)){
                         # find first index that would cross after this index
                         #
                         # current index = which(cross[timespan])[1]
@@ -451,7 +453,7 @@ applyRules <- function(portfolio,
                         # need to subtract 1 index==1 means current position
                         #
                         # newidx <- curIndex + which(cross[timespan])[1] #- 1  #curIndex/timestamp was 1 in the subset, we need a -1 offset?
-                        newidx <- curIndex + which(cross[timespan])[2] - 1  #curIndex/timestamp was 1 in the subset, we need a -1 offset?
+                        newidx <- curIndex + which(cross)[1]
 
                         #if there are is no cross curIndex will be incremented on line 496
                         # with curIndex<-min(dindex[dindex>curIndex]).                            
@@ -518,15 +520,15 @@ applyRules <- function(portfolio,
                     timespan <- paste(format(firsttime, "%Y-%m-%d %H:%M:%OS6"),"::",nextstamp,sep='')
 
                     #get the subset of prices
-                    mkt_price_series <-getPrice(mktdata[timespan],prefer=prefer)
+                    mkt_price_series <-getPrice(mktdata[timespan],prefer=prefer)[-1]  # don't look for crosses on curIndex
                     col<-first(colnames(mkt_price_series))
 
                     if(tmpqty > 0){ # positive quantity 'buy'
-                        move_order <- ifelse( (mkt_price_series+orderThreshold) < tmpprice, TRUE, FALSE )
+                        move_order <- (mkt_price_series+orderThreshold) < tmpprice
                         #this ifelse creates a logical xts vector 
                         relationship="gte"
                     } else {  # negative quantity 'sell'
-                        move_order <- ifelse( (mkt_price_series+orderThreshold) > tmpprice, TRUE, FALSE )
+                        move_order <- (mkt_price_series+orderThreshold) > tmpprice
                         relationship="lte"
                     }
                     tmpidx<-NULL
@@ -539,9 +541,10 @@ applyRules <- function(portfolio,
                         #make sure we don't cross before then 
                         # use sigThreshold
                         cross<-sigThreshold(data=mkt_price_series, label='tmptrail',column=col,threshold=tmpprice,relationship=relationship)
+                        cross <- cross[trailspan][-1]  # don't look for crosses on curIndex
                         # find first index that would cross after this index
-                        if (any(cross[trailspan])){
-                            newidx <- curIndex + index(mktdata[index(which(cross[trailspan])[1]),which.i=TRUE])
+                        if (any(cross)){
+                            newidx <- curIndex + index(mktdata[index(which(cross)[1]),which.i=TRUE])
                             # insert that into dindex
                             assign.dindex(c(get.dindex(),newidx))
                         } else {
