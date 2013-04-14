@@ -630,19 +630,17 @@ applyRules <- function(portfolio,
                     chain = {
                         if(!is.null(closed.orders))
                         {
+                            # determine which closed orders are chained to an entry
                             chain.rules <- strategy$rules[[type]]
-                            for(parent in closed.orders[,'Rule'])
-                            {
-                                # there should be a nicer way to do this in R :-) JH
-                                rules <- list()
-                                for(rule in chain.rules) {
-                                    if(!is.null(rule$parent) && rule$parent == parent)
-                                        rules = c(rules, list(rule))
-                                }
-                                if(length(rules) > 0)
-                                {
-                                    ruleProc(rules, timestamp=timestamp, path.dep=path.dep, mktdata=mktdata, portfolio=portfolio, symbol=symbol, ruletype=type, mktinstr=mktinstr, parameters=list('chain.price'=as.numeric(closed.orders$Order.Price), ...))
-                                }
+                            chain.rule.names <- sapply(chain.rules, '[[', 'parent')
+                            closed.with.chain <- which(closed.orders$Rule %in% chain.rule.names)
+                            # put rules/prices in same order
+                            rules <- chain.rules[closed.with.chain]
+                            chain.price <- closed.orders$Order.Price[closed.with.chain]
+                            # loop over each rule and call ruleProc()
+                            for(i in seq_along(closed.with.chain)) {
+                                # call ruleProc in a loop, since it doesn't look like chain.price would be subset correctly
+                                ruleProc(rules[i], timestamp=timestamp, path.dep=path.dep, mktdata=mktdata, portfolio=portfolio, symbol=symbol, ruletype=type, mktinstr=mktinstr, parameters=list(chain.price=as.numeric(chain.price[i]), ...))
                             }
                         }
                     },
