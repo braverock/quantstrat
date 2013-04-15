@@ -330,7 +330,8 @@ applyRules <- function(portfolio,
                 nidx=FALSE
             } else {
 
-                if(length(grep('^market$', ordersubset[oo.idx,'Order.Type'])) > 0)
+                ordersubset.oo.idx <- ordersubset[oo.idx,]
+                if(length(which('market'==ordersubset.oo.idx[,'Order.Type'])) > 0)
                 {
                     # if block above had a prefer exclusion, as below:
                     # || hasArg('prefer')
@@ -340,29 +341,24 @@ applyRules <- function(portfolio,
                     #if any type is market    
                     # set to curIndex+1
                     #curIndex<-curIndex+1
-                    if (is.na(curIndex) || (curIndex + 1) > length(index(mktdata))) curIndex=FALSE
+                    if (is.na(curIndex) || (curIndex + 1) > nrow(mktdata)) curIndex=FALSE
                     hasmktord <- TRUE                    
                     #return(curIndex) # move to next index, a market order in this index would have trumped any other open order
                 } 
 
-                stoplimitorders <- grep('^stoplimit$', ordersubset[oo.idx,'Order.Type'])
+                stoplimitorders <- which('stoplimit'==ordersubset.oo.idx[,'Order.Type'])
                 for(slorder in stoplimitorders)
                 {
-                    dindex <- get.dindex()
-                    tmpqty <- ordersubset[oo.idx[slorder],'Order.Qty']
-                    if (tmpqty=='all' || tmpqty=='trigger'){
+                    tmpqty <- ordersubset.oo.idx[slorder,'Order.Qty']
+                    if (tmpqty=='all' || tmpqty=='trigger' || tmpqty==0){
                         #tmpqty<-osNoOp(timestamp=timestamp, orderqty=tmpqty, portfolio=portfolio, symbol=symbol,ruletype='exit' )
-                        #set to 0, and let the next block figure it out from orderside
-                        tmpqty=0
-                    } 
-                    if (tmpqty==0) {
                         #no position, so do some sleight of hand to figure out when the index may be needed
-                        side <- ordersubset[oo.idx[slorder],'Order.Side']
+                        side <- ordersubset.oo.idx[slorder,'Order.Side']
                         if(side=='long') tmpqty=-1
                         else tmpqty=1
                     }
                     tmpqty<-as.numeric(tmpqty)
-                    tmpprice <- as.numeric(ordersubset[oo.idx[slorder],'Order.Price'])
+                    tmpprice <- as.numeric(ordersubset.oo.idx[slorder,'Order.Price'])
                     if (tmpqty > 0) { #buy if mktprice moves above stoplimitorder price
                         relationship='gte'  #if the Ask or Hi go above threshold our stop will be filled
                         if(isBBOmktdata) {
@@ -397,26 +393,19 @@ applyRules <- function(portfolio,
                     }
                 }
 
-                limitorders<-grep('^limit$', ordersubset[oo.idx,'Order.Type'])
+                limitorders <- which('limit'==ordersubset.oo.idx[,'Order.Type'])
                 for(lorder in limitorders)
                 {
-                    dindex<-get.dindex()
-                    tmpqty<-ordersubset[oo.idx[lorder],'Order.Qty']
-                    if (tmpqty=='all' || tmpqty=='trigger'){
+                    tmpqty<-ordersubset.oo.idx[lorder,'Order.Qty']
+                    if (tmpqty=='all' || tmpqty=='trigger' || tmpqty==0){
                         #tmpqty<-osNoOp(timestamp=timestamp, orderqty=tmpqty, portfolio=portfolio, symbol=symbol,ruletype='exit' )
-                        #set to 0, and let the next block figure it out from orderside
-                        tmpqty=0
-                    } 
-                    if (tmpqty==0) {
                         #no position, so do some sleight of hand to figure out when the index may be needed
-                        side <- ordersubset[oo.idx[lorder],'Order.Side']
-                        if(side=='long') tmpqty=-1
-                        else tmpqty=1
+                        side <- ordersubset.oo.idx[lorder,'Order.Side']
+                        if(side=='long') tmpqty <- -1
+                        else tmpqty <- 1
                     }
                     tmpqty<-as.numeric(tmpqty)
-                    
-                    tmpprice<-as.numeric(ordersubset[oo.idx[lorder],'Order.Price'])
-                    
+                    tmpprice<-as.numeric(ordersubset.oo.idx[lorder,'Order.Price'])
                     if(tmpqty>0){
                         #buying
                         relationship="lte" #look for places where Mkt Ask <= our Bid
@@ -463,13 +452,10 @@ applyRules <- function(portfolio,
                         
                         # insert that into dindex
                         assign.dindex(c(get.dindex(),newidx))                  
-                    } else{
-                        # no cross, move ahead
-                        # nidx=TRUE #WHY WAS THIS HERE?
                     }
                 } # end loop over open limit orders
 
-                trailorders<-grep('^stoptrailing$', ordersubset[oo.idx,'Order.Type'])
+                trailorders <- which('stoptrailing'==ordersubset.oo.idx[,'Order.Type'])
                 for(torder in trailorders)
                 {
                     firsttime<-NULL
@@ -477,21 +463,10 @@ applyRules <- function(portfolio,
                     onum<-oo.idx[torder]
                     orderThreshold <- as.numeric(ordersubset[onum,'Order.Threshold'])
                     tmpqty<-ordersubset[onum,'Order.Qty']
-                    if (tmpqty=='all' || tmpqty=='trigger'){
+                    if (tmpqty=='all' || tmpqty=='trigger' || tmpqty==0){
                         #tmpqty<-osNoOp(timestamp=timestamp, orderqty=tmpqty, portfolio=portfolio, symbol=symbol,ruletype='exit' )
-                        #set to 0, and let the next block figure it out from orderside
-                        tmpqty=0
-                    } 
-                    if (tmpqty==0) {
                         #no position, so do some sleight of hand to figure out when the index may be needed
-                        side <- ordersubset[oo.idx[torder],'Order.Side']
-                        if(side=='long') tmpqty=-1
-                        else tmpqty=1
-                    }
-                    tmpqty<-as.numeric(tmpqty)
-                    if (tmpqty==0) {
-                        #no position, so do some sleight of hand to figure out when the index may be needed
-                        side <- ordersubset[onum,'Order.Side']
+                        side <- ordersubset.oo.idx[torder,'Order.Side']
                         if(side=='long') tmpqty=-1
                         else tmpqty=1
                     }
@@ -524,11 +499,10 @@ applyRules <- function(portfolio,
                     col<-first(colnames(mkt_price_series))
 
                     if(tmpqty > 0){ # positive quantity 'buy'
-                        move_order <- (mkt_price_series+orderThreshold) < tmpprice
-                        #this ifelse creates a logical xts vector 
+                        move_order <- tmpprice - abs(orderThreshold) > mkt_price_series
                         relationship="gte"
                     } else {  # negative quantity 'sell'
-                        move_order <- (mkt_price_series+orderThreshold) > tmpprice
+                        move_order <- tmpprice + abs(orderThreshold) < mkt_price_series
                         relationship="lte"
                     }
                     tmpidx<-NULL
@@ -541,7 +515,7 @@ applyRules <- function(portfolio,
                         #make sure we don't cross before then 
                         # use sigThreshold
                         cross<-sigThreshold(data=mkt_price_series, label='tmptrail',column=col,threshold=tmpprice,relationship=relationship)
-                        cross <- cross[trailspan][-1]  # don't look for crosses on curIndex
+                        cross <- cross[trailspan]  # don't look for crosses on curIndex (curIndex is removed from mkt_price_series)
                         # find first index that would cross after this index
                         if (any(cross)){
                             newidx <- curIndex + index(mktdata[index(which(cross)[1]),which.i=TRUE])
@@ -549,7 +523,7 @@ applyRules <- function(portfolio,
                             assign.dindex(c(get.dindex(),newidx))
                         } else {
                             #if we don't cross, do this
-                            moveidx <- curIndex + orderidx - 1
+                            moveidx <- curIndex + orderidx
                             assign.dindex(c(get.dindex(),moveidx))
                         }    
                     } # end any(move_order) check                            
