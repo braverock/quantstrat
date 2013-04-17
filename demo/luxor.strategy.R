@@ -1,46 +1,103 @@
 #!/usr/bin/Rscript --vanilla
 #
-# Jan Humme (@opentrades) - August 2012
+# Jan Humme (@opentrades) - August 2012, revised April 2013
 #
-# Tested and found to work correctly using blotter r1123
+# Tested and found to work correctly using blotter r1420
 #
 # From Jaekle & Tamasini: A new approach to system development and portfolio optimisation (ISBN 978-1-905641-79-6)
 #
+# Paragraph 3.2: luxor with $30 slippage and transaction costs
 
-.fast = 6
-.slow = 44
+options(width = 240)
+Sys.setenv(TZ="UTC")
 
-.qty=100000
-.th=0.0005
-.txn=-30
-.timespan = 'T08:00/T12:00'
-.timespan = 'T00:00/T23:59'
+###
 
-.stoploss=0.001
-.stoptrailing=0.0015
-.takeprofit=0.003
+.fast = 10
+.slow = 30
+
+.orderqty = 100000
+.threshold = 0.0005
+.txn.fees = -30
+
+##### PLACE DEMO AND TEST DATES HERE #################
+#
+#if(isTRUE(options('in_test')$in_test))
+#  # use test dates
+#  {initDate="2011-01-01" 
+#  endDate="2012-12-31"   
+#  } else
+#  # use demo defaults
+#  {initDate="1999-12-31"
+#  endDate=Sys.Date()}
+
+initDate = '2002-10-21'
+
+.from='2002-10-21'
+#.to='2008-07-04'
+.to='2002-10-31'
 
 ####
 
+strategy.st = 'luxor'
+portfolio.st = 'forex'
+account.st = 'IB1'
+
+### packages
+#
+# quantstrat package will pull in some other packages:
+# FinancialInstrument, quantmod, blotter, xts
+
 require(quantstrat)
 
-s <- 'luxor'
+### FinancialInstrument
 
-strategy(s, store=TRUE)
+currency(c('GBP', 'USD'))
+
+exchange_rate('GBPUSD', tick_size=0.0001)
+
+### quantmod
+
+getSymbols.FI(Symbols='GBPUSD',
+	      dir=system.file('extdata',package='quantstrat'),
+	      from=.from, to=.to
+)
+
+# ALTERNATIVE WAY TO FETCH SYMBOL DATA
+#setSymbolLookup.FI(system.file('extdata',package='quantstrat'), 'GBPUSD')
+#getSymbols('GBPUSD', from=.from, to=.to, verbose=FALSE)
+
+### xts
+
+GBPUSD = to.minutes30(GBPUSD)
+GBPUSD = align.time(to.minutes30(GBPUSD), 1800)
+
+### blotter
+
+initPortf(portfolio.st, symbols='GBPUSD', initDate=initDate, currency='USD')
+initAcct(account.st, portfolios=portfolio.st, initDate=initDate, currency='USD')
+
+### quantstrat
+
+initOrders(portfolio.st, initDate=initDate)
+
+### define strategy
+
+strategy(strategy.st, store=TRUE)
 
 ### indicators
 
-add.indicator(s, name = "SMA",
+add.indicator(strategy.st, name = "SMA",
 	arguments = list(
-		x = quote(Cl(mktdata)),
+		x = quote(Cl(mktdata)[,1]),
 		n = .fast
 	),
 	label="nFast"
 )
 
-add.indicator(s, name="SMA",
+add.indicator(strategy.st, name="SMA",
 	arguments = list(
-		x = quote(Cl(mktdata)),
+		x = quote(Cl(mktdata)[,1]),
 		n = .slow
 	),
 	label="nSlow"
@@ -48,7 +105,7 @@ add.indicator(s, name="SMA",
 
 ### signals
 
-add.signal(s, name = 'sigCrossover',
+add.signal(strategy.st, name='sigCrossover',
 	arguments = list(
 		columns=c("nFast","nSlow"),
 		relationship="gte"
@@ -56,7 +113,7 @@ add.signal(s, name = 'sigCrossover',
 	label='long'
 )
 
-add.signal(s, name = 'sigCrossover',
+add.signal(strategy.st, name='sigCrossover',
 	arguments = list(
 		columns=c("nFast","nSlow"),
 		relationship="lt"
@@ -64,196 +121,75 @@ add.signal(s, name = 'sigCrossover',
 	label='short'
 )
 
-### rules ############
+### rules
 
-### stop-loss
-
-add.rule(s, name = 'ruleSignal',
+add.rule(strategy.st, name='ruleSignal',
 	arguments=list(sigcol='long' , sigval=TRUE,
-		replace=FALSE,
-		orderside='long',
-		ordertype='stoplimit',
-		tmult=TRUE,
-		threshold=.stoploss,
-		TxnFees=.txn,
-		orderqty='all',
-		orderset='ocolong'
-	),
-	type='chain',
-	parent='EnterLONG',
-	label='StopLossLONG',
-	storefun=FALSE
-)
-
-add.rule(s, name = 'ruleSignal',
-	arguments=list(sigcol='short' , sigval=TRUE,
-		replace=FALSE,
-		orderside='short',
-		ordertype='stoplimit',
-		tmult=TRUE,
-		threshold=.stoploss,
-		TxnFees=.txn,
-		orderqty='all',
-		orderset='ocoshort'
-	),
-	type='chain',
-	parent='EnterSHORT',
-	label='StopLossSHORT',
-	storefun=FALSE
-)
-
-### stop-trailing
-
-add.rule(s, name = 'ruleSignal',
-	arguments=list(sigcol='long' , sigval=TRUE,
-		replace=FALSE,
-		orderside='long',
-		ordertype='stoptrailing',
-		tmult=TRUE,
-		threshold=.stoptrailing,
-		TxnFees=.txn,
-		orderqty='all',
-		orderset='ocolong'
-	),
-	type='chain',
-	parent='EnterLONG',
-	label='StopTrailingLONG',
-	storefun=FALSE
-)
-
-add.rule(s, name = 'ruleSignal',
-	arguments=list(sigcol='short' , sigval=TRUE,
-		replace=FALSE,
-		orderside='short',
-		ordertype='stoptrailing',
-		tmult=TRUE,
-		threshold=.stoptrailing,
-		TxnFees=.txn,
-		orderqty='all',
-		orderset='ocoshort'
-	),
-	type='chain',
-	parent='EnterSHORT',
-	label='StopTrailingSHORT',
-	storefun=FALSE
-)
-
-### take-profit
-
-add.rule(s, name = 'ruleSignal',
-	arguments=list(sigcol='long' , sigval=TRUE,
-		replace=FALSE,
-		orderside='long',
-		ordertype='limit',
-		tmult=TRUE,
-		threshold=.takeprofit,
-		TxnFees=.txn,
-		orderqty='all',
-		orderset='ocolong'
-	),
-	type='chain',
-	parent='EnterLONG',
-	label='TakeProfitLONG',
-	storefun=FALSE
-)
-
-add.rule(s, name = 'ruleSignal',
-	arguments=list(sigcol='short' , sigval=TRUE,
-		replace=FALSE,
-		orderside='short',
-		ordertype='limit',
-		tmult=TRUE,
-		threshold=.takeprofit,
-		TxnFees=.txn,
-		orderqty='all',
-		orderset='ocoshort'
-	),
-	type='chain',
-	parent='EnterSHORT',
-	label='TakeProfitSHORT',
-	storefun=FALSE
-)
-
-### normal exits
-
-add.rule(s, name = 'ruleSignal',
-	arguments=list(sigcol='long' , sigval=TRUE,
-		replace=TRUE,
 		orderside='short',
 		ordertype='market',
-		TxnFees=.txn,
 		orderqty='all',
-		orderset='ocoshort'
+		TxnFees=.txn.fees,
+		replace=TRUE
 	),
 	type='exit',
-	timespan = .timespan,
-	label='Exit2LONG',
-	storefun=FALSE
+	label='Exit2LONG'
 )
 
-add.rule(s, name = 'ruleSignal',
+add.rule(strategy.st, name='ruleSignal',
 	arguments=list(sigcol='short', sigval=TRUE,
-		replace=TRUE,
 		orderside='long' ,
 		ordertype='market',
-		TxnFees=.txn,
 		orderqty='all',
-		orderset='ocolong'
+		TxnFees=.txn.fees,
+		replace=TRUE
 	),
 	type='exit',
-	timespan = .timespan,
-	label='Exit2SHORT',
-	storefun=FALSE
+	label='Exit2SHORT'
 )
 
-### entries
-
-add.rule(s, name = 'ruleSignal',
+add.rule(strategy.st, name='ruleSignal',
 	arguments=list(sigcol='long' , sigval=TRUE,
-		replace=FALSE,
 		orderside='long' ,
-		ordertype='stoplimit',
-		prefer='High',
-		threshold=.th,
-		TxnFees=0,
-		orderqty=+.qty,
-		osFUN=osMaxPos,
-		orderset='ocolong'
+		ordertype='stoplimit', prefer='High', threshold=.threshold,
+		orderqty=+.orderqty,
+		replace=FALSE
 	),
 	type='enter',
-	timespan = .timespan,
-	label='EnterLONG',
-	storefun=FALSE
+	label='EnterLONG'
 )
 
-add.rule(s, name = 'ruleSignal',
+add.rule(strategy.st, name='ruleSignal',
 	arguments=list(sigcol='short', sigval=TRUE,
-		replace=FALSE,
 		orderside='short',
-		ordertype='stoplimit',
-		prefer='Low',
-		threshold=.th,
-		TxnFees=0,
-		orderqty=-.qty,
-		osFUN=osMaxPos,
-		orderset='ocoshort'
+		ordertype='stoplimit', prefer='Low', threshold=-.threshold,
+		orderqty=-.orderqty,
+		replace=FALSE
 	),
 	type='enter',
-	timespan = .timespan,
-	label='EnterSHORT',
-	storefun=FALSE
+	label='EnterSHORT'
 )
 
-###
+###############################################################################
 
-save.strategy('luxor')
+applyStrategy(strategy.st, portfolio.st, verbose = FALSE)
 
-##### PLACE THIS BLOCK AHEAD OF DATE INITS IN DEMO SCRIPT ######
-# if(!exists('in_test') || !isTRUE(in_test)){
-#     initDate='2005-12-31' # ensure this is demo default
-#     endDate=Sys.Date()    # ensure this is demo default
-# }
-################################################################
+View(getOrderBook(portfolio.st)[[portfolio.st]]$GBPUSD)
+
+###############################################################################
+
+updatePortf(portfolio.st, Symbols='GBPUSD', Dates=paste('::',as.Date(Sys.time()),sep=''))
+
+chart.Posn(portfolio.st, "GBPUSD")
+
+###############################################################################
+
+View(tradeStats(portfolio.st, 'GBPUSD'))
+
+###############################################################################
+
+# save the strategy in an .RData object for later retrieval
+
+save.strategy(strategy.st)
 
 ##### PLACE THIS BLOCK AT END OF DEMO SCRIPT ################### 
 # book  = getOrderBook(port)
