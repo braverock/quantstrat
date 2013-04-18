@@ -25,7 +25,7 @@ method='expand'
 ###############################################################################
 
 require(foreach,quietly=TRUE)
-require(doMC)
+#require(doMC)
 # example parallel initialization for doParallel. this or doMC, or doRedis are 
 # most probably preferable to doSMP
 #require(doParallel)

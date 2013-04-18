@@ -171,7 +171,7 @@ add.rule(strategy.st, name='ruleSignal',
 
 ###############################################################################
 
-applyStrategy(strategy.st, portfolio.st, verbose = FALSE)
+applyStrategy(strategy.st, portfolio.st)
 
 View(getOrderBook(portfolio.st)[[portfolio.st]]$GBPUSD)
 
