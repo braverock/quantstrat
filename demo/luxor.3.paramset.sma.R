@@ -39,10 +39,13 @@ load.strategy(strategy.st)
 ### doMC
 
 require(doMC)
-
 registerDoMC(cores=8)
 
-### apply.paramset()
+#require(doParallel)
+#registerDoParallel(cores=2)
+
+#require(doRedis)
+#registerDoRedis('jobs')
 
 results <- apply.paramset(strategy.st, paramset.label='SMA', portfolio.st=portfolio.st, account.st=account.st, nsamples=.nsamples, verbose=TRUE)
 

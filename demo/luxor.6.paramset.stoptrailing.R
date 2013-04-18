@@ -6,12 +6,12 @@
 #
 # From Jaekle & Tamasini: A new approach to system development and portfolio optimisation (ISBN 978-1-905641-79-6)
 #
-# compute TakeProfit percentage for various paramsets
+# compute StopTrailing percentage for various paramsets
 
 require(quantstrat)
 
 options(width = 240)
-#Sys.setenv(TZ="GMT")
+Sys.setenv(TZ='UTC')
 
 .qty=100000
 
@@ -34,24 +34,8 @@ options(width = 240)
 #  endDate=Sys.Date()}
 
 initDate = '2002-10-21'
-.from='2002-10-21'
-#.to='2008-07-04'
-#.to='2003-12-31'
-.to='2002-10-31'
 
-###
-
-currency(c('GBP', 'USD'))
-
-exchange_rate(c('GBPUSD'), tick_size=0.0001)
-
-###
-
-setSymbolLookup.FI(system.file('extdata',package='quantstrat'), 'GBPUSD')
-
-getSymbols('GBPUSD', from=.from, to=.to, verbose=FALSE)
-GBPUSD = to.minutes30(GBPUSD)
-GBPUSD = align.time(to.minutes30(GBPUSD), 1800)
+source('luxor.symbols.R')
 
 ###
 
@@ -77,11 +61,10 @@ load.strategy(strategy.st)
 ############################
 
 require(foreach)
+#registerDoSEQ()
 
-registerDoSEQ()
-
-#require(doMC)
-#registerDoMC(cores=2)
+require(doMC)
+registerDoMC(cores=2)
 
 #require(doParallel)
 #registerDoParallel(cores=2)
@@ -91,7 +74,7 @@ registerDoSEQ()
 
 ############################
 
-results <- apply.paramset(strategy.st, paramset.label='TakeProfit', portfolio.st=portfolio.st, verbose=TRUE)
+results <- apply.paramset(strategy.st, paramset.label='StopTrailing', portfolio.st=portfolio.st, account.st=account.st, nsamples=80, verbose=TRUE)
 
 print(results$tradeStats)
 
