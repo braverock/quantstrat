@@ -33,44 +33,13 @@ Sys.setenv(TZ="UTC")
 
 initDate = '2002-10-21'
 
-.from='2002-10-21'
-#.to='2008-07-04'
-.to='2002-10-31'
-
 ####
 
 strategy.st = 'luxor'
 portfolio.st = 'forex'
 account.st = 'IB1'
 
-### packages
-#
-# quantstrat package will pull in some other packages:
-# FinancialInstrument, quantmod, blotter, xts
-
-require(quantstrat)
-
-### FinancialInstrument
-
-currency(c('GBP', 'USD'))
-
-exchange_rate('GBPUSD', tick_size=0.0001)
-
-### quantmod
-
-getSymbols.FI(Symbols='GBPUSD',
-	      dir=system.file('extdata',package='quantstrat'),
-	      from=.from, to=.to
-)
-
-# ALTERNATIVE WAY TO FETCH SYMBOL DATA
-#setSymbolLookup.FI(system.file('extdata',package='quantstrat'), 'GBPUSD')
-#getSymbols('GBPUSD', from=.from, to=.to, verbose=FALSE)
-
-### xts
-
-GBPUSD = to.minutes30(GBPUSD)
-GBPUSD = align.time(to.minutes30(GBPUSD), 1800)
+source('luxor.symbols.R')
 
 ### blotter
 
