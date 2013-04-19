@@ -325,7 +325,9 @@ applyRules <- function(portfolio,
             isBBOmktdata  <- is.BBO(mktdata)
             #check for open orders at curIndex
             timespan<-paste(timestamp,"::",sep='') #no check to see if timestamp came through dots? Does it come from the search path? -gsee
-            if(nrow(ordersubset[oo.idx,][timespan])==0){
+            if(nrow(ordersubset[oo.idx,][timespan])==0 &&             # prior open orders already in dindex; no need to recheck
+               !any(ordersubset$Order.Type[oo.idx]=="stoptrailing"))  # ... but stoptrailing may need to move
+            {
                 # no open orders between now and the next index
                 nidx=FALSE
             } else {
