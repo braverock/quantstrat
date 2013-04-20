@@ -500,6 +500,7 @@ applyRules <- function(portfolio,
                     mkt_price_series <-getPrice(mktdata[timespan],prefer=prefer)[-1]  # don't look for crosses on curIndex
                     col<-first(colnames(mkt_price_series))
 
+                    # check if order needs to be moved
                     if(tmpqty > 0){ # positive quantity 'buy'
                         move_order <- tmpprice - abs(orderThreshold) > mkt_price_series
                         relationship="gte"
@@ -507,28 +508,14 @@ applyRules <- function(portfolio,
                         move_order <- tmpprice + abs(orderThreshold) < mkt_price_series
                         relationship="lte"
                     }
+                    # check if order will be filled
+                    cross <- sigThreshold(data=mkt_price_series, label='tmptrail',column=col,threshold=tmpprice,relationship=relationship)
                     tmpidx<-NULL
-                    if(any(move_order)){
-                        #print(firsttime)
-                        # find first index where we would move an order
-                        orderidx<-first(which(move_order)) 
-                        tmpidx <- format(index(move_order[orderidx,]), "%Y-%m-%d %H:%M:%OS6")
-                        trailspan <- paste(format(firsttime, "%Y-%m-%d %H:%M:%OS6"),"::",tmpidx,sep='')
-                        #make sure we don't cross before then 
-                        # use sigThreshold
-                        cross<-sigThreshold(data=mkt_price_series, label='tmptrail',column=col,threshold=tmpprice,relationship=relationship)
-                        cross <- cross[trailspan]  # don't look for crosses on curIndex (curIndex is removed from mkt_price_series)
-                        # find first index that would cross after this index
-                        if (any(cross)){
-                            newidx <- curIndex + index(mktdata[index(which(cross)[1]),which.i=TRUE])
-                            # insert that into dindex
-                            assign.dindex(c(get.dindex(),newidx))
-                        } else {
-                            #if we don't cross, do this
-                            moveidx <- curIndex + orderidx
-                            assign.dindex(c(get.dindex(),moveidx))
-                        }    
-                    } # end any(move_order) check                            
+                    # update dindex if order is moved or filled
+                    if(any(move_order) || any(cross)){
+                        moveidx <- curIndex + min(which(move_order)[1], which(cross)[1], na.rm=TRUE)
+                        assign.dindex(c(get.dindex(), moveidx))
+                    }
                 } # end loop over open trailing orders
             } # end else clause for any open orders in this timespan    
         } # end any open orders closure
