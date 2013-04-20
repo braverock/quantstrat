@@ -460,8 +460,6 @@ applyRules <- function(portfolio,
                 trailorders <- which('stoptrailing'==ordersubset.oo.idx[,'Order.Type'])
                 for(torder in trailorders)
                 {
-                    firsttime<-NULL
-                    neworders<-NULL
                     onum<-oo.idx[torder]
                     orderThreshold <- as.numeric(ordersubset[onum,'Order.Threshold'])
                     tmpqty<-ordersubset[onum,'Order.Qty']
@@ -474,8 +472,7 @@ applyRules <- function(portfolio,
                     }
                     tmpqty<-as.numeric(tmpqty)
                     tmpprice<-as.numeric(ordersubset[onum,'Order.Price'])
-                    tmpidx <- format(index(ordersubset[onum,]), "%Y-%m-%d %H:%M:%OS6") #this is the time the order was entered
-                    #print(tmpidx)
+
                     if(isBBOmktdata) {
                         if(tmpqty > 0){ # positive quantity 'buy'
                             prefer='offer'
@@ -485,16 +482,15 @@ applyRules <- function(portfolio,
                     } else if (isOHLCmktdata) {
                         prefer='close'
                     } 
-                    dindex<-get.dindex()
-                    if(is.null(firsttime)) firsttime<-timestamp
 
+                    dindex<-get.dindex()
                     ddindex <- dindex[dindex>curIndex]
                     if(length(ddindex) == 0)
                         return(FALSE)
 
                     nextidx <- min(ddindex)
                     nextstamp <- format(index(mktdata[nextidx,]), "%Y-%m-%d %H:%M:%OS6")
-                    timespan <- paste(format(firsttime, "%Y-%m-%d %H:%M:%OS6"),"::",nextstamp,sep='')
+                    timespan <- paste(format(timestamp, "%Y-%m-%d %H:%M:%OS6"),"::",nextstamp,sep='')
 
                     #get the subset of prices
                     mkt_price_series <-getPrice(mktdata[timespan],prefer=prefer)[-1]  # don't look for crosses on curIndex
@@ -510,7 +506,7 @@ applyRules <- function(portfolio,
                     }
                     # check if order will be filled
                     cross <- sigThreshold(data=mkt_price_series, label='tmptrail',column=col,threshold=tmpprice,relationship=relationship)
-                    tmpidx<-NULL
+
                     # update dindex if order is moved or filled
                     if(any(move_order) || any(cross)){
                         moveidx <- curIndex + min(which(move_order)[1], which(cross)[1], na.rm=TRUE)
