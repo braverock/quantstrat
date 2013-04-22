@@ -592,13 +592,14 @@ applyRules <- function(portfolio,
                             # determine which closed orders are chained to an entry
                             chain.rules <- strategy$rules[[type]]
                             chain.rule.names <- sapply(chain.rules, '[[', 'parent')
-                            # put rules/prices in same order
-                            rules <- chain.rules[match(closed.orders$Rule, chain.rule.names, nomatch=0L)]
-                            chain.price <- closed.orders$Order.Price[closed.orders$Rule %in% chain.rule.names]
-                            # loop over each rule and call ruleProc()
-                            for(i in seq_along(rules)) {
-                                # call ruleProc in a loop, since it doesn't look like chain.price would be subset correctly
-                                ruleProc(rules[i], timestamp=timestamp, path.dep=path.dep, mktdata=mktdata, portfolio=portfolio, symbol=symbol, ruletype=type, mktinstr=mktinstr, parameters=list(chain.price=as.numeric(chain.price[i]), ...))
+                            closed.chain <- closed.orders[closed.orders$Rule %in% chain.rule.names]
+                            # loop over each closed order and call ruleProc() on each rule
+                            for(i in seq_len(nrow(closed.chain))) {
+                                rules <- chain.rules[chain.rule.names %in% closed.chain$Rule[i]]
+                                for(j in seq_along(rules)) {
+                                    # call ruleProc in a loop, since it doesn't look like chain.price would be subset correctly
+                                    ruleProc(rules[j], timestamp=timestamp, path.dep=path.dep, mktdata=mktdata, portfolio=portfolio, symbol=symbol, ruletype=type, mktinstr=mktinstr, parameters=list(chain.price=as.numeric(closed.chain$Order.Price[i]), ...))
+                                }
                             }
                         }
                     },
