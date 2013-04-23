@@ -7,7 +7,7 @@
 # This library is distributed under the terms of the GNU Public License (GPL)
 # for full details see the file COPYING
 #
-# $Id: parameters.R 1218 2012-10-11 20:47:44Z opentrades $
+# $Id$
 #
 ###############################################################################
 #

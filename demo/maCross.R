@@ -22,11 +22,11 @@ stock(stock.str,currency='USD',multiplier=1)
 
 ##### PLACE DEMO AND TEST DATES HERE #################
 #
-if(isTRUE(options('in_test')$in_test))
+if(isTRUE(options('in_test')$in_test)){
   # use test dates
-  {initDate="2011-01-01" 
+  initDate="2011-01-01" 
   endDate="2012-12-31"   
-  } else {
+} else {
   # use demo defaults
   initDate="1999-12-31"
   endDate=Sys.Date()
@@ -36,7 +36,7 @@ initEq=1000000
 portfolio.st='macross'
 account.st='macross'
 initPortf(portfolio.st,symbols=stock.str, initDate=initDate)
-initAcct(account.st,portfolios=portfolio.st, initDate=initDate)
+initAcct(account.st,portfolios=portfolio.st, initDate=initDate,initEq=initEq)
 initOrders(portfolio=portfolio.st,initDate=initDate)
 
 stratMACROSS<- strategy(portfolio.st)
@@ -73,6 +73,12 @@ print(end_t-start_t)
 chart.Posn(Portfolio='macross',Symbol=stock.str)
 add_SMA(n=50 , on=1,col='blue')
 add_SMA(n=200, on=1)
+
+book    = getOrderBook('macross')
+stats   = tradeStats('macross')
+ptstats = perTradeStats('macross')
+rets    = PortfReturns('macross')
+txns    = getTxns('macross', stock.str)
 
 #Date workaround, remove later
 Sys.setenv(TZ=ttz)

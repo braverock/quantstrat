@@ -1,12 +1,26 @@
 #' get the order book object
 #' 
-#' I don't think this should be exported, but it is for now while we're in test mode.
-#' 
 #' @param portfolio text name of the portfolio the order book is associated with
 #' @param envir the environment to retrieve the orderbook object from, defaults to .strategy
 #' @seealso addOrder
 #' @seealso getOrders
 #' @concept order book
+#' @return 
+#' A \code{data.frame} containing:
+#' 
+#' \describe{
+#'      \item{Order.Qty}{}
+#' 		\item{Order.Price}{}
+#' 		\item{Order.Type}{}
+#' 		\item{Order.Side}{}
+#' 		\item{Order.Threshold}{}
+#' 		\item{Order.Status}{}
+#' 		\item{Order.StatusTime}{}
+#' 		\item{Prefer}{}
+#' 		\item{Order.Set}{}
+#' 		\item{Txn.Fees}{}
+#' 		\item{Rule}{}
+#' }         
 #' @export
 getOrderBook <- function(portfolio, envir=.strategy) #should symbol subsets be supported too?  probably not.
 { 

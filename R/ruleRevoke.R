@@ -2,11 +2,11 @@
 #' 
 #' As described elsewhere in the documentation, quantstrat models 
 #' \emph{orders}.  All orders in quantstrat are GTC orders, which means that
-#' unfilled limit orders have to be revokeled manually or replaced by other orders.
+#' unfilled limit orders have to be canceled manually or replaced by other orders.
 #' 
 #' This function is used for revoking or canceling the orders based on a signal.  
 #' Order status will be changed to 'revoked', to separate it from cancelations or
-#' replacements from other causes.  THis may make it easier it decipher the order book 
+#' replacements from other causes.  This may make it easier it decipher the order book 
 #' to figure out what the strategy ewas doing.
 #' 
 #' @param data an xts object containing market data.  depending on rules, may need to be in OHLCV or BBO formats, and may include indicator and signal information

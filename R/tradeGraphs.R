@@ -69,6 +69,6 @@ tradeGraphs <- function(stats, free.params, params.filter = NULL, statistics, ti
 # This library is distributed under the terms of the GNU Public License (GPL)
 # for full details see the file COPYING
 #
-# $Id: wrapup.R 849 2011-11-16 17:47:25Z gsee $
+# $Id$
 #
 ###############################################################################

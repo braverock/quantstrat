@@ -48,8 +48,10 @@
 
   \item{tmult}{if TRUE, threshold is a percent multiplier
   for \code{price}, not a scalar. Threshold is converted to
-  a scalar by multiplying it with the price, then added to
-  the price just like a scalar threshold.}
+  a scalar by multiplying it with the price at the time of
+  order entry (i.e. the scalar will not change if the order
+  is updated, as in the case of a trailing stop), then it
+  is added to the price just like a scalar threshold.}
 
   \item{replace}{TRUE/FALSE, whether to replace any other
   open order(s) on this symbol with the same properties as
@@ -145,10 +147,15 @@
   order types are the only order types that make use of the
   order \code{threshold}. Thresholds may be specified in
   one of 2 ways: as a scalar (\code{tmult=FALSE}) or as a
-  multiplier for the current price (\code{tmult=TRUE}). The
-  threshold is then added to the prefered order price upon
-  order entry. The correct sign for the threshold (pos or
-  neg, ie. add or subtract) is automagically figured out
+  multiplier for the current price (\code{tmult=TRUE}). If
+  \code{tmult=TRUE}, \code{threshold} is converted to a
+  scalar by multiplying it with the price at the time of
+  order entry, and the scalar will not change if the order
+  is updated.
+
+  The threshold is then added to the prefered order price
+  upon order entry. The correct sign for the threshold (pos
+  or neg, ie. add or subtract) is automagically figured out
   from the order side and the order quantity (buy or sell);
   if the user provides the wrong sign for the threshold,
   then it will be reversed. In other words, the user may

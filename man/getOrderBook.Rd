@@ -11,9 +11,17 @@
   \item{envir}{the environment to retrieve the orderbook
   object from, defaults to .strategy}
 }
+\value{
+  A \code{data.frame} containing:
+
+  \describe{ \item{Order.Qty}{} \item{Order.Price}{}
+  \item{Order.Type}{} \item{Order.Side}{}
+  \item{Order.Threshold}{} \item{Order.Status}{}
+  \item{Order.StatusTime}{} \item{Prefer}{}
+  \item{Order.Set}{} \item{Txn.Fees}{} \item{Rule}{} }
+}
 \description{
-  I don't think this should be exported, but it is for now
-  while we're in test mode.
+  get the order book object
 }
 \seealso{
   addOrder

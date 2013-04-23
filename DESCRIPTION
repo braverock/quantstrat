@@ -1,7 +1,7 @@
 Package: quantstrat
 Type: Package
 Title: Quantitative Strategy Model Framework
-Version: 0.7.7
+Version: 0.7.8
 Date: $Date$
 Author: Peter Carl, Brian G. Peterson, Joshua Ulrich, Jan Humme
 Depends:
@@ -42,3 +42,4 @@ Collate:
     'utils.R'
     'walk.forward.R'
     'wrapup.R'
+    'tradeOrderStats.R'

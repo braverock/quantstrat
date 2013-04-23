@@ -40,9 +40,11 @@
   mktdata, default NULL, see Details}
 
   \item{tmult}{if TRUE, threshold is a percent multiplier
-  for \code{price}, not a scalar to be added/subtracted
-  from price.  threshold will be dynamically converted to a
-  scalar at time of order entry}
+  for \code{price}, not a scalar. Threshold is converted to
+  a scalar by multiplying it with the price at the time of
+  order entry (i.e. the scalar will not change if the order
+  is updated, as in the case of a trailing stop), then it
+  is added to the price just like a scalar threshold.}
 
   \item{replace}{TRUE/FALSE, whether to replace any other
   open order(s) on this portfolio symbol, default TRUE}
