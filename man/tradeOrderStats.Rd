@@ -47,6 +47,11 @@
   Favorable Excursion (MFE) in ticks} }
 }
 \description{
-  get order information associated with closing positions
+
+}
+\details{
+  TODO: decide which of these columns are actually
+  important TODO: add option for opening order/trade
+  pairing rather than closing
 }
 

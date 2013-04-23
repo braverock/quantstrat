@@ -1,5 +1,9 @@
 #' get order information associated with closing positions
 #' 
+#'
+#'
+#' TODO: decide which of these columns are actually important
+#' TODO: add option for opening order/trade pairing rather than closing
 #' 
 #' @param portfolio text name of the portfolio the order book is associated with
 #' @param symbol text string defining the symbol to get trades and orders for
@@ -35,8 +39,6 @@
 #'      \item{tick.MFE}{ Maximum Favorable Excursion (MFE) in ticks} 
 #' }
 #' @export
-#' TODO: decide which of these columns are actually important
-#' TODO: add option for opening order/trade pairing rather than closing
 tradeOrderStats <- function(portfolio, symbol, ...) {
 	stats.table <- perTradeStats(Portfolio=portfolio,Symbol=symbol,...)
 	stats.xts <- as.xts(stats_table, order.by=stats.table$End)
