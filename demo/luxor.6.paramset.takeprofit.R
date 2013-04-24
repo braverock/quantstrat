@@ -13,15 +13,6 @@ require(quantstrat)
 options(width = 240)
 Sys.setenv(TZ='UTC')
 
-.qty=100000
-
-.fast = 10
-.slow = 30
-
-.qty=100000
-.th=0.0005
-.txn=0
-
 ##### PLACE DEMO AND TEST DATES HERE #################
 #
 #if(isTRUE(options('in_test')$in_test))
@@ -33,22 +24,17 @@ Sys.setenv(TZ='UTC')
 #  {initDate="1999-12-31"
 #  endDate=Sys.Date()}
 
-initDate = '2002-10-21'
-
-source('luxor.symbols.R')
+source('luxor.include.R')
+source('luxor.getSymbols.R')
 
 ###
-
-strategy.st = 'luxor'
-portfolio.st = 'forex'
-account.st = 'IB1'
 
 initPortf(portfolio.st, symbols='GBPUSD', initDate=initDate, currency='USD')
 addPosLimit(
             portfolio=portfolio.st,
             symbol='GBPUSD',
             timestamp=initDate,
-            maxpos=.qty)
+            maxpos=.orderqty)
 
 initAcct(account.st, portfolios=portfolio.st, initDate=initDate, currency='USD')
 

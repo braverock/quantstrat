@@ -10,19 +10,6 @@
 options(width = 240)
 #Sys.setenv(TZ="GMT")
 
-.fast = 1
-.slow = 44
-
-.qty=100000
-.th=0.0005
-.txn=-30
-.timespan = 'T08:00/T12:00'
-.timespan = 'T00:00/T23:59'
-
-.stoploss=0.001
-.stoptrailing=0.0015
-.takeprofit=0.003
-
 ##### PLACE DEMO AND TEST DATES HERE #################
 #
 #if(isTRUE(options('in_test')$in_test))
@@ -34,71 +21,47 @@ options(width = 240)
 #  {initDate="1999-12-31"
 #  endDate=Sys.Date()}
 
-initDate = '2002-10-21'
 .from='2002-10-21'
 #.to='2008-07-04'
 .to='2002-10-31'
-#.to='2002-12-31'
-#.to='2003-12-31'
-#.from='2006-01-01'
-#.to='2006-12-31'
-#.from='2007-01-01'
-#.to='2007-12-31'
-
-####
-
-s = 'luxor'
-p = 'forex'
-a = 'IB1'
 
 ###
 
-require(quantstrat)
+source('luxor.include.R')
+source('luxor.getSymbols.R')
 
-currency(c('GBP', 'USD'))
+### blotter
 
-exchange_rate(c('GBPUSD'), tick_size=0.0001)
+initPortf(portfolio.st, symbols='GBPUSD', initDate=initDate, currency='USD')
+initAcct(account.st, portfolios=portfolio.st, initDate=initDate, currency='USD')
 
-setSymbolLookup.FI(system.file('extdata',package='quantstrat'), 'GBPUSD')
+### quantstrat
 
-###
+initOrders(portfolio.st, initDate=initDate)
 
-getSymbols('GBPUSD', from=.from, to=.to, verbose=FALSE)
-GBPUSD = to.minutes30(GBPUSD)
-GBPUSD = align.time(to.minutes30(GBPUSD), 1800)
-
-###
-
-initPortf(p, symbols='GBPUSD', initDate=initDate, currency='USD')
-initAcct(a, portfolios=p, initDate=initDate, currency='USD')
-
-###
-
-initOrders(p, initDate=initDate)
-
-### strategy ######################################################################
+### define strategy
 
 addPosLimit(
-            portfolio=p,
+            portfolio=portfolio.st,
             symbol='GBPUSD',
             timestamp=initDate,
-            maxpos=.qty)
+            maxpos=.orderqty)
 
-strategy(s, store=TRUE)
+strategy(strategy.st, store=TRUE)
 
 ### indicators
 
-add.indicator(s, name = "SMA",
+add.indicator(strategy.st, name = "SMA",
 	arguments = list(
-		x = quote(Cl(mktdata)),
+		x = quote(Cl(mktdata)[,1]),
 		n = .fast
 	),
 	label="nFast"
 )
 
-add.indicator(s, name="SMA",
+add.indicator(strategy.st, name="SMA",
 	arguments = list(
-		x = quote(Cl(mktdata)),
+		x = quote(Cl(mktdata)[,1]),
 		n = .slow
 	),
 	label="nSlow"
@@ -106,7 +69,7 @@ add.indicator(s, name="SMA",
 
 ### signals
 
-add.signal(s, name = 'sigCrossover',
+add.signal(strategy.st, name='sigCrossover',
 	arguments = list(
 		columns=c("nFast","nSlow"),
 		relationship="gte"
@@ -114,7 +77,7 @@ add.signal(s, name = 'sigCrossover',
 	label='long'
 )
 
-add.signal(s, name = 'sigCrossover',
+add.signal(strategy.st, name='sigCrossover',
 	arguments = list(
 		columns=c("nFast","nSlow"),
 		relationship="lt"
@@ -126,36 +89,34 @@ add.signal(s, name = 'sigCrossover',
 
 ### stop-loss
 
-add.rule(s, name = 'ruleSignal',
+add.rule(strategy.st, name = 'ruleSignal',
 	arguments=list(sigcol='long' , sigval=TRUE,
 		replace=FALSE,
 		orderside='long',
 		ordertype='stoplimit',
 		tmult=TRUE,
 		threshold=.stoploss,
-		TxnFees=.txn,
+		TxnFees=.txnfees,
 		orderqty='all',
 		orderset='ocolong'
 	),
-	type='chain',
-	parent='EnterLONG',
+	type='chain', parent='EnterLONG',
 	label='StopLossLONG',
 	storefun=FALSE
 )
 
-add.rule(s, name = 'ruleSignal',
+add.rule(strategy.st, name = 'ruleSignal',
 	arguments=list(sigcol='short' , sigval=TRUE,
 		replace=FALSE,
 		orderside='short',
 		ordertype='stoplimit',
 		tmult=TRUE,
 		threshold=.stoploss,
-		TxnFees=.txn,
+		TxnFees=.txnfees,
 		orderqty='all',
 		orderset='ocoshort'
 	),
-	type='chain',
-	parent='EnterSHORT',
+	type='chain', parent='EnterSHORT',
 	label='StopLossSHORT',
 	storefun=FALSE
 )
@@ -164,36 +125,34 @@ add.rule(s, name = 'ruleSignal',
 
 if(TRUE)
 {
-add.rule(s, name = 'ruleSignal',
+add.rule(strategy.st, name = 'ruleSignal',
 	arguments=list(sigcol='long' , sigval=TRUE,
 		replace=FALSE,
 		orderside='long',
 		ordertype='stoptrailing',
 		tmult=TRUE,
 		threshold=.stoptrailing,
-		TxnFees=.txn,
+		TxnFees=.txnfees,
 		orderqty='all',
 		orderset='ocolong'
 	),
-	type='chain',
-	parent='EnterLONG',
+	type='chain', parent='EnterLONG',
 	label='StopTrailingLONG',
 	storefun=FALSE
 )
 
-add.rule(s, name = 'ruleSignal',
+add.rule(strategy.st, name = 'ruleSignal',
 	arguments=list(sigcol='short' , sigval=TRUE,
 		replace=FALSE,
 		orderside='short',
 		ordertype='stoptrailing',
 		tmult=TRUE,
 		threshold=.stoptrailing,
-		TxnFees=.txn,
+		TxnFees=.txnfees,
 		orderqty='all',
 		orderset='ocoshort'
 	),
-	type='chain',
-	parent='EnterSHORT',
+	type='chain', parent='EnterSHORT',
 	label='StopTrailingSHORT',
 	storefun=FALSE
 )
@@ -201,48 +160,46 @@ add.rule(s, name = 'ruleSignal',
 
 ### take-profit
 
-add.rule(s, name = 'ruleSignal',
+add.rule(strategy.st, name = 'ruleSignal',
 	arguments=list(sigcol='long' , sigval=TRUE,
 		replace=FALSE,
 		orderside='long',
 		ordertype='limit',
 		tmult=TRUE,
 		threshold=.takeprofit,
-		TxnFees=.txn,
+		TxnFees=.txnfees,
 		orderqty='all',
 		orderset='ocolong'
 	),
-	type='chain',
-	parent='EnterLONG',
+	type='chain', parent='EnterLONG',
 	label='TakeProfitLONG',
 	storefun=FALSE
 )
 
-add.rule(s, name = 'ruleSignal',
+add.rule(strategy.st, name = 'ruleSignal',
 	arguments=list(sigcol='short' , sigval=TRUE,
 		replace=FALSE,
 		orderside='short',
 		ordertype='limit',
 		tmult=TRUE,
 		threshold=.takeprofit,
-		TxnFees=.txn,
+		TxnFees=.txnfees,
 		orderqty='all',
 		orderset='ocoshort'
 	),
-	type='chain',
-	parent='EnterSHORT',
+	type='chain', parent='EnterSHORT',
 	label='TakeProfitSHORT',
 	storefun=FALSE
 )
 
 ### 
 
-add.rule(s, name = 'ruleSignal',
+add.rule(strategy.st, name = 'ruleSignal',
 	arguments=list(sigcol='long' , sigval=TRUE,
 		replace=TRUE,
 		orderside='short',
 		ordertype='market',
-		TxnFees=.txn,
+		TxnFees=.txnfees,
 		orderqty='all',
 		orderset='ocoshort'
 	),
@@ -252,12 +209,12 @@ add.rule(s, name = 'ruleSignal',
 	storefun=FALSE
 )
 
-add.rule(s, name = 'ruleSignal',
+add.rule(strategy.st, name = 'ruleSignal',
 	arguments=list(sigcol='short', sigval=TRUE,
 		replace=TRUE,
 		orderside='long' ,
 		ordertype='market',
-		TxnFees=.txn,
+		TxnFees=.txnfees,
 		orderqty='all',
 		orderset='ocolong'
 	),
@@ -267,15 +224,15 @@ add.rule(s, name = 'ruleSignal',
 	storefun=FALSE
 )
 
-add.rule(s, name = 'ruleSignal',
+add.rule(strategy.st, name = 'ruleSignal',
 	arguments=list(sigcol='long' , sigval=TRUE,
 		replace=FALSE,
 		orderside='long' ,
 		ordertype='stoplimit',
 		prefer='High',
-		threshold=.th,
+		threshold=.threshold,
 		TxnFees=0,
-		orderqty=+.qty,
+		orderqty=+.orderqty,
 		osFUN=osMaxPos,
 		orderset='ocolong'
 	),
@@ -285,15 +242,15 @@ add.rule(s, name = 'ruleSignal',
 	storefun=FALSE
 )
 
-add.rule(s, name = 'ruleSignal',
+add.rule(strategy.st, name = 'ruleSignal',
 	arguments=list(sigcol='short', sigval=TRUE,
 		replace=FALSE,
 		orderside='short',
 		ordertype='stoplimit',
 		prefer='Low',
-		threshold=.th,
+		threshold=.threshold,
 		TxnFees=0,
-		orderqty=-.qty,
+		orderqty=-.orderqty,
 		osFUN=osMaxPos,
 		orderset='ocoshort'
 	),
@@ -307,23 +264,25 @@ add.rule(s, name = 'ruleSignal',
 
 ###############################################################################
 
-applyStrategy(s, p, verbose = FALSE)
-#applyStrategy(s, p, prefer='Open', verbose = FALSE)
+applyStrategy(strategy.st, portfolio.st, verbose = FALSE)
+#applyStrategy(strategy.st, p, prefer='Open', verbose = FALSE)
 
-updatePortf(p, Symbols='GBPUSD', ,Dates=paste('::',as.Date(Sys.time()),sep=''))
+updatePortf(portfolio.st, Symbols='GBPUSD', ,Dates=paste('::',as.Date(Sys.time()),sep=''))
 
 ###############################################################################
 
-chart.Posn(p, "GBPUSD")
+chart.Posn(portfolio.st, "GBPUSD")
 
-print(getOrderBook(p))
+print(getOrderBook(portfolio.st))
 
-#txns <- getTxns(p, 'GBPUSD')
+#txns <- getTxns(portfolio.st, 'GBPUSD')
 #txns
 ##txns$Net 
 #cat('Net profit:', sum(txns$Net.Txn.Realized.PL), '\n')
 
-print(tradeStats(p, 'GBPUSD'))
+print(tradeStats(portfolio.st, 'GBPUSD'))
+
+save.strategy(strategy.st)
 
 ##### PLACE THIS BLOCK AT END OF DEMO SCRIPT ################### 
 # book  = getOrderBook(port)

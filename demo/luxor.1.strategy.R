@@ -16,10 +16,6 @@ Sys.setenv(TZ="UTC")
 .fast = 10
 .slow = 30
 
-.orderqty = 100000
-.threshold = 0.0005
-.txn.fees = -30
-
 ##### PLACE DEMO AND TEST DATES HERE #################
 #
 #if(isTRUE(options('in_test')$in_test))
@@ -31,15 +27,8 @@ Sys.setenv(TZ="UTC")
 #  {initDate="1999-12-31"
 #  endDate=Sys.Date()}
 
-initDate = '2002-10-21'
-
-####
-
-strategy.st = 'luxor'
-portfolio.st = 'forex'
-account.st = 'IB1'
-
-source('luxor.symbols.R')
+source('luxor.include.R')
+source('luxor.getSymbols.R')
 
 ### blotter
 
@@ -97,7 +86,7 @@ add.rule(strategy.st, name='ruleSignal',
 		orderside='short',
 		ordertype='market',
 		orderqty='all',
-		TxnFees=.txn.fees,
+		TxnFees=.txnfees,
 		replace=TRUE
 	),
 	type='exit',
@@ -109,7 +98,7 @@ add.rule(strategy.st, name='ruleSignal',
 		orderside='long' ,
 		ordertype='market',
 		orderqty='all',
-		TxnFees=.txn.fees,
+		TxnFees=.txnfees,
 		replace=TRUE
 	),
 	type='exit',

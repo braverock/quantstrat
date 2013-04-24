@@ -15,15 +15,8 @@ Sys.setenv(TZ='UTC')
 
 ###
 
-initDate = '2002-10-21'
-
-####
-
-strategy.st = 'luxor'
-portfolio.st = 'forex'
-account.st = 'IB1'
-
-source('luxor.symbols.R')
+source('luxor.include.R')
+source('luxor.getSymbols.R')
 
 ### blotter
 
