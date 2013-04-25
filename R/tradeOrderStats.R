@@ -17,7 +17,7 @@
 #' 		\item{Order.Type}{}
 #' 		\item{Order.Side}{}
 #' 		\item{Order.Threshold}{}
-#' 		\item{Order.Status}should be 'closed' only{}
+#' 		\item{Order.Status}{should be 'closed' only}
 #' 		\item{Order.StatusTime}{time of the closing trade, should match 'End' column}
 #' 		\item{Prefer}{prefer argument for \code{getPrice}}
 #' 		\item{Order.Set}{order set of the closing trade}
