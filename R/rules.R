@@ -598,7 +598,12 @@ applyRules <- function(portfolio,
                                 rules <- chain.rules[chain.rule.names %in% closed.chain$Rule[i]]
                                 for(j in seq_along(rules)) {
                                     # call ruleProc in a loop, since it doesn't look like chain.price would be subset correctly
-                                    ruleProc(rules[j], timestamp=timestamp, path.dep=path.dep, mktdata=mktdata, portfolio=portfolio, symbol=symbol, ruletype=type, mktinstr=mktinstr, parameters=list(chain.price=as.numeric(closed.chain$Order.Price[i]), ...))
+                                    
+                                    txns <- getTxns(Portfolio=portfolio, Symbol=symbol, Dates=timestamp)
+                                    txn.price <- last(txns$Txn.Price)	# last() because there may be more than one txn at this timestamp
+
+                                    #ruleProc(rules[j], timestamp=timestamp, path.dep=path.dep, mktdata=mktdata, portfolio=portfolio, symbol=symbol, ruletype=type, mktinstr=mktinstr, parameters=list(chain.price=as.numeric(closed.chain$Order.Price[i]), ...))
+                                    ruleProc(rules[j], timestamp=timestamp, path.dep=path.dep, mktdata=mktdata, portfolio=portfolio, symbol=symbol, ruletype=type, mktinstr=mktinstr, parameters=list(chain.price=txn.price))
                                 }
                             }
                         }
