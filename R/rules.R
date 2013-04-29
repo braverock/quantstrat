@@ -527,7 +527,7 @@ applyRules <- function(portfolio,
             }
         }
         
-        if (is.na(curIndex) || curIndex > length(index(mktdata))) curIndex=FALSE
+        if (is.na(curIndex) || curIndex > length(Dates)) curIndex=FALSE
 
         #debug line
         #print(paste('curIndex ==', curIndex))
