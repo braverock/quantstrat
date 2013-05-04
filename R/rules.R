@@ -127,6 +127,36 @@ add.rule <- function(strategy, name, arguments, parameters=NULL, label=NULL, typ
     strategy$name
 }
 
+#' enable a rule in the strategy
+#'
+#' function to make it easy to enable (or disable) a specific rule in a strategy
+#'
+#' @param strategy an object of type 'strategy' which contains the rule
+#' @param type one of "risk","order","rebalance","exit","enter","chain"
+#' @param label the label for the rule; grep will be used to match, so multiple rules may be enabled (disabled) as a result
+#' @param enabled TRUE/FALSE whether the rule is enabled for use in applying the strategy, default TRUE
+#' @param store TRUE/FALSE whether to store the updated strategy in the .strategy environment, or return it.  default FALSE
+#' @seealso \code{\link{add.rule}} \code{\link{applyStrategy}} 
+#' @export
+
+enable.rule <- function(strategy, type=c(NULL,"risk","order","rebalance","exit","enter","chain"), label, enabled=TRUE, store=FALSE)
+{
+    if (!is.strategy(strategy)) {
+        strategy<-try(getStrategy(strategy))
+        if(inherits(strategy,"try-error"))
+            stop ("You must supply an object or the name of an object of type 'strategy'.")
+        store=TRUE
+    } 
+
+    for(i in 1:length(strategy$rules[[type]]))
+        if(grepl(label, strategy$rules[[type]][[i]]$label))
+            strategy$rules[[type]][[i]]$enabled <- enabled
+
+    if (store) assign(strategy$name,strategy,envir=as.environment(.strategy))
+    else return(strategy)
+    strategy$name
+}
+
 #' apply the rules in the strategy to arbitrary market data 
 #' 
 #' In typical usage, this function will be called via \code{\link{applyStrategy}}.  
