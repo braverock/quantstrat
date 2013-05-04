@@ -1,0 +1,34 @@
+\name{enable.rule}
+\alias{enable.rule}
+\title{enable a rule in the strategy}
+\usage{
+  enable.rule(strategy,
+    type = c(NULL, "risk", "order", "rebalance", "exit", "enter", "chain"),
+    label, enabled = TRUE, store = FALSE)
+}
+\arguments{
+  \item{strategy}{an object of type 'strategy' which
+  contains the rule}
+
+  \item{type}{one of
+  "risk","order","rebalance","exit","enter","chain"}
+
+  \item{label}{the label for the rule; grep will be used to
+  match, so multiple rules may be enabled (disabled) as a
+  result}
+
+  \item{enabled}{TRUE/FALSE whether the rule is enabled for
+  use in applying the strategy, default TRUE}
+
+  \item{store}{TRUE/FALSE whether to store the updated
+  strategy in the .strategy environment, or return it.
+  default FALSE}
+}
+\description{
+  function to make it easy to enable (or disable) a
+  specific rule in a strategy
+}
+\seealso{
+  \code{\link{add.rule}} \code{\link{applyStrategy}}
+}
+
