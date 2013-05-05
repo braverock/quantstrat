@@ -411,7 +411,7 @@ addOrder <- function(portfolio,
                          orderset=orderset,
                          oldstatus="open", 
                          newstatus="replaced", 
-                         statustimestamp=format(timestamp, "%Y-%m-%d %H:%M:%S"))
+                         statustimestamp=timestamp)
         }
         # get order book
         if(!is.null(orders))
