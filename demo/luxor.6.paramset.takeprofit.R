@@ -67,7 +67,7 @@ results <- apply.paramset(strategy.st, paramset.label='TakeProfit', portfolio.st
 
 stats <- results$tradeStats
 
-print(stats)
+View(t(stats))
 
 plot(100*stats$TakeProfitLONG, stats$Net.Trading.PL, type='b', xlab='TakeProfit %', ylab='Net.Trading.PL', main='Luxor')
 

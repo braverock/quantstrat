@@ -34,9 +34,9 @@ load.strategy('luxor')
 
 ### BEGIN uncomment lines to activate StopLoss and/or StopTrailing and/or TakeProfit rules
 
-#enable.rule('luxor', 'chain', 'StopLoss')
-#enable.rule('luxor', 'chain', 'StopTrailing')
-#enable.rule('luxor', 'chain', 'TakeProfit')
+enable.rule('luxor', 'chain', 'StopLoss')
+enable.rule('luxor', 'chain', 'StopTrailing')
+enable.rule('luxor', 'chain', 'TakeProfit')
 
 ### END uncomment lines to activate StopLoss and/or StopTrailing and/or TakeProfit rules
 
@@ -60,7 +60,7 @@ chart.Posn(portfolio.st, "GBPUSD")
 
 ###############################################################################
 
-View(tradeStats(portfolio.st, 'GBPUSD'))
+View(t(tradeStats(portfolio.st, 'GBPUSD')))
 
 ###############################################################################
 
@@ -71,7 +71,8 @@ dev.new()
 ### Uncomment to choose appropriate MAE of MFE graph
 
 chart.ME(portfolio.st, 'GBPUSD', scale='percent', type='MAE')
-#chart.ME(portfolio.st, 'GBPUSD', scale='percent', type='MFE')
+dev.new()
+chart.ME(portfolio.st, 'GBPUSD', scale='percent', type='MFE')
 
 ##### PLACE THIS BLOCK AT END OF DEMO SCRIPT ################### 
 # book  = getOrderBook(port)

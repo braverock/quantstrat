@@ -136,7 +136,7 @@ chart.Posn(portfolio.st, "GBPUSD")
 
 ###############################################################################
 
-View(tradeStats(portfolio.st, 'GBPUSD'))
+View(t(tradeStats(portfolio.st, 'GBPUSD')))
 
 ###############################################################################
 
