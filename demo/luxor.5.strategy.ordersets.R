@@ -2,7 +2,7 @@
 #
 # Jan Humme (@opentrades) - May 2013
 #
-# Tested and found to work correctly using blotter r1448
+# Tested and found to work correctly using blotter r1457
 #
 # After Jaekle & Tomasini: A new approach to system development and portfolio optimisation (ISBN 978-1-905641-79-6)
 #

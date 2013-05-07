@@ -2,9 +2,9 @@
 #
 # Jan Humme (@opentrades) - August 2012
 #
-# Tested and found to work correctly using blotter r1230
+# Tested and found to work correctly using blotter r1457
 #
-# From Jaekle & Tamasini: A new approach to system development and portfolio optimisation (ISBN 978-1-905641-79-6)
+# After Jaekle & Tamasini: A new approach to system development and portfolio optimisation (ISBN 978-1-905641-79-6)
 #
 # compute StopTrailing percentage for various paramsets
 

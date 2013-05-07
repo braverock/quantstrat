@@ -2,9 +2,11 @@
 #
 # Jan Humme (@opentrades) - August 2012, revised April 2013
 #
-# Tested and found to work correctly using blotter r1420
+# Tested and found to work correctly using blotter r1457
 #
-# From Jaekle & Tamasini: A new approach to system development and portfolio optimisation (ISBN 978-1-905641-79-6)
+# After Jaekle & Tamasini: A new approach to system development and portfolio optimisation (ISBN 978-1-905641-79-6)
+#
+# 3D SMA graph example
 
 require(quantstrat)
 
