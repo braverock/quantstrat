@@ -21,7 +21,7 @@
   Jan Humme
 }
 \seealso{
-  \code{\link{add.constraint}},
+  \code{\link{add.distibution}},
   \code{\link{add.constraint}},
   \code{\link{apply.paramset}}
 }
