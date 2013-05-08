@@ -216,7 +216,7 @@ install.param.combo <- function(strategy, param.combo, paramset.label)
 #'
 #' @author Jan Humme
 #' @export
-#' @seealso \code{\link{add.constraint}}, \code{\link{add.constraint}}, \code{\link{apply.paramset}}
+#' @seealso \code{\link{add.distibution}}, \code{\link{add.constraint}}, \code{\link{apply.paramset}}
 
 delete.paramset <- function(strategy, paramset.label, store=TRUE)
 {

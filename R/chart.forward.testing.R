@@ -22,20 +22,24 @@ chart.forward.testing <- function(audit.filename)
     {
         p <- getPortfolio(portfolio.st, envir=.audit)
         
-        R <- cumsum(p$summary['2004-01-01/','Net.Trading.PL'])
+    	from <- index(p$summary[2])
+    	
+        #R <- cumsum(p$summary['2004-01-01/','Net.Trading.PL'])
+        R <- cumsum(p$summary[paste(from, '/', sep=''),'Net.Trading.PL'])
         names(R) <- portfolio.st
         
         PL.xts <- cbind(PL.xts, R)
     }
     
     # add a column for the chosen portfolio, doubling it
-    #chosen.one <- .audit$param.combo.nr
-    #chosen.portfolio.st = ls(name=.audit, pattern=glob2rx(paste('portfolio', '*', chosen.one, sep='.')))
-    testing.portfolio.st = 'portfolio.futures'
+    chosen.one <- .audit$param.combo.nr
+    testing.portfolio.st <- ls(env=.audit, pattern=glob2rx(paste('portfolio', '*', chosen.one, sep='.')))
 
     R <- PL.xts[,testing.portfolio.st]
     PL.xts <- cbind(PL.xts, R)
     
+    PL.xts <- na.locf(PL.xts)
+
     # add drawdown columns for all portfolio columns
     CumMax <- cummax(PL.xts)
     Drawdowns.xts <- -(CumMax - PL.xts)

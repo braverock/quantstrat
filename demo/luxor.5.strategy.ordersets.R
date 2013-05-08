@@ -131,7 +131,33 @@ add.rule(strategy.st, name = 'ruleSignal',
 	label='EnterSHORT'
 )
 
-### stoploss, stoptrailing and takeprofit 
+### parameter sets
+
+# SMA
+
+add.distribution(strategy.st,
+	paramset.label = 'SMA',
+	component.type = 'indicator',
+	component.label = 'nFast',
+	variable = list(n = .FastSMA),
+	label = 'nFAST'
+)
+
+add.distribution(strategy.st,
+	paramset.label = 'SMA',
+	component.type = 'indicator',
+	component.label = 'nSlow',
+	variable = list(n = .SlowSMA),
+	label = 'nSLOW'
+)
+
+add.constraint(strategy.st,
+	paramset.label = 'SMA',
+	distribution.label.1 = 'nFAST',
+	distribution.label.2 = 'nSLOW',
+	operator = '<',
+	label = 'SMA'
+)
 
 # stop-loss
 
@@ -293,6 +319,32 @@ add.constraint(strategy.st,
 	distribution.label.2 = 'TakeProfitSHORT',
 	operator = '==',
 	label = 'TakeProfit'
+)
+
+# Walk Forward Analysis
+
+add.distribution(strategy.st,
+	paramset.label = 'WFA',
+	component.type = 'indicator',
+	component.label = 'nFast',
+	variable = list(n = .FastWFA),
+	label = 'nFAST'
+)
+
+add.distribution(strategy.st,
+	paramset.label = 'WFA',
+	component.type = 'indicator',
+	component.label = 'nSlow',
+	variable = list(n = .SlowWFA),
+	label = 'nSLOW'
+)
+
+add.constraint(strategy.st,
+	paramset.label = 'WFA',
+	distribution.label.1 = 'nFAST',
+	distribution.label.2 = 'nSLOW',
+	operator = '<',
+	label = 'WFA'
 )
 
 ###############################################################################
