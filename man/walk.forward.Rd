@@ -7,7 +7,8 @@
     audit.prefix = NULL, k.testing,
     obj.func = function(x) {     which(x == max(x)) },
     obj.args = list(x = quote(tradeStats.list$Net.Trading.PL)),
-    include.insamples = TRUE, ..., verbose = FALSE)
+    anchored = FALSE, include.insamples = TRUE, ...,
+    verbose = FALSE)
 }
 \arguments{
   \item{portfolio.st}{the name of the portfolio object}
@@ -50,6 +51,10 @@
 
   \item{obj.args}{a user provided argument to obj.func,
   defaults to quote(tradeStats.list$Net.Trading.PL)}
+
+  \item{anchored}{whether to use a fixed start for the
+  training window (TRUE), or a sliding start (FALSE);
+  defaults to FALSE}
 
   \item{include.insamples}{will optionally run a full
   backtest for each param.combo in the paramset, and add

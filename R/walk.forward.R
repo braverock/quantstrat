@@ -39,6 +39,7 @@
 #' @param k.testing the number of periods to use for testing, eg. '1 month'
 #' @param obj.func a user provided function returning the best param.combo from the paramset, based on training results; defaults to 'max'
 #' @param obj.args a user provided argument to obj.func, defaults to quote(tradeStats.list$Net.Trading.PL)
+#' @param anchored whether to use a fixed start for the training window (TRUE), or a sliding start (FALSE); defaults to FALSE
 #' @param include.insamples will optionally run a full backtest for each param.combo in the paramset, and add the resulting in-sample portfolios and orderbooks to the file '<prefix>.results.RData'; default TRUE
 #' @param ... optional parameters to pass to apply.paramset()
 #' @param verbose dumps a lot of info during the run if set to TRUE, defaults to FALSE
@@ -55,7 +56,7 @@ walk.forward <- function(strategy.st, paramset.label, portfolio.st, account.st,
     period, k.training, nsamples=0, audit.prefix=NULL, k.testing,
     obj.func=function(x){which(x==max(x))},
     obj.args=list(x=quote(tradeStats.list$Net.Trading.PL)),
-    include.insamples=TRUE,
+    anchored=FALSE, include.insamples=TRUE,
     ..., verbose=FALSE)
 {
     must.have.args(match.call(), c('portfolio.st', 'strategy.st', 'paramset.label', 'k.training'))
@@ -76,12 +77,16 @@ walk.forward <- function(strategy.st, paramset.label, portfolio.st, account.st,
     total.start <- ep[1 + k.training] + 1
     total.timespan <- paste(index(symbol[total.start]), '', sep='/')
 
+    if(anchored)
+        training.start <- ep[1] + 1
+
     k <- 1; while(TRUE)
     {
         result <- list()
 
         # start and end of training window
-        training.start <- ep[k] + 1
+        if(!anchored)
+            training.start <- ep[k] + 1
         training.end   <- ep[k + k.training]
 
         # stop if training.end is beyond last data
