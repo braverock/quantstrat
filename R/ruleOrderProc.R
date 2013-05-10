@@ -165,7 +165,7 @@ ruleOrderProc <- function(portfolio, symbol, mktdata, timestamp=NULL, ordertype=
                                 if( (has.Lo(mktdata) && orderPrice > as.numeric(Lo(mktdataTimestamp))) || 
                                     (!has.Lo(mktdata) && orderPrice > as.numeric(getPrice(mktdataTimestamp, prefer=prefer))))
                                 {
-                                    txnprice = orderPrice
+                                    txnprice = min(orderPrice, Hi(mktdataTimestamp))
                                     txntime = timestamp
                                 } else next() # price did not move through my order, should go to next order  
                             } else if((orderQty < 0 && orderType != 'stoplimit') || (orderQty > 0 && (orderType=='stoplimit'))) { 
@@ -173,7 +173,7 @@ ruleOrderProc <- function(portfolio, symbol, mktdata, timestamp=NULL, ordertype=
                                 if ( (has.Hi(mktdata) && orderPrice < as.numeric(Hi(mktdataTimestamp))) ||
                                      (!has.Hi(mktdata) && orderPrice < as.numeric(getPrice(mktdataTimestamp,prefer=prefer))) )
                                 {
-                                    txnprice = orderPrice
+                                    txnprice = max(orderPrice, Lo(mktdataTimestamp))
                                     txntime = timestamp
                                 } else next() # price did not move through my order, should go to next order 
                             } else {
