@@ -1,8 +1,8 @@
-\name{chart.forward.testing}
-\alias{chart.forward.testing}
+\name{chart.forward}
+\alias{chart.forward}
 \title{Chart to analyse walk.forward() objective function}
 \usage{
-  chart.forward.testing(audit.filename)
+  chart.forward(audit.filename)
 }
 \arguments{
   \item{audit.filename}{name of .audit environment file as

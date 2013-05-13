@@ -4,7 +4,7 @@
 #'
 #' @export
 
-chart.forward.testing <- function(audit.filename)
+chart.forward <- function(audit.filename)
 {
     if(!require(xtsExtra, quietly=TRUE)) stop('The "xtsExtra" package is required to use this function')
 
@@ -12,8 +12,8 @@ chart.forward.testing <- function(audit.filename)
 
     load(audit.filename)
 
-    # extract all portfolio names from the audit environment
-    portfolios.st = ls(name=.audit, pattern='portfolio.*')
+    # extract all portfolio names from the audit environment, except wfa portfolio
+    portfolios.st = ls(name=.audit, pattern='portfolio.*.[0-9]+')
     n <- length(portfolios.st)
 
     # calculate Net.Trading.PL for each portfolio, one xts col per portfolio
@@ -31,14 +31,15 @@ chart.forward.testing <- function(audit.filename)
         PL.xts <- cbind(PL.xts, R)
     }
     
-    # add a column for the chosen portfolio, doubling it
-    chosen.one <- .audit$param.combo.nr
-    testing.portfolio.st <- ls(env=.audit, pattern=glob2rx(paste('portfolio', '*', chosen.one, sep='.')))
+    # now for the result portfolio
+    portfolio.st <- 'portfolio.forex'
+    p <- getPortfolio(portfolio.st, envir=.audit)
+    from <- index(p$summary[2])
+    R <- cumsum(p$summary[paste(from, '/', sep=''),'Net.Trading.PL'])
+    names(R) <- portfolio.st
 
-    R <- PL.xts[,testing.portfolio.st]
-    PL.xts <- cbind(PL.xts, R)
-    
-    PL.xts <- na.locf(PL.xts)
+    #PL.xts <- na.locf(PL.xts)
+    PL.xts <- na.locf(cbind(PL.xts, R))
 
     # add drawdown columns for all portfolio columns
     CumMax <- cummax(PL.xts)

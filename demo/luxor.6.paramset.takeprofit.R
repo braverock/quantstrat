@@ -44,7 +44,7 @@ load.strategy(strategy.st)
 ### BEGIN uncomment lines to activate StopLoss and/or StopTrailing and/or TakeProfit rules
 
 enable.rule('luxor', 'chain', 'StopLoss')
-enable.rule('luxor', 'chain', 'StopTrailing')
+#enable.rule('luxor', 'chain', 'StopTrailing')
 enable.rule('luxor', 'chain', 'TakeProfit')
 
 ### END uncomment lines to activate StopLoss and/or StopTrailing and/or TakeProfit rules

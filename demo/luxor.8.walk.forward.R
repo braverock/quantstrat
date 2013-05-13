@@ -6,13 +6,9 @@
 #
 # After Jaekle & Tamasini: A new approach to system development and portfolio optimisation (ISBN 978-1-905641-79-6)
 #
-# Paragraph 3.5: determination of appropriate exit and risk management
+# Paragraph 3.7 walk forward analysis
 
 source('luxor.include.R')
-initDate <- '2003-01-01'
-.from <- initDate
-.to <- '2003-12-31'
-
 source('luxor.getSymbols.R')
 
 ### foreach and doMC
@@ -46,14 +42,13 @@ addPosLimit(
 
 ### objective function
 
-ess <- function(a.st, p.st)
+ess <- function(account.st, portfolio.st)
 {
     require(robustbase, quietly=TRUE)
     require(PerformanceAnalytics, quietly=TRUE)
 
-    portfolios.st <- ls(pos=.blotter, pattern=paste('portfolio', p.st, '[0-9]*',sep='.'))
-
-    pr <- PortfReturns(Account = a.st, Portfolios=portfolios.st)
+    portfolios.st <- ls(pos=.blotter, pattern=paste('portfolio', portfolio.st, '[0-9]*',sep='.'))
+    pr <- PortfReturns(Account = account.st, Portfolios=portfolios.st)
 
     my.es <- ES(R=pr, clean='boudt')
 
@@ -62,14 +57,18 @@ ess <- function(a.st, p.st)
 
 my.obj.func <- function(x)
 {
-    #return(which(max(x$Net.Trading.PL) == x$Net.Trading.PL))
-    #return(which(max(x$GBPUSD) == x$GBPUSD))
-    return(which(max(x$tradeStats$Net.Trading.PL/x$user.func$GBPUSD) == x$tradeStats$Net.Trading.PL/x$user.func$GBPUSD))
+    # pick one of the following objective functions (uncomment)
+
+    #return(max(x$tradeStats$Max.Drawdown) == x$tradeStats$Max.Drawdown)
+
+    #return(max(x$tradeStats$Net.Trading.PL) == x$tradeStats$Net.Trading.PL)
+
+    return(max(x$user.func$GBPUSD.DailyEndEq) == x$user.func$GBPUSD.DailyEndEq)
 }
 
 ### walk.forward
 
-r <- walk.forward(strategy.st, paramset.label='WFA', portfolio.st=portfolio.st, account.st=account.st, period='months', k.training=3, k.testing=1, obj.func=my.obj.func, obj.args=list(x=quote(result$apply.paramset)), user.func=ess, user.args=list('a.st'=account.st, 'p.st'=portfolio.st), audit.prefix='wfa.ples', anchored=FALSE, verbose=TRUE)
+r <- walk.forward(strategy.st, paramset.label='WFA', portfolio.st=portfolio.st, account.st=account.st, period='months', k.training=3, k.testing=1, obj.func=my.obj.func, obj.args=list(x=quote(result$apply.paramset)), user.func=ess, user.args=list('account.st'=account.st, 'portfolio.st'=portfolio.st), audit.prefix='wfa', anchored=FALSE, verbose=TRUE)
 
 ### analyse
 
