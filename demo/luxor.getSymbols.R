@@ -38,5 +38,5 @@ getSymbols.FI(Symbols='GBPUSD',
 ### xts
 
 GBPUSD = to.minutes30(GBPUSD)
-GBPUSD = align.time(to.minutes30(GBPUSD), 1800)
+GBPUSD = align.time(GBPUSD, 1800)
 
