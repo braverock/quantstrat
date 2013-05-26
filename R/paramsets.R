@@ -460,8 +460,30 @@ apply.paramset <- function(strategy.st, paramset.label, portfolio.st, account.st
         clone.portfolio(portfolio.st, result$portfolio.st)
         clone.orderbook(portfolio.st, result$portfolio.st)
 
+        if(exists('redisGetContext'))
+        {
+            # assume we are using a doRedis parallel backend
+            # store the context, and close the connection
+            # patch to prevent timeout on large data sets
+            #
+            # thanks to Kent Hoxsey for this workaround
+
+            redisContext <- redisGetContext()
+            redisClose()
+        }
+
         strategy <- install.param.combo(strategy, param.combo, paramset.label)
         applyStrategy(strategy, portfolios=result$portfolio.st, mktdata=mktdata, verbose=verbose)
+
+        if(exists('redisContext'))
+        {
+            # assume redisContext contains preserved context
+            # restore doRedis connection
+            #
+            # thanks to Kent Hoxsey for this workaround
+
+            redisConnect(host=redisContext$host)
+        }
 
         if(calc == 'slave')
         {
