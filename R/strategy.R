@@ -202,7 +202,8 @@ put.strategy <- function(strategy, envir=.strategy)
     assign(strategy$name, strategy, envir=as.environment(envir))
 }
 
-# load a strategy object from disk into memory
+#' load a strategy object from disk into memory
+#' @param strategy.name a string specifying the name of the strategy object; will also be used to create a file name
 #' @export
 load.strategy <- function(strategy.name)
 {
@@ -212,7 +213,8 @@ load.strategy <- function(strategy.name)
     assign(.strategy$strategy$name, .strategy$strategy, envir=.strategy)
 }
 
-# save a strategy object from memory onto disk
+#' save a strategy object from memory onto disk
+#' @param strategy.name a string specifying the name of the strategy object; will also be used to create a file name
 #' @export
 save.strategy <- function(strategy.name)
 {

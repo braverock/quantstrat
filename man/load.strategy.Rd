@@ -1,0 +1,14 @@
+\name{load.strategy}
+\alias{load.strategy}
+\title{load a strategy object from disk into memory}
+\usage{
+  load.strategy(strategy.name)
+}
+\arguments{
+  \item{strategy.name}{a string specifying the name of the
+  strategy object; will also be used to create a file name}
+}
+\description{
+  load a strategy object from disk into memory
+}
+
