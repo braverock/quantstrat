@@ -129,6 +129,7 @@ print(end_t-start_t)
 start_t<-Sys.time()
 updatePortf(Portfolio='faber',Dates=paste('::',as.Date(Sys.time()),sep=''))
 updateAcct('faber')
+updateEndEq('faber')
 end_t<-Sys.time()
 print("trade blotter portfolio update:")
 print(end_t-start_t)
@@ -158,7 +159,7 @@ if("package:PerformanceAnalytics" %in% search() || require("PerformanceAnalytics
 }
 
 faber.stats<-tradeStats('faber')[,c('Net.Trading.PL','Max.Drawdown','Num.Trades','Profit.Factor','Std.Dev.Trade.PL','Largest.Winner','Largest.Loser','Max.Equity','Min.Equity')]
-faber.stats
+View(faber.stats)
 
 Sys.setenv(TZ=oldtz)
 ###############################################################################
