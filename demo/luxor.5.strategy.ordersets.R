@@ -151,7 +151,7 @@ add.distribution(strategy.st,
 	label = 'nSLOW'
 )
 
-add.constraint(strategy.st,
+add.distribution.constraint(strategy.st,
 	paramset.label = 'SMA',
 	distribution.label.1 = 'nFAST',
 	distribution.label.2 = 'nSLOW',
@@ -205,7 +205,7 @@ add.distribution(strategy.st,
 	label = 'StopLossSHORT'
 )
 
-add.constraint(strategy.st,
+add.distribution.constraint(strategy.st,
 	paramset.label = 'StopLoss',
 	distribution.label.1 = 'StopLossLONG',
 	distribution.label.2 = 'StopLossSHORT',
@@ -259,7 +259,7 @@ add.distribution(strategy.st,
 	label = 'StopTrailingSHORT'
 )
 
-add.constraint(strategy.st,
+add.distribution.constraint(strategy.st,
 	paramset.label = 'StopTrailing',
 	distribution.label.1 = 'StopTrailingLONG',
 	distribution.label.2 = 'StopTrailingSHORT',
@@ -313,7 +313,7 @@ add.distribution(strategy.st,
 	label = 'TakeProfitSHORT'
 )
 
-add.constraint(strategy.st,
+add.distribution.constraint(strategy.st,
 	paramset.label = 'TakeProfit',
 	distribution.label.1 = 'TakeProfitLONG',
 	distribution.label.2 = 'TakeProfitSHORT',
@@ -339,7 +339,7 @@ add.distribution(strategy.st,
 	label = 'nSLOW'
 )
 
-add.constraint(strategy.st,
+add.distribution.constraint(strategy.st,
 	paramset.label = 'WFA',
 	distribution.label.1 = 'nFAST',
 	distribution.label.2 = 'nSLOW',

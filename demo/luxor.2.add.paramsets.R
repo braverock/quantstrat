@@ -47,7 +47,7 @@ add.distribution(strategy.st,
 	label = 'nSLOW'
 )
 
-add.constraint(strategy.st,
+add.distribution.constraint(strategy.st,
 	paramset.label = 'SMA',
 	distribution.label.1 = 'nFAST',
 	distribution.label.2 = 'nSLOW',

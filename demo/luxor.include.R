@@ -11,8 +11,8 @@ initDate = '2002-10-21'
 
 .from=initDate
 
-.to='2002-10-31'
 #.to='2008-07-04'
+.to='2002-10-31'
 
 ###
 
@@ -56,7 +56,8 @@ account.st = 'IB1'
 .slow = 44
 
 #.timespan = 'T09:00/T13:00'
-.timespan = 'T00:00/T23:59'
+#.timespan = 'T00:00/T23:59'
+.timespan = NULL
 
 .stoploss <- 0.40/100
 .stoptrailing <- 0.8/100

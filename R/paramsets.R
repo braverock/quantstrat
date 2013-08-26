@@ -216,7 +216,7 @@ install.param.combo <- function(strategy, param.combo, paramset.label)
 #'
 #' @author Jan Humme
 #' @export
-#' @seealso \code{\link{add.distibution}}, \code{\link{add.constraint}}, \code{\link{apply.paramset}}
+#' @seealso \code{\link{add.distibution}}, \code{\link{add.distribution.constraint}}, \code{\link{apply.paramset}}
 
 delete.paramset <- function(strategy, paramset.label, store=TRUE)
 {
@@ -255,7 +255,7 @@ delete.paramset <- function(strategy, paramset.label, store=TRUE)
 #'
 #' @author Jan Humme
 #' @export
-#' @seealso \code{\link{add.constraint}}, \code{\link{delete.paramset}}, \code{\link{apply.paramset}}
+#' @seealso \code{\link{add.distribution.constraint}}, \code{\link{delete.paramset}}, \code{\link{apply.paramset}}
 
 add.distribution <- function(strategy, paramset.label, component.type, component.label, variable, weight=NULL, label, store=TRUE)
 {
@@ -303,7 +303,7 @@ add.distribution <- function(strategy, paramset.label, component.type, component
 #' @export
 #' @seealso \code{\link{add.distribution}}, \code{\link{delete.paramset}}, \code{\link{apply.paramset}}
 
-add.constraint <- function(strategy, paramset.label, distribution.label.1, distribution.label.2, operator, label, store=TRUE)
+add.distribution.constraint <- function(strategy, paramset.label, distribution.label.1, distribution.label.2, operator, label, store=TRUE)
 {
     must.have.args(match.call(), c('strategy', 'paramset.label', 'distribution.label.1', 'distribution.label.2', 'operator', 'label'))
 
@@ -355,7 +355,7 @@ add.constraint <- function(strategy, paramset.label, distribution.label.1, distr
 #'
 #' @author Jan Humme
 #' @export
-#' @seealso \code{\link{add.constraint}}, \code{\link{add.constraint}}, \code{\link{delete.paramset}}
+#' @seealso \code{\link{add.distribution.constraint}}, \code{\link{add.distribution.constraint}}, \code{\link{delete.paramset}}
 
 apply.paramset <- function(strategy.st, paramset.label, portfolio.st, account.st, mktdata=NULL, nsamples=0, user.func=NULL, user.args=NULL, calc='slave', audit=NULL, packages=NULL, verbose=FALSE)
 {
