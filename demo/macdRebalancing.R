@@ -62,14 +62,14 @@ add.indicator(strat.st, name = "MACD", arguments = list(x=quote(Cl(mktdata))) )
 
 #two signals
 add.signal(strat.st,name="sigThreshold",
-           arguments = list(column="signal",
+           arguments = list(column="signal.MACD.ind",
                             relationship="gt",
                             threshold=0,
                             cross=TRUE),
            label="signal.gt.zero")
 
 add.signal(strat.st,name="sigThreshold",
-           arguments = list(column="signal",
+           arguments = list(column="signal.MACD.ind",
                             relationship="lt",
                             threshold=0,
                             cross=TRUE),
