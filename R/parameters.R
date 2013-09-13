@@ -398,11 +398,11 @@ applyParameter<-function(strategy,portfolios,parameterPool,parameterConstraints,
     #need to create combination of distribution values in each slot of the parameterPool
     
     initialPortf<-getPortfolio(portfolios)
-    symbols<-names(initialPortf$symbols)
+    symbols<-ls(initialPortf$symbols)
     initDate<-time(first(initialPortf$symbols[[1]]$posPL))
     
     limits<-list()
-    for(symbol in names(initialPortf$symbols))
+    for(symbol in ls(initialPortf$symbols))
         limits[[symbol]]<-initialPortf$symbols[[symbol]]$PosLimit
 
     tmp_strategy<-strategy

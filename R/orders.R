@@ -87,7 +87,7 @@ initOrders <- function(portfolio=NULL, symbols=NULL, initDate = '1999-12-31', ..
 
     if(is.null(symbols)) {
         pfolio<-getPortfolio(portfolio)
-        symbols<-names(pfolio$symbols)
+        symbols<-ls(pfolio$symbols)
     }
     if(!is.null(symbols)){
         orders[[portfolio]][symbols] <- list(NULL)

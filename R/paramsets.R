@@ -11,7 +11,7 @@
 #
 ###############################################################################
 #
-# Authors: Yu Chen, Jan Humme
+# Authors: Jan Humme, Brian Peterson
 #
 # This code is a based on earlier work by Yu Chen
 #
@@ -51,7 +51,7 @@ clone.portfolio <- function(portfolio.st, cloned.portfolio.st, strip.history=TRU
 
     if(strip.history==TRUE)
     {
-        for(symbol in names(portfolio$symbols))
+        for(symbol in ls(portfolio$symbols))
         {
             portfolio$symbols[[symbol]]$txn <- portfolio$symbols[[symbol]]$txn[1,]
 

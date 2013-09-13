@@ -153,7 +153,7 @@ function(strategy,
         if(showEq) cat('Ending Account Equity: ', getEndEq(Account=account,Date=Sys.time()), '\n')
     }
     if(isTRUE(chart)){
-        for (symbol in names(getPortfolio(portfolio)$symbols) ){
+        for (symbol in ls(getPortfolio(portfolio)$symbols) ){
             dev.new()
             chart.Posn(Portfolio=portfolio, Symbol=symbol,...=...)
         }

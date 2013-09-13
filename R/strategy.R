@@ -121,7 +121,7 @@ applyStrategy <- function(strategy , portfolios, mktdata=NULL , parameters=NULL,
         
    		ret[[portfolio]]<-list() # this is slot [[i]] which we will use later
         pobj<-getPortfolio(portfolio)
-        symbols<-names(pobj$symbols)
+        symbols<- ls(pobj$symbols)
         sret<-list()
         for (symbol in symbols){
             if(isTRUE(load.mktdata)) mktdata <- get(symbol)

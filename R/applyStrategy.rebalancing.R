@@ -76,7 +76,7 @@ applyStrategy.rebalancing <- function(strategy ,
         
         ret[[portfolio]]<-list() # this is slot [[i]] which we will use later
         pobj<-getPortfolio(portfolio)
-        symbols<-names(pobj$symbols)
+        symbols<-ls(pobj$symbols)
 
         st<-new.env()
         #should be able to use this directly

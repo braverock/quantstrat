@@ -79,7 +79,7 @@ ruleWeights <- function (weights=NULL,
     
     #get total account equity
     if(!is.null(account)){
-        dummy <- updateAcct(Account=account,
+        dummy <- updateAcct(name=account,
                 Dates=paste('::',timestamp,sep=''))
         dummy <- updateEndEq(Account=account,
                 Dates=paste('::',timestamp,sep=''))
