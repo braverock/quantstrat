@@ -22,7 +22,7 @@
 }
 \seealso{
   \code{\link{add.distibution}},
-  \code{\link{add.constraint}},
+  \code{\link{add.distribution.constraint}},
   \code{\link{apply.paramset}}
 }
 

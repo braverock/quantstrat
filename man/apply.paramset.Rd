@@ -68,8 +68,8 @@
   Jan Humme
 }
 \seealso{
-  \code{\link{add.constraint}},
-  \code{\link{add.constraint}},
+  \code{\link{add.distribution.constraint}},
+  \code{\link{add.distribution.constraint}},
   \code{\link{delete.paramset}}
 }
 

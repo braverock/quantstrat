@@ -9,7 +9,8 @@
     pricemethod = c("market", "opside", "active"),
     portfolio, symbol, ..., ruletype, TxnFees = 0,
     prefer = NULL, sethold = FALSE, label = "",
-    order.price = NULL, chain.price = NULL)
+    order.price = NULL, chain.price = NULL,
+    time.in.force = "")
 }
 \arguments{
   \item{mktdata}{an xts object containing market data.
@@ -92,6 +93,11 @@
   filled for, used to pass to children in the order chain,
   will overrule all mktdata lookup, only meant for internal
   use really, default NULL}
+
+  \item{time.in.force}{timestamp time-in-force; either a
+  time stamp, or a number of seconds, or 'GTC' / '', 'GTC'
+  and '' both meaning 'Good Till Canceled'; order expires
+  if still 'open' at this timestamp, default is ''}
 }
 \description{
   As described elsewhere in the documentation, quantstrat

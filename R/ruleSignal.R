@@ -50,10 +50,11 @@
 #' @param label rule label, default '', added by \code{\link{applyRules}}
 #' @param order.price the order price to use, will overrule any mktdata lookup as well as chain.price (see below), meant to specify eg. a stop-loss price that is unrelated to the fill price (see chain.price)
 #' @param chain.price the price that the parent order got filled for, used to pass to children in the order chain, will overrule all mktdata lookup, only meant for internal use really, default NULL
+#' @param time.in.force timestamp time-in-force; either a time stamp, or a number of seconds, or 'GTC' / '', 'GTC' and '' both meaning 'Good Till Canceled'; order expires if still 'open' at this timestamp, default is ''
 #' @seealso \code{\link{osNoOp}} , \code{\link{add.rule}}
 #' @export
 
-ruleSignal <- function(mktdata=mktdata, timestamp, sigcol, sigval, orderqty=0, ordertype, orderside=NULL, orderset=NULL, threshold=NULL, tmult=FALSE, replace=TRUE, delay=0.0001, osFUN='osNoOp', pricemethod=c('market','opside','active'), portfolio, symbol, ..., ruletype, TxnFees=0, prefer=NULL, sethold=FALSE, label='', order.price=NULL, chain.price=NULL)
+ruleSignal <- function(mktdata=mktdata, timestamp, sigcol, sigval, orderqty=0, ordertype, orderside=NULL, orderset=NULL, threshold=NULL, tmult=FALSE, replace=TRUE, delay=0.0001, osFUN='osNoOp', pricemethod=c('market','opside','active'), portfolio, symbol, ..., ruletype, TxnFees=0, prefer=NULL, sethold=FALSE, label='', order.price=NULL, chain.price=NULL, time.in.force='')
 {
     if(!is.function(osFUN))
         osFUN<-match.fun(osFUN)
@@ -223,7 +224,8 @@ ruleSignal <- function(mktdata=mktdata, timestamp, sigcol, sigval, orderqty=0, o
                          ...=..., 
                          prefer=prefer, 
                          TxnFees=TxnFees,
-                         label=label)
+                         label=label,
+			 time.in.force=time.in.force)
 #            }
         }
     }

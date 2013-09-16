@@ -6,7 +6,8 @@
     ordertype, side, threshold = NULL, orderset = "",
     status = "open", statustimestamp = "", prefer = NULL,
     delay = 1e-05, tmult = FALSE, replace = TRUE,
-    return = FALSE, ..., TxnFees = 0, label = "")
+    return = FALSE, ..., TxnFees = 0, label = "",
+    time.in.force = "")
 }
 \arguments{
   \item{portfolio}{text name of the portfolio to associate
@@ -68,6 +69,11 @@
 
   \item{label}{text label, default to '', set to rule label
   by \code{\link{ruleSignal}}}
+
+  \item{time.in.force}{timestamp time-in-force; either a
+  time stamp, or a number of seconds, or 'GTC' / '', 'GTC'
+  and '' both meaning 'Good Till Canceled'; order expires
+  if still 'open' at this timestamp, default is ''}
 }
 \description{
   It is important to understand that all the order

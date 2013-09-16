@@ -82,8 +82,8 @@ initOrders <- function(portfolio=NULL, symbols=NULL, initDate = '1999-12-31', ..
         orders<-list()
         orders[[portfolio]]<-list()
     }
-    ordertemplate<-xts(as.matrix(t(c(0,NA,"init","long",0,"closed",as.character(as.POSIXct(initDate)),'','',0,''))),order.by=as.POSIXct(initDate), ...=...)
-    colnames(ordertemplate) <- c("Order.Qty","Order.Price","Order.Type","Order.Side","Order.Threshold","Order.Status","Order.StatusTime","Prefer", "Order.Set","Txn.Fees","Rule")
+    ordertemplate<-xts(as.matrix(t(c(0,NA,"init","long",0,"closed",as.character(as.POSIXct(initDate)),'','',0,'',''))),order.by=as.POSIXct(initDate), ...=...)
+    colnames(ordertemplate) <- c("Order.Qty","Order.Price","Order.Type","Order.Side","Order.Threshold","Order.Status","Order.StatusTime","Prefer", "Order.Set","Txn.Fees","Rule","Time.In.Force")
 
     if(is.null(symbols)) {
         pfolio<-getPortfolio(portfolio)
@@ -119,13 +119,14 @@ initOrders <- function(portfolio=NULL, symbols=NULL, initDate = '1999-12-31', ..
 #' @seealso addOrder
 #' @concept order book
 #' @export
-getOrders <- function(portfolio,symbol,status="open",timespan=NULL,ordertype=NULL, side=NULL, qtysign=NULL, orderset=NULL, which.i=FALSE)
+getOrders <- function(portfolio,symbol,status="open",timespan=NULL,ordertype=NULL, side=NULL, qtysign=NULL, orderset=NULL, which.i=FALSE, time.in.force=NULL)
 {
     #if(is.null(timespan)) stop("timespan must be an xts style timestring")
     # get order book
     orderbook <- getOrderBook(portfolio)
     if(!any(names(orderbook[[portfolio]]) == symbol)) stop(paste("symbol",symbol,"does not exist in portfolio",portfolio,"having symbols",names(orderbook[[portfolio]])))
-	    ordersubset<-orderbook[[portfolio]][[symbol]]
+
+    ordersubset <- orderbook[[portfolio]][[symbol]]
     if(is.null(ordersubset))
         return(NULL)
 
@@ -142,6 +143,7 @@ getOrders <- function(portfolio,symbol,status="open",timespan=NULL,ordertype=NUL
                      (if(!is.null(ordertype)) ordersubset[,"Order.Type"]==ordertype else TRUE) &
                      (if(!is.null(side)) ordersubset[,"Order.Side"]==side else TRUE) &
                      (if(!is.null(orderset)) ordersubset[,"Order.Set"]==orderset else TRUE) &
+                     (if(!is.null(time.in.force)) strptime(ordersubset[,'Time.In.Force'], format='%Y-%m-%d %H:%M:%S')<time.in.force else TRUE) &
                      (if(!is.null(qtysign)) sign(as.numeric(ordersubset[,"Order.Qty"]))==qtysign else TRUE)
                     )
 
@@ -254,6 +256,7 @@ getOrders <- function(portfolio,symbol,status="open",timespan=NULL,ordertype=NUL
 #' @param \dots any other passthru parameters
 #' @param TxnFees numeric fees (usually negative) or function name for calculating TxnFees (processing happens later, not in this function)
 #' @param label text label, default to '', set to rule label by \code{\link{ruleSignal}}
+#' @param time.in.force timestamp time-in-force; either a time stamp, or a number of seconds, or 'GTC' / '', 'GTC' and '' both meaning 'Good Till Canceled'; order expires if still 'open' at this timestamp, default is ''
 #' @seealso getOrderBook
 #' @seealso updateOrders
 #' @concept order book
@@ -276,7 +279,8 @@ addOrder <- function(portfolio,
                      return=FALSE, 
                      ..., 
                      TxnFees=0,
-                     label=''
+                     label='',
+		     time.in.force=''
              )
 {
     # get order book
@@ -365,6 +369,20 @@ addOrder <- function(portfolio,
 
     statustimestamp=NA # new orders don't have a status time
 
+    # time in force
+    if(time.in.force != '')
+    {
+        if(time.in.force == 'GTC')
+            time.in.force <- ''
+        else
+        {
+            if(is.numeric(time.in.force))
+                time.in.force <- timestamp + time.in.force
+
+            time.in.force <- format(time.in.force, "%Y-%m-%d %H:%M:%S")
+	}
+    }
+
     #set up the other parameters
     if (!length(qty)==length(price)) qty <- rep(qty,length(price))
     if (!length(ordertype)==length(price)) ordertype <- rep(ordertype,length(price))
@@ -382,17 +400,17 @@ addOrder <- function(portfolio,
         {
             neworder <- xts(t(c(as.character(qty[i]), price[i], ordertype[i], 
                 side, threshold[i], status, statustimestamp, prefer[i],
-                orderset[i], TxnFees, label)), order.by=ordertime,
+                orderset[i], TxnFees, label, time.in.force)), order.by=ordertime,
                 dimnames=list(NULL, c("Order.Qty", "Order.Price", "Order.Type",
                   "Order.Side", "Order.Threshold", "Order.Status", "Order.StatusTime",
-                  "Prefer", "Order.Set", "Txn.Fees", "Rule")))
+                  "Prefer", "Order.Set", "Txn.Fees", "Rule", "Time.In.Force")))
                   
             if(is.null(orders)) orders<-neworder
             else orders <- rbind(orders,neworder)
         }
     }
 
-    if(!is.null(orders) && ncol(orders)!=11) {
+    if(!is.null(orders) && ncol(orders)!=12) {
         print("bad order(s):")
         print(orders)
         return()
