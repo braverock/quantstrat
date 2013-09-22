@@ -116,51 +116,53 @@ applyStrategy <- function(strategy , portfolios, mktdata=NULL , parameters=NULL,
 	
     for (portfolio in portfolios) {
         
-		# TODO call to initStrategy will go here!
-        if(isTRUE(initStrat)) initStrategy(strategy=strategy, portfolio, symbols, ...=...)
+		  # call initStrategy
+      if(isTRUE(initStrat)) initStrategy(strategy=strategy, portfolio, symbols, ...=...)
         
    		ret[[portfolio]]<-list() # this is slot [[i]] which we will use later
-        pobj<-getPortfolio(portfolio)
-        symbols<- ls(pobj$symbols)
-        sret<-list()
-        for (symbol in symbols){
-            if(isTRUE(load.mktdata)) mktdata <- get(symbol)
-
-            #loop over indicators
-            sret$indicators <- applyIndicators(strategy=strategy , mktdata=mktdata , parameters=parameters, ... )
-            #this should be taken care of by the mktdata<<-mktdata line in the apply* fn
-            if(inherits(sret$indicators,"xts") & nrow(mktdata)==nrow(sret$indicators)){
-                mktdata<-sret$indicators
-            }
-            
-            #loop over signal generators
-            sret$signals <- applySignals(strategy=strategy, mktdata=mktdata, sret$indicators, parameters=parameters, ... )
-            #this should be taken care of by the mktdata<<-mktdata line in the apply* fn
-            if(inherits(sret$signals,"xts") & nrow(mktdata)==nrow(sret$signals)){
-                mktdata<-sret$signals    
-            }
-            
-            #loop over rules  
-            sret$rules<-list()
-			
-			## only fire nonpath/pathdep when true 
-			## TODO make this more elegant
-			pd <- FALSE
-			for(i in 1:length(strategy$rules)){	if(length(strategy$rules[[i]])!=0){z <- strategy$rules[[i]]; if(z[[1]]$path.dep==TRUE){pd <- TRUE}}}
-				
-            sret$rules$nonpath<-applyRules(portfolio=portfolio, symbol=symbol, strategy=strategy, mktdata=mktdata, Dates=NULL, indicators=sret$indicators, signals=sret$signals, parameters=parameters,  ..., path.dep=FALSE)
-			
-			## Check for open orders
-			rem.orders <- suppressWarnings(getOrders(portfolio=portfolio, symbol=symbol, status="open")) #, timespan=timespan, ordertype=ordertype,which.i=TRUE)
-			if(NROW(rem.orders)>0){pd <- TRUE}
-            if(pd==TRUE){sret$rules$pathdep<-applyRules(portfolio=portfolio, symbol=symbol, strategy=strategy, mktdata=mktdata, Dates=NULL, indicators=sret$indicators, signals=sret$signals, parameters=parameters,  ..., path.dep=TRUE)}
-
-			ret[[portfolio]][[symbol]]<-sret
-		}
+      pobj<-getPortfolio(portfolio)
+      symbols<- ls(pobj$symbols)
+      sret<-list()
+      for (symbol in symbols){
+        if(isTRUE(load.mktdata)) mktdata <- get(symbol)
         
-        # TODO call to updateStrategy will go here!
-        if(isTRUE(updateStrat)) updateStrategy(strategy, portfolio, Symbols=symbols, ...=...)
+        # loop over indicators
+        sret$indicators <- applyIndicators(strategy=strategy , mktdata=mktdata , parameters=parameters, ... )
         
+        if(inherits(sret$indicators,"xts") & nrow(mktdata)==nrow(sret$indicators)){
+          mktdata<-sret$indicators
+        }
+        
+        # loop over signal generators
+        sret$signals <- applySignals(strategy=strategy, mktdata=mktdata, sret$indicators, parameters=parameters, ... )
+
+        if(inherits(sret$signals,"xts") & nrow(mktdata)==nrow(sret$signals)){
+          mktdata<-sret$signals    
+        }
+        
+        #loop over rules  
+        sret$rules<-list()
+        
+        # only fire nonpath/pathdep when true 
+        # TODO make this more elegant
+        pd <- FALSE
+        for(i in 1:length(strategy$rules)){  
+          if(length(strategy$rules[[i]])!=0){z <- strategy$rules[[i]]; if(z[[1]]$path.dep==TRUE){pd <- TRUE}}
+        }
+        
+        sret$rules$nonpath<-applyRules(portfolio=portfolio, symbol=symbol, strategy=strategy, mktdata=mktdata, Dates=NULL, indicators=sret$indicators, signals=sret$signals, parameters=parameters,  ..., path.dep=FALSE)
+        
+        # Check for open orders
+        rem.orders <- suppressWarnings(getOrders(portfolio=portfolio, symbol=symbol, status="open")) #, timespan=timespan, ordertype=ordertype,which.i=TRUE)
+        if(NROW(rem.orders)>0){pd <- TRUE}
+        if(pd==TRUE){sret$rules$pathdep<-applyRules(portfolio=portfolio, symbol=symbol, strategy=strategy, mktdata=mktdata, Dates=NULL, indicators=sret$indicators, signals=sret$signals, parameters=parameters,  ..., path.dep=TRUE)}
+        
+        ret[[portfolio]][[symbol]]<-sret
+      }
+      
+      # call updateStrategy
+      if(isTRUE(updateStrat)) updateStrategy(strategy, portfolio, Symbols=symbols, ...=...)
+      
     }
     
     if(verbose) return(ret)
@@ -176,8 +178,12 @@ is.strategy <- function( x ) {
 #' retrieve strategy from the container environment
 #' @param x string name of object to be retrieved
 #' @param envir the environment to retrieve the strategy object from, defaults to .strategy
+#' @rdname get.strategy
+#' @aliases
+#' get.strategy
+#' getStrategy
 #' @export
-getStrategy <- function(x, envir=.strategy){
+get.strategy <- getStrategy <- function(x, envir=.strategy){
     tmp_strat<-get(as.character(x),pos=envir, inherits=TRUE)
     if( inherits(tmp_strat,"try-error") | !is.strategy(tmp_strat) ) {
         warning(paste("Strategy",x," not found, please create it first."))

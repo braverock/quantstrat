@@ -1,7 +1,7 @@
 Package: quantstrat
 Type: Package
 Title: Quantitative Strategy Model Framework
-Version: 0.7.8
+Version: 0.7.9
 Date: $Date$
 Author: Peter Carl, Brian G. Peterson, Joshua Ulrich, Jan Humme
 Depends:
@@ -15,31 +15,8 @@ Suggests:
 Maintainer: Brian G. Peterson <brian@braverock.com>
 Description: Specify, build, and back-test quantitative
     financial trading and portfolio strategies
-Contributors: Yu Chen, Joe Dunn, Dirk Eddelbuettel, Jeffrey A. Ryan, Garrett
-    See, Jan Humme
+Contributors: Yu Chen, Joe Dunn, Dirk Eddelbuettel, 
+    Jeffrey A. Ryan, Garrett See
 LazyLoad: yes
 License: GPL-3
 ByteCompile: TRUE
-Collate:
-    'applyStrategy.rebalancing.R'
-    'chart.forward.training.R'
-    'indicators.R'
-    'initialize.R'
-    'match.names.R'
-    'orders.R'
-    'osFUNs.R'
-    'parameters.R'
-    'paramsets.R'
-    'rebalance.rules.R'
-    'ruleOrderProc.R'
-    'ruleRevoke.R'
-    'rules.R'
-    'ruleSignal.R'
-    'signals.R'
-    'strategy.R'
-    'tradeGraphs.R'
-    'utils.R'
-    'walk.forward.R'
-    'wrapup.R'
-    'tradeOrderStats.R'
-    'chart.forward.R'

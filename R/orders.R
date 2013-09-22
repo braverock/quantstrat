@@ -20,9 +20,13 @@
 #' 		\item{Order.Set}{}
 #' 		\item{Txn.Fees}{}
 #' 		\item{Rule}{}
-#' }         
+#' }   
+#' @aliases
+#' get.orderbook
+#' getOrderbook
+#' @rdname getOrderBook      
 #' @export
-getOrderBook <- function(portfolio, envir=.strategy) #should symbol subsets be supported too?  probably not.
+get.orderbook <- getOrderBook <- function(portfolio, envir=.strategy) #should symbol subsets be supported too?  probably not.
 { 
     if(!grepl("order_book",portfolio)) orders<-try(get(paste("order_book",portfolio,sep='.'),envir=envir),silent=TRUE)
     else orders<-try(get(portfolio,envir=envir),silent=TRUE)
@@ -39,25 +43,12 @@ getOrderBook <- function(portfolio, envir=.strategy) #should symbol subsets be s
 #' @seealso getOrderBook
 #' @concept order book
 #' @export
-
 put.orderbook <- function(portfolio.st, orderbook, envir=.strategy)
 {
     strategy.orderbook.st <- paste('order_book', portfolio.st, sep='.')
 
     assign(strategy.orderbook.st, orderbook, envir=envir)
 }
-
-###############################################################################
-# Blotter: Tools for transaction-oriented trading systems development
-# for R (see http://r-project.org/) 
-# Copyright (c) 2008-2011 Peter Carl and Brian G. Peterson
-#
-# This library is distributed under the terms of the GNU Public License (GPL)
-# for full details see the file COPYING
-#
-# $Id$
-#
-###############################################################################
 
 #' initialize order container
 #' 

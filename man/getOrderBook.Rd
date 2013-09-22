@@ -1,8 +1,9 @@
-\name{getOrderBook}
-\alias{getOrderBook}
+\name{get.orderbook}
+\alias{get.orderbook}
+\alias{getOrderbook}
 \title{get the order book object}
 \usage{
-  getOrderBook(portfolio, envir = .strategy)
+  get.orderbook(portfolio, envir = .strategy)
 }
 \arguments{
   \item{portfolio}{text name of the portfolio the order

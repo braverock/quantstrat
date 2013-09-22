@@ -1,8 +1,9 @@
-\name{getStrategy}
+\name{get.strategy}
+\alias{get.strategy}
 \alias{getStrategy}
 \title{retrieve strategy from the container environment}
 \usage{
-  getStrategy(x, envir = .strategy)
+  get.strategy(x, envir = .strategy)
 }
 \arguments{
   \item{x}{string name of object to be retrieved}
