@@ -57,15 +57,15 @@ ruleOrderProc <- function(portfolio, symbol, mktdata, timestamp=NULL, ordertype=
     ordersubset <- orderbook[[portfolio]][[symbol]]
 
     ### first check time-in-force for open orders, and flag as 'expired' where appropriate
-    ExpiredOrders.i <- getOrders(portfolio=portfolio, symbol=symbol, status="open", time.in.force=timestamp, which.i=TRUE)
-    if(!is.null(ExpiredOrders.i))
-    {
-        ordersubset[ExpiredOrders.i, "Order.Status"] = 'expired'
-        ordersubset[ExpiredOrders.i, "Order.StatusTime"]<-ordersubset[ExpiredOrders.i, "Time.In.Force"]
-
-        orderbook[[portfolio]][[symbol]] <- ordersubset
-        assign(paste("order_book",portfolio,sep='.'),orderbook,envir=.strategy)
-    }
+#    ExpiredOrders.i <- getOrders(portfolio=portfolio, symbol=symbol, status="open", time.in.force=timestamp, which.i=TRUE)
+#    if(!is.null(ExpiredOrders.i))
+#    {
+#        ordersubset[ExpiredOrders.i, "Order.Status"] = 'expired'
+#        ordersubset[ExpiredOrders.i, "Order.StatusTime"]<-ordersubset[ExpiredOrders.i, "Time.In.Force"]
+#
+#        orderbook[[portfolio]][[symbol]] <- ordersubset
+#        assign(paste("order_book",portfolio,sep='.'),orderbook,envir=.strategy)
+#    }
 
     ### now retrieve open orders
     ### TODO calculate timespan here?
