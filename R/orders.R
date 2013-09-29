@@ -25,7 +25,8 @@
 #' get.orderbook
 #' getOrderbook
 #' @rdname getOrderBook      
-#' @export
+#' @export get.orderbook 
+#' @export getOrderBook
 get.orderbook <- getOrderBook <- function(portfolio, envir=.strategy) #should symbol subsets be supported too?  probably not.
 { 
     if(!grepl("order_book",portfolio)) orders<-try(get(paste("order_book",portfolio,sep='.'),envir=envir),silent=TRUE)
@@ -110,7 +111,7 @@ initOrders <- function(portfolio=NULL, symbols=NULL, initDate = '1999-12-31', ..
 #' @seealso addOrder
 #' @concept order book
 #' @export
-getOrders <- function(portfolio,symbol,status="open",timespan=NULL,ordertype=NULL, side=NULL, qtysign=NULL, orderset=NULL, which.i=FALSE, time.in.force=NULL)
+getOrders <- function(portfolio,symbol,status="open",timespan=NULL,ordertype=NULL, side=NULL, qtysign=NULL, orderset=NULL, which.i=FALSE)
 {
     #if(is.null(timespan)) stop("timespan must be an xts style timestring")
     # get order book
@@ -134,7 +135,6 @@ getOrders <- function(portfolio,symbol,status="open",timespan=NULL,ordertype=NUL
                      (if(!is.null(ordertype)) ordersubset[,"Order.Type"]==ordertype else TRUE) &
                      (if(!is.null(side)) ordersubset[,"Order.Side"]==side else TRUE) &
                      (if(!is.null(orderset)) ordersubset[,"Order.Set"]==orderset else TRUE) &
-                     (if(!is.null(time.in.force)) strptime(ordersubset[,'Time.In.Force'], format='%Y-%m-%d %H:%M:%S')<time.in.force else TRUE) &
                      (if(!is.null(qtysign)) sign(as.numeric(ordersubset[,"Order.Qty"]))==qtysign else TRUE)
                     )
 
@@ -370,7 +370,7 @@ addOrder <- function(portfolio,
             if(is.numeric(time.in.force))
                 time.in.force <- timestamp + time.in.force
 
-            time.in.force <- format(time.in.force, "%Y-%m-%d %H:%M:%S")
+            time.in.force <- format(time.in.force, "%Y-%m-%d %H:%M:%0S")
 	}
     }
 

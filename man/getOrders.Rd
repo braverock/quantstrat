@@ -4,8 +4,7 @@
 \usage{
   getOrders(portfolio, symbol, status = "open",
     timespan = NULL, ordertype = NULL, side = NULL,
-    qtysign = NULL, orderset = NULL, which.i = FALSE,
-    time.in.force = NULL)
+    qtysign = NULL, orderset = NULL, which.i = FALSE)
 }
 \arguments{
   \item{portfolio}{text name of the portfolio to associate
