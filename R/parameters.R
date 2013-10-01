@@ -399,7 +399,11 @@ applyParameter<-function(strategy,portfolios,parameterPool,parameterConstraints,
     
     initialPortf<-getPortfolio(portfolios)
     symbols<-ls(initialPortf$symbols)
-    initDate<-time(first(initialPortf$symbols[[1]]$posPL))
+
+    # TODO: we likely want to search for first date, not (arbitrarily?)
+    # choose the first symbol
+    firstsymbol<-first(symbols)
+    initDate<-time(first(initialPortf$symbols[[firstsymbol]]$posPL))
     
     limits<-list()
     for(symbol in ls(initialPortf$symbols))
