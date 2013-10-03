@@ -8,6 +8,10 @@
 #
 # Paragraph 3.2: luxor with slippage and transaction costs
 
+require(quantstrat)
+
+require(quantstrat)
+
 ##### PLACE DEMO AND TEST DATES HERE #################
 #
 #if(isTRUE(options('in_test')$in_test))
@@ -19,11 +23,11 @@
 #  {initDate="1999-12-31"
 #  endDate=Sys.Date()}
 
-source('luxor.include.R')
+source(paste0(path.package("quantstrat"),"/demo/luxor.include.R"))
 .fast = 10
 .slow = 30
 
-source('luxor.getSymbols.R')
+source(paste0(path.package("quantstrat"),"/demo/luxor.getSymbols.R"))
 
 ### blotter
 

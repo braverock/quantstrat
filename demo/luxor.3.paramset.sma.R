@@ -9,9 +9,10 @@
 # Paragraph 3.3: luxor SMA paramset optimization
 
 ###
+require(quantstrat)
 
-source('luxor.include.R')
-source('luxor.getSymbols.R')
+source(paste0(path.package("quantstrat"),"/demo/luxor.include.R"))
+source(paste0(path.package("quantstrat"),"/demo/luxor.getSymbols.R"))
 
 ### blotter
 
@@ -25,7 +26,9 @@ initOrders(portfolio.st, initDate=initDate)
 load.strategy(strategy.st)
 
 ### doMC
-
+if (!"doMC" %in% installed.packages()[,1]) {
+    install.packages("doMC")
+} 
 require(doMC)
 registerDoMC(cores=8)
 

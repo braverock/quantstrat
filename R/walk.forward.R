@@ -69,7 +69,7 @@ walk.forward <- function(strategy.st, paramset.label, portfolio.st, account.st,
     results <- list()
 
     # assuming that timespans for all portfolio symbols are same, so ok to use 1st symbol to calculate end points
-    symbol.st <- names(portfolio$symbols)[1]
+    symbol.st <- first(ls(portfolio$symbols))
     symbol <- get(symbol.st)
 
     ep <- endpoints(symbol, on=period)

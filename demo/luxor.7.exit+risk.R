@@ -8,7 +8,9 @@
 #
 # Paragraph 3.5: determination of appropriate exit and risk management
 
-source('luxor.include.R')
+require(quantstrat)
+
+source(paste0(path.package("quantstrat"),"/demo/luxor.include.R"))
 
 ##### PLACE DEMO AND TEST DATES HERE #################
 #
@@ -21,7 +23,7 @@ source('luxor.include.R')
 #  {initDate="1999-12-31"
 #  endDate=Sys.Date()}
 
-source('luxor.getSymbols.R')
+source(paste0(path.package("quantstrat"),"/demo/luxor.getSymbols.R"))
 
 ### blotter
 

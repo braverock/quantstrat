@@ -12,7 +12,10 @@ require(quantstrat)
 
 ### load 'stats' back into .GlobalEnv
 
-load('../data/luxor.parameters.1-10.30-55.RData')
+load(paste0(
+	path.package('quantstrat'),
+	'/data/luxor.parameters.2-10.30-55.RData')
+)
 
 ### show trade graphs from stats
 

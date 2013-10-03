@@ -18,15 +18,13 @@
 # The Qty of Stock A that it buys (sells) = MaxPos / lvls
 # The Qty of Stock B that is sells (buys) = MaxPos * Ratio / lvls  
 
+require(quantstrat)
+
 suppressWarnings(rm("order_book.pair1",pos=.strategy))
 suppressWarnings(rm("account.pairs", "portfolio.pair1", pos=.blotter))
 suppressWarnings(rm("initDate", "endDate", "startDate", "initEq", "SD", "N", 
                     "symb1", "symb2", "portfolio1.st", "account.st", 
                     "pairStrat", "out1"))
-
-require(quantstrat)
-
-
 
 ##### PLACE DEMO AND TEST DATES HERE #################
 #

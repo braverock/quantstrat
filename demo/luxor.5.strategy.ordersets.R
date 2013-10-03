@@ -21,7 +21,7 @@ require(quantstrat)
 #  {initDate="1999-12-31"
 #  endDate=Sys.Date()}
 
-source('luxor.include.R')
+source(paste0(path.package("quantstrat"),"/demo/luxor.include.R"))
 
 ### define strategy
 

@@ -21,8 +21,8 @@ require(quantstrat)
 #  {initDate="1999-12-31"
 #  endDate=Sys.Date()}
 
-source('luxor.include.R')
-source('luxor.getSymbols.R')
+source(paste0(path.package("quantstrat"),"/demo/luxor.include.R"))
+source(paste0(path.package("quantstrat"),"/demo/luxor.getSymbols.R"))
 
 ###
 
@@ -48,10 +48,12 @@ enable.rule('luxor', 'chain', 'StopTrailing')
 #enable.rule('luxor', 'chain', 'TakeProfit')
 
 ### END uncomment lines to activate StopLoss and/or StopTrailing and/or TakeProfit rules
-
 require(foreach)
 #registerDoSEQ()
 
+if (!"doMC" %in% installed.packages()[,1]) {
+    install.packages("doMC")
+}
 require(doMC)
 registerDoMC(cores=2)
 
