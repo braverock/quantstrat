@@ -50,9 +50,16 @@ osNoOp <- function(timestamp, orderqty, portfolio, symbol, ruletype, ...)
 addPosLimit <- function (portfolio, symbol, timestamp, maxpos, longlevels = 1, minpos = -maxpos, shortlevels = longlevels) 
 {
 	portf <- getPortfolio(portfolio)
+  #catch error where maxpos/minpos have length greater than 1
+	if(length(maxpos)>1) maxpos <- maxpos[,1]
+	if(length(minpos)>1) minpos <- minpos[,1]
 	newrow <- xts(cbind(maxpos, longlevels, minpos, shortlevels), order.by = as.POSIXct(timestamp))
-	colnames(newrow) <- c("MaxPos", "LongLevels", "MinPos", "ShortLevels")
-	
+	tc <- try(colnames(newrow) <- c("MaxPos", "LongLevels", "MinPos", "ShortLevels"))
+# 	if(inherits(tc, 'try-error')) {
+#     print(symbol)
+#     print(newrow)
+#     browser()
+# 	}
 	if (is.null(portf$symbols[[symbol]]$PosLimit)) {
 		portf$symbols[[symbol]]$PosLimit <- newrow
 	} else {

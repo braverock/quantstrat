@@ -10,16 +10,16 @@
 #' 
 #' \describe{
 #'      \item{Order.Qty}{}
-#' 		\item{Order.Price}{}
-#' 		\item{Order.Type}{}
-#' 		\item{Order.Side}{}
-#' 		\item{Order.Threshold}{}
-#' 		\item{Order.Status}{}
-#' 		\item{Order.StatusTime}{}
-#' 		\item{Prefer}{}
-#' 		\item{Order.Set}{}
-#' 		\item{Txn.Fees}{}
-#' 		\item{Rule}{}
+#'     \item{Order.Price}{}
+#'     \item{Order.Type}{}
+#'     \item{Order.Side}{}
+#'     \item{Order.Threshold}{}
+#'     \item{Order.Status}{}
+#'     \item{Order.StatusTime}{}
+#'     \item{Prefer}{}
+#'     \item{Order.Set}{}
+#'     \item{Txn.Fees}{}
+#'     \item{Rule}{}
 #' }   
 #' @aliases
 #' get.orderbook
@@ -271,8 +271,8 @@ addOrder <- function(portfolio,
                      ..., 
                      TxnFees=0,
                      label='',
-		     time.in.force=''
-             )
+                     time.in.force=''
+)
 {
     # get order book
     #orderbook <- getOrderBook(portfolio)
@@ -371,7 +371,8 @@ addOrder <- function(portfolio,
                 time.in.force <- timestamp + time.in.force
 
             time.in.force <- format(time.in.force, "%Y-%m-%d %H:%M:%0S")
-	}
+            #TODO FIXME this line probably needs to be sensitive to the index of the market data, Date vs POSIXct
+  }
     }
 
     #set up the other parameters

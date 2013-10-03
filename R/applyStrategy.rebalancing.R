@@ -130,7 +130,8 @@ applyStrategy.rebalancing <- function(strategy ,
         
         #now we need to do the endpoints loop. 
         for(i in 2:length(pindex)){
-            #the proper endpoints for each symbol will vary, so we need to get them separately, and subset each one
+            #the proper endpoints for each symbol will vary, so we need to get
+            #them separately, and subset each one
             for (symbol in symbols){
                 #sret<-ret[[portfolio]][[symbol]]
                 mktdata<-get(symbol,pos=st)
@@ -138,11 +139,20 @@ applyStrategy.rebalancing <- function(strategy ,
                 md_subset<-mktdata[as.POSIXct(index(mktdata))>pindex[i-1]&as.POSIXct(index(mktdata))<=pindex[i]]
                 if(nrow(md_subset)<1) {
                     next()
-                } else{
+                } else {
                     #applyRules to this subset for this instrument  
-                    #sret$rules$pathdep<-rbind(sret$rules$pathdep,
-                    applyRules(portfolio=portfolio, symbol=symbol, strategy=s, mktdata=md_subset, Dates=NULL, indicators=sret$indicators, signals=sret$signals, parameters=parameters,  ..., path.dep=TRUE)
-                    #)
+                    sret$rules$pathdep<-rbind(sret$rules$pathdep,
+                      applyRules(portfolio=portfolio, 
+                                 symbol=symbol, 
+                                 strategy=s, 
+                                 mktdata=md_subset, 
+                                 Dates=NULL, 
+                                 indicators=sret$indicators, 
+                                 signals=sret$signals, 
+                                 parameters=parameters,  
+                                 ..., 
+                                 path.dep=TRUE)
+                    )
                 }
                 
                 #ret[[portfolio]][[symbol]]<-sret

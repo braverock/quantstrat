@@ -30,7 +30,7 @@
 #' add.rule(strategy.name, 'rulePctEquity',
 #'         arguments=list(rebalance_on='months',
 #'                        trade.percent=.02,
-#'                        refprice=quote(last(getPrice(mktdata)[paste('::',timestamp,sep='')])),
+#'                        refprice=quote(last(getPrice(mktdata)[paste('::',timestamp,sep='')])[,1]),
 #'                        digits=0
 #'         ),
 #'         type='rebalance',
@@ -52,6 +52,7 @@ rulePctEquity <- function (trade.percent=.02,
     trading.pl <- sum(getPortfolio(portfolio)$summary$Net.Trading.PL)
     total.equity <- initEq+trading.pl
     tradeSize <- total.equity * trade.percent
+    if(length(refprice)>1) refprice <- refprice[,1]
     if(!is.null(refprice)) tradeSize <- tradeSize/refprice
     if(!is.null(digits)) tradeSize<-round(tradeSize,digits)
     addPosLimit(portfolio = portfolio, 

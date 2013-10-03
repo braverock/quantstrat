@@ -140,7 +140,7 @@ ruleSignal <- function(mktdata=mktdata, timestamp, sigcol, sigval, orderqty=0, o
 				else
 				    prefer='bid'  # we're selling, so give it to them for what they're bidding  
 			    } 
-			    orderprice <- try(getPrice(x=mktdata, prefer=prefer))[timestamp] 
+			    orderprice <- try(getPrice(x=mktdata, prefer=prefer)[,1][timestamp]) 
 			},
 			passive =,
 			work =,
@@ -151,7 +151,7 @@ ruleSignal <- function(mktdata=mktdata, timestamp, sigcol, sigval, orderqty=0, o
 				else
 				    prefer='ask'  # we're selling, so work the ask price
 			    }
-			    orderprice <- try(getPrice(x=mktdata, prefer=prefer))[timestamp]
+			    orderprice <- try(getPrice(x=mktdata, prefer=prefer)[,1][timestamp])
 			},
 			maker = {
 			    if(hasArg(price) & length(match.call(expand.dots=TRUE)$price)>1) {
@@ -159,9 +159,9 @@ ruleSignal <- function(mktdata=mktdata, timestamp, sigcol, sigval, orderqty=0, o
 				orderprice <- try(match.call(expand.dots=TRUE)$price)
 			    } else {
 				if(!is.null(threshold)) {
-				    baseprice<- last(getPrice(x=mktdata)[timestamp]) # this should get either the last trade price or the Close
+				    baseprice<- last(getPrice(x=mktdata)[,1][timestamp]) # this should get either the last trade price or the Close
 				    if(hasArg(tmult) & isTRUE(match.call(expand.dots=TRUE)$tmult)) {
-					baseprice<- last(getPrice(x=mktdata)[timestamp]) # this should get either the last trade price or the Close
+					baseprice<- last(getPrice(x=mktdata)[,1][timestamp]) # this should get either the last trade price or the Close
 					# threshold is a multiplier of current price
 					if (length(threshold)>1){
 					    orderprice <- baseprice * threshold # assume the user has set proper threshold multipliers for each side
