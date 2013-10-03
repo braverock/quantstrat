@@ -94,7 +94,7 @@ initOrders(portfolio='faber', initDate=initDate)
 # set intial position limits
 posval<-initEq/length(symbols)
 for(symbol in symbols){
-    pos<-round((posval/first(getPrice(get(symbol)))),-2)
+    pos<-round((posval/first(getPrice(get(symbol)))[,1]),-2)
     addPosLimit('faber',symbol,initDate, maxpos=pos,minpos=-pos)
 }
 print("setup completed")
@@ -121,7 +121,7 @@ add.rule('faber', name='ruleSignal', arguments = list(sigcol="Cl.lt.SMA", sigval
 add.rule('faber', 'rulePctEquity',
         arguments=list(rebalance_on='quarters',
                 trade.percent=1/length(symbols),
-                refprice=quote(last(getPrice(mktdata)[paste('::',timestamp,sep='')])),
+                refprice=quote(last(getPrice(mktdata)[paste('::',timestamp,sep='')][,1])),
                 digits=0
         ),
         type='rebalance',
