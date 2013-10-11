@@ -148,12 +148,6 @@ applyIndicators <- function(strategy, mktdata, parameters=NULL, ...) {
             stop ("You must supply an object of type 'strategy'.")
     } 
     ret <- NULL
-    nargs <-list(...)
-    if(length(nargs)==0) nargs=NULL
-    if (length('...')==0 | is.null('...')) {
-        #rm('...')
-        nargs=NULL
-    }
 
     # First, delete any colums in mktdata that correspond to indicators we're about
     # to (re)calculate and cbind.
@@ -165,14 +159,6 @@ applyIndicators <- function(strategy, mktdata, parameters=NULL, ...) {
     for (indicator in strategy$indicators){
         if(!is.function(get(indicator$name))){
             if(!is.function(get(paste("sig",indicator$name,sep='.')))){		
-				# now add arguments from parameters
-				if(length(parameters)){
-					pm <- pmatch(names(parameters), onames, nomatch = 0L)
-					names(parameters[pm > 0L]) <- onames[pm]
-					.formals[pm] <- parameters[pm > 0L]
-				}
-				
-				
                 message(paste("Skipping indicator",indicator$name,"because there is no function by that name to call"))
                 next()      
             } else {
@@ -182,35 +168,15 @@ applyIndicators <- function(strategy, mktdata, parameters=NULL, ...) {
         
         if(!isTRUE(indicator$enabled)) next()
         
-        # see 'S Programming p. 67 for this matching
-        fun<-match.fun(indicator$name)
-        .formals  <- formals(fun)
-        onames <- names(.formals)
+        # replace default function arguments with indicator$arguments
+        .formals <- formals(indicator$name)
+        .formals <- modify.args(.formals, indicator$arguments, dots=TRUE)
+        # now add arguments from parameters
+        .formals <- modify.args(.formals, parameters)
+        # now add dots
+        .formals <- modify.args(.formals, list(...))
         
-        pm <- pmatch(names(indicator$arguments), onames, nomatch = 0L)
-        names(indicator$arguments[pm > 0L]) <- onames[pm]
-        .formals[pm] <- indicator$arguments[pm > 0L]
-        if (any(pm == 0L)){
-            warning(paste("some arguments stored for",indicator$name,"do not match"))
-            .formals<-c(.formals,indicator$arguments[pm==0L])
-        }
-        
-		# now add arguments from parameters
-		if(length(parameters)){
-			pm <- pmatch(names(parameters), onames, nomatch = 0L)
-			names(parameters[pm > 0L]) <- onames[pm]
-			.formals[pm] <- parameters[pm > 0L]
-		}
-		
-        #now add arguments from dots
-        if (length(nargs)) {
-            pm <- pmatch(names(nargs), onames, nomatch = 0L)
-            names(nargs[pm > 0L]) <- onames[pm]
-            .formals[pm] <- nargs[pm > 0L]
-        }
-        .formals$... <- NULL
-        
-        tmp_val<-do.call(fun,.formals)
+        tmp_val <- do.call(indicator$name, .formals)
 		
 		#add label
         if(is.null(colnames(tmp_val)))

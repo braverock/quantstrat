@@ -281,12 +281,6 @@ applyRules <- function(portfolio,
             stop ("You must supply an object of type 'strategy'.")
     } 
     ret <- NULL
-    nargs <-list(...)
-    if(length(nargs)==0) nargs=NULL
-    if (length('...')==0 | is.null('...')) {
-        rm('...')
-        nargs=NULL
-    }
     
     Dates=unique(index(mktdata))  
     
@@ -691,47 +685,23 @@ ruleProc <- function (ruletypelist,timestamp=NULL, path.dep, ruletype, ..., para
         # check to see if we should run in this timespan
         if(!is.null(rule$timespan) && nrow(mktdata[timestamp][rule$timespan])==0) next()
         
-        # see 'S Programming' p. 67 for this matching
-        if(is.function(rule$name)) fun <- rule$name
-        else fun<-match.fun(rule$name)
-        
-        nargs <-list(...)
-        if(length(nargs)==0) nargs=NULL
-        if (length('...')==0 | is.null('...')) {
-            rm('...')
-            nargs=NULL
-        }
-        
-        .formals  <- formals(fun)
-        
-        onames <- names(.formals)
+        # modify a few things
         rule$arguments$timestamp = timestamp
         rule$arguments$ruletype  = ruletype
         rule$arguments$label = rule$label
-        pm <- pmatch(names(rule$arguments), onames, nomatch = 0L)
-        # if (any(pm == 0L)) message(paste("some arguments stored for",rule$name,"do not match"))
-        names(rule$arguments[pm > 0L]) <- onames[pm]
-        .formals[pm] <- rule$arguments[pm > 0L]
-        
+
+        # replace default function arguments with rule$arguments
+        .formals <- formals(rule$name)
+        .formals <- modify.args(.formals, rule$arguments, dots=TRUE)
         # now add arguments from parameters
-        if(length(parameters)){
-            pm <- pmatch(names(parameters), onames, nomatch = 0L)
-            names(parameters[pm > 0L]) <- onames[pm]
-            .formals[pm] <- parameters[pm > 0L]
-        }
-        
-        #now add dots
-        if (length(nargs)) {
-            pm <- pmatch(names(nargs), onames, nomatch = 0L)
-            names(nargs[pm > 0L]) <- onames[pm]
-            .formals[pm] <- nargs[pm > 0L]
-        }
-        .formals$... <- NULL
+        .formals <- modify.args(.formals, parameters)
+        # now add dots
+        .formals <- modify.args(.formals, list(...))
         
         # any rule-specific prefer-parameters should override global prefer parameter
         if(!is.null(rule$arguments$prefer)) .formals$prefer = rule$arguments$prefer
         
-        tmp_val<-do.call(fun,.formals)
+        tmp_val <- do.call(rule$name, .formals)
                 
 #            print(paste('tmp_val ==', tmp_val))
     } #end rules loop

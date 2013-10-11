@@ -84,12 +84,6 @@ applySignals <- function(strategy, mktdata, indicators=NULL, parameters=NULL, ..
             stop ("You must supply an object of type 'strategy'.")
     } 
     ret <- NULL
-    nargs <-list(...)
-    if(length(nargs)==0) nargs=NULL
-    if (length('...')==0 | is.null('...')) {
-        rm('...')
-        nargs=NULL
-    }
     
     for (signal in strategy$signals){
         #TODO check to see if they've already been calculated
@@ -105,34 +99,15 @@ applySignals <- function(strategy, mktdata, indicators=NULL, parameters=NULL, ..
  
         if(!isTRUE(signal$enabled)) next()
         
-        # see 'S Programming p. 67 for this matching
-        fun<-match.fun(signal$name)
+        # replace default function arguments with signal$arguments
+        .formals <- formals(signal$name)
+        .formals <- modify.args(.formals, signal$arguments, dots=TRUE)
+        # now add arguments from parameters
+        .formals <- modify.args(.formals, parameters)
+        # now add dots
+        .formals <- modify.args(.formals, list(...))
 
-        .formals  <- formals(fun)
-        onames <- names(.formals)
-        
-        pm <- pmatch(names(signal$arguments), onames, nomatch = 0L)
-        #if (any(pm == 0L))
-        #    warning(paste("some arguments stored for",signal$name,"do not match"))
-        names(signal$arguments[pm > 0L]) <- onames[pm]
-        .formals[pm] <- signal$arguments[pm > 0L]		
-		
-		# now add arguments from parameters
-		if(length(parameters)){
-			pm <- pmatch(names(parameters), onames, nomatch = 0L)
-			names(parameters[pm > 0L]) <- onames[pm]
-			.formals[pm] <- parameters[pm > 0L]
-		}
-		
-        #now add dots
-        if (length(nargs)) {
-            pm <- pmatch(names(nargs), onames, nomatch = 0L)
-            names(nargs[pm > 0L]) <- onames[pm]
-            .formals[pm] <- nargs[pm > 0L]
-        }
-        .formals$... <- NULL
-        
-        tmp_val<-do.call(fun,.formals)
+        tmp_val <- do.call(signal$name, .formals)
 		
 		#add label
 		if(is.null(colnames(tmp_val)))

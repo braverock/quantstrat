@@ -109,35 +109,15 @@ function(strategy,
             
             if(!isTRUE(wrapup_o$enabled)) next()
             
-            # see 'S Programming p. 67 for this matching
-            fun<-match.fun(wrapup_o$name)
-            
-            .formals  <- formals(fun)
-            onames <- names(.formals)
-            
-            pm <- pmatch(names(wrapup_o$arguments), onames, nomatch = 0L)
-            #if (any(pm == 0L))
-            #    warning(paste("some arguments stored for",wrapup_o$name,"do not match"))
-            names(wrapup_o$arguments[pm > 0L]) <- onames[pm]
-            .formals[pm] <- wrapup_o$arguments[pm > 0L]       
-            
+            # replace default function arguments wrapup_o$arguments
+            .formals <- formals(wrapup_o$name)
+            .formals <- modify.args(.formals, wrapup_o$arguments, dots=TRUE)
             # now add arguments from parameters
-            if(length(parameters)){
-                pm <- pmatch(names(parameters), onames, nomatch = 0L)
-                names(parameters[pm > 0L]) <- onames[pm]
-                .formals[pm] <- parameters[pm > 0L]
-            }
+            .formals <- modify.args(.formals, parameters)
+            # now add dots
+            .formals <- modify.args(.formals, list(...))
             
-            #now add dots
-            dargs<-list(...)
-            if (length(dargs)) {
-                pm <- pmatch(names(dargs), onames, nomatch = 0L)
-                names(dargs[pm > 0L]) <- onames[pm]
-                .formals[pm] <- dargs[pm > 0L]
-            }
-            .formals$... <- NULL
-            
-            out[[wrapup_o$name]]<-do.call(fun,.formals)
+            out[[wrapup_o$name]] <- do.call(wrapup_o$name, .formals)
         }            
     }
     

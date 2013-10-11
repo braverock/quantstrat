@@ -94,36 +94,16 @@ initStrategy <- function(strategy, portfolio, symbols, parameters=NULL, get.Symb
         
         if(!isTRUE(init_o$enabled)) next()
         
-        # see 'S Programming p. 67 for this matching
-        fun<-match.fun(init_o$name)
-        
-        .formals  <- formals(fun)
-        onames <- names(.formals)
-        
-        pm <- pmatch(names(init_o$arguments), onames, nomatch = 0L)
-        #if (any(pm == 0L))
-        #    warning(paste("some arguments stored for",init_o$name,"do not match"))
-        names(init_o$arguments[pm > 0L]) <- onames[pm]
-        .formals[pm] <- init_o$arguments[pm > 0L]       
-        
+        # replace default function arguments with init_o$arguments
+        .formals <- formals(init_o$name)
+        .formals <- modify.args(.formals, init_o$arguments, dots=TRUE)
         # now add arguments from parameters
-        if(length(parameters)){
-            pm <- pmatch(names(parameters), onames, nomatch = 0L)
-            names(parameters[pm > 0L]) <- onames[pm]
-            .formals[pm] <- parameters[pm > 0L]
-        }
+        .formals <- modify.args(.formals, parameters)
+        # now add dots
+        .formals <- modify.args(.formals, list(...))
         
-        #now add dots
-        dargs<-list(...)
-        if (length(dargs)) {
-            pm <- pmatch(names(dargs), onames, nomatch = 0L)
-            names(dargs[pm > 0L]) <- onames[pm]
-            .formals[pm] <- dargs[pm > 0L]
-        }
-        .formals$... <- NULL
-        
-        do.call(fun,.formals)
-    }            
+        do.call(init_o$name, .formals)
+    }
 }
 
 #' add arbitrary initialization functions to a strategy
