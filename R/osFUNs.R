@@ -49,7 +49,7 @@ osNoOp <- function(timestamp, orderqty, portfolio, symbol, ruletype, ...)
 #' @export
 addPosLimit <- function (portfolio, symbol, timestamp, maxpos, longlevels = 1, minpos = -maxpos, shortlevels = longlevels) 
 {
-	portf <- getPortfolio(portfolio)
+	portf <- .getPortfolio(portfolio)
   #catch error where maxpos/minpos have length greater than 1
 	if(length(maxpos)>1) maxpos <- maxpos[,1]
 	if(length(minpos)>1) minpos <- minpos[,1]
