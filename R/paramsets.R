@@ -47,7 +47,7 @@ clone.portfolio <- function(portfolio.st, cloned.portfolio.st, strip.history=TRU
 {
     #must.have.args(match.call(), c('portfolio.st', 'cloned.portfolio.st'))
 
-    portfolio <- getPortfolio(portfolio.st)
+    portfolio <- .getPortfolio(portfolio.st)
 
     if(strip.history==TRUE)
     {
@@ -366,7 +366,7 @@ apply.paramset <- function(strategy.st, paramset.label, portfolio.st, account.st
 
     if(!is.null(audit)) must.be.environment(audit)
 
-    portfolio <- getPortfolio(portfolio.st)
+    portfolio <- .getPortfolio(portfolio.st)
     account <- getAccount(account.st)
     orderbook <- getOrderBook(portfolio.st)
 

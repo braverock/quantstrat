@@ -78,7 +78,7 @@ initOrders <- function(portfolio=NULL, symbols=NULL, initDate = '1999-12-31', ..
     colnames(ordertemplate) <- c("Order.Qty","Order.Price","Order.Type","Order.Side","Order.Threshold","Order.Status","Order.StatusTime","Prefer", "Order.Set","Txn.Fees","Rule","Time.In.Force")
 
     if(is.null(symbols)) {
-        pfolio<-getPortfolio(portfolio)
+        pfolio<-.getPortfolio(portfolio)
         symbols<-ls(pfolio$symbols)
     }
     if(!is.null(symbols)){

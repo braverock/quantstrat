@@ -45,7 +45,7 @@ must.be.portfolio <- function(portfolio)
 {
     if(!is.portfolio(portfolio))
     {
-        portfolio<-try(getPortfolio(portfolio))
+        portfolio<-try(.getPortfolio(portfolio))
 
         if(inherits(portfolio,"try-error"))
             stop(paste(portfolio, ': not a portfolio'))

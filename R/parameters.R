@@ -397,7 +397,7 @@ applyParameter<-function(strategy,portfolios,parameterPool,parameterConstraints,
 {
     #need to create combination of distribution values in each slot of the parameterPool
     
-    initialPortf<-getPortfolio(portfolios)
+    initialPortf<-.getPortfolio(portfolios)
     symbols<-ls(initialPortf$symbols)
 
     # TODO: we likely want to search for first date, not (arbitrarily?)

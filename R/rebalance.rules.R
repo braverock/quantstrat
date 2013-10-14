@@ -49,7 +49,7 @@ rulePctEquity <- function (trade.percent=.02,
 {
     dummy <- updatePortf(Portfolio=portfolio,
             Dates=paste('::',timestamp,sep=''))
-    trading.pl <- sum(getPortfolio(portfolio)$summary$Net.Trading.PL)
+    trading.pl <- sum(.getPortfolio(portfolio)$summary$Net.Trading.PL)
     total.equity <- initEq+trading.pl
     tradeSize <- total.equity * trade.percent
     if(length(refprice)>1) refprice <- refprice[,1]
@@ -86,7 +86,7 @@ ruleWeights <- function (weights=NULL,
                 Dates=paste('::',timestamp,sep=''))
         total.equity<-getEndEq(account)
     } else {
-        trading.pl <- sum(getPortfolio(portfolio)$summary$Net.Trading.PL)
+        trading.pl <- sum(.getPortfolio(portfolio)$summary$Net.Trading.PL)
         total.equity <- initEq+trading.pl
     }
     

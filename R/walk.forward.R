@@ -64,7 +64,7 @@ walk.forward <- function(strategy.st, paramset.label, portfolio.st, account.st,
     strategy <- must.be.strategy(strategy.st)
     must.be.paramset(strategy, paramset.label)
 
-    portfolio <- getPortfolio(portfolio.st)
+    portfolio <- .getPortfolio(portfolio.st)
 
     results <- list()
 
