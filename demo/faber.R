@@ -153,7 +153,6 @@ if("package:PerformanceAnalytics" %in% search() || require("PerformanceAnalytics
 	getSymbols("SPY", src='yahoo', index.class=c("POSIXt","POSIXct"), from='1999-01-01')
 	SPY<-to.monthly(SPY)
 	SPY.ret<-Return.calculate(SPY$SPY.Close)
-  SPY.ret<-na.omit(SPY.ret)
 	index(SPY.ret)<-index(ret1)
 	dev.new()
 	charts.PerformanceSummary(cbind(ret1$total,SPY.ret), geometric=FALSE, wealth.index=TRUE)
