@@ -18,7 +18,7 @@ initDate = '2002-10-21'
 
 strategy.st = 'luxor'
 portfolio.st = 'forex'
-account.st = 'IB1'
+account.st = 'IB'
 
 ###
 
@@ -63,3 +63,5 @@ account.st = 'IB1'
 .stoptrailing <- 0.8/100
 .takeprofit <- 2.0/100
 
+suppressWarnings(rm(list = c(paste("account", account.st, sep='.'), paste("portfolio", portfolio.st, sep='.')), pos=.blotter))
+suppressWarnings(rm(list = c(strategy.st, paste("order_book", portfolio.st, sep='.')), pos=.strategy))
