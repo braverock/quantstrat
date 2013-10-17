@@ -696,12 +696,13 @@ ruleProc <- function (ruletypelist,timestamp=NULL, path.dep, ruletype, ..., para
         # now add arguments from parameters
         .formals <- modify.args(.formals, parameters)
         # now add dots
-        .formals <- modify.args(.formals, list(...))
+        .formals <- modify.args(.formals, ...)
         
         # any rule-specific prefer-parameters should override global prefer parameter
         if(!is.null(rule$arguments$prefer)) .formals$prefer = rule$arguments$prefer
         
-        tmp_val <- do.call(rule$name, .formals)
+        # evaluate rule in applyRules' environment
+        tmp_val <- do.call(rule$name, .formals, envir=parent.frame(2))
                 
 #            print(paste('tmp_val ==', tmp_val))
     } #end rules loop

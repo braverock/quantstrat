@@ -174,7 +174,7 @@ applyIndicators <- function(strategy, mktdata, parameters=NULL, ...) {
         # now add arguments from parameters
         .formals <- modify.args(.formals, parameters)
         # now add dots
-        .formals <- modify.args(.formals, list(...))
+        .formals <- modify.args(.formals, ...)
         
         tmp_val <- do.call(indicator$name, .formals)
 		

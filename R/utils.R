@@ -52,8 +52,15 @@ must.be.portfolio <- function(portfolio)
     }
 }
 
-modify.args <- function(formals, arglist, dots=FALSE)
+modify.args <- function(formals, arglist, ..., dots=FALSE)
 {
+    # avoid evaluating '...' to make things faster
+    dots.names <- eval(substitute(alist(...)))
+
+    if(missing(arglist))
+        arglist <- NULL
+    arglist <- c(arglist, dots.names)
+
     # see 'S Programming' p. 67 for this matching
 
     # nothing to do if arglist is empty; return formals

@@ -100,7 +100,7 @@ initStrategy <- function(strategy, portfolio, symbols, parameters=NULL, get.Symb
         # now add arguments from parameters
         .formals <- modify.args(.formals, parameters)
         # now add dots
-        .formals <- modify.args(.formals, list(...))
+        .formals <- modify.args(.formals, ...)
         
         do.call(init_o$name, .formals)
     }
