@@ -8,8 +8,10 @@
 #
 # Paragraph 3.7 walk forward analysis
 
-source('luxor.include.R')
-source('luxor.getSymbols.R')
+require(quantstrat)
+
+source(paste0(path.package("quantstrat"),"/demo/luxor.include.R"))
+source(paste0(path.package("quantstrat"),"/demo/luxor.getSymbols.R"))
 
 ### foreach and doMC
 
@@ -23,8 +25,6 @@ initPortf(portfolio.st, symbols='GBPUSD', initDate=initDate, currency='USD')
 initAcct(account.st, portfolios=portfolio.st, initDate=initDate, currency='USD', initEq=100000)
 
 ### quantstrat
-
-require(quantstrat)
 
 initOrders(portfolio.st, initDate=initDate)
 
