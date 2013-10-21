@@ -15,8 +15,31 @@ Suggests:
 Maintainer: Brian G. Peterson <brian@braverock.com>
 Description: Specify, build, and back-test quantitative
     financial trading and portfolio strategies
-Contributors: Yu Chen, Joe Dunn, Dirk Eddelbuettel, 
+Contributors: Yu Chen, Joe Dunn, Dirk Eddelbuettel,
     Jeffrey A. Ryan, Garrett See
 LazyLoad: yes
 License: GPL-3
 ByteCompile: TRUE
+Collate:
+    'applyStrategy.rebalancing.R'
+    'chart.forward.R'
+    'chart.forward.training.R'
+    'indicators.R'
+    'initialize.R'
+    'match.names.R'
+    'orders.R'
+    'osFUNs.R'
+    'parameters.R'
+    'paramsets.R'
+    'rebalance.rules.R'
+    'ruleOrderProc.R'
+    'ruleRevoke.R'
+    'rules.R'
+    'ruleSignal.R'
+    'signals.R'
+    'strategy.R'
+    'tradeGraphs.R'
+    'tradeOrderStats.R'
+    'utils.R'
+    'walk.forward.R'
+    'wrapup.R'
