@@ -16,7 +16,7 @@ luxor.5.strategy.ordersets.R	Jaekle & Tomasini; Sections 3.5: strategy implement
 luxor.6.paramset.stoploss.R	Jaekle & Tomasini; Sections 3.5: paramset implementation for stoploss optimization
 luxor.6.paramset.stoptrailing.R	Jaekle & Tomasini; Sections 3.5: paramset implementation for stop trailing optimization
 luxor.6.paramset.takeprofit.R	Jaekle & Tomasini; Sections 3.5: paramset implementation for take profit optimization
-luxor.7.exit+risk.R	Jaekle & Tomasini; Sections 3.5: running with stoploss and/or stoptrailing and/or takeprofit
+luxor.7.exit.and.risk.R	Jaekle & Tomasini; Sections 3.5: running with stoploss and/or stoptrailing and/or takeprofit
 luxor.8.walk.forward.R	Jaekle & Tomasini; Sections 6: walk forward analysis
 luxor.getSymbols.R	Jaekle & Tomasini; reading symbols
 luxor.include.R	Jaekle & Tomasini; Sections constants
