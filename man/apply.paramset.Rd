@@ -5,7 +5,7 @@
   apply.paramset(strategy.st, paramset.label, portfolio.st,
     account.st, mktdata = NULL, nsamples = 0,
     user.func = NULL, user.args = NULL, calc = "slave",
-    audit = NULL, packages = NULL, verbose = FALSE)
+    audit = NULL, packages = NULL, verbose = FALSE, ...)
 }
 \arguments{
   \item{strategy.st}{the name of the strategy object}
@@ -49,6 +49,8 @@
 
   \item{verbose}{return full information, in particular the
   .blotter environment, default FALSE}
+
+  \item{...}{any other passthru parameters}
 }
 \description{
   This function will run applyStrategy() on portfolio.st,

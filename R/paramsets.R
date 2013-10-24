@@ -352,12 +352,13 @@ add.distribution.constraint <- function(strategy, paramset.label, distribution.l
 #' @param packages a vector specifying names of R packages to be loaded by the slave, default NULL
 #' @param audit a user-specified environment to store a copy of all portfolios, orderbooks and other data from the tests, or NULL to trash this information
 #' @param verbose return full information, in particular the .blotter environment, default FALSE
+#' @param ... any other passthru parameters
 #'
 #' @author Jan Humme
 #' @export
 #' @seealso \code{\link{add.distribution.constraint}}, \code{\link{add.distribution.constraint}}, \code{\link{delete.paramset}}
 
-apply.paramset <- function(strategy.st, paramset.label, portfolio.st, account.st, mktdata=NULL, nsamples=0, user.func=NULL, user.args=NULL, calc='slave', audit=NULL, packages=NULL, verbose=FALSE)
+apply.paramset <- function(strategy.st, paramset.label, portfolio.st, account.st, mktdata=NULL, nsamples=0, user.func=NULL, user.args=NULL, calc='slave', audit=NULL, packages=NULL, verbose=FALSE, ...)
 {
     must.have.args(match.call(), c('strategy.st', 'paramset.label', 'portfolio.st'))
 
@@ -375,6 +376,7 @@ apply.paramset <- function(strategy.st, paramset.label, portfolio.st, account.st
 
     param.combos <- expand.distributions(distributions)
     param.combos <- apply.constraints(constraints, distributions, param.combos)
+    rownames(param.combos) <- NULL  # reset rownames
     if(nsamples > 0)
         param.combos <- select.samples(nsamples, param.combos)
 
@@ -473,7 +475,7 @@ apply.paramset <- function(strategy.st, paramset.label, portfolio.st, account.st
         }
 
         strategy <- install.param.combo(strategy, param.combo, paramset.label)
-        applyStrategy(strategy, portfolios=result$portfolio.st, mktdata=mktdata, verbose=verbose)
+        applyStrategy(strategy, portfolios=result$portfolio.st, mktdata=mktdata, verbose=verbose, ...)
 
         if(exists('redisContext'))
         {
@@ -487,7 +489,7 @@ apply.paramset <- function(strategy.st, paramset.label, portfolio.st, account.st
 
         if(calc == 'slave')
         {
-            updatePortf(result$portfolio.st, Dates=paste('::',as.Date(Sys.time()),sep=''), Prices=mktdata)
+            updatePortf(result$portfolio.st, Dates=paste('::',as.Date(Sys.time()),sep=''), Prices=mktdata, ...)
             result$tradeStats <- tradeStats(result$portfolio.st)
 
             if(!is.null(user.func) && !is.null(user.args))
