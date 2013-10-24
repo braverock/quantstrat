@@ -445,8 +445,11 @@ apply.paramset <- function(strategy.st, paramset.label, portfolio.st, account.st
         # also, environments persist in each slave, so data may be accumulating
         # for each transition through the foreach loop
         #
-        rm(list=ls(pos=.blotter), pos=.blotter)
-        rm(list=ls(pos=.strategy), pos=.strategy)
+        if(!getDoSeqRegistered())
+        {
+            rm(list=ls(pos=.blotter), pos=.blotter)
+            rm(list=ls(pos=.strategy), pos=.strategy)
+        }
 
         list2env(env.instrument, envir=FinancialInstrument:::.instrument)
 
