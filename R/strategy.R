@@ -92,7 +92,7 @@ strategy <- function(name, ..., assets=NULL, constraints=NULL ,store=FALSE)
 #' @param mktdata an xts object containing market data.  depending on indicators, may need to be in OHLCV or BBO formats, default NULL
 #' @param parameters named list of parameters to be applied during evaluation of the strategy, default NULL
 #' @param ... any other passthru parameters
-#' @param verbose if TRUE, return output list
+#' @param debug if TRUE, return output list
 #' @param symbols character vector identifying symbols to initialize a portfolio for, default NULL
 #' @param initStrat whether to use (experimental) initialization code, default FALSE
 #' @param updateStrat whether to use (experimental) wrapup code, default FALSE
@@ -100,72 +100,101 @@ strategy <- function(name, ..., assets=NULL, constraints=NULL ,store=FALSE)
 #' @seealso \code{\link{strategy}},  \code{\link{applyIndicators}}, 
 #'  \code{\link{applySignals}}, \code{\link{applyRules}},
 #'  \code{\link{initStrategy}}, 
-applyStrategy <- function(strategy , portfolios, mktdata=NULL , parameters=NULL, ..., verbose=TRUE, symbols=NULL, initStrat=FALSE, updateStrat=FALSE ) {
-    #TODO add Date subsetting
-    #TODO add saving of modified market data
-    
-    ret<-list()
+applyStrategy <- function(strategy , 
+                          portfolios, 
+                          mktdata=NULL , 
+                          parameters=NULL, 
+                          ..., 
+                          debug=FALSE, 
+                          symbols=NULL, 
+                          initStrat=FALSE, 
+                          updateStrat=FALSE ) {
+
+  #TODO add saving of modified market data
+  
+  if(isTRUE(debug)) ret<-list()
     
 	if (!is.strategy(strategy)) {
-    	strategy<-try(getStrategy(strategy))
-    	if(inherits(strategy,"try-error"))
-    	    stop ("You must supply an object of type 'strategy'.")
-    } 
-	
-    if (missing(mktdata) || is.null(mktdata)) load.mktdata=TRUE else load.mktdata=FALSE
-	
-    for (portfolio in portfolios) {
-        
-		  # call initStrategy
-      if(isTRUE(initStrat)) initStrategy(strategy=strategy, portfolio, symbols, ...=...)
-        
-   		ret[[portfolio]]<-list() # this is slot [[i]] which we will use later
-      pobj<-.getPortfolio(portfolio)
-      symbols<- ls(pobj$symbols)
-      sret<-list()
-      for (symbol in symbols){
-        if(isTRUE(load.mktdata)) mktdata <- get(symbol)
-        
-        # loop over indicators
-        sret$indicators <- applyIndicators(strategy=strategy , mktdata=mktdata , parameters=parameters, ... )
-        
-        if(inherits(sret$indicators,"xts") & nrow(mktdata)==nrow(sret$indicators)){
-          mktdata<-sret$indicators
-        }
-        
-        # loop over signal generators
-        sret$signals <- applySignals(strategy=strategy, mktdata=mktdata, sret$indicators, parameters=parameters, ... )
-
-        if(inherits(sret$signals,"xts") & nrow(mktdata)==nrow(sret$signals)){
-          mktdata<-sret$signals    
-        }
-        
-        #loop over rules  
-        sret$rules<-list()
-        
-        # only fire nonpath/pathdep when true 
-        # TODO make this more elegant
-        pd <- FALSE
-        for(i in 1:length(strategy$rules)){  
-          if(length(strategy$rules[[i]])!=0){z <- strategy$rules[[i]]; if(z[[1]]$path.dep==TRUE){pd <- TRUE}}
-        }
-        
-        sret$rules$nonpath<-applyRules(portfolio=portfolio, symbol=symbol, strategy=strategy, mktdata=mktdata, Dates=NULL, indicators=sret$indicators, signals=sret$signals, parameters=parameters,  ..., path.dep=FALSE)
-        
-        # Check for open orders
-        rem.orders <- suppressWarnings(getOrders(portfolio=portfolio, symbol=symbol, status="open")) #, timespan=timespan, ordertype=ordertype,which.i=TRUE)
-        if(NROW(rem.orders)>0){pd <- TRUE}
-        if(pd==TRUE){sret$rules$pathdep<-applyRules(portfolio=portfolio, symbol=symbol, strategy=strategy, mktdata=mktdata, Dates=NULL, indicators=sret$indicators, signals=sret$signals, parameters=parameters,  ..., path.dep=TRUE)}
-        
-        ret[[portfolio]][[symbol]]<-sret
-      }
-      
-      # call updateStrategy
-      if(isTRUE(updateStrat)) updateStrategy(strategy, portfolio, Symbols=symbols, ...=...)
-      
-    }
-    
-    if(verbose) return(ret)
+	  strategy<-try(getStrategy(strategy))
+	  if(inherits(strategy,"try-error"))
+	    stop ("You must supply an object of type 'strategy'.")
+	} 
+     
+     if (missing(mktdata) || is.null(mktdata)) load.mktdata=TRUE else load.mktdata=FALSE
+     
+     for (portfolio in portfolios) {
+       
+       # call initStrategy
+       if(isTRUE(initStrat)) initStrategy(strategy=strategy, portfolio, symbols, ...=...)
+       
+       if(isTRUE(debug)) ret[[portfolio]]<-list() # this is slot [[i]] which we will use later
+       pobj<-.getPortfolio(portfolio)
+       symbols<- ls(pobj$symbols)
+       sret<-new.env(hash=TRUE)
+       
+       for (symbol in symbols){
+         if(isTRUE(load.mktdata)) mktdata <- get(symbol)
+         
+         # loop over indicators
+         sret$indicators <- applyIndicators(strategy=strategy , mktdata=mktdata , parameters=parameters, ... )
+         
+         if(inherits(sret$indicators,"xts") & nrow(mktdata)==nrow(sret$indicators)){
+           mktdata<-sret$indicators
+           sret$indicators <- NULL
+         }
+         
+         # loop over signal generators
+         sret$signals <- applySignals(strategy=strategy, mktdata=mktdata, parameters=parameters, ... )
+         
+         if(inherits(sret$signals,"xts") & nrow(mktdata)==nrow(sret$signals)){
+           mktdata<-sret$signals
+           sret$signals<-NULL
+         }
+         
+         #loop over rules  
+         sret$rules<-list()
+         
+         # only fire nonpath/pathdep when true 
+         # TODO make this more elegant
+         pd <- FALSE
+         for(i in 1:length(strategy$rules)){  
+           if(length(strategy$rules[[i]])!=0){z <- strategy$rules[[i]]; if(z[[1]]$path.dep==TRUE){pd <- TRUE}}
+         }
+         
+         sret$rules$nonpath<-applyRules(portfolio=portfolio, 
+                                        symbol=symbol, 
+                                        strategy=strategy, 
+                                        mktdata=mktdata, 
+                                        Dates=NULL, 
+                                        indicators=sret$indicators, 
+                                        signals=sret$signals, 
+                                        parameters=parameters,  
+                                        ..., 
+                                        path.dep=FALSE)
+         
+         # Check for open orders
+         rem.orders <- suppressWarnings(getOrders(portfolio=portfolio, symbol=symbol, status="open")) #, timespan=timespan, ordertype=ordertype,which.i=TRUE)
+         if(NROW(rem.orders)>0){pd <- TRUE}
+         if(pd==TRUE){sret$rules$pathdep<-applyRules(portfolio=portfolio, 
+                                                     symbol=symbol, 
+                                                     strategy=strategy, 
+                                                     mktdata=mktdata, 
+                                                     Dates=NULL, 
+                                                     indicators=sret$indicators, 
+                                                     signals=sret$signals, 
+                                                     parameters=parameters,  
+                                                     ..., 
+                                                     path.dep=TRUE)}
+         
+         if(isTRUE(debug)) ret[[portfolio]][[symbol]]<-sret
+       }
+       
+       # call updateStrategy
+       if(isTRUE(updateStrat)) updateStrategy(strategy, portfolio, Symbols=symbols, ...=...)
+       
+     }
+     
+     if(isTRUE(debug)) return(ret)
 }
 
 #' test to see if object is of type 'strategy'
@@ -182,7 +211,8 @@ is.strategy <- function( x ) {
 #' @aliases
 #' get.strategy
 #' getStrategy
-#' @export
+#' @export get.strategy
+#' @export getStrategy
 get.strategy <- getStrategy <- function(x, envir=.strategy){
     tmp_strat<-get(as.character(x),pos=envir, inherits=TRUE)
     if( inherits(tmp_strat,"try-error") | !is.strategy(tmp_strat) ) {

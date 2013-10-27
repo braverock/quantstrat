@@ -3,7 +3,7 @@
 \title{apply the strategy to arbitrary market data}
 \usage{
   applyStrategy(strategy, portfolios, mktdata = NULL,
-    parameters = NULL, ..., verbose = TRUE, symbols = NULL,
+    parameters = NULL, ..., debug = FALSE, symbols = NULL,
     initStrat = FALSE, updateStrat = FALSE)
 }
 \arguments{
@@ -22,7 +22,7 @@
 
   \item{...}{any other passthru parameters}
 
-  \item{verbose}{if TRUE, return output list}
+  \item{debug}{if TRUE, return output list}
 
   \item{symbols}{character vector identifying symbols to
   initialize a portfolio for, default NULL}
