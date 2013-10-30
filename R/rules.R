@@ -409,7 +409,7 @@ applyRules <- function(portfolio,
                         }    
                         if (is.na(col)) stop("no price discernable for stoplimit in applyRules")                            
                     } 
-                    cross<-sigThreshold(label='tmpstop',column=col,threshold=tmpprice,relationship=relationship)
+                    cross<-sigThreshold(label='tmpstop',data=mktdata,column=col,threshold=tmpprice,relationship=relationship)
                     cross <- cross[timespan][-1]  # don't look for crosses on curIndex
                     if(any(cross)){
                         # find first index that would cross after this index
@@ -458,7 +458,7 @@ applyRules <- function(portfolio,
                         if (is.na(col)) stop("no price discernable for limit in applyRules")
                     }
                     # use sigThreshold
-                    cross<-sigThreshold(label='tmplimit',column=col,threshold=tmpprice,relationship=relationship)
+                    cross<-sigThreshold(label='tmplimit',data=mktdata,column=col,threshold=tmpprice,relationship=relationship)
                     cross <- cross[timespan][-1]  # don't look for crosses on curIndex
                     if(any(cross)){
                         # find first index that would cross after this index
@@ -561,10 +561,9 @@ applyRules <- function(portfolio,
         
     hold=FALSE
     holdtill=first(time(Dates))-1 # TODO FIXME make holdtill default more robust?
-    
     mktinstr<-getInstrument(symbol)
-    
     curIndex<-1
+    freq <- periodicity(mktdata)  # run once and pass to ruleOrderProc
     
     while(curIndex){
         timestamp=Dates[curIndex]    
@@ -607,7 +606,7 @@ applyRules <- function(portfolio,
                             else
                                 timestamp=NULL
 
-                            closed.orders <- ruleOrderProc(portfolio=portfolio, symbol=symbol, mktdata=mktdata, timestamp=timestamp, ...)
+                            closed.orders <- ruleOrderProc(portfolio=portfolio, symbol=symbol, mktdata=mktdata, timestamp=timestamp, periodicity=freq, ...)
                         }
                     },
                     chain = {
@@ -702,7 +701,7 @@ ruleProc <- function (ruletypelist,timestamp=NULL, path.dep, ruletype, ..., para
         if(!is.null(rule$arguments$prefer)) .formals$prefer = rule$arguments$prefer
         
         # evaluate rule in applyRules' environment
-        tmp_val <- do.call(rule$name, .formals, envir=parent.frame(2))
+        tmp_val <- do.call(rule$name, .formals, envir=parent.frame(1))
                 
 #            print(paste('tmp_val ==', tmp_val))
     } #end rules loop

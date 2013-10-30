@@ -125,7 +125,11 @@ ruleOrderProc <- function(portfolio, symbol, mktdata, timestamp=NULL, ordertype=
       if(hasArg(allowMagicalThinking)) allowMagicalThinking=match.call(expand.dots=TRUE)$allowMagicalThinking
       else allowMagicalThinking = FALSE
       
-      freq = periodicity(mktdata)
+      # Get cached frequency, if it's available
+      if(hasArg(periodicity))
+          freq <- eval(match.call(expand.dots=TRUE)$periodicity, envir=parent.frame())
+      else
+          freq <- periodicity(mktdata)
       #switch on frequency
       switch(orderType,
              market = {
