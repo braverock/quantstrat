@@ -59,10 +59,13 @@ ruleSignal <- function(mktdata=mktdata, timestamp, sigcol, sigval, orderqty=0, o
     if(!is.function(osFUN))
         osFUN<-match.fun(osFUN)
 
-    if (!is.na(timestamp) && 
-            nrow(mktdata[timestamp])>0 && 
-            (ruletype=='chain' || (!is.na(mktdata[timestamp][,sigcol]) && mktdata[timestamp][,sigcol] == sigval))
-    )
+    # Get row index of timestamp for faster subsetting
+    if(hasArg(curIndex))
+        curIndex <- eval(match.call(expand.dots=TRUE)$curIndex, parent.frame())
+    else
+        curIndex <- mktdata[timestamp,which.i=TRUE]
+
+    if(curIndex > 0 && curIndex <= nrow(mktdata) && (ruletype=='chain' || (!is.na(mktdata[curIndex,sigcol]) && mktdata[curIndex,sigcol]==sigval)))
     {
         #calculate order price using pricemethod
         pricemethod<-pricemethod[1] #only use the first if not set by calling function
@@ -87,7 +90,7 @@ ruleSignal <- function(mktdata=mktdata, timestamp, sigcol, sigval, orderqty=0, o
                 if(length(col.idx) > 1)
                     stop(paste('more than one indicator column in mktdata matches threshold name "', threshold, '"', sep=''))
 
-                threshold <- as.numeric(mktdata[,col.idx][timestamp])
+                threshold <- as.numeric(mktdata[curIndex,col.idx])
             }
         }
 
@@ -140,7 +143,7 @@ ruleSignal <- function(mktdata=mktdata, timestamp, sigcol, sigval, orderqty=0, o
 				else
 				    prefer='bid'  # we're selling, so give it to them for what they're bidding  
 			    } 
-			    orderprice <- try(getPrice(x=mktdata, prefer=prefer)[,1][timestamp]) 
+			    orderprice <- try(getPrice(x=mktdata[curIndex,], prefer=prefer)[,1]) 
 			},
 			passive =,
 			work =,
@@ -151,7 +154,7 @@ ruleSignal <- function(mktdata=mktdata, timestamp, sigcol, sigval, orderqty=0, o
 				else
 				    prefer='ask'  # we're selling, so work the ask price
 			    }
-			    orderprice <- try(getPrice(x=mktdata, prefer=prefer)[,1][timestamp])
+			    orderprice <- try(getPrice(x=mktdata[curIndex,], prefer=prefer)[,1]) 
 			},
 			maker = {
 			    if(hasArg(price) & length(match.call(expand.dots=TRUE)$price)>1) {
@@ -159,9 +162,9 @@ ruleSignal <- function(mktdata=mktdata, timestamp, sigcol, sigval, orderqty=0, o
 				orderprice <- try(match.call(expand.dots=TRUE)$price)
 			    } else {
 				if(!is.null(threshold)) {
-				    baseprice<- last(getPrice(x=mktdata)[,1][timestamp]) # this should get either the last trade price or the Close
+				    baseprice <- last(getPrice(x=mktdata[curIndex,])[,1]) # this should get either the last trade price or the Close
 				    if(hasArg(tmult) & isTRUE(match.call(expand.dots=TRUE)$tmult)) {
-					baseprice<- last(getPrice(x=mktdata)[,1][timestamp]) # this should get either the last trade price or the Close
+				    baseprice <- last(getPrice(x=mktdata[curIndex,])[,1]) # this should get either the last trade price or the Close
 					# threshold is a multiplier of current price
 					if (length(threshold)>1){
 					    orderprice <- baseprice * threshold # assume the user has set proper threshold multipliers for each side

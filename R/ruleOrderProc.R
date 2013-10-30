@@ -52,6 +52,11 @@
 ruleOrderProc <- function(portfolio, symbol, mktdata, timestamp=NULL, ordertype=NULL, ..., slippageFUN=NULL)
 {
   if(is.null(timestamp)) return()
+  # Get row index of timestamp for faster subsetting
+  if(hasArg(curIndex))
+      curIndex <- eval(match.call(expand.dots=TRUE)$curIndex, parent.frame())
+  else
+      curIndex <- mktdata[timestamp,which.i=TRUE]
   
   orderbook <- getOrderBook(portfolio)
   ordersubset <- orderbook[[portfolio]][[symbol]]
@@ -79,7 +84,7 @@ ruleOrderProc <- function(portfolio, symbol, mktdata, timestamp=NULL, ordertype=
     return(NULL)  
   } else {
 
-    mktdataTimestamp <- mktdata[timestamp]
+    mktdataTimestamp <- mktdata[curIndex]
     # only keep the last observation per time stamp
     if( NROW(mktdataTimestamp) > 1 ) mktdataTimestamp <- last(mktdataTimestamp)
     isOHLCmktdata <- is.OHLC(mktdata)

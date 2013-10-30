@@ -84,7 +84,7 @@ modify.args <- function(formals, arglist, ..., dots=FALSE)
     if(dots && !is.null(.formals$...)) {
         dotnames <- names(arglist[pm == 0L])
         .formals[dotnames] <- arglist[dotnames]
-        .formals$... <- NULL
+        #.formals$... <- NULL  # should we assume we matched them all?
     }
 
     .formals

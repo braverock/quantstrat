@@ -587,17 +587,17 @@ applyRules <- function(portfolio,
             switch( type ,
                     pre = {
                         if(length(strategy$rules[[type]])>=1){
-                            ruleProc(strategy$rules$pre,timestamp=timestamp, path.dep=path.dep, mktdata=mktdata,portfolio=portfolio, symbol=symbol, ruletype=type, mktinstr=mktinstr, parameters=parameters, ...)
+                            ruleProc(strategy$rules$pre,timestamp=timestamp, path.dep=path.dep, mktdata=mktdata,portfolio=portfolio, symbol=symbol, ruletype=type, mktinstr=mktinstr, parameters=parameters, curIndex=curIndex, ...)
                         }
                     },
                     risk = {
                         if(length(strategy$rules$risk)>=1){
-                            ruleProc(strategy$rules$risk,timestamp=timestamp, path.dep=path.dep, mktdata=mktdata,portfolio=portfolio, symbol=symbol, ruletype=type, mktinstr=mktinstr,parameters=parameters, ...)
+                            ruleProc(strategy$rules$risk,timestamp=timestamp, path.dep=path.dep, mktdata=mktdata,portfolio=portfolio, symbol=symbol, ruletype=type, mktinstr=mktinstr,parameters=parameters, curIndex=curIndex, ...)
                         }
                     },
                     order = {
                         if(length(strategy$rules[[type]])>=1) {
-                            ruleProc(strategy$rules[[type]],timestamp=timestamp, path.dep=path.dep, mktdata=mktdata,portfolio=portfolio, symbol=symbol, ruletype=type, mktinstr=mktinstr, parameters=parameters, ...)
+                            ruleProc(strategy$rules[[type]],timestamp=timestamp, path.dep=path.dep, mktdata=mktdata,portfolio=portfolio, symbol=symbol, ruletype=type, mktinstr=mktinstr, parameters=parameters, curIndex=curIndex, ...)
                         } else {
                             #(mktdata, portfolio, symbol, timestamp, slippageFUN=NULL)
 
@@ -606,7 +606,7 @@ applyRules <- function(portfolio,
                             else
                                 timestamp=NULL
 
-                            closed.orders <- ruleOrderProc(portfolio=portfolio, symbol=symbol, mktdata=mktdata, timestamp=timestamp, periodicity=freq, ...)
+                            closed.orders <- ruleOrderProc(portfolio=portfolio, symbol=symbol, mktdata=mktdata, timestamp=timestamp, periodicity=freq, curIndex=curIndex, ...)
                         }
                     },
                     chain = {
@@ -626,7 +626,7 @@ applyRules <- function(portfolio,
                                     txn.price <- last(txns$Txn.Price)	# last() because there may be more than one txn at this timestamp
 
                                     #ruleProc(rules[j], timestamp=timestamp, path.dep=path.dep, mktdata=mktdata, portfolio=portfolio, symbol=symbol, ruletype=type, mktinstr=mktinstr, parameters=list(chain.price=as.numeric(closed.chain$Order.Price[i]), ...))
-                                    ruleProc(rules[j], timestamp=timestamp, path.dep=path.dep, mktdata=mktdata, portfolio=portfolio, symbol=symbol, ruletype=type, mktinstr=mktinstr, parameters=list(chain.price=txn.price))
+                                    ruleProc(rules[j], timestamp=timestamp, path.dep=path.dep, mktdata=mktdata, portfolio=portfolio, symbol=symbol, ruletype=type, mktinstr=mktinstr, parameters=list(chain.price=txn.price), curIndex=curIndex)
                                 }
                             }
                         }
@@ -637,7 +637,7 @@ applyRules <- function(portfolio,
                         if(isTRUE(path.dep)) openOrdersLen <- length(getOrders(portfolio=portfolio, symbol=symbol, status="open", timespan=timestamp,which.i=TRUE))
 
                         if(length(strategy$rules[[type]])>=1) {
-                            ruleProc(strategy$rules[[type]],timestamp=timestamp, path.dep=path.dep, mktdata=mktdata,portfolio=portfolio, symbol=symbol, ruletype=type, mktinstr=mktinstr, parameters=parameters, ...)
+                            ruleProc(strategy$rules[[type]],timestamp=timestamp, path.dep=path.dep, mktdata=mktdata,portfolio=portfolio, symbol=symbol, ruletype=type, mktinstr=mktinstr, parameters=parameters, curIndex=curIndex, ...)
                         }
                         if(isTRUE(path.dep) && length(getOrders(portfolio=portfolio, symbol=symbol, status="open", timespan=timestamp,which.i=TRUE)) != openOrdersLen) {
                             assign.dindex(c(get.dindex(),curIndex+1))
@@ -646,7 +646,7 @@ applyRules <- function(portfolio,
                     post = {
                         #TODO do we process for hold here, or not?
                         if(length(strategy$rules$post)>=1) {
-                            ruleProc(strategy$rules$post,timestamp=timestamp, path.dep=path.dep, mktdata=mktdata,portfolio=portfolio, symbol=symbol, ruletype=type, mktinstr=mktinstr, parameters=parameters, ...)
+                            ruleProc(strategy$rules$post,timestamp=timestamp, path.dep=path.dep, mktdata=mktdata,portfolio=portfolio, symbol=symbol, ruletype=type, mktinstr=mktinstr, parameters=parameters, curIndex=curIndex, ...)
                         }
                     }
             ) # end switch
@@ -682,7 +682,7 @@ ruleProc <- function (ruletypelist,timestamp=NULL, path.dep, ruletype, ..., para
         if(!isTRUE(rule$enabled)) next()
         
         # check to see if we should run in this timespan
-        if(!is.null(rule$timespan) && nrow(mktdata[timestamp][rule$timespan])==0) next()
+        if(!is.null(rule$timespan) && nrow(mktdata[curIndex][rule$timespan])==0) next()
         
         # modify a few things
         rule$arguments$timestamp = timestamp
@@ -695,7 +695,7 @@ ruleProc <- function (ruletypelist,timestamp=NULL, path.dep, ruletype, ..., para
         # now add arguments from parameters
         .formals <- modify.args(.formals, parameters)
         # now add dots
-        .formals <- modify.args(.formals, ...)
+        .formals <- modify.args(.formals, ..., dots=TRUE)
         
         # any rule-specific prefer-parameters should override global prefer parameter
         if(!is.null(rule$arguments$prefer)) .formals$prefer = rule$arguments$prefer
