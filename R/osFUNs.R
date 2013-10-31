@@ -30,12 +30,37 @@ osNoOp <- function(timestamp, orderqty, portfolio, symbol, ruletype, ...)
 
 #' add position and level limits at timestamp
 #' 
+#' Many strategies will not be allowed to trade unconstrained.
+#' Typically, constraints will include position sizing limits.
+#' 
+#' \code{addPosLimit} works with \code{\link{osMaxPos}} to set 
+#' and enforce position sizing limits.  If \code{levels=1},
+#' then all order sizing will be in the complete control of
+#' the strategy rules, up to the maximum position specified
+#' using \code{addPosLimit}'s \code{maxpos} and \code{minpos} 
+#' arguments.
+#'   
+#' Simply setting a position limit will not do anything.
+#' The strategy entry rules also need to specify an
+#' the use of order sizing function \code{\link{osMaxPos}}, 
+#' most typically as an argument to \code{\link{ruleSignal}}.
+#' 
 #' levels are a simplification of more complex (proprietary) 
 #' techniques sometimes used for order sizing.  
-#' the max orderqty returned will be the limit/levels
+#' the max orderqty returned will be the limit/levels.
 #' Obviously the strategy rules could ask for smaller order sizes, 
 #' but this is the default.  If you don't want to use levels, set 
 #' them to 1.
+#' 
+#' It is also important to note that position limits 
+#' may be time-varying.  
+#' If you only want one staic maximum position limit, then
+#' call \code{addPosLimit} with a \code{timestamp} argument
+#' before your first trade.  If you want time varying limits,
+#' typically in response to some rebalancing rule or risk
+#' rule, set the \code{timestamp} at the time which you wish 
+#' the limit to take effect.
+#'  
 #' @param portfolio text name of the portfolio to place orders in
 #' @param symbol identifier of the instrument to place orders for.  The name of any associated price objects (xts prices, usually OHLC) should match these
 #' @param timestamp timestamp coercible to POSIXct that will be the time the order will be inserted on 
