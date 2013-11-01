@@ -98,9 +98,11 @@ initStrategy <- function(strategy, portfolio, symbols, parameters=NULL, get.Symb
         .formals <- formals(init_o$name)
         .formals <- modify.args(.formals, init_o$arguments, dots=TRUE)
         # now add arguments from parameters
-        .formals <- modify.args(.formals, parameters)
+        .formals <- modify.args(.formals, parameters, dots=TRUE)
         # now add dots
-        .formals <- modify.args(.formals, ...)
+        .formals <- modify.args(.formals, NULL, ..., dots=TRUE)
+        # remove ... to avoid matching multiple args
+        .formals$`...` <- NULL
         
         do.call(init_o$name, .formals)
     }

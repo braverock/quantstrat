@@ -103,9 +103,11 @@ applySignals <- function(strategy, mktdata, indicators=NULL, parameters=NULL, ..
         .formals <- formals(signal$name)
         .formals <- modify.args(.formals, signal$arguments, dots=TRUE)
         # now add arguments from parameters
-        .formals <- modify.args(.formals, parameters)
+        .formals <- modify.args(.formals, parameters, dots=TRUE)
         # now add dots
-        .formals <- modify.args(.formals, ...)
+        .formals <- modify.args(.formals, NULL, ..., dots=TRUE)
+        # remove ... to avoid matching multiple args
+        .formals$`...` <- NULL
 
         tmp_val <- do.call(signal$name, .formals)
 		

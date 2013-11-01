@@ -113,9 +113,11 @@ function(strategy,
             .formals <- formals(wrapup_o$name)
             .formals <- modify.args(.formals, wrapup_o$arguments, dots=TRUE)
             # now add arguments from parameters
-            .formals <- modify.args(.formals, parameters)
+            .formals <- modify.args(.formals, parameters, dots=TRUE)
             # now add dots
-            .formals <- modify.args(.formals, ...)
+            .formals <- modify.args(.formals, NULL, ..., dots=TRUE)
+            # remove ... to avoid matching multiple args
+            .formals$`...` <- NULL
             
             out[[wrapup_o$name]] <- do.call(wrapup_o$name, .formals)
         }            

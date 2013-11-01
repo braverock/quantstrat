@@ -693,9 +693,11 @@ ruleProc <- function (ruletypelist,timestamp=NULL, path.dep, ruletype, ..., para
         .formals <- formals(rule$name)
         .formals <- modify.args(.formals, rule$arguments, dots=TRUE)
         # now add arguments from parameters
-        .formals <- modify.args(.formals, parameters)
+        .formals <- modify.args(.formals, parameters, dots=TRUE)
         # now add dots
-        .formals <- modify.args(.formals, ..., dots=TRUE)
+        .formals <- modify.args(.formals, NULL, ..., dots=TRUE)
+        # remove ... to avoid matching multiple args
+        .formals$`...` <- NULL
         
         # any rule-specific prefer-parameters should override global prefer parameter
         if(!is.null(rule$arguments$prefer)) .formals$prefer = rule$arguments$prefer
