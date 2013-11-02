@@ -269,7 +269,9 @@ applyRules <- function(portfolio,
     #remove.Data <- function(x) remove(x, .Data)
     get.dindex <- function() get("dindex",pos=.Data) # inherits=TRUE)
     assign.dindex <- function(dindex) {
-        dindex<-sort(unique(dindex))
+        dindex <- unique(dindex)
+        if(!isOrdered(dindex))
+            dindex <- sort(dindex)
         #print(dindex)
         assign("dindex", dindex, .Data)
     }
@@ -409,11 +411,11 @@ applyRules <- function(portfolio,
                         }    
                         if (is.na(col)) stop("no price discernable for stoplimit in applyRules")                            
                     } 
-                    cross<-sigThreshold(label='tmpstop',data=mktdata,column=col,threshold=tmpprice,relationship=relationship)
-                    cross <- cross[timespan][-1]  # don't look for crosses on curIndex
-                    if(any(cross)){
+                    # use .firstThreshold to find the location of the first tmpprice that crosses mktdata[,col]
+                    cross <- .firstThreshold(data=mktdata, col, tmpprice, relationship, start=curIndex+1) # don't look for crosses on curIndex
+                    if(cross < nrow(mktdata)){
                         # find first index that would cross after this index
-                        newidx <- curIndex + which(cross)[1]
+                        newidx <- cross
                         # insert that into dindex
                         assign.dindex(c(get.dindex(),newidx))                  
                     }
@@ -457,10 +459,9 @@ applyRules <- function(portfolio,
                         }    
                         if (is.na(col)) stop("no price discernable for limit in applyRules")
                     }
-                    # use sigThreshold
-                    cross<-sigThreshold(label='tmplimit',data=mktdata,column=col,threshold=tmpprice,relationship=relationship)
-                    cross <- cross[timespan][-1]  # don't look for crosses on curIndex
-                    if(any(cross)){
+                    # use .firstThreshold to find the location of the first tmpprice that crosses mktdata[,col]
+                    cross <- .firstThreshold(data=mktdata, col, tmpprice, relationship, start=curIndex+1) # don't look for crosses on curIndex
+                    if(cross < nrow(mktdata)){
                         # find first index that would cross after this index
                         #
                         # current index = which(cross[timespan])[1]
@@ -468,7 +469,7 @@ applyRules <- function(portfolio,
                         # need to subtract 1 index==1 means current position
                         #
                         # newidx <- curIndex + which(cross[timespan])[1] #- 1  #curIndex/timestamp was 1 in the subset, we need a -1 offset?
-                        newidx <- curIndex + which(cross)[1]
+                        newidx <- cross
 
                         #if there are is no cross curIndex will be incremented on line 496
                         # with curIndex<-min(dindex[dindex>curIndex]).                            
@@ -529,11 +530,11 @@ applyRules <- function(portfolio,
                         relationship="lte"
                     }
                     # check if order will be filled
-                    cross <- sigThreshold(data=mkt_price_series, label='tmptrail',column=col,threshold=tmpprice,relationship=relationship)
-
+                    # use .firstThreshold to find the location of the first tmpprice that crosses mktdata[,col]
+                    cross <- .firstThreshold(data=mktdata, col, tmpprice, relationship, start=curIndex+1) # don't look for crosses on curIndex
                     # update dindex if order is moved or filled
-                    if(any(move_order) || any(cross)){
-                        moveidx <- curIndex + min(which(move_order)[1], which(cross)[1], na.rm=TRUE)
+                    if(any(move_order) || cross < nrow(mktdata)){
+                        moveidx <- curIndex + min(which(move_order)[1], cross, na.rm=TRUE)
                         assign.dindex(c(get.dindex(), moveidx))
                     }
                 } # end loop over open trailing orders

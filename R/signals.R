@@ -272,8 +272,27 @@ sigThreshold <- function(label, data=mktdata, column, threshold=0, relationship=
             'le'     = {ret_sig = data[,colNum] <= threshold}
     )
     if(isTRUE(cross)) ret_sig <- diff(ret_sig)==1
-    colnames(ret_sig)<-label
+    if(!missing(label))  # colnames<- copies; avoid if possible
+        colnames(ret_sig)<-label
     return(ret_sig)
+}
+
+#' @useDynLib quantstrat
+.firstThreshold <- function(data=mktdata, column, threshold=0, relationship, start=1) {
+    colNum <- match.names(column, colnames(data))
+    rel <- switch(relationship[1],
+            '>'    =  ,
+            'gt'   = 1,
+            '<'    =  ,
+            'lt'   = 2,
+            'eq'   = 3, #FIXME any way to specify '='?
+            'gte'  =  ,
+            'gteq' =  ,
+            'ge'   = 4, #FIXME these fail with an 'unexpected =' error if you use '>='
+            'lte'  =  ,
+            'lteq' =  ,
+            'le'   = 5)
+    .Call('firstThreshold', data[,colNum], threshold, rel, start)
 }
 
 #' generate a signal from a formula
