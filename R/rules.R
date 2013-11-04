@@ -683,7 +683,15 @@ ruleProc <- function (ruletypelist,timestamp=NULL, path.dep, ruletype, ..., para
         if(!isTRUE(rule$enabled)) next()
         
         # check to see if we should run in this timespan
-        if(!is.null(rule$timespan) && nrow(mktdata[curIndex][rule$timespan])==0) next()
+        if(!is.null(rule$timespan)) {
+            # Get row index of timestamp for faster subsetting
+            if(hasArg(curIndex))
+                curIndex <- eval(match.call(expand.dots=TRUE)$curIndex, parent.frame())
+            else
+                curIndex <- timestamp
+            if(nrow(mktdata[curIndex][rule$timespan])==0)
+                next()
+        }
         
         # modify a few things
         rule$arguments$timestamp = timestamp
