@@ -36,6 +36,11 @@
 #
 ###############################################################################
 
+# TODO: fix put.portfolio() to use environments
+# TODO: fix expand.grid
+# TODO: "and" multiple constraints i.o. "or"
+
+
 #require(foreach, quietly=TRUE)
 require('foreach')
 #require(iterators, quietly=TRUE)
@@ -141,9 +146,13 @@ select.samples <- function(nsamples, param.combos)
     nsamples <- min(nsamples, nrow(param.combos))
 
     param.combos <- param.combos[sample(nrow(param.combos), size=nsamples),]
-    param.combos <- param.combos[with(param.combos,order(param.combos[,1],param.combos[,2])),]
+    
+    if(NCOL(param.combos) == 1)
+        param.combos <- param.combos[order(param.combos)]
+    else
+        param.combos <- param.combos[with(param.combos,order(param.combos[,1],param.combos[,2])),]
 
-    param.combos
+    data.frame(param.combos)
 }
 
 install.param.combo <- function(strategy, param.combo, paramset.label)

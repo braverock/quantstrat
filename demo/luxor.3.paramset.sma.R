@@ -46,5 +46,5 @@ stats <- results$tradeStats
 
 print(stats)
 
-save(stats, file='luxor.3.paramset.SMA.RData')
+save(stats, file='luxor.3.paramset.sma.RData')
 

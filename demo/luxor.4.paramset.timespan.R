@@ -8,8 +8,6 @@
 #
 # Paragraph 3.4: luxor timespan paramset optimization
 
-stop('#### DEMO BROKEN - BEING FIXED ###')
-
 require(quantstrat)
 
 source(paste0(path.package("quantstrat"),"/demo/luxor.include.R"))
@@ -47,5 +45,5 @@ stats <- results$tradeStats
 
 print(stats)
 
-save(stats, file='luxor.4.paramset.Timespan.RData')
+save(stats, file='luxor.4.paramset.timespan.RData')
 
