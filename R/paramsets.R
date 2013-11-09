@@ -361,13 +361,14 @@ add.distribution.constraint <- function(strategy, paramset.label, distribution.l
 #' @param packages a vector specifying names of R packages to be loaded by the slave, default NULL
 #' @param audit a user-specified environment to store a copy of all portfolios, orderbooks and other data from the tests, or NULL to trash this information
 #' @param verbose return full information, in particular the .blotter environment, default FALSE
+#' @param paramsets a user-sepcified (sub)set of paramsets to run
 #' @param ... any other passthru parameters
 #'
 #' @author Jan Humme
 #' @export
 #' @seealso \code{\link{add.distribution.constraint}}, \code{\link{add.distribution.constraint}}, \code{\link{delete.paramset}}
 
-apply.paramset <- function(strategy.st, paramset.label, portfolio.st, account.st, mktdata=NULL, nsamples=0, user.func=NULL, user.args=NULL, calc='slave', audit=NULL, packages=NULL, verbose=FALSE, ...)
+apply.paramset <- function(strategy.st, paramset.label, portfolio.st, account.st, mktdata=NULL, nsamples=0, user.func=NULL, user.args=NULL, calc='slave', audit=NULL, packages=NULL, verbose=FALSE, paramsets, ...)
 {
     must.have.args(match.call(), c('strategy.st', 'paramset.label', 'portfolio.st'))
 
@@ -383,11 +384,17 @@ apply.paramset <- function(strategy.st, paramset.label, portfolio.st, account.st
     distributions <- strategy$paramsets[[paramset.label]]$distributions
     constraints <- strategy$paramsets[[paramset.label]]$constraints
 
-    param.combos <- expand.distributions(distributions)
-    param.combos <- apply.constraints(constraints, distributions, param.combos)
-    rownames(param.combos) <- NULL  # reset rownames
-    if(nsamples > 0)
-        param.combos <- select.samples(nsamples, param.combos)
+    if(missing(paramsets))
+    {
+        param.combos <- expand.distributions(distributions)
+        param.combos <- apply.constraints(constraints, distributions, param.combos)
+        param.combos <- expand.constrained.distributions(constraints, distributions)
+        rownames(param.combos) <- NULL  # reset rownames
+        if(nsamples > 0)
+            param.combos <- select.samples(nsamples, param.combos)
+    } else {
+        param.combos <- paramsets
+    }
 
     env.functions <- c('clone.portfolio', 'clone.orderbook', 'install.param.combo')
     env.instrument <- as.list(FinancialInstrument:::.instrument)
@@ -417,7 +424,7 @@ apply.paramset <- function(strategy.st, paramset.label, portfolio.st, account.st
             if(calc == 'master')
             {
                 # calculate tradeStats on portfolio
-                updatePortf(r$portfolio.st, Dates=paste('::',as.Date(Sys.time()),sep=''), Prices=mktdata)
+                updatePortf(r$portfolio.st, ...)
                 r$tradeStats <- tradeStats(r$portfolio.st)
 
                 # run user specified function, if they provided one
@@ -438,11 +445,18 @@ apply.paramset <- function(strategy.st, paramset.label, portfolio.st, account.st
         return(results)
     }
 
-    results <- foreach(param.combo=iter(param.combos,by='row'),
+    # create foreach object
+    fe <- foreach(param.combo=iter(param.combos,by='row'),
         .verbose=verbose, .errorhandling='pass',
         .packages=c('quantstrat', packages),
-        .combine=combine, .multicombine=TRUE, .maxcombine=nrow(param.combos),
-        .export=c(env.functions, 'env.instrument')) %dopar%
+        .combine=combine, .multicombine=TRUE, .maxcombine=max(2,nrow(param.combos)),
+        .export=c(env.functions, 'env.instrument'), ...)
+    # remove all but the param.combo iterator before calling %dopar%
+    # this allows us to pass '...' through foreach to the expression
+    fe$args <- fe$args[1]
+    fe$argnames <- fe$argnames[1]
+    # now call %dopar%
+    results <- fe %dopar%
     {
         print(param.combo)
 
@@ -501,7 +515,7 @@ apply.paramset <- function(strategy.st, paramset.label, portfolio.st, account.st
 
         if(calc == 'slave')
         {
-            updatePortf(result$portfolio.st, Dates=paste('::',as.Date(Sys.time()),sep=''), Prices=mktdata, ...)
+            updatePortf(result$portfolio.st, ...)
             result$tradeStats <- tradeStats(result$portfolio.st)
 
             if(!is.null(user.func) && !is.null(user.args))
