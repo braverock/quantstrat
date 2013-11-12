@@ -320,6 +320,52 @@ sigFormula <- function(label, data=mktdata, formula ,cross=FALSE){
 	return(ret_sig)
 }
 
+#' generate a signal on a timestamp
+#' 
+#' This will generate a signal on a specific timestamp or at a specific time every day, week, weekday, etc.
+#' 
+#' @param label text label to apply to the output
+#' @param data data to apply formula to
+#' @param timestamp either a POSIXct-based object, or a character string denoting a 24-hour time (e.g. "09:00", "16:00")
+#' @param on only used if \code{timestamp} is character; passed to \code{\link[xts]{split.xts}}, therefore \code{on}
+#' may be a character describing the time period as listed in \code{\link[xts]{endpoints}}, or a vector coercible to
+#' factor (e.g. \code{\link[xts]{.indexday}})
+#' @export
+sigTimestamp <- function(label, data=mktdata, timestamp, on="days") {
+
+   # default label
+   if(missing(label))
+     label <- "timestamp"
+
+   # initialize ret$timestamp to the index of mktdata
+   ret <- .xts(logical(nrow(data)), .index(data), dimnames=list(NULL,label))
+
+   # default if timestamp and on are missing
+   if(missing(timestamp) && missing(on)) {
+     ret[end(data)] <- TRUE
+     return(ret)
+   }
+
+   # timestamp can be a time-based timestamp
+   if(is.timeBased(timestamp)) {
+     after.sig <- .firstThreshold(index(data), timestamp, "lt")
+     if(length(after.sig) != 0)
+       ret$timestamp[after.sig] <- TRUE
+   } else
+   # timestamp can be a timestamp of day
+   if(is.character(timestamp)) {
+     time.str <- paste("T00:00/T",timestamp,sep="")
+     funDay <- function(x, time.str) last(x[time.str])
+     funOn  <- function(y, time.str) lapply(y, funDay, time.str)
+     after.sig <- do.call(rbind, lapply(split(ret, on), funDay, time.str))
+     if(nrow(after.sig) != 0)
+       ret[index(after.sig)] <- TRUE
+   } else {
+     stop("don't know how to handle 'timestamp' of class ", class(timestamp))
+   }
+   return(ret)
+}
+
 #TODO Going Up/Going Down maybe better implemented as slope/diff() indicator, then coupled with threshold signal 
 #TODO set/reset indicator/signal for n-periods since some other signal is set, or signal set for n periods
 
