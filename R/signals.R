@@ -278,8 +278,7 @@ sigThreshold <- function(label, data=mktdata, column, threshold=0, relationship=
 }
 
 #' @useDynLib quantstrat
-.firstThreshold <- function(data=mktdata, column, threshold=0, relationship, start=1) {
-    colNum <- match.names(column, colnames(data))
+.firstCross <- function(Data, threshold=0, relationship, start=1) {
     rel <- switch(relationship[1],
             '>'    =  ,
             'gt'   = 1,
@@ -292,7 +291,7 @@ sigThreshold <- function(label, data=mktdata, column, threshold=0, relationship=
             'lte'  =  ,
             'lteq' =  ,
             'le'   = 5)
-    .Call('firstThreshold', data[,colNum], threshold, rel, start)
+    .Call('firstCross', Data, threshold, rel, start)
 }
 
 #' generate a signal from a formula

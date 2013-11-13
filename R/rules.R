@@ -326,15 +326,80 @@ applyRules <- function(portfolio,
         Dates=''
         dindex=1
     } # end dindex initialization
-    
-    nextIndex<-function(curIndex,...){
+
+    # Find the next index the market will cross a resting order's price
+    # or if we need to move a trailing order. Returns a named list.
+    dindexOrderProc <- function(Order, mktPrices, curIndex) {
+        out <- list()
+
+        # get order information
+        orderQty <- Order[1L,'Order.Qty']
+        if (orderQty=='all' || orderQty=='trigger' || orderQty=='0'){
+            # no position, so figure out when the index may be needed
+            side <- Order[1L,'Order.Side']
+            if(side=='long')
+                orderQty <- -1
+            else
+                orderQty <- 1
+        }
+        orderQty <- as.numeric(orderQty)
+        orderPrice <- as.numeric(Order[1L,'Order.Price'])
+        orderType <- Order[1L,'Order.Type']
+
+        # default mktPrice
+        mktPrice <- mktPrices[[orderType]]$price
+
+        # process order
+        if (orderQty > 0) {  # buying
+            # determine relationship
+            relationship <-
+                switch(orderType,
+                limit = if(mktPrices$isOHLC) 'lt' else 'lte',      # will be filled if market Ask/Lo go below orderPrice
+                stoptrailing = 'gte',                              # look for places where Mkt Bid >= our Ask
+                stoplimit = if(mktPrices$isOHLC) 'gt' else 'gte')  # will be filled if market Ask/Hi go above orderPrice
+
+            if(mktPrices$isOHLC || mktPrices$isBBO)                # get buy market price for this order type, if it exists
+                mktPrice <- mktPrices[[orderType]]$posQty
+        } else {             # selling
+            # determine relationship
+            relationship <-
+                switch(orderType,
+                limit = if(mktPrices$isOHLC) 'gt' else 'gte',      # will be filled if market Bid/Hi go above orderPrice
+                stoptrailing = 'lte',                              # look for places where Mkt Ask <= our Bid
+                stoplimit = if(mktPrices$isOHLC) 'lt' else 'lte')  # will be filled if market Bid/Lo go below orderPrice
+
+            if(mktPrices$isOHLC || mktPrices$isBBO)                # get sell market price for this order type, if it exists
+                mktPrice <- mktPrices[[orderType]]$negQty
+        }
+        # ensure we have a mktPrice
+        if (is.na(mktPrice) || is.null(mktPrice))
+            stop("no price discernable for ", orderType, " in applyRules")
+
+        # use .firstCross to find the location of the first orderPrice that crosses mktdata[,col]
+        # *after* curIndex, since that is the soonest we can get filled.
+        out$cross <- .firstCross(mktPrice, orderPrice, relationship, start=curIndex+1L)
+
+        # check if trailing order needs to be moved
+        out$move_order <- FALSE
+        if(orderType %in% "stoptrailing") {
+            orderThreshold <- as.numeric(Order[1L,'Order.Threshold'])
+            if(orderQty > 0) {
+                relationship <- "lt"
+                newOrderPrice <- orderPrice - abs(orderThreshold)
+            } else {
+                relationship <- "gt"
+                newOrderPrice <- orderPrice + abs(orderThreshold)
+            }
+            out$move_order <- .firstCross(mktPrice, newOrderPrice, relationship, start=curIndex+1L)
+        }
+        out
+    }
+
+    nextIndex <- function(curIndex, ..., mktPrices){
         if (!isTRUE(path.dep)){
             curIndex = FALSE
             return(curIndex)
         } 
-
-        dindex<-get.dindex()
-        #message(dindex," in nextIndex(), at ",curIndex)
 
         hasmktord <- FALSE
         nidx=FALSE
@@ -347,208 +412,65 @@ applyRules <- function(portfolio,
         if(length(oo.idx)==0){
             nidx=FALSE
         } else { # open orders, 
-            isOHLCmktdata <- is.OHLC(mktdata)
-            isBBOmktdata  <- is.BBO(mktdata)
             #check for open orders at curIndex
             timespan<-paste(timestamp,"::",sep='') #no check to see if timestamp came through dots? Does it come from the search path? -gsee
-            if(nrow(ordersubset[oo.idx,][timespan])==0 &&             # prior open orders already in dindex; no need to recheck
-               !any(ordersubset$Order.Type[oo.idx]=="stoptrailing"))  # ... but stoptrailing may need to move
+            if(nrow(ordersubset[oo.idx,][timespan])==0 &&                   # prior open orders already in dindex; no need to recheck
+               !any(ordersubset[oo.idx,"Order.Type"] %in% "stoptrailing"))  # ... but trailing orders may need to move
             {
                 # no open orders between now and the next index
                 nidx=FALSE
             } else {
 
-                ordersubset.oo.idx <- ordersubset[oo.idx,]
-                if(length(which('market'==ordersubset.oo.idx[,'Order.Type'])) > 0)
-                {
-                    # if block above had a prefer exclusion, as below:
-                    # || hasArg('prefer')
-                    # 'prefer' arguments would loop through all observations.  
-                    # we could probably change the code below on finding price to handle prefer, but not sure it matters
-                                
-                    #if any type is market    
-                    # set to curIndex+1
-                    #curIndex<-curIndex+1
-                    if (is.na(curIndex) || (curIndex + 1) > nrow(mktdata)) curIndex=FALSE
-                    hasmktord <- TRUE                    
-                    #return(curIndex) # move to next index, a market order in this index would have trumped any other open order
-                } 
+                openOrderSubset <- ordersubset[oo.idx,]
 
-                stoplimitorders <- which('stoplimit'==ordersubset.oo.idx[,'Order.Type'])
-                for(slorder in stoplimitorders)
+                # process open market orders
+                if(any('market'==openOrderSubset[,'Order.Type']))
                 {
-                    tmpqty <- ordersubset.oo.idx[slorder,'Order.Qty']
-                    if (tmpqty=='all' || tmpqty=='trigger' || tmpqty==0){
-                        #tmpqty<-osNoOp(timestamp=timestamp, orderqty=tmpqty, portfolio=portfolio, symbol=symbol,ruletype='exit' )
-                        #no position, so do some sleight of hand to figure out when the index may be needed
-                        side <- ordersubset.oo.idx[slorder,'Order.Side']
-                        if(side=='long') tmpqty=-1
-                        else tmpqty=1
-                    }
-                    tmpqty<-as.numeric(tmpqty)
-                    tmpprice <- as.numeric(ordersubset.oo.idx[slorder,'Order.Price'])
-                    if (tmpqty > 0) { #buy if mktprice moves above stoplimitorder price
-                        relationship='gte'  #if the Ask or Hi go above threshold our stop will be filled
-                        if(isBBOmktdata) {
-                            col<-first(colnames(mktdata)[has.Ask(mktdata,which=TRUE)])
-                        } else if (isOHLCmktdata) {
-                            col<-first(colnames(mktdata)[has.Hi(mktdata,which=TRUE)])
-                            relationship="gt" #gt i.o. gte: we don't want unrealistic fills for OHLC
-                        } else { #univariate or something built with fn_SpreadBuilder  
-                            col<-first(colnames(mktdata)[grep(prefer, colnames(mktdata))])
-                            # perhaps we need a has.Price check
-                        }
-                        if (is.na(col)) stop("no price discernable for stoplimit in applyRules")
-                    } else { #sell if mktprice moves below stoplimitorder price
-                        relationship="lte" #if Bid or Lo go below threshold, our stop will be filled
-                        if(isBBOmktdata) {
-                            col<-first(colnames(mktdata)[has.Bid(mktdata,which=TRUE)])
-                        } else if (isOHLCmktdata) {
-                            col<-first(colnames(mktdata)[has.Lo(mktdata,which=TRUE)])
-                            relationship="lt" #lt i.o. lte: we don't want unrealistic fills for OHLC
-                        } else {
-                            col<-first(colnames(mktdata)[grep(prefer, colnames(mktdata))])
-                        }    
-                        if (is.na(col)) stop("no price discernable for stoplimit in applyRules")                            
-                    } 
-                    # use .firstThreshold to find the location of the first tmpprice that crosses mktdata[,col]
-                    cross <- .firstThreshold(data=mktdata, col, tmpprice, relationship, start=curIndex+1) # don't look for crosses on curIndex
-                    if(cross < nrow(mktdata)){
-                        # find first index that would cross after this index
-                        newidx <- cross
-                        # insert that into dindex
-                        assign.dindex(c(get.dindex(),newidx))                  
-                    }
+                    # if there are any market orders, set hasmktord to TRUE
+                    # other orders still need to be processed? -JMU
+                    hasmktord <- TRUE
                 }
 
-                limitorders <- which('limit'==ordersubset.oo.idx[,'Order.Type'])
-                for(lorder in limitorders)
+                # process open resting, but non-trailing orders
+                # - dindex can be updated after processing all open orders
+                openOrders <- which(openOrderSubset[,'Order.Type'] %in% c("limit","stoplimit"))
+                if(length(openOrders) > 0) {
+                    # dindexOrderProc$cross will be nrow(x) if there's no cross, and nrow(x) is always in dindex
+                    newIndex <- sapply(openOrders, function(i) dindexOrderProc(openOrderSubset[i,], mktPrices, curIndex)$cross)
+                    assign.dindex(c(get.dindex(),newIndex))
+                }
+
+                # process open trailing orders
+                # - dindex should be updated after processing each open trailing order,
+                #   regardless of trailing order type (only stoptrailing is currently implemented)
+                openOrders <- which(openOrderSubset[,'Order.Type'] %in% "stoptrailing")
+                for(openOrder in openOrders)
                 {
-                    tmpqty<-ordersubset.oo.idx[lorder,'Order.Qty']
-                    if (tmpqty=='all' || tmpqty=='trigger' || tmpqty==0){
-                        #tmpqty<-osNoOp(timestamp=timestamp, orderqty=tmpqty, portfolio=portfolio, symbol=symbol,ruletype='exit' )
-                        #no position, so do some sleight of hand to figure out when the index may be needed
-                        side <- ordersubset.oo.idx[lorder,'Order.Side']
-                        if(side=='long') tmpqty <- -1
-                        else tmpqty <- 1
-                    }
-                    tmpqty<-as.numeric(tmpqty)
-                    tmpprice<-as.numeric(ordersubset.oo.idx[lorder,'Order.Price'])
-                    if(tmpqty>0){
-                        #buying
-                        relationship="lte" #look for places where Mkt Ask <= our Bid
-                        if(isBBOmktdata) {
-                            col<-first(colnames(mktdata)[has.Ask(mktdata,which=TRUE)])
-                        } else if (isOHLCmktdata) {
-                            col<-first(colnames(mktdata)[has.Lo(mktdata,which=TRUE)])
-                            relationship="lt" #lt i.o. lte: we don't want unrealistic fills for OHLC
-                        } else {
-                            col<-first(colnames(mktdata)[grep(prefer, colnames(mktdata))])
-                        }    
-                        if (is.na(col)) stop("no price discernable for limit in applyRules")
-                    } else {
-                        #selling
-                        relationship="gte" #look for places where Mkt Bid >= our Ask
-                        if(isBBOmktdata) {
-                            col<-first(colnames(mktdata)[has.Bid(mktdata,which=TRUE)])
-                        } else if (isOHLCmktdata) {
-                            col<-first(colnames(mktdata)[has.Hi(mktdata,which=TRUE)])
-                            relationship="gt" #gt i.o. gte: we don't want unrealistic fills for OHLC
-                        } else {
-                            col<-first(colnames(mktdata)[grep(prefer, colnames(mktdata))])
-                        }    
-                        if (is.na(col)) stop("no price discernable for limit in applyRules")
-                    }
-                    # use .firstThreshold to find the location of the first tmpprice that crosses mktdata[,col]
-                    cross <- .firstThreshold(data=mktdata, col, tmpprice, relationship, start=curIndex+1) # don't look for crosses on curIndex
-                    if(cross < nrow(mktdata)){
-                        # find first index that would cross after this index
-                        #
-                        # current index = which(cross[timespan])[1]
-                        # since the soonest we can get filled is next timestamp we are looking for which(cross[timespan])[2]. 
-                        # need to subtract 1 index==1 means current position
-                        #
-                        # newidx <- curIndex + which(cross[timespan])[1] #- 1  #curIndex/timestamp was 1 in the subset, we need a -1 offset?
-                        newidx <- cross
+                    # determine timespan we should search for trailing order executions
+                    dindex <- get.dindex()
+                    dindexNext <- dindex[.firstCross(dindex, curIndex, "gt")]
 
-                        #if there are is no cross curIndex will be incremented on line 496
-                        # with curIndex<-min(dindex[dindex>curIndex]).                            
-                        #we cannot get filled at this timestamp. The soonest we could get filled is next timestamp...
-                        #see also that market order increments curIndex before returning it. Going by the docs,
-                        #I think this is by design. i.e. no instant fills. -gsee
-                        
-                        # insert that into dindex
-                        assign.dindex(c(get.dindex(),newidx))                  
-                    }
-                } # end loop over open limit orders
+                    newIndex <- dindexOrderProc(openOrderSubset[openOrder,], mktPrices, curIndex)
 
-                trailorders <- which('stoptrailing'==ordersubset.oo.idx[,'Order.Type'])
-                for(torder in trailorders)
-                {
-                    onum<-oo.idx[torder]
-                    orderThreshold <- as.numeric(ordersubset[onum,'Order.Threshold'])
-                    tmpqty<-ordersubset[onum,'Order.Qty']
-                    if (tmpqty=='all' || tmpqty=='trigger' || tmpqty==0){
-                        #tmpqty<-osNoOp(timestamp=timestamp, orderqty=tmpqty, portfolio=portfolio, symbol=symbol,ruletype='exit' )
-                        #no position, so do some sleight of hand to figure out when the index may be needed
-                        side <- ordersubset.oo.idx[torder,'Order.Side']
-                        if(side=='long') tmpqty=-1
-                        else tmpqty=1
-                    }
-                    tmpqty<-as.numeric(tmpqty)
-                    tmpprice<-as.numeric(ordersubset[onum,'Order.Price'])
-
-                    if(isBBOmktdata) {
-                        if(tmpqty > 0){ # positive quantity 'buy'
-                            prefer='offer'
-                        } else {
-                            prefer='bid'
-                        }
-                    } else if (isOHLCmktdata) {
-                        prefer='close'
-                    } 
-
-                    dindex<-get.dindex()
-                    ddindex <- dindex[dindex>curIndex]
-                    if(length(ddindex) == 0)
-                        return(FALSE)
-
-                    nextidx <- min(ddindex)
-                    nextstamp <- format(index(mktdata[nextidx,]), "%Y-%m-%d %H:%M:%OS6")
-                    timespan <- paste(format(timestamp, "%Y-%m-%d %H:%M:%OS6"),"::",nextstamp,sep='')
-
-                    #get the subset of prices
-                    mkt_price_series <-getPrice(mktdata[timespan],prefer=prefer)[-1]  # don't look for crosses on curIndex
-                    col<-first(colnames(mkt_price_series))
-
-                    # check if order needs to be moved
-                    if(tmpqty > 0){ # positive quantity 'buy'
-                        move_order <- tmpprice - abs(orderThreshold) > mkt_price_series
-                        relationship="gte"
-                    } else {  # negative quantity 'sell'
-                        move_order <- tmpprice + abs(orderThreshold) < mkt_price_series
-                        relationship="lte"
-                    }
-                    # check if order will be filled
-                    # use .firstThreshold to find the location of the first tmpprice that crosses mktdata[,col]
-                    cross <- .firstThreshold(data=mktdata, col, tmpprice, relationship, start=curIndex+1) # don't look for crosses on curIndex
                     # update dindex if order is moved or filled
-                    if(any(move_order) || cross < nrow(mktdata)){
-                        moveidx <- curIndex + min(which(move_order)[1], cross, na.rm=TRUE)
-                        assign.dindex(c(get.dindex(), moveidx))
+                    if(newIndex$move_order < dindexNext || newIndex$cross < dindex[length(dindex)]) {
+                        assign.dindex(c(dindex, min(newIndex$move_order, newIndex$cross, na.rm=TRUE)))
                     }
                 } # end loop over open trailing orders
-            } # end else clause for any open orders in this timespan    
+            } # end else clause for any open orders in this timespan
         } # end any open orders closure
 
         if(curIndex){
-            if(hasmktord) { 
-                curIndex <- curIndex+1
+            if(hasmktord) {
+                curIndex <- curIndex+1  # why isn't this put into dindex? -JMU
             } else {
                 dindex<-get.dindex()
-                if (any(dindex > curIndex)) {
-                    curIndex<-min(dindex[dindex>curIndex]) 
-                } else curIndex <- FALSE
+                dindexNext <- dindex[.firstCross(dindex, curIndex, "gt")]
+                if (dindexNext < dindex[length(dindex)]) {
+                    curIndex <- dindexNext
+                } else {
+                    curIndex <- FALSE
+                }
             }
         }
         
@@ -566,6 +488,42 @@ applyRules <- function(portfolio,
     curIndex<-1
     freq <- periodicity(mktdata)  # run once and pass to ruleOrderProc
     
+    # do order price subsetting outside of nextIndex and curIndex loop
+    # this avoids repeated [.xts calls; and mktPrices is never altered, so copies aren't made
+    if(is.BBO(mktdata)) {
+        mktPrices <- list(
+          stoplimit = list(
+              posQty = mktdata[,has.Ask(mktdata,which=TRUE)[1]],
+              negQty = mktdata[,has.Bid(mktdata,which=TRUE)[1]]),
+          limit = list(
+              posQty = mktdata[,has.Ask(mktdata,which=TRUE)[1]],
+              negQty = mktdata[,has.Bid(mktdata,which=TRUE)[1]]),
+          stoptrailing = list(
+              posQty = getPrice(mktdata, prefer='offer')[,1],
+              negQty = getPrice(mktdata, prefer='bid')[,1]))
+    } else if (is.OHLC(mktdata)) {
+        mktPrices <- list(
+          stoplimit = list(
+              posQty = mktdata[,has.Hi(mktdata,which=TRUE)[1]],
+              negQty = mktdata[,has.Lo(mktdata,which=TRUE)[1]]),
+          limit = list(
+              posQty = mktdata[,has.Lo(mktdata,which=TRUE)[1]],
+              negQty = mktdata[,has.Hi(mktdata,which=TRUE)[1]]),
+          stoptrailing = list(
+              posQty = getPrice(mktdata, prefer='close')[,1],
+              negQty = getPrice(mktdata, prefer='close')[,1]))
+    } else { # univariate or something built with fn_SpreadBuilder
+        mktPrices <- list(
+          stoplimit = list(
+              price = getPrice(mktdata, prefer=prefer)[,1]),
+          limit = list(
+              price = getPrice(mktdata, prefer=prefer)[,1]),
+          stoptrailing = list(
+              price = getPrice(mktdata, prefer=prefer)[,1]))
+    }
+    mktPrices$isOHLC <- is.OHLC(mktdata)
+    mktPrices$isBBO <- is.BBO(mktdata)
+
     while(curIndex){
         timestamp=Dates[curIndex]    
 
@@ -652,7 +610,7 @@ applyRules <- function(portfolio,
                     }
             ) # end switch
         } #end type loop
-        if(isTRUE(path.dep)) curIndex<-nextIndex(curIndex, ...) #timestamp comes from environment, not dots? -gsee
+        if(isTRUE(path.dep)) curIndex <- nextIndex(curIndex, ..., mktPrices=mktPrices) #timestamp comes from environment, not dots? -gsee
         else curIndex=FALSE
     } # end index while loop
 
@@ -683,15 +641,7 @@ ruleProc <- function (ruletypelist,timestamp=NULL, path.dep, ruletype, ..., para
         if(!isTRUE(rule$enabled)) next()
         
         # check to see if we should run in this timespan
-        if(!is.null(rule$timespan)) {
-            # Get row index of timestamp for faster subsetting
-            if(hasArg(curIndex))
-                curIndex <- eval(match.call(expand.dots=TRUE)$curIndex, parent.frame())
-            else
-                curIndex <- timestamp
-            if(nrow(mktdata[curIndex][rule$timespan])==0)
-                next()
-        }
+        if(!is.null(rule$timespan) && nrow(mktdata[curIndex][rule$timespan])==0) next()
         
         # modify a few things
         rule$arguments$timestamp = timestamp
