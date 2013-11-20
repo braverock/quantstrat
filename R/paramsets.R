@@ -388,7 +388,6 @@ apply.paramset <- function(strategy.st, paramset.label, portfolio.st, account.st
     {
         param.combos <- expand.distributions(distributions)
         param.combos <- apply.constraints(constraints, distributions, param.combos)
-        param.combos <- expand.constrained.distributions(constraints, distributions)
         rownames(param.combos) <- NULL  # reset rownames
         if(nsamples > 0)
             param.combos <- select.samples(nsamples, param.combos)
