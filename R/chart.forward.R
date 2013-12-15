@@ -8,9 +8,13 @@ chart.forward <- function(audit.filename)
 {
     if(!require(xtsExtra, quietly=TRUE)) stop('The "xtsExtra" package is required to use this function')
 
-    .audit <- NULL
-
-    load(audit.filename)
+    #.audit <- NULL
+    if(is.null(.audit)) stop ('You need to run a walk forward test first to create the .audit environment')
+  
+    if(!is.null(audit.filename))
+      load(audit.filename)
+    else 
+      stop('You need to provide an audit.filename.')
 
     # extract all portfolio names from the audit environment, except wfa portfolio
     portfolios.st = ls(name=.audit, pattern='portfolio.*.[0-9]+')
