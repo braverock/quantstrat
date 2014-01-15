@@ -44,7 +44,7 @@ tradeOrderStats <- function(portfolio, symbol, ...) {
 	stats.xts <- as.xts(stats.table, order.by=stats.table$End)
 	orderbook <- getOrderBook(portfolio=portfolio)[[portfolio]][[symbol]]
 	closed <- orderbook[which(orderbook$Order.Status=='closed'),]
-	closed.xts <- xts(closed, as.POSIXct(as.vector(closed$Order.StatusTime), format='%Y-%m-%d %H:%M:%OS'))
+	closed.xts <- xts(closed, as.POSIXct(as.character(closed$Order.StatusTime), tz=indexTZ(closed), format="%Y-%m-%d %H:%M:%OS"))
 	merged.table <- merge(closed.xts,stats.xts)
 	merged.closed <- merged.table[index(stats.xts)]
 	return(merged.closed)
