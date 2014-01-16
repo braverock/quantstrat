@@ -65,13 +65,21 @@ ruleOrderProc <- function(portfolio, symbol, mktdata, timestamp=NULL, ordertype=
   OpenOrders.i<-getOrders(portfolio=portfolio, symbol=symbol, status="open", timespan=timespan, ordertype=ordertype, which.i=TRUE)
 
   #extract time in force for open orders
-  tif <- ordersubset[OpenOrders.i, 'Time.In.Force']
-  if(any(!tif=='')){
-    if (class(index(ordersubset))=='Date') tif <- as.Date(tif)
-    else tif <- strptime(tif, format='%Y-%m-%d %H:%M:%0S')
+  tif.xts <- ordersubset[OpenOrders.i, 'Time.In.Force']
+  if(any(!tif.xts==''))
+  {
+    if (class(index(ordersubset))=='Date')
+        tif <- as.Date(tif.xts)
+    else
+    {
+        tif <- strptime(tif.xts, format='%Y-%m-%d %H:%M:%0S')
+        if(is.na(tif))
+		tif <- strptime(tif.xts, format='%Y-%m-%d %H:%M:%S')
+    }
+
     #check which ones should be expired
-    ExpiredOrders.i<-which(tif<index(ordersubset[OpenOrders.i]))
-    #mark them expired
+    ExpiredOrders.i<-which(tif<timestamp)
+
     ordersubset[OpenOrders.i[ExpiredOrders.i], "Order.Status"] = 'expired'  
     ordersubset[OpenOrders.i[ExpiredOrders.i], "Order.StatusTime"]<-ordersubset[OpenOrders.i[ExpiredOrders.i], "Time.In.Force"]
   }
