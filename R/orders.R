@@ -370,7 +370,7 @@ addOrder <- function(portfolio,
             if(is.numeric(time.in.force))
                 time.in.force <- timestamp + time.in.force
 
-            time.in.force <- format(time.in.force, "%Y-%m-%d %H:%M:%0S")
+            time.in.force <- format(time.in.force, "%Y-%m-%d %H:%M:%OS")
             #TODO FIXME this line probably needs to be sensitive to the index of the market data, Date vs POSIXct
   }
     }

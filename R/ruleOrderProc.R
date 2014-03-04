@@ -72,7 +72,7 @@ ruleOrderProc <- function(portfolio, symbol, mktdata, timestamp=NULL, ordertype=
         tif <- as.Date(tif.xts)
     else
     {
-        tif <- strptime(tif.xts, format='%Y-%m-%d %H:%M:%0S')
+        tif <- strptime(tif.xts, format='%Y-%m-%d %H:%M:%OS')
         tif.na <- is.na(tif)
 		tif[tif.na] <- strptime(tif.xts[tif.na], format='%Y-%m-%d %H:%M:%S')
     }
