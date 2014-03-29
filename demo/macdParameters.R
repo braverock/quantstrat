@@ -34,8 +34,8 @@ tPD2<-setParameterDistribution(type='indicator',indexnum=1,distribution=list(nFa
 ## tPD2<-setParameterDistribution() 
 ## tPD2<-setParameterDistribution(type='indicator',indexnum=1,distribution=list(nFast=(10:30)),label='nFast')
 
-tPD2<-setParameterDistribution(tPD2,type='indicator',indexnum=1,distribution=list(nSlow=(20:40)),label='nSlow')
-tPD2<-setParameterDistribution(tPD2,type='signal',indexnum=1,distribution=list(relationship=c('gt','gte')),label='sig1.gtgte')
+tPD2<-setParameterDistribution(tPD2,component.type='indicator',indexnum=1,distribution=list(nSlow=(20:40)),label='nSlow')
+tPD2<-setParameterDistribution(tPD2,component.type='signal',indexnum=1,distribution=list(relationship=c('gt','gte')),label='sig1.gtgte')
 
 # Put constrains to the nFast and nSlow parameters.
 pConstraint2<-setParameterConstraint(constraintLabel='macdPC',paramList=c('nFast','nSlow'),relationship='lt')

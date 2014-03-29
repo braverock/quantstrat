@@ -103,6 +103,7 @@ if("package:PerformanceAnalytics" %in% search() || require("PerformanceAnalytics
     charts.PerformanceSummary(ret1$total,geometric=FALSE,wealth.index=TRUE)
 }
 
+
 ###############################################################################
 # R (http://r-project.org/) Quantitative Strategy Model Framework
 #
