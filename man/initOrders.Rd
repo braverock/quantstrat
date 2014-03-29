@@ -2,8 +2,7 @@
 \alias{initOrders}
 \title{initialize order container}
 \usage{
-  initOrders(portfolio = NULL, symbols = NULL,
-    initDate = "1999-12-31", ...)
+initOrders(portfolio = NULL, symbols = NULL, initDate = "1999-12-31", ...)
 }
 \arguments{
   \item{portfolio}{text name of the portfolio to associate
@@ -21,14 +20,14 @@
   \item{\dots}{any other passthrough parameters}
 }
 \description{
-  This function sets up the order container by portfolio.
+This function sets up the order container by portfolio.
 }
 \details{
-  If no symbols list is provided (the default) the function
-  will attempt to retrieve the symbols list from the
-  portfolio in the trade blotter.
+If no symbols list is provided (the default) the function
+will attempt to retrieve the symbols list from the
+portfolio in the trade blotter.
 }
 \concept{
-  order book
+order book
 }
 

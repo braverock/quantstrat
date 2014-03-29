@@ -2,9 +2,8 @@
 \alias{sigComparison}
 \title{generate comparison signal}
 \usage{
-  sigComparison(label, data = mktdata, columns,
-    relationship = c("gt", "lt", "eq", "gte", "lte"),
-    offset1 = 0, offset2 = 0)
+sigComparison(label, data = mktdata, columns, relationship = c("gt", "lt",
+  "eq", "gte", "lte"), offset1 = 0, offset2 = 0)
 }
 \arguments{
   \item{label}{text label to apply to the output}
@@ -24,15 +23,15 @@
   column prior to comparison}
 }
 \description{
-  Currently, this function compares two columns. Patches to
-  compare an arbitrary number of columns would be gladly
-  accepted.
+Currently, this function compares two columns. Patches to
+compare an arbitrary number of columns would be gladly
+accepted.
 }
 \details{
-  Comparison will be applied from the first to the second
-  column in the \code{columns} vector.
+Comparison will be applied from the first to the second
+column in the \code{columns} vector.
 
-  Relationship 'op' means 'opposite' side.  Reasonable
-  attempt will be made to match.
+Relationship 'op' means 'opposite' side.  Reasonable
+attempt will be made to match.
 }
 

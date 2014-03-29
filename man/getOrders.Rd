@@ -2,9 +2,9 @@
 \alias{getOrders}
 \title{get orders by time span, status, type, and side}
 \usage{
-  getOrders(portfolio, symbol, status = "open",
-    timespan = NULL, ordertype = NULL, side = NULL,
-    qtysign = NULL, orderset = NULL, which.i = FALSE)
+getOrders(portfolio, symbol, status = "open", timespan = NULL,
+  ordertype = NULL, side = NULL, qtysign = NULL, orderset = NULL,
+  which.i = FALSE)
 }
 \arguments{
   \item{portfolio}{text name of the portfolio to associate
@@ -37,21 +37,21 @@
   FALSE}
 }
 \description{
-  This function exists so that other code can find open
-  orders, potentially to update or cancel them.
+This function exists so that other code can find open
+orders, potentially to update or cancel them.
 }
 \details{
-  It has some use as a reporting or post-hoc analytics
-  tool, but it may not always be exported.
+It has some use as a reporting or post-hoc analytics tool,
+but it may not always be exported.
 
-  should this be symbols instead of symbol?
+should this be symbols instead of symbol?
 }
 \seealso{
-  getOrderBook
+getOrderBook
 
-  addOrder
+addOrder
 }
 \concept{
-  order book
+order book
 }
 

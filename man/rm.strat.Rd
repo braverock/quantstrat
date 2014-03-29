@@ -2,7 +2,7 @@
 \alias{rm.strat}
 \title{Remove objects associated with a strategy}
 \usage{
-  rm.strat(name = "default", silent = TRUE)
+rm.strat(name = "default", silent = TRUE)
 }
 \arguments{
   \item{name}{name of the portfolio/account/order book to
@@ -12,11 +12,11 @@
   objects that do not exist. (Default=TRUE)}
 }
 \value{
-  invisible -- called for side-effect
+invisible -- called for side-effect
 }
 \description{
-  Remove the order_book, account, and portfolio of given
-  \code{name}.
+Remove the order_book, account, and portfolio of given
+\code{name}.
 }
 \examples{
 \dontrun{

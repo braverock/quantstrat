@@ -2,7 +2,7 @@
 \alias{put.strategy}
 \title{put a strategy object in .strategy env}
 \usage{
-  put.strategy(strategy, envir = .strategy)
+put.strategy(strategy, envir = .strategy)
 }
 \arguments{
   \item{strategy}{object; name will be extracted as
@@ -12,9 +12,9 @@
   defaults to .strategy}
 }
 \description{
-  put a strategy object in .strategy env
+put a strategy object in .strategy env
 }
 \seealso{
-  getStrategy
+getStrategy
 }
 

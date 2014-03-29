@@ -2,7 +2,7 @@
 \alias{delete.paramset}
 \title{Delete a paramset from a strategy}
 \usage{
-  delete.paramset(strategy, paramset.label, store = TRUE)
+delete.paramset(strategy, paramset.label, store = TRUE)
 }
 \arguments{
   \item{strategy}{the name of the strategy object}
@@ -14,15 +14,15 @@
   the .strategy environment}
 }
 \description{
-  Delete a paramset from a strategy, including its
-  distributions and constraints.
+Delete a paramset from a strategy, including its
+distributions and constraints.
 }
 \author{
-  Jan Humme
+Jan Humme
 }
 \seealso{
-  \code{\link{add.distibution}},
-  \code{\link{add.distribution.constraint}},
-  \code{\link{apply.paramset}}
+\code{\link{add.distibution}},
+\code{\link{add.distribution.constraint}},
+\code{\link{apply.paramset}}
 }
 

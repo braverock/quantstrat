@@ -2,9 +2,8 @@
 \alias{rulePctEquity}
 \title{rule to base trade size on a percentage of available equity.}
 \usage{
-  rulePctEquity(trade.percent = 0.02, ..., longlevels = 1,
-    shortlevels = 1, digits = NULL, refprice = NULL,
-    portfolio, symbol, timestamp)
+rulePctEquity(trade.percent = 0.02, ..., longlevels = 1, shortlevels = 1,
+  digits = NULL, refprice = NULL, portfolio, symbol, timestamp)
 }
 \arguments{
   \item{trade.percent}{max percentage of equity to allow
@@ -34,16 +33,16 @@
   \item{\dots}{any other passthrough parameters}
 }
 \description{
-  This rule works with
-  \code{\link{applyStrategy.rebalancing}} to set the
-  maximum trade size by calling \code{\link{addPosLimit}}.
+This rule works with
+\code{\link{applyStrategy.rebalancing}} to set the maximum
+trade size by calling \code{\link{addPosLimit}}.
 }
 \details{
-  To use it, you need to specify it as (part of) a rule of
-  type 'rebalance'. note that
-  \code{\link{applyStrategy.rebalancing}} will expect a
-  'rebalance_on' argument to be included in the
-  \code{arguments=list(...)} of the rule definition.
+To use it, you need to specify it as (part of) a rule of
+type 'rebalance'. note that
+\code{\link{applyStrategy.rebalancing}} will expect a
+'rebalance_on' argument to be included in the
+\code{arguments=list(...)} of the rule definition.
 }
 \examples{
 # example rule definition
@@ -59,8 +58,8 @@ add.rule(strategy.name, 'rulePctEquity',
 }
 }
 \seealso{
-  \code{\link{osMaxPos}} ,
-  \code{\link{applyStrategy.rebalancing}},
-  \code{\link{addPosLimit}}, \code{\link{add.rule}}
+\code{\link{osMaxPos}} ,
+\code{\link{applyStrategy.rebalancing}},
+\code{\link{addPosLimit}}, \code{\link{add.rule}}
 }
 

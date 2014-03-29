@@ -241,6 +241,7 @@ enable.rule <- function(strategy, type=c(NULL,"risk","order","rebalance","exit",
 #' @param ... any other passthru parameters
 #' @param path.dep TRUE/FALSE whether rule is path dependent, default TRUE, see Details 
 #' @param rule.order default NULL, use at your own risk to adjust order of rule evaluation
+#' @param debug if TRUE, return output list
 #' @seealso \code{\link{add.rule}} \code{\link{applyStrategy}} 
 #' @export
 applyRules <- function(portfolio, 
@@ -253,7 +254,8 @@ applyRules <- function(portfolio,
                         parameters=NULL,   
                         ..., 
                         path.dep=TRUE,
-                        rule.order=NULL) {
+                        rule.order=NULL,
+                        debug=FALSE) {
     # TODO check for symbol name in mktdata using Josh's code:
     # symbol <- strsplit(colnames(mktdata)[1],"\\.")[[1]][1]
     
@@ -486,7 +488,8 @@ applyRules <- function(portfolio,
     holdtill=first(time(Dates))-1 # TODO FIXME make holdtill default more robust?
     mktinstr<-getInstrument(symbol)
     curIndex<-1
-    freq <- periodicity(mktdata)  # run once and pass to ruleOrderProc
+    if(nrow(mktdata)>1) freq <- periodicity(mktdata)  # run once and pass to ruleOrderProc
+    else if (indexClass(mktdata) == 'Date') freq='daily'
     
     # do order price subsetting outside of nextIndex and curIndex loop
     # this avoids repeated [.xts calls; and mktPrices is never altered, so copies aren't made
@@ -526,7 +529,7 @@ applyRules <- function(portfolio,
 
     while(curIndex){
         timestamp=Dates[curIndex]    
-
+        
         #print(paste('timestamp',timestamp,'first',first(index(mktdata)),'last',last(index(mktdata))))
         
         # check to see if we need to release a hold
@@ -614,12 +617,17 @@ applyRules <- function(portfolio,
         else curIndex=FALSE
     } # end index while loop
 
-    mktdata<<-mktdata
-    if(is.null(ret)) {
+    if(isTRUE(debug)){
+      mktdata<<-mktdata
+      
+      if(is.null(ret)) {
         return(mktdata)
-    }
-    else return(ret)
-}
+      }
+      else return(ret)      
+    } else {
+      return(NULL)
+    }   
+} #end applyRules
 
 # private function ruleProc, used by applyRules and applyStrategy.rebalancing
 ruleProc <- function (ruletypelist,timestamp=NULL, path.dep, ruletype, ..., parameters=NULL){

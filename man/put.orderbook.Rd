@@ -2,7 +2,7 @@
 \alias{put.orderbook}
 \title{put an orderbook object in .strategy env}
 \usage{
-  put.orderbook(portfolio.st, orderbook, envir = .strategy)
+put.orderbook(portfolio.st, orderbook, envir = .strategy)
 }
 \arguments{
   \item{portfolio.st}{string identifying portfolio}
@@ -13,12 +13,12 @@
   object in, defaults to .strategy}
 }
 \description{
-  put an orderbook object in .strategy env
+put an orderbook object in .strategy env
 }
 \seealso{
-  getOrderBook
+getOrderBook
 }
 \concept{
-  order book
+order book
 }
 

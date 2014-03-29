@@ -2,10 +2,9 @@
 \alias{initStrategy}
 \title{run standard and custom strategy initialization functions}
 \usage{
-  initStrategy(strategy, portfolio, symbols,
-    parameters = NULL, get.Symbols = TRUE,
-    init.Portf = TRUE, init.Acct = TRUE,
-    init.Orders = TRUE, unique = TRUE, ...)
+initStrategy(strategy, portfolio, symbols, parameters = NULL,
+  get.Symbols = TRUE, init.Portf = TRUE, init.Acct = TRUE,
+  init.Orders = TRUE, unique = TRUE, ...)
 }
 \arguments{
   \item{strategy}{object of type \code{strategy} to
@@ -31,28 +30,27 @@
   \item{\dots}{any other passthrough parameters}
 }
 \description{
-  \code{initStrategy} will run a series of common
-  initialization functions at the beginning of an
-  \code{\link{applyStrategy}} call.
+\code{initStrategy} will run a series of common
+initialization functions at the beginning of an
+\code{\link{applyStrategy}} call.
 }
 \details{
-  \describe{ \item{get.Symbols}{if TRUE, will call
-  \code{\link[quantmod]{getSymbols}} on all symbols
-  included in the \code{symbols} vector}
-  \item{init.Portf}{if TRUE, will call
-  \code{\link[blotter]{initPortf}} to initialize the
-  portfolio object} \item{init.Acct}{if TRUE, will call
-  \code{\link[blotter]{initAcct}} to initialize the account
-  object} \item{init.Orders}{if TRUE, will call
-  \code{\link{initOrders}} to initialize the order book for
-  this test} \item{unique}{not yet implemented, will force
-  a unique portfolio and account name if the portfolio,
-  account, or order book already exist} }
+\describe{ \item{get.Symbols}{if TRUE, will call
+\code{\link[quantmod]{getSymbols}} on all symbols included
+in the \code{symbols} vector} \item{init.Portf}{if TRUE,
+will call \code{\link[blotter]{initPortf}} to initialize
+the portfolio object} \item{init.Acct}{if TRUE, will call
+\code{\link[blotter]{initAcct}} to initialize the account
+object} \item{init.Orders}{if TRUE, will call
+\code{\link{initOrders}} to initialize the order book for
+this test} \item{unique}{not yet implemented, will force a
+unique portfolio and account name if the portfolio,
+account, or order book already exist} }
 }
 \author{
-  Garrett See, Brian Peterson
+Garrett See, Brian Peterson
 }
 \seealso{
-  \code{\link{applyStrategy}}, \code{\link{add.init}},
+\code{\link{applyStrategy}}, \code{\link{add.init}},
 }
 

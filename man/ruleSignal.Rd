@@ -2,15 +2,12 @@
 \alias{ruleSignal}
 \title{default rule to generate a trade order on a signal}
 \usage{
-  ruleSignal(mktdata = mktdata, timestamp, sigcol, sigval,
-    orderqty = 0, ordertype, orderside = NULL,
-    orderset = NULL, threshold = NULL, tmult = FALSE,
-    replace = TRUE, delay = 1e-04, osFUN = "osNoOp",
-    pricemethod = c("market", "opside", "active"),
-    portfolio, symbol, ..., ruletype, TxnFees = 0,
-    prefer = NULL, sethold = FALSE, label = "",
-    order.price = NULL, chain.price = NULL,
-    time.in.force = "")
+ruleSignal(mktdata = mktdata, timestamp, sigcol, sigval, orderqty = 0,
+  ordertype, orderside = NULL, orderset = NULL, threshold = NULL,
+  tmult = FALSE, replace = TRUE, delay = 1e-04, osFUN = "osNoOp",
+  pricemethod = c("market", "opside", "active"), portfolio, symbol, ...,
+  ruletype, TxnFees = 0, prefer = NULL, sethold = FALSE, label = "",
+  order.price = NULL, chain.price = NULL, time.in.force = "")
 }
 \arguments{
   \item{mktdata}{an xts object containing market data.
@@ -100,45 +97,44 @@
   if still 'open' at this timestamp, default is ''}
 }
 \description{
-  As described elsewhere in the documentation, quantstrat
-  models \emph{orders}.  This function is the default
-  provided rule function to generate those orders, which
-  will be acted on later as they interact with your market
-  data.
+As described elsewhere in the documentation, quantstrat
+models \emph{orders}.  This function is the default
+provided rule function to generate those orders, which will
+be acted on later as they interact with your market data.
 }
 \details{
-  \code{pricemethod} may be one of \describe{
-  \item{'market', 'opside', or 'active'}{ will use the
-  'ask' price if you're buying and the 'bid' price if
-  you're selling, crossing the market at the time of order
-  entry to attempt to set an aggressive price to get the
-  trade. } \item{'passive', 'work' or 'join'}{ which will
-  join the 'bid' price if you are buying or join the 'ask'
-  price if you are selling, passively working to make
-  liquidity at the prevailing market price without crossing
-  the market at time of order entry} \item{'maker'}{will
-  create a pair of orders for both bid and offer, modeling
-  market making activities by having orders on both sides.
-  This will then create an Order.Set, and use the
-  \code{threshold} to set the prices for these orders.} }
+\code{pricemethod} may be one of \describe{ \item{'market',
+'opside', or 'active'}{ will use the 'ask' price if you're
+buying and the 'bid' price if you're selling, crossing the
+market at the time of order entry to attempt to set an
+aggressive price to get the trade. } \item{'passive',
+'work' or 'join'}{ which will join the 'bid' price if you
+are buying or join the 'ask' price if you are selling,
+passively working to make liquidity at the prevailing
+market price without crossing the market at time of order
+entry} \item{'maker'}{will create a pair of orders for both
+bid and offer, modeling market making activities by having
+orders on both sides.  This will then create an Order.Set,
+and use the \code{threshold} to set the prices for these
+orders.} }
 
-  \code{orderqty} should be either numeric, or one of
-  'all'/'trigger'. 'all' can only be used with order of
-  ruletype='exit' or 'risk', and will close the entire
-  position. 'trigger' can only be used with
-  ruletype='chain' and is exactly identical to 'all',
-  except that the actual transaction is suppressed, and can
-  be used to kick in a new order chain.
+\code{orderqty} should be either numeric, or one of
+'all'/'trigger'. 'all' can only be used with order of
+ruletype='exit' or 'risk', and will close the entire
+position. 'trigger' can only be used with ruletype='chain'
+and is exactly identical to 'all', except that the actual
+transaction is suppressed, and can be used to kick in a new
+order chain.
 
-  If \code{threshold} is not numeric or \code{NULL} it
-  should be the name of an indicator mktdata column holding
-  the threshold values.
+If \code{threshold} is not numeric or \code{NULL} it should
+be the name of an indicator mktdata column holding the
+threshold values.
 
-  If \code{orderside} is NULL, the function will attempt to
-  calculate the side from the current position (if any),
-  the order quantity, and the order type.
+If \code{orderside} is NULL, the function will attempt to
+calculate the side from the current position (if any), the
+order quantity, and the order type.
 }
 \seealso{
-  \code{\link{osNoOp}} , \code{\link{add.rule}}
+\code{\link{osNoOp}} , \code{\link{add.rule}}
 }
 

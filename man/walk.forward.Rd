@@ -2,13 +2,11 @@
 \alias{walk.forward}
 \title{Rolling Walk Forward Analysis}
 \usage{
-  walk.forward(strategy.st, paramset.label, portfolio.st,
-    account.st, period, k.training, nsamples = 0,
-    audit.prefix = NULL, k.testing,
-    obj.func = function(x) {     which(x == max(x)) },
-    obj.args = list(x = quote(tradeStats.list$Net.Trading.PL)),
-    anchored = FALSE, include.insamples = TRUE, ...,
-    verbose = FALSE)
+walk.forward(strategy.st, paramset.label, portfolio.st, account.st, period,
+  k.training, nsamples = 0, audit.prefix = NULL, k.testing,
+  obj.func = function(x) {     which(x == max(x)) }, obj.args = list(x =
+  quote(tradeStats.list$Net.Trading.PL)), anchored = FALSE,
+  include.insamples = TRUE, ..., verbose = FALSE)
 }
 \arguments{
   \item{portfolio.st}{the name of the portfolio object}
@@ -68,36 +66,34 @@
   to TRUE, defaults to FALSE}
 }
 \value{
-  a list consisting of a slot containing detailed results
-  for each training + testing period, as well as the
-  portfolio and the tradeStats() for the portfolio
+a list consisting of a slot containing detailed results for
+each training + testing period, as well as the portfolio
+and the tradeStats() for the portfolio
 }
 \description{
-  A wrapper for apply.paramset() and applyStrategy(),
-  implementing a Rolling Walk Forward Analysis (WFA).
+A wrapper for apply.paramset() and applyStrategy(),
+implementing a Rolling Walk Forward Analysis (WFA).
 }
 \details{
-  walk.forward executes a strategy on a portfolio, while
-  rolling a re-optimization of one of the strategies
-  parameter sets during a specified time period (training
-  window), then selecting an optimal parameter combination
-  from the parameter set using an obj function, then
-  applying the selected parameter combo to the next
-  out-of-sample time period immediately following the
-  training window (testing window). Once completed, the
-  training window is shifted forward by a time period equal
-  to the testing window size, and the process is repeated.
-  WFA stops when there are insufficient data left for a
-  full testing window.
+walk.forward executes a strategy on a portfolio, while
+rolling a re-optimization of one of the strategies
+parameter sets during a specified time period (training
+window), then selecting an optimal parameter combination
+from the parameter set using an obj function, then applying
+the selected parameter combo to the next out-of-sample time
+period immediately following the training window (testing
+window). Once completed, the training window is shifted
+forward by a time period equal to the testing window size,
+and the process is repeated. WFA stops when there are
+insufficient data left for a full testing window.
 
-  For a complete description, see Jaekle&Tomasini chapter
-  6.
+For a complete description, see Jaekle&Tomasini chapter 6.
 }
 \author{
-  Jan Humme
+Jan Humme
 }
 \seealso{
-  \code{\link{applyStrategy}} \code{\link{apply.paramset}}
-  \code{\link{endpoints}} \code{\link{tradeStats}}
+\code{\link{applyStrategy}} \code{\link{apply.paramset}}
+\code{\link{endpoints}} \code{\link{tradeStats}}
 }
 

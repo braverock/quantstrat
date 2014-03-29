@@ -96,6 +96,8 @@ strategy <- function(name, ..., assets=NULL, constraints=NULL ,store=FALSE)
 #' @param symbols character vector identifying symbols to initialize a portfolio for, default NULL
 #' @param initStrat whether to use (experimental) initialization code, default FALSE
 #' @param updateStrat whether to use (experimental) wrapup code, default FALSE
+#' @param gc if TRUE, call \code{\link{gc}} after each symbol run, default FALSE (experimental)
+#' @param delorders if TRUE, delete the order book for a symbol at the end of the symbols loop, will cause issues with rebalancing, default FALSE (experimental)
 #' @export
 #' @seealso \code{\link{strategy}},  \code{\link{applyIndicators}}, 
 #'  \code{\link{applySignals}}, \code{\link{applyRules}},
@@ -108,7 +110,9 @@ applyStrategy <- function(strategy ,
                           debug=FALSE, 
                           symbols=NULL, 
                           initStrat=FALSE, 
-                          updateStrat=FALSE ) {
+                          updateStrat=FALSE,
+                          gc=FALSE,
+                          delorders=FALSE) {
 
   #TODO add saving of modified market data
   
@@ -170,7 +174,8 @@ applyStrategy <- function(strategy ,
                                         signals=sret$signals, 
                                         parameters=parameters,  
                                         ..., 
-                                        path.dep=FALSE)
+                                        path.dep=FALSE,
+                                        debug=debug)
          
          # Check for open orders
          rem.orders <- suppressWarnings(getOrders(portfolio=portfolio, symbol=symbol, status="open")) #, timespan=timespan, ordertype=ordertype,which.i=TRUE)
@@ -184,9 +189,14 @@ applyStrategy <- function(strategy ,
                                                      signals=sret$signals, 
                                                      parameters=parameters,  
                                                      ..., 
-                                                     path.dep=TRUE)}
+                                                     path.dep=TRUE,
+                                                     debug=debug)}
          
          if(isTRUE(debug)) ret[[portfolio]][[symbol]]<-sret
+         
+         if(isTRUE(delorders)) .strategy[[paste("order_book",portfolio,sep='.')]][[symbol]]<-NULL #WARNING: This is VERY DESTRUCTIVE  
+
+         if(isTRUE(gc)) gc()
        }
        
        # call updateStrategy

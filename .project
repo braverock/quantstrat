@@ -14,5 +14,6 @@
 	<natures>
 		<nature>de.walware.statet.base.StatetNature</nature>
 		<nature>de.walware.statet.r.RNature</nature>
+		<nature>de.walware.statet.r.RPkgNature</nature>
 	</natures>
 </projectDescription>

@@ -2,10 +2,9 @@
 \alias{applyRules}
 \title{apply the rules in the strategy to arbitrary market data}
 \usage{
-  applyRules(portfolio, symbol, strategy, mktdata,
-    Dates = NULL, indicators = NULL, signals = NULL,
-    parameters = NULL, ..., path.dep = TRUE,
-    rule.order = NULL)
+applyRules(portfolio, symbol, strategy, mktdata, Dates = NULL,
+  indicators = NULL, signals = NULL, parameters = NULL, ...,
+  path.dep = TRUE, rule.order = NULL, debug = FALSE)
 }
 \arguments{
   \item{portfolio}{text name of the portfolio to associate
@@ -46,38 +45,39 @@
 
   \item{rule.order}{default NULL, use at your own risk to
   adjust order of rule evaluation}
+
+  \item{debug}{if TRUE, return output list}
 }
 \description{
-  In typical usage, this function will be called via
-  \code{\link{applyStrategy}}. In this mode, this function
-  will be called twice, once with \code{path.dep=FALSE} and
-  then again in stepping over the time indexes of the
-  mktdata object.
+In typical usage, this function will be called via
+\code{\link{applyStrategy}}. In this mode, this function
+will be called twice, once with \code{path.dep=FALSE} and
+then again in stepping over the time indexes of the mktdata
+object.
 }
 \details{
-  This function, because of its path dependent nature and
-  the order of rule evaluation discussed in
-  \code{\link{add.rule}}, will likely take up most of the
-  execution time of a strategy backtest.
+This function, because of its path dependent nature and the
+order of rule evaluation discussed in
+\code{\link{add.rule}}, will likely take up most of the
+execution time of a strategy backtest.
 
-  Individual rule functions may need to use <<- to place
-  \code{hold} and \code{holdtill} variables into play.
-  These would be most likely implemented by risk rules.
-  When \code{hold==TRUE}, any open oders will still be
-  processed (orders are \emph{NOT} canceled automatically,
-  but no new orders may be entered.  \code{type='risk'}
-  rules will still function during a hold.  Note that hold
-  must be set via a custom rule.  We tend to set hold in an
-  order or risk rule.
+Individual rule functions may need to use <<- to place
+\code{hold} and \code{holdtill} variables into play.  These
+would be most likely implemented by risk rules.  When
+\code{hold==TRUE}, any open oders will still be processed
+(orders are \emph{NOT} canceled automatically, but no new
+orders may be entered.  \code{type='risk'} rules will still
+function during a hold.  Note that hold must be set via a
+custom rule.  We tend to set hold in an order or risk rule.
 
-  \code{quantstrat} has a significant amount of logic
-  devoted to handling path-dependent rule execution.  Most
-  of that code/logic resides in this function.
+\code{quantstrat} has a significant amount of logic devoted
+to handling path-dependent rule execution.  Most of that
+code/logic resides in this function.
 
-  This function, along with \code{\link{ruleOrderProc}},
-  \code{\link{addOrder}}, and \code{\link{applyStrategy}}
-  will likely need to be replaced to connect to a live
-  market infrastructure.
+This function, along with \code{\link{ruleOrderProc}},
+\code{\link{addOrder}}, and \code{\link{applyStrategy}}
+will likely need to be replaced to connect to a live market
+infrastructure.
 }
 \section{Dimension Reduction for Performance}{
   In evaluation of path-dependent rules, the simplest
@@ -143,6 +143,6 @@
   introduce biases.
 }
 \seealso{
-  \code{\link{add.rule}} \code{\link{applyStrategy}}
+\code{\link{add.rule}} \code{\link{applyStrategy}}
 }
 

@@ -3,7 +3,7 @@
 \alias{getStrategy}
 \title{retrieve strategy from the container environment}
 \usage{
-  get.strategy(x, envir = .strategy)
+get.strategy(x, envir = .strategy)
 }
 \arguments{
   \item{x}{string name of object to be retrieved}
@@ -12,6 +12,6 @@
   object from, defaults to .strategy}
 }
 \description{
-  retrieve strategy from the container environment
+retrieve strategy from the container environment
 }
 

@@ -2,7 +2,7 @@
 \alias{getPosLimit}
 \title{get position and level limits on timestamp}
 \usage{
-  getPosLimit(portfolio, symbol, timestamp)
+getPosLimit(portfolio, symbol, timestamp)
 }
 \arguments{
   \item{portfolio}{text name of the portfolio to place
@@ -16,9 +16,9 @@
   be the time the order will be inserted on}
 }
 \description{
-  get position and level limits on timestamp
+get position and level limits on timestamp
 }
 \seealso{
-  \code{\link{addPosLimit}},\code{\link{osMaxPos}}
+\code{\link{addPosLimit}},\code{\link{osMaxPos}}
 }
 

@@ -2,10 +2,8 @@
 \alias{sigThreshold}
 \title{generate a threshold signal}
 \usage{
-  sigThreshold(label, data = mktdata, column,
-    threshold = 0,
-    relationship = c("gt", "lt", "eq", "gte", "lte"),
-    cross = FALSE)
+sigThreshold(label, data = mktdata, column, threshold = 0,
+  relationship = c("gt", "lt", "eq", "gte", "lte"), cross = FALSE)
 }
 \arguments{
   \item{label}{text label to apply to the output}
@@ -23,9 +21,9 @@
   observation to cross the threshold in a run}
 }
 \description{
-  Many strategies, including RSI or MACD styles, make
-  trading decisions when an indicator is over or under a
-  specific threshold. This function generates the
-  appropriate signal based on such a threshold.
+Many strategies, including RSI or MACD styles, make trading
+decisions when an indicator is over or under a specific
+threshold. This function generates the appropriate signal
+based on such a threshold.
 }
 

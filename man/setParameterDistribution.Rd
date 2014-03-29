@@ -2,9 +2,8 @@
 \alias{setParameterDistribution}
 \title{Function used to create an object that contains the distribution of parameters to be generated from, before testing parameters of a strategy.}
 \usage{
-  setParameterDistribution(paramDist = NULL, strategy,
-    component.type, component.label, distribution = NULL,
-    weight, label, psindex = NULL)
+setParameterDistribution(paramDist = NULL, strategy, component.type,
+  component.label, distribution = NULL, weight, label, psindex = NULL)
 }
 \arguments{
   \item{paramDist}{The object in which the parameter list
@@ -37,33 +36,32 @@
   repalce a parameter distribution in the object.}
 }
 \value{
-  The returned object is a structure contains the
-  distribution of parameters, if the input argument
-  'paramDist' is provided, the function update the input
-  paramDist object and return the updated one. When specify
-  the distribution of several parameters, usually the first
-  returned object is passed to the next several call of the
-  function as input argument 'paramDist'. See example.
+The returned object is a structure contains the
+distribution of parameters, if the input argument
+'paramDist' is provided, the function update the input
+paramDist object and return the updated one. When specify
+the distribution of several parameters, usually the first
+returned object is passed to the next several call of the
+function as input argument 'paramDist'. See example.
 }
 \description{
-  Each call to the function will set/update the
-  distribution of ONE parameter in the 'parameter
-  distribution object' that is associated with a specific
-  strategy.
+Each call to the function will set/update the distribution
+of ONE parameter in the 'parameter distribution object'
+that is associated with a specific strategy.
 }
 \details{
-  Parameter distribution object for one strategy usually
-  won't work for another strategy, because different
-  strategies has different parameter structure. Type of the
-  parameter and the sequence in that type is needed to
-  specify the exact parameter in THAT STRATEGY.
+Parameter distribution object for one strategy usually
+won't work for another strategy, because different
+strategies has different parameter structure. Type of the
+parameter and the sequence in that type is needed to
+specify the exact parameter in THAT STRATEGY.
 
-  The parameter 'distribution' is a list contains vector of
-  values NAMED WITH THE NAMES OF THE PARAMETERS, the values
-  can be any type (integer, characters, etc) but must match
-  with the legal value of that parameter. For example:
-  distribution=list(nFast=(10:30)) or
-  distribution=list(relationship=c('gt','gte'))
+The parameter 'distribution' is a list contains vector of
+values NAMED WITH THE NAMES OF THE PARAMETERS, the values
+can be any type (integer, characters, etc) but must match
+with the legal value of that parameter. For example:
+distribution=list(nFast=(10:30)) or
+distribution=list(relationship=c('gt','gte'))
 }
 \examples{
 \dontrun{
@@ -77,6 +75,6 @@ tPD2<-setParameterDistribution(tPD2, strat, component.type='signal', component.l
 }
 }
 \author{
-  Yu Chen
+Yu Chen
 }
 

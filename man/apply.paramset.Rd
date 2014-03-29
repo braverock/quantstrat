@@ -2,11 +2,10 @@
 \alias{apply.paramset}
 \title{Apply a paramset to the strategy}
 \usage{
-  apply.paramset(strategy.st, paramset.label, portfolio.st,
-    account.st, mktdata = NULL, nsamples = 0,
-    user.func = NULL, user.args = NULL, calc = "slave",
-    audit = NULL, packages = NULL, verbose = FALSE,
-    paramsets, ...)
+apply.paramset(strategy.st, paramset.label, portfolio.st, account.st,
+  mktdata = NULL, nsamples = 0, user.func = NULL, user.args = NULL,
+  calc = "slave", audit = NULL, packages = NULL, verbose = FALSE,
+  paramsets, ...)
 }
 \arguments{
   \item{strategy.st}{the name of the strategy object}
@@ -57,25 +56,25 @@
   \item{...}{any other passthru parameters}
 }
 \description{
-  This function will run applyStrategy() on portfolio.st,
-  once for each parameter combination as specified by the
-  parameter distributions and constraints in the paramset.
-  Results are gathered and returned as a list containing a
-  slot for each parameter combination.
+This function will run applyStrategy() on portfolio.st,
+once for each parameter combination as specified by the
+parameter distributions and constraints in the paramset.
+Results are gathered and returned as a list containing a
+slot for each parameter combination.
 }
 \details{
-  apply.paramset uses the foreach package to start the runs
-  for each parameter combination, and as such allows for
-  parallel processing. It is up to the caller to load and
-  register an appropriate backend, eg. doMC, doParallel or
-  doRedis.
+apply.paramset uses the foreach package to start the runs
+for each parameter combination, and as such allows for
+parallel processing. It is up to the caller to load and
+register an appropriate backend, eg. doMC, doParallel or
+doRedis.
 }
 \author{
-  Jan Humme
+Jan Humme
 }
 \seealso{
-  \code{\link{add.distribution.constraint}},
-  \code{\link{add.distribution.constraint}},
-  \code{\link{delete.paramset}}
+\code{\link{add.distribution.constraint}},
+\code{\link{add.distribution.constraint}},
+\code{\link{delete.paramset}}
 }
 

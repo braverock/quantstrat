@@ -146,14 +146,15 @@ for(symbol in symbols){
 }
 
 ret1 <- PortfReturns('faber')
-ret1$total<-rowSums(ret1)
+ret1 <- to.monthly(ret1)
+ret1$total <- rowSums(ret1)
+
 View(ret1)
 
 if("package:PerformanceAnalytics" %in% search() || require("PerformanceAnalytics",quietly=TRUE)){
 	getSymbols("SPY", src='yahoo', index.class=c("POSIXt","POSIXct"), from='1999-01-01')
 	SPY<-to.monthly(SPY)
 	SPY.ret<-Return.calculate(SPY$SPY.Close)
-	index(SPY.ret)<-index(ret1)
 	dev.new()
 	charts.PerformanceSummary(cbind(ret1$total,SPY.ret), geometric=FALSE, wealth.index=TRUE)
 }

@@ -2,9 +2,8 @@
 \alias{ruleRevoke}
 \title{rule to revoke(cancel) an unfilled limit order on a signal}
 \usage{
-  ruleRevoke(data = mktdata, timestamp, sigcol, sigval,
-    orderside = NULL, orderset = NULL, portfolio, symbol,
-    ruletype)
+ruleRevoke(data = mktdata, timestamp, sigcol, sigval, orderside = NULL,
+  orderset = NULL, portfolio, symbol, ruletype)
 }
 \arguments{
   \item{data}{an xts object containing market data.
@@ -34,23 +33,22 @@
   \code{\link{add.rule}}}
 }
 \description{
-  As described elsewhere in the documentation, quantstrat
-  models \emph{orders}.  All orders in quantstrat are GTC
-  orders, which means that unfilled limit orders have to be
-  canceled manually or replaced by other orders.
+As described elsewhere in the documentation, quantstrat
+models \emph{orders}.  All orders in quantstrat are GTC
+orders, which means that unfilled limit orders have to be
+canceled manually or replaced by other orders.
 }
 \details{
-  This function is used for revoking or canceling the
-  orders based on a signal. Order status will be changed to
-  'revoked', to separate it from cancelations or
-  replacements from other causes.  This may make it easier
-  it decipher the order book to figure out what the
-  strategy ewas doing.
+This function is used for revoking or canceling the orders
+based on a signal. Order status will be changed to
+'revoked', to separate it from cancelations or replacements
+from other causes.  This may make it easier it decipher the
+order book to figure out what the strategy ewas doing.
 }
 \author{
-  Niklas Kolster, Jan Humme
+Niklas Kolster, Jan Humme
 }
 \seealso{
-  \code{\link{osNoOp}} , \code{\link{add.rule}}
+\code{\link{osNoOp}} , \code{\link{add.rule}}
 }
 

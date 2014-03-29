@@ -2,9 +2,8 @@
 \alias{add.init}
 \title{add arbitrary initialization functions to a strategy}
 \usage{
-  add.init(strategy, name, arguments, parameters = NULL,
-    label = NULL, ..., enabled = TRUE, indexnum = NULL,
-    store = FALSE)
+add.init(strategy, name, arguments, parameters = NULL, label = NULL, ...,
+  enabled = TRUE, indexnum = NULL, store = FALSE)
 }
 \arguments{
   \item{strategy}{an object (or the name of an object) of
@@ -36,27 +35,26 @@
   the .strategy environment, or return it.  default FALSE}
 }
 \value{
-  if \code{strategy} was the name of a strategy, the name.
-  It it was a strategy, the updated strategy.
+if \code{strategy} was the name of a strategy, the name. It
+it was a strategy, the updated strategy.
 }
 \description{
-  \code{\link{initStrategy}} will run a series of common
-  initialization functions at the beginning of an
-  \code{\link{applyStrategy}} call.  This function allows
-  the user to add arbitrary initialization functions to the
-  sequence.
+\code{\link{initStrategy}} will run a series of common
+initialization functions at the beginning of an
+\code{\link{applyStrategy}} call.  This function allows the
+user to add arbitrary initialization functions to the
+sequence.
 }
 \details{
-  These arbitrary functions will be added to the
-  \code{init} slot of the strategy object and when
-  \code{applyStrategy} is evaluated, the arbitrary
-  initialization functions will be evaluated after the
-  standardized functions.
+These arbitrary functions will be added to the \code{init}
+slot of the strategy object and when \code{applyStrategy}
+is evaluated, the arbitrary initialization functions will
+be evaluated after the standardized functions.
 
-  For example, if your strategy uses a synthetic basket
-  instrument, you could use this initialization slot to add
-  a custom constructor to build the basket instrument time
-  series and modify the symbols slot(s) of the strategy and
-  portfolio.
+For example, if your strategy uses a synthetic basket
+instrument, you could use this initialization slot to add a
+custom constructor to build the basket instrument time
+series and modify the symbols slot(s) of the strategy and
+portfolio.
 }
 

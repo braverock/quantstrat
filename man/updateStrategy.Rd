@@ -2,11 +2,10 @@
 \alias{updateStrategy}
 \title{run standard and custom strategy wrapup functions such as updating portfolio, account, and ending equity}
 \usage{
-  updateStrategy(strategy, portfolio = "default",
-    account = portfolio, Symbols = NULL, parameters = NULL,
-    Dates = NULL, Prices = NULL, update.Portf = TRUE,
-    update.Acct = TRUE, update.EndEq = TRUE, showEq = TRUE,
-    chart = TRUE, ...)
+updateStrategy(strategy, portfolio = "default", account = portfolio,
+  Symbols = NULL, parameters = NULL, Dates = NULL, Prices = NULL,
+  update.Portf = TRUE, update.Acct = TRUE, update.EndEq = TRUE,
+  showEq = TRUE, chart = TRUE, ...)
 }
 \arguments{
   \item{strategy}{object of type \code{strategy} to
@@ -48,41 +47,40 @@
   \item{\dots}{any other passthrough parameters}
 }
 \description{
-  \code{\link{updateStrategy}} will run a series of common
-  wrapup functions at the beginning of an
-  \code{\link{applyStrategy}} call.  This function allows
-  the user to add arbitrary wrapup functions to the
-  sequence.
+\code{\link{updateStrategy}} will run a series of common
+wrapup functions at the beginning of an
+\code{\link{applyStrategy}} call.  This function allows the
+user to add arbitrary wrapup functions to the sequence.
 }
 \details{
-  These arbitrary functions will be added to the
-  \code{update} slot of the strategy object and when
-  \code{applyStrategy} is evaluated, the arbitrary wrapup
-  functions will be evaluated \emph{before} the
-  standardized functions.
+These arbitrary functions will be added to the
+\code{update} slot of the strategy object and when
+\code{applyStrategy} is evaluated, the arbitrary wrapup
+functions will be evaluated \emph{before} the standardized
+functions.
 
-  For example, if you are working with high frequency data,
-  it would be common to \emph{mark the book} on a lower
-  frequency, perhaps minutes, hours, or even days, rather
-  than tick.  A custom wrapup function could take your high
-  frequency data and transform it to lower frequency data
-  before the call to \code{\link{updatePortf}}.
+For example, if you are working with high frequency data,
+it would be common to \emph{mark the book} on a lower
+frequency, perhaps minutes, hours, or even days, rather
+than tick.  A custom wrapup function could take your high
+frequency data and transform it to lower frequency data
+before the call to \code{\link{updatePortf}}.
 
-  The 'standard wrapup functions included are: \describe{
-  \item{update.Portf}{ if TRUE, will call
-  \code{\link[blotter]{updatePortf}} to mark the book in
-  the portfolio.  } \item{update.Acct}{ if TRUE, will call
-  \code{\link[blotter]{updateAcct}} to mark the blotter
-  account for this test.  } \item{update.EndEq}{ if TRUE,
-  will call \code{\link[blotter]{updateEndEq}} to update
-  the account equity after all other accounting has been
-  completed.  } }
+The 'standard wrapup functions included are: \describe{
+\item{update.Portf}{ if TRUE, will call
+\code{\link[blotter]{updatePortf}} to mark the book in the
+portfolio.  } \item{update.Acct}{ if TRUE, will call
+\code{\link[blotter]{updateAcct}} to mark the blotter
+account for this test.  } \item{update.EndEq}{ if TRUE,
+will call \code{\link[blotter]{updateEndEq}} to update the
+account equity after all other accounting has been
+completed.  } }
 }
 \author{
-  Garrett See, Brian Peterson
+Garrett See, Brian Peterson
 }
 \seealso{
-  \code{\link{updatePortf}}, \code{\link{updateAcct}},
-  \code{\link{updateEndEq}}, \code{\link{chart.Posn}}
+\code{\link{updatePortf}}, \code{\link{updateAcct}},
+\code{\link{updateEndEq}}, \code{\link{chart.Posn}}
 }
 

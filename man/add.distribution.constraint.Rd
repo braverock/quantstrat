@@ -2,9 +2,8 @@
 \alias{add.distribution.constraint}
 \title{Adds a constraint on 2 distributions within a paramset}
 \usage{
-  add.distribution.constraint(strategy, paramset.label,
-    distribution.label.1, distribution.label.2, operator,
-    label, store = TRUE)
+add.distribution.constraint(strategy, paramset.label, distribution.label.1,
+  distribution.label.2, operator, label, store = TRUE)
 }
 \arguments{
   \item{strategy}{the name of the strategy object to add
@@ -29,16 +28,15 @@
   the .strategy environment}
 }
 \description{
-  Creates a constraint on 2 distributions in a paramset,
-  i.e. a restriction limiting the allowed combinations from
-  the ranges for distribution 1 and distribution 2.
+Creates a constraint on 2 distributions in a paramset, i.e.
+a restriction limiting the allowed combinations from the
+ranges for distribution 1 and distribution 2.
 }
 \author{
-  Jan Humme
+Jan Humme
 }
 \seealso{
-  \code{\link{add.distribution}},
-  \code{\link{delete.paramset}},
-  \code{\link{apply.paramset}}
+\code{\link{add.distribution}},
+\code{\link{delete.paramset}}, \code{\link{apply.paramset}}
 }
 

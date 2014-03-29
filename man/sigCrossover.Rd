@@ -2,9 +2,8 @@
 \alias{sigCrossover}
 \title{generate a crossover signal}
 \usage{
-  sigCrossover(label, data = mktdata, columns,
-    relationship = c("gt", "lt", "eq", "gte", "lte"),
-    offset1 = 0, offset2 = 0)
+sigCrossover(label, data = mktdata, columns, relationship = c("gt", "lt",
+  "eq", "gte", "lte"), offset1 = 0, offset2 = 0)
 }
 \arguments{
   \item{label}{text label to apply to the output}
@@ -24,16 +23,15 @@
   column prior to comparison}
 }
 \description{
-  This will generate a crossover signal, which is a
-  dimension-reduced version of a comparison signal
-  \code{\link{sigComparison}}.
+This will generate a crossover signal, which is a
+dimension-reduced version of a comparison signal
+\code{\link{sigComparison}}.
 }
 \details{
-  It will return TRUE on the period in which there is a
-  crossover in the direction specified by
-  \code{relationship}, and NA otherwise.
+It will return TRUE on the period in which there is a
+crossover in the direction specified by
+\code{relationship}, and NA otherwise.
 
-  If you want all the information, use a comparison
-  instead.
+If you want all the information, use a comparison instead.
 }
 

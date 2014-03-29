@@ -2,8 +2,8 @@
 \alias{osMaxPos}
 \title{order sizing function for position limits and level sizing}
 \usage{
-  osMaxPos(data, timestamp, orderqty, ordertype, orderside,
-    portfolio, symbol, ruletype, ...)
+osMaxPos(data, timestamp, orderqty, ordertype, orderside, portfolio, symbol,
+  ruletype, ...)
 }
 \arguments{
   \item{data}{an xts object containing market data.
@@ -36,22 +36,22 @@
   \item{...}{any other passthru parameters}
 }
 \description{
-  levels are a simplification of more complex (proprietary)
-  techniques sometimes used for order sizing. the max
-  orderqty returned will be the limit/levels Obviously the
-  strategy rules could ask for smaller order sizes, but
-  this is the default.  If you don't want to use levels,
-  set them to 1.
+levels are a simplification of more complex (proprietary)
+techniques sometimes used for order sizing. the max
+orderqty returned will be the limit/levels Obviously the
+strategy rules could ask for smaller order sizes, but this
+is the default.  If you don't want to use levels, set them
+to 1.
 }
 \details{
-  \code{orderqty='all'} in a risk rule will return an order
-  size appropriate to flatten the current position.
+\code{orderqty='all'} in a risk rule will return an order
+size appropriate to flatten the current position.
 }
 \note{
-  TODO integrate orderqty='all' into osMaxPos for non-risk
-  exit orders by combining side and pos for exits
+TODO integrate orderqty='all' into osMaxPos for non-risk
+exit orders by combining side and pos for exits
 }
 \seealso{
-  \code{\link{addPosLimit}},\code{\link{getPosLimit}}
+\code{\link{addPosLimit}},\code{\link{getPosLimit}}
 }
 

@@ -3,7 +3,7 @@
 \alias{getOrderbook}
 \title{get the order book object}
 \usage{
-  get.orderbook(portfolio, envir = .strategy)
+get.orderbook(portfolio, envir = .strategy)
 }
 \arguments{
   \item{portfolio}{text name of the portfolio the order
@@ -13,23 +13,23 @@
   object from, defaults to .strategy}
 }
 \value{
-  A \code{data.frame} containing:
+A \code{data.frame} containing:
 
-  \describe{ \item{Order.Qty}{} \item{Order.Price}{}
-  \item{Order.Type}{} \item{Order.Side}{}
-  \item{Order.Threshold}{} \item{Order.Status}{}
-  \item{Order.StatusTime}{} \item{Prefer}{}
-  \item{Order.Set}{} \item{Txn.Fees}{} \item{Rule}{} }
+\describe{ \item{Order.Qty}{} \item{Order.Price}{}
+\item{Order.Type}{} \item{Order.Side}{}
+\item{Order.Threshold}{} \item{Order.Status}{}
+\item{Order.StatusTime}{} \item{Prefer}{}
+\item{Order.Set}{} \item{Txn.Fees}{} \item{Rule}{} }
 }
 \description{
-  get the order book object
+get the order book object
 }
 \seealso{
-  addOrder
+addOrder
 
-  getOrders
+getOrders
 }
 \concept{
-  order book
+order book
 }
 

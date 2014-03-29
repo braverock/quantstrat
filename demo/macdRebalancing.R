@@ -109,7 +109,7 @@ add.rule(strat.st,name='ruleSignal',
 add.rule(strat.st, 'rulePctEquity',
         arguments=list(rebalance_on='months',
                        trade.percent=.02,
-                       refprice=quote(last(getPrice(mktdata)[paste('::',timestamp,sep='')])),
+                       refprice=quote(last(getPrice(mktdata)[paste('::',curIndex,sep='')])),
                        digits=0
         ),
         type='rebalance',
@@ -119,7 +119,7 @@ add.rule(strat.st, 'rulePctEquity',
 #end rules
 ####
 
-getSymbols(stock.str,from=initDate)
+getSymbols(stock.str,from=initDate,src='yahoo')
 start_t<-Sys.time()
 out<-applyStrategy.rebalancing(strat.st , portfolios=portfolio.st,parameters=list(nFast=fastMA, nSlow=slowMA, nSig=signalMA,maType=maType),verbose=TRUE)
 end_t<-Sys.time()

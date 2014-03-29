@@ -15,6 +15,7 @@
 #' @seealso \code{\link{strategy}},  \code{\link{applyIndicators}}, 
 #'  \code{\link{applySignals}}, \code{\link{applyRules}},
 #'  \code{\link{initStrategy}}, \code{\link{applyStrategy}}
+#'  
 applyStrategy.rebalancing <- function(strategy , 
                                       portfolios, 
                                       mktdata=NULL , 
@@ -130,6 +131,7 @@ applyStrategy.rebalancing <- function(strategy ,
         
         #now we need to do the endpoints loop. 
         for(i in 2:length(pindex)){
+            
             #the proper endpoints for each symbol will vary, so we need to get
             #them separately, and subset each one
             for (symbol in symbols){
@@ -162,9 +164,14 @@ applyStrategy.rebalancing <- function(strategy ,
                 # specifically, we need to check if *this* index is in st$plist$period
                 for(period in names(st$plist)){
                     if(pindex[i] %in% st$plist[[period]]){
+                        
+                        #print(pindex[i])
+                        curIndex <- pindex[i] #make sure pindex is available as curIndex 
+                      
                         #this index is a rebalancing index for period
                         #call the rebalance rules for this period
                         #still need to separate the rules by rebalancing period, this will call them all
+
                         ruleProc(s$rules$rebalance,
                                 timestamp=pindex[i], 
                                 path.dep=TRUE, 

@@ -45,6 +45,12 @@
 # Load required libraries
 require(quantstrat)
 
+#correct for TZ issues if they crop up
+oldtz <- Sys.getenv('TZ')
+if(oldtz=='') {
+  Sys.setenv(TZ="UTC")
+}
+
 # Try to clean up in case the demo was run previously
 suppressWarnings(rm("account.faber","portfolio.faber",pos=.blotter))
 suppressWarnings(rm("ltaccount", "ltportfolio", "ClosePrice", "CurrentDate", "equity", 
@@ -121,7 +127,7 @@ add.rule('faber', name='ruleSignal', arguments = list(sigcol="Cl.lt.SMA", sigval
 add.rule('faber', 'rulePctEquity',
         arguments=list(rebalance_on='quarters',
                 trade.percent=1/length(symbols),
-                refprice=quote(last(getPrice(mktdata)[paste('::',timestamp,sep='')][,1])),
+                refprice=quote(last(getPrice(mktdata)[paste('::',as.character(curIndex),sep='')][,1])),
                 digits=0
         ),
         type='rebalance',
@@ -134,6 +140,8 @@ out<-applyStrategy.rebalancing(strategy='faber' , portfolios='faber')
 end_t<-Sys.time()
 print("Strategy Loop:")
 print(end_t-start_t)
+
+Sys.setenv(TZ=oldtz)
 
 # look at the order book
 #print(getOrderBook('faber'))
@@ -157,16 +165,17 @@ for(symbol in symbols){
 }
 
 ret1 <- PortfReturns('faber')
-ret1$total<-rowSums(ret1)
-ret1
+ret1 <- to.monthly(ret1)
+ret1$total <- rowSums(ret1)
+
+View(ret1)
 
 if("package:PerformanceAnalytics" %in% search() || require("PerformanceAnalytics",quietly=TRUE)){
-	getSymbols("SPY", src='yahoo', index.class=c("POSIXt","POSIXct"), from='1999-01-01')
-	SPY<-to.monthly(SPY)
-	SPY.ret<-Return.calculate(SPY$SPY.Close)
-	index(SPY.ret)<-index(ret1)
-	dev.new()
-	charts.PerformanceSummary(cbind(ret1$total,SPY.ret), geometric=FALSE, wealth.index=TRUE)
+  getSymbols("SPY", src='yahoo', index.class=c("POSIXt","POSIXct"), from='1999-01-01')
+  SPY <- to.monthly(SPY)
+  SPY.ret <- Return.calculate(SPY$SPY.Close)
+  dev.new()
+  charts.PerformanceSummary(cbind(ret1$total,SPY.ret), geometric=FALSE, wealth.index=TRUE)
 }
 
 faber.stats<-tradeStats('faber')[,c('Net.Trading.PL','Max.Drawdown','Num.Trades','Profit.Factor','Std.Dev.Trade.PL','Largest.Winner','Largest.Loser','Max.Equity','Min.Equity')]

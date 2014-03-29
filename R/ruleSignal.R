@@ -204,13 +204,23 @@ ruleSignal <- function(mktdata=mktdata, timestamp, sigcol, sigval, orderqty=0, o
         #TODO add fancy formals matching for osFUN
         if(orderqty!='all')
         {
-            orderqty <- osFUN(strategy=strategy, data=mktdata, timestamp=timestamp, orderqty=orderqty, ordertype=ordertype, orderside=orderside, portfolio=portfolio, symbol=symbol,...=...,ruletype=ruletype, orderprice=as.numeric(orderprice))
+            orderqty <- osFUN(strategy=strategy, 
+                              data=mktdata, 
+                              timestamp=timestamp, 
+                              orderqty=orderqty, 
+                              ordertype=ordertype, 
+                              orderside=orderside, 
+                              portfolio=portfolio, 
+                              symbol=symbol,
+                              ...=...,
+                              ruletype=ruletype, 
+                              orderprice=as.numeric(orderprice))
         }
 
-        if(!is.null(orderqty) && orderqty!=0 && !is.null(orderprice)) #orderprice could have length > 1
+        if(!is.null(orderqty) && orderqty!=0 && length(orderprice) && is.numeric(orderprice[1])) #orderprice could have length > 1
         {
-#            if(orderqty != 'all' || getPosQty(portfolio, symbol, timestamp) != 0)
-#            {
+          if(orderqty != 'all' || getPosQty(portfolio, symbol, timestamp) != 0)
+             {
                 addOrder(portfolio=portfolio, 
                          symbol=symbol, 
                          timestamp=timestamp, 
@@ -228,8 +238,8 @@ ruleSignal <- function(mktdata=mktdata, timestamp, sigcol, sigval, orderqty=0, o
                          prefer=prefer, 
                          TxnFees=TxnFees,
                          label=label,
-			 time.in.force=time.in.force)
-#            }
+			                   time.in.force=time.in.force)
+            }
         }
     }
     if(sethold) hold <<- TRUE

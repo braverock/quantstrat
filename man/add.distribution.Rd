@@ -2,9 +2,8 @@
 \alias{add.distribution}
 \title{Adds a distribution to a paramset in a strategy}
 \usage{
-  add.distribution(strategy, paramset.label,
-    component.type, component.label, variable,
-    weight = NULL, label, store = TRUE)
+add.distribution(strategy, paramset.label, component.type, component.label,
+  variable, weight = NULL, label, store = TRUE)
 }
 \arguments{
   \item{strategy}{the name of the strategy object to add
@@ -31,16 +30,15 @@
   the .strategy environment}
 }
 \description{
-  Creates a distribution in paramset, where a distribution
-  consists of the name of a variable in a strategy
-  component plus a range of values for this variable.
+Creates a distribution in paramset, where a distribution
+consists of the name of a variable in a strategy component
+plus a range of values for this variable.
 }
 \author{
-  Jan Humme
+Jan Humme
 }
 \seealso{
-  \code{\link{add.distribution.constraint}},
-  \code{\link{delete.paramset}},
-  \code{\link{apply.paramset}}
+\code{\link{add.distribution.constraint}},
+\code{\link{delete.paramset}}, \code{\link{apply.paramset}}
 }
 

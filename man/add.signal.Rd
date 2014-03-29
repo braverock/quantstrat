@@ -2,9 +2,8 @@
 \alias{add.signal}
 \title{add a signal to a strategy}
 \usage{
-  add.signal(strategy, name, arguments, parameters = NULL,
-    label = NULL, ..., enabled = TRUE, indexnum = NULL,
-    store = FALSE)
+add.signal(strategy, name, arguments, parameters = NULL, label = NULL, ...,
+  enabled = TRUE, indexnum = NULL, store = FALSE)
 }
 \arguments{
   \item{strategy}{an object (or the name of an object) of
@@ -36,30 +35,29 @@
   the .strategy environment, or return it.  default FALSE}
 }
 \value{
-  if \code{strategy} was the name of a strategy, the name.
-  It it was a strategy, the updated strategy.
+if \code{strategy} was the name of a strategy, the name. It
+it was a strategy, the updated strategy.
 }
 \description{
-  This adds a signal definition to a strategy object.
+This adds a signal definition to a strategy object.
 }
 \details{
-  Signals denote times at which the strategy \emph{may}
-  want to take action.  Common signals types from the
-  literature include crossovers, thresholds, or other
-  interactions between your \code{mktdata} and your
-  indicators.
+Signals denote times at which the strategy \emph{may} want
+to take action.  Common signals types from the literature
+include crossovers, thresholds, or other interactions
+between your \code{mktdata} and your indicators.
 
-  if \code{label} is not supplied, NULL default will be
-  converted to '<name>.sig' if the signal function returns
-  one named column, we use that, and ignore the label. If
-  the signal function returns multiple columns, the label
-  will be \code{\link{paste}}'d to either the returned
-  column names or the respective column number.
+if \code{label} is not supplied, NULL default will be
+converted to '<name>.sig' if the signal function returns
+one named column, we use that, and ignore the label. If the
+signal function returns multiple columns, the label will be
+\code{\link{paste}}'d to either the returned column names
+or the respective column number.
 }
 \seealso{
-  \code{\link{applySignals}} \code{\link{add.indicator}}
-  \code{link{add.rule}} \code{\link{sigComparison}}
-  \code{\link{sigCrossover}} \code{\link{sigFormula}}
-  \code{\link{sigPeak}} \code{\link{sigThreshold}}
+\code{\link{applySignals}} \code{\link{add.indicator}}
+\code{link{add.rule}} \code{\link{sigComparison}}
+\code{\link{sigCrossover}} \code{\link{sigFormula}}
+\code{\link{sigPeak}} \code{\link{sigThreshold}}
 }
 

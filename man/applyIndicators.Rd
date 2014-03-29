@@ -2,8 +2,7 @@
 \alias{applyIndicators}
 \title{apply the indicators in the strategy to arbitrary market data}
 \usage{
-  applyIndicators(strategy, mktdata, parameters = NULL,
-    ...)
+applyIndicators(strategy, mktdata, parameters = NULL, ...)
 }
 \arguments{
   \item{strategy}{an object of type 'strategy' to add the
@@ -19,32 +18,32 @@
   \item{...}{any other passthru parameters}
 }
 \value{
-  \code{mktdata} with indicators colums added.
+\code{mktdata} with indicators colums added.
 }
 \description{
-  \code{applyIndicators} will take the \code{mktdata}
-  object, and will apply each indicator specified in the
-  strategy definition to it.
+\code{applyIndicators} will take the \code{mktdata} object,
+and will apply each indicator specified in the strategy
+definition to it.
 }
 \details{
-  If the indicator function returns an xts object or a
-  vector of the same length as mktdata, the columns created
-  by the indicator function will be added to the mktdata
-  object via \code{\link{cbind}}.
+If the indicator function returns an xts object or a vector
+of the same length as mktdata, the columns created by the
+indicator function will be added to the mktdata object via
+\code{\link{cbind}}.
 
-  If the indicator function returns multiple columns, the
-  label will be \code{\link{paste}}'d to the end of either
-  the returned column names or the respective column number
-  when applying it to \code{mktdata}.
+If the indicator function returns multiple columns, the
+label will be \code{\link{paste}}'d to the end of either
+the returned column names or the respective column number
+when applying it to \code{mktdata}.
 
-  If the indicator returns some more complexobject, it will
-  be added to a list in the $indicators slot inside the
-  \code{\link{applyStrategy}} execution frame. If you want
-  your indicators to return a more complex object, (such as
-  a model specification and output from a regression), be
-  advised that your signal generator, and potentially your
-  rule function, will need to understand, anticipate, and
-  know how to manipulate the internal strategy frame.
+If the indicator returns some more complexobject, it will
+be added to a list in the $indicators slot inside the
+\code{\link{applyStrategy}} execution frame. If you want
+your indicators to return a more complex object, (such as a
+model specification and output from a regression), be
+advised that your signal generator, and potentially your
+rule function, will need to understand, anticipate, and
+know how to manipulate the internal strategy frame.
 }
 \examples{
 \dontrun{

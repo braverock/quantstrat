@@ -2,8 +2,8 @@
 \alias{setParameterConstraint}
 \title{Function to construct parameter constraint object.}
 \usage{
-  setParameterConstraint(paramConstraintObj = list(),
-    constraintLabel, paramList, relationship)
+setParameterConstraint(paramConstraintObj = list(), constraintLabel,
+  paramList, relationship)
 }
 \arguments{
   \item{paramConstraintObj}{the ParameterConstraint object
@@ -21,19 +21,19 @@
   parameter).}
 }
 \value{
-  The returned object is a structure contains the
-  constraints on pairs of parameters, if the input argument
-  'paramConstraintObj' is provided, the function update the
-  input paramConstraintObj object and return the updated
-  one. When specify the constraints of several pairs of
-  parameters, usually the first returned object is passed
-  to the next several call of the function as input
-  argument 'paramConstraintObj'. See example.
+The returned object is a structure contains the constraints
+on pairs of parameters, if the input argument
+'paramConstraintObj' is provided, the function update the
+input paramConstraintObj object and return the updated one.
+When specify the constraints of several pairs of
+parameters, usually the first returned object is passed to
+the next several call of the function as input argument
+'paramConstraintObj'. See example.
 }
 \description{
-  Function to construct parameter constraint object. The
-  returned value will be one of the inputs to the
-  applyParameter function.
+Function to construct parameter constraint object. The
+returned value will be one of the inputs to the
+applyParameter function.
 }
 \examples{
 #(For complete demo see parameterTestMACD.R)
@@ -47,6 +47,6 @@ x<-setParameterConstraint(constraintLabel='macdPC',
 #constraints between parameters.
 }
 \author{
-  Yu Chen
+Yu Chen
 }
 

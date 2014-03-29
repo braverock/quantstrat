@@ -2,8 +2,7 @@
 \alias{sigPeak}
 \title{signal function for peak/valley signals}
 \usage{
-  sigPeak(label, data, column,
-    direction = c("peak", "bottom"))
+sigPeak(label, data, column, direction = c("peak", "bottom"))
 }
 \arguments{
   \item{label}{text label to apply to the output}
@@ -16,8 +15,8 @@
   peaks for}
 }
 \description{
-  This function tests to see if the mktdata or indicator
-  \code{column} observations on either side are
-  lower(higher) creating a local peak(bottom).
+This function tests to see if the mktdata or indicator
+\code{column} observations on either side are lower(higher)
+creating a local peak(bottom).
 }
 

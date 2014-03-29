@@ -2,9 +2,9 @@
 \alias{applyStrategy}
 \title{apply the strategy to arbitrary market data}
 \usage{
-  applyStrategy(strategy, portfolios, mktdata = NULL,
-    parameters = NULL, ..., debug = FALSE, symbols = NULL,
-    initStrat = FALSE, updateStrat = FALSE)
+applyStrategy(strategy, portfolios, mktdata = NULL, parameters = NULL, ...,
+  debug = FALSE, symbols = NULL, initStrat = FALSE, updateStrat = FALSE,
+  gc = FALSE, delorders = FALSE)
 }
 \arguments{
   \item{strategy}{an object of type 'strategy' to add the
@@ -32,29 +32,36 @@
 
   \item{updateStrat}{whether to use (experimental) wrapup
   code, default FALSE}
+
+  \item{gc}{if TRUE, call \code{\link{gc}} after each
+  symbol run, default FALSE (experimental)}
+
+  \item{delorders}{if TRUE, delete the order book for a
+  symbol at the end of the symbols loop, will cause issues
+  with rebalancing, default FALSE (experimental)}
 }
 \description{
-  This function is the wrapper that holds together the
-  execution of a strategy.
+This function is the wrapper that holds together the
+execution of a strategy.
 }
 \details{
-  After the straetgy object has been created, it may be
-  applied to any combination of symbols and parameters.
+After the straetgy object has been created, it may be
+applied to any combination of symbols and parameters.
 
-  The symbols to be utilized will be defined in one of two
-  ways, either by specifying a name of a portfolio that has
-  already been initialized with the \code{portfolios}
-  argument, or be specifying a \code{symbols} argument in
-  addition to setting \code{initStrat=TRUE}.
+The symbols to be utilized will be defined in one of two
+ways, either by specifying a name of a portfolio that has
+already been initialized with the \code{portfolios}
+argument, or be specifying a \code{symbols} argument in
+addition to setting \code{initStrat=TRUE}.
 
-  \code{applyStrategy} will use the \R core function
-  \code{\link{get}} to load market data for each symbol
-  during stategy evaluation unless the user passes
-  \code{mktdata} in the call to \code{applyStrategy}
+\code{applyStrategy} will use the \R core function
+\code{\link{get}} to load market data for each symbol
+during stategy evaluation unless the user passes
+\code{mktdata} in the call to \code{applyStrategy}
 }
 \seealso{
-  \code{\link{strategy}}, \code{\link{applyIndicators}},
-  \code{\link{applySignals}}, \code{\link{applyRules}},
-  \code{\link{initStrategy}},
+\code{\link{strategy}}, \code{\link{applyIndicators}},
+\code{\link{applySignals}}, \code{\link{applyRules}},
+\code{\link{initStrategy}},
 }
 

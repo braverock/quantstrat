@@ -2,12 +2,11 @@
 \alias{addOrder}
 \title{add an order to the order book}
 \usage{
-  addOrder(portfolio, symbol, timestamp, qty, price,
-    ordertype, side, threshold = NULL, orderset = "",
-    status = "open", statustimestamp = "", prefer = NULL,
-    delay = 1e-05, tmult = FALSE, replace = TRUE,
-    return = FALSE, ..., TxnFees = 0, label = "",
-    time.in.force = "")
+addOrder(portfolio, symbol, timestamp, qty, price, ordertype, side,
+  threshold = NULL, orderset = "", status = "open",
+  statustimestamp = "", prefer = NULL, delay = 1e-05, tmult = FALSE,
+  replace = TRUE, return = FALSE, ..., TxnFees = 0, label = "",
+  time.in.force = "")
 }
 \arguments{
   \item{portfolio}{text name of the portfolio to associate
@@ -76,128 +75,127 @@
   if still 'open' at this timestamp, default is ''}
 }
 \description{
-  It is important to understand that all the order
-  functionality included in \code{quantstrat} exists to
-  more closely model a real trading environment both in
-  backtesting and in production. Many backtesting systems
-  make a set of assumptions about instant execution, and we
-  have chosen not to do this in quantstrat, because real
-  quantitative trading systems do not have instant
-  execution.  They make decisions (the Rules) and then
-  enter orders (the province of this function in
-  backtesting), during which there is some \code{delay}
-  between receiving the data that fires the Signal and
-  Rule, and the time the order reaches the market, and then
-  those orders \emph{MAY} become transactions if market
-  prices and liquidity cooperate.
+It is important to understand that all the order
+functionality included in \code{quantstrat} exists to more
+closely model a real trading environment both in
+backtesting and in production. Many backtesting systems
+make a set of assumptions about instant execution, and we
+have chosen not to do this in quantstrat, because real
+quantitative trading systems do not have instant execution.
+They make decisions (the Rules) and then enter orders (the
+province of this function in backtesting), during which
+there is some \code{delay} between receiving the data that
+fires the Signal and Rule, and the time the order reaches
+the market, and then those orders \emph{MAY} become
+transactions if market prices and liquidity cooperate.
 }
 \details{
-  By default, this function will locate and replace any
-  'open' order(s) on the requested portfolio/symbol that
-  have the same order type and side.  If an orderset is
-  also specified and replace=TRUE, \emph{all open orders}
-  for the orderset will be replaced. If you do not want
-  open orders to be canceled and replaced with the new
-  order, set \code{replace=FALSE}.
+By default, this function will locate and replace any
+'open' order(s) on the requested portfolio/symbol that have
+the same order type and side.  If an orderset is also
+specified and replace=TRUE, \emph{all open orders} for the
+orderset will be replaced. If you do not want open orders
+to be canceled and replaced with the new order, set
+\code{replace=FALSE}.
 
-  We have modeled a 'limit' order, used to enter or exit a
-  position at a specific price, determined by the prefered
-  price (see \code{prefer}) plus \code{threshold} (see
-  below).
+We have modeled a 'limit' order, used to enter or exit a
+position at a specific price, determined by the prefered
+price (see \code{prefer}) plus \code{threshold} (see
+below).
 
-  We have modeled two types of stop orders, which should be
-  sufficient to model most types of stops.
+We have modeled two types of stop orders, which should be
+sufficient to model most types of stops.
 
-  We have modeled the simplest type, a 'stoplimit' order,
-  which is just a limit order used to enter or exit a
-  position at a specific price, determined by the prefered
-  price (see \code{prefer}) plus \code{threshold} (see
-  below). The stoplimit order type can be used to implement
-  both stop-enter (long/buy or short/sell) and stop-loss
-  (long/sell or short/buy) style limit orders. There is no
-  functional difference between a regular 'limit' order and
-  a 'stoplimit' order once entered into the order book, but
-  the distinction will likely be useful for reporting on
-  when stops have been triggered.
+We have modeled the simplest type, a 'stoplimit' order,
+which is just a limit order used to enter or exit a
+position at a specific price, determined by the prefered
+price (see \code{prefer}) plus \code{threshold} (see
+below). The stoplimit order type can be used to implement
+both stop-enter (long/buy or short/sell) and stop-loss
+(long/sell or short/buy) style limit orders. There is no
+functional difference between a regular 'limit' order and a
+'stoplimit' order once entered into the order book, but the
+distinction will likely be useful for reporting on when
+stops have been triggered.
 
-  We have also modeled a 'stoptrailing' order, which may be
-  used to model dynamic limit-based exit. The
-  \code{threshold} will be calculated only once upon order
-  entry (see below) and remain fixed for the life span of
-  the order. In this way, a 10 pct trailing exit will not
-  change in size from the current price as the price
-  changes. Be aware that a stoptrailing order may be moved
-  ("replaced") frequently.
+We have also modeled a 'stoptrailing' order, which may be
+used to model dynamic limit-based exit. The
+\code{threshold} will be calculated only once upon order
+entry (see below) and remain fixed for the life span of the
+order. In this way, a 10 pct trailing exit will not change
+in size from the current price as the price changes. Be
+aware that a stoptrailing order may be moved ("replaced")
+frequently.
 
-  Some markets and brokers recognize a stop that triggers a
-  market order, when the stop is triggered, a market order
-  will be executed at the then-prevailing price.  We have
-  not modeled this type of order.
+Some markets and brokers recognize a stop that triggers a
+market order, when the stop is triggered, a market order
+will be executed at the then-prevailing price.  We have not
+modeled this type of order.
 
-  We have also added the 'iceberg' order type.  This order
-  type should most often be paired with \code{delay} and
-  \code{\link{osMaxPos}}.  The iceberg order when initially
-  entered is treated like a limit order, with an optional
-  \code{threshold} (which is applied at initial order
-  entry, so be careful).  Right now, they will enter a new
-  order at price+threshold upon any execution of the prior
-  iceberg order.  This process could be infinite if
-  \code{\link{osMaxPos}} or an equivalent order sizing
-  function is not used to limit total position size. An
-  order \code{delay} is also advisable to model the delay
-  that occurs between getting the trade confirmation of the
-  previous trade and entering the new order into the order
-  book.
+We have also added the 'iceberg' order type.  This order
+type should most often be paired with \code{delay} and
+\code{\link{osMaxPos}}.  The iceberg order when initially
+entered is treated like a limit order, with an optional
+\code{threshold} (which is applied at initial order entry,
+so be careful).  Right now, they will enter a new order at
+price+threshold upon any execution of the prior iceberg
+order.  This process could be infinite if
+\code{\link{osMaxPos}} or an equivalent order sizing
+function is not used to limit total position size. An order
+\code{delay} is also advisable to model the delay that
+occurs between getting the trade confirmation of the
+previous trade and entering the new order into the order
+book.
 
-  The 'limit', 'stoplimit', 'stoptrailing' and 'iceberg'
-  order types are the only order types that make use of the
-  order \code{threshold}. Thresholds may be specified in
-  one of 2 ways: as a scalar (\code{tmult=FALSE}) or as a
-  multiplier for the current price (\code{tmult=TRUE}). If
-  \code{tmult=TRUE}, \code{threshold} is converted to a
-  scalar by multiplying it with the price at the time of
-  order entry, and the scalar will not change if the order
-  is updated.
+The 'limit', 'stoplimit', 'stoptrailing' and 'iceberg'
+order types are the only order types that make use of the
+order \code{threshold}. Thresholds may be specified in one
+of 2 ways: as a scalar (\code{tmult=FALSE}) or as a
+multiplier for the current price (\code{tmult=TRUE}). If
+\code{tmult=TRUE}, \code{threshold} is converted to a
+scalar by multiplying it with the price at the time of
+order entry, and the scalar will not change if the order is
+updated.
 
-  The threshold is then added to the prefered order price
-  upon order entry. The correct sign for the threshold (pos
-  or neg, ie. add or subtract) is automagically figured out
-  from the order side and the order quantity (buy or sell);
-  if the user provides the wrong sign for the threshold,
-  then it will be reversed. In other words, the user may
-  provide all thresholds as a positive number, and the
-  software will automagically figure out whether to add or
-  subtract the threshold amount from the price.
+The threshold is then added to the prefered order price
+upon order entry. The correct sign for the threshold (pos
+or neg, ie. add or subtract) is automagically figured out
+from the order side and the order quantity (buy or sell);
+if the user provides the wrong sign for the threshold, then
+it will be reversed. In other words, the user may provide
+all thresholds as a positive number, and the software will
+automagically figure out whether to add or subtract the
+threshold amount from the price.
 
-  If you ever wanted to move from a backtesting mode to a
-  production mode, this function (and the linked funtion
-  \code{\link{ruleOrderProc}}) would need to be replaced by
-  functions that worked against your execution environment.
-  Basically, the execution environment must provide three
-  interfaces in a live trading environment:
+If you ever wanted to move from a backtesting mode to a
+production mode, this function (and the linked funtion
+\code{\link{ruleOrderProc}}) would need to be replaced by
+functions that worked against your execution environment.
+Basically, the execution environment must provide three
+interfaces in a live trading environment:
 
-  \enumerate{ \item a market data interface to provide
-  updated market data, usually accessed in an event loop
+\enumerate{ \item a market data interface to provide
+updated market data, usually accessed in an event loop
 
-  \item an order interface for sending orders (and
-  canceling or updating them) to the market
+\item an order interface for sending orders (and canceling
+or updating them) to the market
 
-  \item a fill interface that reports the transaction
-  details when an order has been filled }
+\item a fill interface that reports the transaction details
+when an order has been filled }
 
-  Conversion to a live trading environment will also likely
-  require a new version of \code{\link{applyStrategy}} to
-  provide the event loop interface and interact with
-  \code{mktdata}.
+Conversion to a live trading environment will also likely
+require a new version of \code{\link{applyStrategy}} to
+provide the event loop interface and interact with
+\code{mktdata}.
 }
 \seealso{
-  getOrderBook
+getOrderBook
 
-  updateOrders
+updateOrders
 }
 \concept{
-  backtest
+backtest
 
-  order book
+order book
 }
 

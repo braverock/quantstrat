@@ -2,8 +2,7 @@
 \alias{osNoOp}
 \title{default order sizing function}
 \usage{
-  osNoOp(timestamp, orderqty, portfolio, symbol, ruletype,
-    ...)
+osNoOp(timestamp, orderqty, portfolio, symbol, ruletype, ...)
 }
 \arguments{
   \item{timestamp}{timestamp coercible to POSIXct that will
@@ -26,11 +25,11 @@
   \code{\link{add.rule}}}
 }
 \description{
-  default function performs no operation (NoOp), returns
-  orderqty
+default function performs no operation (NoOp), returns
+orderqty
 }
 \details{
-  if orderqty 'all', will only work on an exit rule type,
-  otherwize orderqty is zero.
+if orderqty 'all', will only work on an exit rule type,
+otherwize orderqty is zero.
 }
 

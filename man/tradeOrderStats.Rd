@@ -2,7 +2,7 @@
 \alias{tradeOrderStats}
 \title{get order information associated with closing positions}
 \usage{
-  tradeOrderStats(portfolio, symbol, ...)
+tradeOrderStats(portfolio, symbol, ...)
 }
 \arguments{
   \item{portfolio}{text name of the portfolio the order
@@ -14,44 +14,42 @@
   \item{...}{any other passthrough parameters}
 }
 \value{
-  A \code{xts} object containing:
+A \code{xts} object containing:
 
-  \describe{ \item{Order.Qty}{} \item{Order.Price}{}
-  \item{Order.Type}{} \item{Order.Side}{}
-  \item{Order.Threshold}{} \item{Order.Status}{should be
-  'closed' only} \item{Order.StatusTime}{time of the
-  closing trade, should match 'End' column}
-  \item{Prefer}{prefer argument for \code{getPrice}}
-  \item{Order.Set}{order set of the closing trade}
-  \item{Txn.Fees}{and fees applied to the closing trade}
-  \item{Rule}{the name of the rule that generated the order
-  which closed the position} \item{Start}{the
-  \code{POSIXct} timestamp of the start of the trade}
-  \item{Init.Pos}{the initial position on opening the
-  trade} \item{Max.Pos}{the maximum (largest) position held
-  during the open trade} \item{Num.Txns}{ the number of
-  transactions included in this trade}
-  \item{Max.Notional.Cost}{ the largest notional investment
-  cost of this trade} \item{Net.Trading.PL}{ net trading
-  P&L in the currency of \code{Symbol}} \item{MAE}{ Maximum
-  Adverse Excursion (MAE), in the currency of
-  \code{Symbol}} \item{MFE}{ Maximum Favorable Excursion
-  (MFE), in the currency of \code{Symbol}}
-  \item{Pct.Net.Trading.PL}{ net trading P&L in percent of
-  invested \code{Symbol} price gained or lost}
-  \item{Pct.MAE}{ Maximum Adverse Excursion (MAE), in
-  percent} \item{Pct.MFE}{ Maximum Favorable Excursion
-  (MFE), in percent} \item{tick.Net.Trading.PL}{ net
-  trading P&L in ticks} \item{tick.MAE}{ Maximum Adverse
-  Excursion (MAE) in ticks} \item{tick.MFE}{ Maximum
-  Favorable Excursion (MFE) in ticks} }
+\describe{ \item{Order.Qty}{} \item{Order.Price}{}
+\item{Order.Type}{} \item{Order.Side}{}
+\item{Order.Threshold}{} \item{Order.Status}{should be
+'closed' only} \item{Order.StatusTime}{time of the closing
+trade, should match 'End' column} \item{Prefer}{prefer
+argument for \code{getPrice}} \item{Order.Set}{order set of
+the closing trade} \item{Txn.Fees}{and fees applied to the
+closing trade} \item{Rule}{the name of the rule that
+generated the order which closed the position}
+\item{Start}{the \code{POSIXct} timestamp of the start of
+the trade} \item{Init.Pos}{the initial position on opening
+the trade} \item{Max.Pos}{the maximum (largest) position
+held during the open trade} \item{Num.Txns}{ the number of
+transactions included in this trade}
+\item{Max.Notional.Cost}{ the largest notional investment
+cost of this trade} \item{Net.Trading.PL}{ net trading P&L
+in the currency of \code{Symbol}} \item{MAE}{ Maximum
+Adverse Excursion (MAE), in the currency of \code{Symbol}}
+\item{MFE}{ Maximum Favorable Excursion (MFE), in the
+currency of \code{Symbol}} \item{Pct.Net.Trading.PL}{ net
+trading P&L in percent of invested \code{Symbol} price
+gained or lost} \item{Pct.MAE}{ Maximum Adverse Excursion
+(MAE), in percent} \item{Pct.MFE}{ Maximum Favorable
+Excursion (MFE), in percent} \item{tick.Net.Trading.PL}{
+net trading P&L in ticks} \item{tick.MAE}{ Maximum Adverse
+Excursion (MAE) in ticks} \item{tick.MFE}{ Maximum
+Favorable Excursion (MFE) in ticks} }
 }
 \description{
 
 }
 \details{
-  TODO: decide which of these columns are actually
-  important TODO: add option for opening order/trade
-  pairing rather than closing
+TODO: decide which of these columns are actually important
+TODO: add option for opening order/trade pairing rather
+than closing
 }
 

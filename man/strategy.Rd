@@ -2,8 +2,7 @@
 \alias{strategy}
 \title{constructor for objects of type 'strategy'}
 \usage{
-  strategy(name, ..., assets = NULL, constraints = NULL,
-    store = FALSE)
+strategy(name, ..., assets = NULL, constraints = NULL, store = FALSE)
 }
 \arguments{
   \item{name}{character string naming the strategy}
@@ -21,11 +20,11 @@
   the .strategy environment, or return it.  default FALSE}
 }
 \description{
-  variables passed in dots will be added to the strategy
-  object, and may be used by initialization and wrapup
-  functions, as well as indicators, signals, and rules.
+variables passed in dots will be added to the strategy
+object, and may be used by initialization and wrapup
+functions, as well as indicators, signals, and rules.
 }
 \seealso{
-  \code{\link{applyStrategy}}
+\code{\link{applyStrategy}}
 }
 
