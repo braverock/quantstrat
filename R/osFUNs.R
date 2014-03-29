@@ -54,7 +54,7 @@ osNoOp <- function(timestamp, orderqty, portfolio, symbol, ruletype, ...)
 #' 
 #' It is also important to note that position limits 
 #' may be time-varying.  
-#' If you only want one staic maximum position limit, then
+#' If you only want one static maximum position limit, then
 #' call \code{addPosLimit} with a \code{timestamp} argument
 #' before your first trade.  If you want time varying limits,
 #' typically in response to some rebalancing rule or risk
