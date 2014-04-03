@@ -30,7 +30,7 @@
 #' add.rule(strategy.name, 'rulePctEquity',
 #'         arguments=list(rebalance_on='months',
 #'                        trade.percent=.02,
-#'                        refprice=quote(last(getPrice(mktdata)[paste('::',timestamp,sep='')])[,1]),
+#'                        refprice=quote(last(getPrice(mktdata)[paste('::',curIndex,sep='')])[,1]),
 #'                        digits=0
 #'         ),
 #'         type='rebalance',

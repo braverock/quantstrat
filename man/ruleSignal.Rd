@@ -4,7 +4,7 @@
 \usage{
 ruleSignal(mktdata = mktdata, timestamp, sigcol, sigval, orderqty = 0,
   ordertype, orderside = NULL, orderset = NULL, threshold = NULL,
-  tmult = FALSE, replace = TRUE, delay = 1e-04, osFUN = "osNoOp",
+  tmult = FALSE, replace = TRUE, delay = 0.0001, osFUN = "osNoOp",
   pricemethod = c("market", "opside", "active"), portfolio, symbol, ...,
   ruletype, TxnFees = 0, prefer = NULL, sethold = FALSE, label = "",
   order.price = NULL, chain.price = NULL, time.in.force = "")
