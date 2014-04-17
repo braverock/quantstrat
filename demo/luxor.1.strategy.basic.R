@@ -10,8 +10,6 @@
 
 require(quantstrat)
 
-require(quantstrat)
-
 ##### PLACE DEMO AND TEST DATES HERE #################
 #
 #if(isTRUE(options('in_test')$in_test))
