@@ -500,7 +500,7 @@ apply.paramset <- function(strategy.st, paramset.label, portfolio.st, account.st
         }
 
         strategy <- install.param.combo(strategy, param.combo, paramset.label)
-        applyStrategy(strategy, portfolios=result$portfolio.st, mktdata=mktdata, verbose=verbose, ...)
+        applyStrategy(strategy, portfolios=result$portfolio.st, mktdata=mktdata, ...)
 
         if(exists('redisContext'))
         {
