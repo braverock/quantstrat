@@ -285,6 +285,7 @@ addOrder <- function(portfolio,
     if(is.na(qty)) stop("qty",qty,"must not be NA")
     if(!is.numeric(price)) stop (paste("Price must be numeric:",price))
     if(is.null(price)) stop("price ",price," must not be NULL")
+    if(is.null(TxnFees)) stop("TxnFees ",TxnFees," must not be NULL")
     if(is.na(price)) stop("order at timestamp ", timestamp, " must not have price of NA")
     #spreads can have a zero price
     #if(price==0) warning(paste(ordertype, "order for", qty, "has a price of zero."))
