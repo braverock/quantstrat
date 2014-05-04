@@ -3,7 +3,7 @@
 
 SEXP firstCross(SEXP x, SEXP th, SEXP rel, SEXP start)
 {
-    int i, int_rel, int_start;
+    int i, int_rel, int_start, P=0;
     double *real_x=NULL, real_th;
 
     if(ncols(x) > 1)
@@ -11,6 +11,7 @@ SEXP firstCross(SEXP x, SEXP th, SEXP rel, SEXP start)
 
     /* this currently only works for real x and th arguments
      * support for other types may be added later */
+    PROTECT(x = coerceVector(x, REALSXP)); P++;
     real_th = asReal(th);
     int_rel = asInteger(rel);
     int_start = asInteger(start)-1;
@@ -49,6 +50,7 @@ SEXP firstCross(SEXP x, SEXP th, SEXP rel, SEXP start)
         default:
             error("unsupported relationship operator");
   }
+  UNPROTECT(P);
   /* return number of observations if relationship is never TRUE */
   return(ScalarInteger(nrows(x)));
 }
