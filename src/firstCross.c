@@ -31,7 +31,7 @@ SEXP firstCross(SEXP x, SEXP th, SEXP rel, SEXP start)
         case 2:  /* <  */
             real_x = REAL(x);
             for(i=int_start; i<nrows(x); i++)
-                if(real_x[i] >  real_th) {
+                if(real_x[i] <  real_th) {
                     result = ScalarInteger(i+1);
                     break;
                 }
@@ -39,7 +39,7 @@ SEXP firstCross(SEXP x, SEXP th, SEXP rel, SEXP start)
         case 3:  /* == */
             real_x = REAL(x);
             for(i=int_start; i<nrows(x); i++)
-                if(real_x[i] >  real_th) {
+                if(real_x[i] == real_th) {
                     result = ScalarInteger(i+1);
                     break;
                 }
@@ -47,7 +47,7 @@ SEXP firstCross(SEXP x, SEXP th, SEXP rel, SEXP start)
         case 4:  /* >= */
             real_x = REAL(x);
             for(i=int_start; i<nrows(x); i++)
-                if(real_x[i] >  real_th) {
+                if(real_x[i] >= real_th) {
                     result = ScalarInteger(i+1);
                     break;
                 }
@@ -55,7 +55,7 @@ SEXP firstCross(SEXP x, SEXP th, SEXP rel, SEXP start)
         case 5:  /* <= */
             real_x = REAL(x);
             for(i=int_start; i<nrows(x); i++)
-                if(real_x[i] >  real_th) {
+                if(real_x[i] <= real_th) {
                     result = ScalarInteger(i+1);
                     break;
                 }
