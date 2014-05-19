@@ -516,6 +516,7 @@ applyRules <- function(portfolio,
               posQty = getPrice(mktdata, prefer='close')[,1],
               negQty = getPrice(mktdata, prefer='close')[,1]))
     } else { # univariate or something built with fn_SpreadBuilder
+        prefer <- if(hasArg("prefer")) match.call(expand.dots=TRUE)$prefer else NULL
         mktPrices <- list(
           stoplimit = list(
               price = getPrice(mktdata, prefer=prefer)[,1]),
