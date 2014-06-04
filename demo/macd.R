@@ -15,6 +15,13 @@ suppressWarnings(rm("order_book.macd",pos=.strategy))
 suppressWarnings(rm("account.macd","portfolio.macd",pos=.blotter))
 suppressWarnings(rm("account.st","portfolio.st","stock.str","stratMACD","initDate","initEq",'start_t','end_t'))
 
+#correct for TZ issues if they crop up
+oldtz<-Sys.getenv('TZ')
+if(oldtz=='') {
+        Sys.setenv(TZ="GMT")
+}
+
+
 stock.str='AAPL' # what are we trying it on
 
 #MA parameters for MACD
