@@ -141,6 +141,9 @@ plot(add_MACD(fast=fastMA, slow=slowMA, signal=signalMA,maType="EMA"))
 #look at the order book
 obook<-getOrderBook('macd')
 
+# set tz as it was before the demo
+Sys.setenv(TZ=oldtz)
+
 ###############################################################################
 # R (http://r-project.org/) Quantitative Strategy Model Framework
 #
