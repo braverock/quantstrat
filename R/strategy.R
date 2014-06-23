@@ -96,37 +96,42 @@ strategy <- function(name, ..., assets=NULL, constraints=NULL ,store=FALSE)
 #' @param symbols character vector identifying symbols to initialize a portfolio for, default NULL
 #' @param initStrat whether to use (experimental) initialization code, default FALSE
 #' @param updateStrat whether to use (experimental) wrapup code, default FALSE
+#' @param initBySymbol whether to load and initialize each instrument within the \code{Symbols} loop. See \code{\link{initSymbol}} for details on how
+#'                     to run a custom function. Moreover, if the argument \code{Interval} is available (as passthrough to \code{updatePortf} via \code{updateStrat}),
+#'                     each instrument is downsampled to the frequency specified by \code{Interval} for the purpose of marking the Portfolio.
+#'                     Notice that this happenes only after the strategy has been applied.
 #' @param gc if TRUE, call \code{\link{gc}} after each symbol run, default FALSE (experimental)
 #' @param delorders if TRUE, delete the order book for a symbol at the end of the symbols loop, will cause issues with rebalancing, default FALSE (experimental)
 #' @export
 #' @seealso \code{\link{strategy}},  \code{\link{applyIndicators}}, 
 #'  \code{\link{applySignals}}, \code{\link{applyRules}},
 #'  \code{\link{initStrategy}}, 
-applyStrategy <- function(strategy , 
+applyStrategy <- function(strategy, 
                           portfolios, 
-                          mktdata=NULL , 
+                          mktdata=NULL, 
                           parameters=NULL, 
                           ..., 
                           debug=FALSE, 
                           symbols=NULL, 
                           initStrat=FALSE, 
                           updateStrat=FALSE,
+                          initBySymbol=FALSE,
                           gc=FALSE,
                           delorders=FALSE) {
 
   #TODO add saving of modified market data
   
-  if(isTRUE(debug)) ret<-list()
+    if(isTRUE(debug)) ret<-list()
     
-	if (!is.strategy(strategy)) {
-	  strategy<-try(getStrategy(strategy))
-	  if(inherits(strategy,"try-error"))
-	    stop ("You must supply an object of type 'strategy'.")
-	} 
+    if (!is.strategy(strategy)) {
+        strategy<-try(getStrategy(strategy))
+        if(inherits(strategy,"try-error"))
+            stop ("You must supply an object of type 'strategy'.")
+    } 
      
-     if (missing(mktdata) || is.null(mktdata)) load.mktdata=TRUE else load.mktdata=FALSE
+    if (missing(mktdata) || is.null(mktdata)) load.mktdata=TRUE else load.mktdata=FALSE
      
-     for (portfolio in portfolios) {
+    for (portfolio in portfolios) {
        
        # call initStrategy
        if(isTRUE(initStrat)) initStrategy(strategy=strategy, portfolio, symbols, ...=...)
@@ -137,10 +142,13 @@ applyStrategy <- function(strategy ,
        sret<-new.env(hash=TRUE)
        
        for (symbol in symbols){
-         if(isTRUE(load.mktdata)) mktdata <- get(symbol)
+         if(isTRUE(load.mktdata)){
+             if(isTRUE(initBySymbol)) initSymbol(strategy, symbol, ... = ...)
+             mktdata <- get(symbol)
+         }
          
          # loop over indicators
-         sret$indicators <- applyIndicators(strategy=strategy , mktdata=mktdata , parameters=parameters, ... )
+         sret$indicators <- applyIndicators(strategy=strategy, mktdata=mktdata , parameters=parameters, ... )
          
          if(inherits(sret$indicators,"xts") & nrow(mktdata)==nrow(sret$indicators)){
            mktdata<-sret$indicators
@@ -157,8 +165,8 @@ applyStrategy <- function(strategy ,
          
          #loop over rules  
          sret$rules<-list()
-         
-         # only fire nonpath/pathdep when true 
+             
+         # only fire nonpath/pathdep when true
          # TODO make this more elegant
          pd <- FALSE
          for(i in 1:length(strategy$rules)){  
@@ -192,6 +200,25 @@ applyStrategy <- function(strategy ,
                                                      path.dep=TRUE,
                                                      debug=debug)}
          
+         if(isTRUE(initBySymbol)) {
+             if(hasArg(Interval)){
+                 Interval <- match.call(expand.dots=TRUE)$Interval
+                 if(!is.null(Interval)){
+                     temp.symbol <- get(symbol) 
+                     ep_args     <- blotter:::.parse_interval(Interval)
+                     temp.symbol <- temp.symbol[endpoints(temp.symbol, on = ep_args$on, k = ep_args$k)]
+                     if(hasArg(prefer)){
+                         prefer      <- match.call(expand.dots=TRUE)$prefer
+                         temp.symbol <- getPrice(temp.symbol, prefer=prefer)[,1]
+                     }
+                     assign(symbol, temp.symbol, envir = .GlobalEnv)
+                 }
+             } else {
+                 rm(list = symbol)
+                 gc()
+             }
+         }
+             
          if(isTRUE(debug)) ret[[portfolio]][[symbol]]<-sret
          
          if(isTRUE(delorders)) .strategy[[paste("order_book",portfolio,sep='.')]][[symbol]]<-NULL #WARNING: This is VERY DESTRUCTIVE  
@@ -279,6 +306,6 @@ save.strategy <- function(strategy.name)
 # This library is distributed under the terms of the GNU Public License (GPL)
 # for full details see the file COPYING
 #
-# $Id$
+# $Id: strategy.R 1594 2014-03-29 20:39:45Z braverock $
 #
 ###############################################################################

@@ -10,7 +10,7 @@
 #' beginning of an \code{\link{applyStrategy}} call.
 #' 
 #' \describe{
-#'      \item{get.Symbols}{if TRUE, will call \code{\link[quantmod]{getSymbols}} 
+#'      \item{get.Symbols}{if FALSE, will call \code{\link[quantmod]{getSymbols}} 
 #'                          on all symbols included in the \code{symbols} vector}
 #'      \item{init.Portf}{if TRUE, will call \code{\link[blotter]{initPortf}} 
 #'                          to initialize the portfolio object}
@@ -22,11 +22,13 @@
 #'                          if the portfolio, account, or order book already exist}
 #' }
 #'
+#' If used in conjuction with \code{initBySymbol}, \code{get.Symbols} should be \code{FALSE}.
+#' 
 #' @param strategy object of type \code{strategy} to initialize data/containers for
 #' @param portfolio portfolio
 #' @param symbols symbols
 #' @param parameters named list of parameters to be applied during evaluation of the strategy, default NULL
-#' @param get.Symbols TRUE/FALSE, default TRUE
+#' @param get.Symbols TRUE/FALSE, default FALSE
 #' @param init.Portf TRUE/FALSE, default TRUE 
 #' @param init.Acct TRUE/FALSE, default TRUE 
 #' @param init.Orders TRUE/FALSE, default TRUE 
@@ -35,7 +37,16 @@
 #' @author Garrett See, Brian Peterson
 #' @export
 #' @seealso \code{\link{applyStrategy}}, \code{\link{add.init}},  
-initStrategy <- function(strategy, portfolio, symbols, parameters=NULL, get.Symbols=TRUE, init.Portf=TRUE, init.Acct=TRUE, init.Orders=TRUE, unique=TRUE,...) {
+initStrategy <- function(strategy,
+                         portfolio,
+                         symbols,
+                         parameters   = NULL,
+                         get.Symbols  = FALSE,
+                         init.Portf   = TRUE,
+                         init.Acct    = TRUE,
+                         init.Orders  = TRUE,
+                         unique       = TRUE,
+                         ...) {
     # basic idea is to do all the common set-up stuff
     # create portfolio, account, orderbook
 
@@ -51,8 +62,7 @@ initStrategy <- function(strategy, portfolio, symbols, parameters=NULL, get.Symb
         if(!is.null(strategy$currency)) currency <- strategy$currency
         else currency<-'USD'
     } 
-    
-    
+        
     #if any 'symbols' are not defined as instruments, we'll make a basic instrument
     if(isTRUE(get.Symbols)){
         getsyms <- NULL #symbols that aren't in .GlobalEnv that we'll have to get
@@ -160,6 +170,50 @@ add.init <- function(strategy, name, arguments, parameters=NULL, label=NULL, ...
     else return(strategy)
 }
 
+#' Run standard and custom symbol initialization functions
+#'
+#' \code{initSymbol} will load a symbol and run user-defined functions to pre-process the symbol's data
+#' before constructing indicators.
+#'
+#' The custom initialization must be defined as named list containing
+#' \describe{
+#'   \item{name}{function name}
+#'   \item{argument}{list of arguments}
+#'   \item{enabled}{TRUE or FALSE}
+#' }
+#' and included as the slot \code{init_symbol} of the strategy object. 
+#' 
+#' @param strategy an object (or the name of an object) of type 'strategy' to add the init function definition to
+#' @param symbol   symbol
+#' @param ...      
+
+#' @export
+initSymbol <- function(strategy, symbol, ...){
+    getSymbols(symbol, env = .GlobalEnv)
+
+    ## run user-defined initialization function contained in the strategy slot init_symbol
+    init_s <- strategy$init_symbol
+    if(!is.function(get(init_s$name))){
+        message(paste("Iniziatialization function", init_s$name, "not found. Skipping"))
+        return()
+    }
+
+    if(!isTRUE(init_s$enabled)) next()
+
+    ## (from initStrategy)
+    ## replace default function arguments with init_o$arguments
+    .formals <- formals(init_s$name)
+    .formals <- modify.args(.formals, init_s$arguments, dots=TRUE)
+    ## now add dots
+    .formals <- modify.args(.formals, NULL, ..., dots=TRUE)
+    ## remove ... to avoid matching multiple args
+    .formals$`...` <- NULL
+    
+    do.call(init_s$name, .formals)
+}
+
+
+
 ###############################################################################
 # R (http://r-project.org/) Quantitative Strategy Model Framework
 #
@@ -169,6 +223,6 @@ add.init <- function(strategy, name, arguments, parameters=NULL, label=NULL, ...
 # This library is distributed under the terms of the GNU Public License (GPL)
 # for full details see the file COPYING
 #
-# $Id$
+# $Id: initialize.R 1561 2013-11-01 15:51:45Z bodanker $
 #
 ###############################################################################
