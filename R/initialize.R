@@ -10,7 +10,7 @@
 #' beginning of an \code{\link{applyStrategy}} call.
 #' 
 #' \describe{
-#'      \item{get.Symbols}{if FALSE, will call \code{\link[quantmod]{getSymbols}} 
+#'      \item{get.Symbols}{if TRUE, will call \code{\link[quantmod]{getSymbols}} 
 #'                          on all symbols included in the \code{symbols} vector}
 #'      \item{init.Portf}{if TRUE, will call \code{\link[blotter]{initPortf}} 
 #'                          to initialize the portfolio object}
