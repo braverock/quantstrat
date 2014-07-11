@@ -2,9 +2,9 @@
 \alias{applyRules}
 \title{apply the rules in the strategy to arbitrary market data}
 \usage{
-applyRules(portfolio, symbol, strategy, mktdata, Dates = NULL,
-  indicators = NULL, signals = NULL, parameters = NULL, ...,
-  path.dep = TRUE, rule.order = NULL, debug = FALSE)
+applyRules(portfolio, symbol, strategy, mktdata, indicators = NULL,
+  signals = NULL, parameters = NULL, ..., path.dep = TRUE,
+  rule.order = NULL, debug = FALSE)
 }
 \arguments{
   \item{portfolio}{text name of the portfolio to associate
@@ -21,9 +21,6 @@ applyRules(portfolio, symbol, strategy, mktdata, Dates = NULL,
   depending on rules, may need to be in OHLCV or BBO
   formats, and may include indicator and signal
   information}
-
-  \item{Dates}{default NULL, list of time stamps to iterate
-  over, ignored if \code{path.dep=FALSE}}
 
   \item{indicators}{if indicator output is not contained in
   the mktdata object, it may be passed separately as an xts
