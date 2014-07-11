@@ -78,6 +78,12 @@ applySignals <- function(strategy, mktdata, indicators=NULL, parameters=NULL, ..
 
     # TODO handle indicator lists as well as indicators that were cbound to mktdata
 
+    # ensure no duplicate index values in mktdata
+    if(any(diff(.index(mktdata)) == 0)) {
+        warning("'mktdata' index contains duplicates; calling 'make.index.unique'")
+        mktdata <- make.index.unique(mktdata)
+    }
+
     if (!is.strategy(strategy)) {
         strategy<-try(getStrategy(strategy))
         if(inherits(strategy,"try-error"))

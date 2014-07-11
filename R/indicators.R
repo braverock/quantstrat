@@ -141,6 +141,12 @@ applyIndicators <- function(strategy, mktdata, parameters=NULL, ...) {
     
     # TODO check for symbol name in mktdata using Josh's code:
     # symbol <- strsplit(colnames(mktdata)[1],"\\.")[[1]][1]
+
+    # ensure no duplicate index values in mktdata
+    if(any(diff(.index(mktdata)) == 0)) {
+        warning("'mktdata' index contains duplicates; calling 'make.index.unique'")
+        mktdata <- make.index.unique(mktdata)
+    }
     
     if (!is.strategy(strategy)) {
         strategy<-try(getStrategy(strategy))

@@ -261,6 +261,12 @@ applyRules <- function(portfolio,
     
     # TODO handle indicator and signal lists as well as indicators/signals that were cbound to mktdata
 
+    # ensure no duplicate index values in mktdata
+    if(any(diff(.index(mktdata)) == 0)) {
+        warning("'mktdata' index contains duplicates; calling 'make.index.unique'")
+        mktdata <- make.index.unique(mktdata)
+    }
+
     # ported from IBrokers thanks to Jeff
     # environment for data to be stored/accessed during applyRules execution
     # an example of this functionality is for the "symbols" variable
