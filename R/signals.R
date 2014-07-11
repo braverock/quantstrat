@@ -353,7 +353,7 @@ sigTimestamp <- function(label, data=mktdata, timestamp, on="days") {
 
    # timestamp can be a time-based timestamp
    if(is.timeBased(timestamp)) {
-     after.sig <- .firstThreshold(index(data), timestamp, "lt")
+     after.sig <- .firstCross(index(data), timestamp, "lt")
      if(length(after.sig) != 0)
        ret$timestamp[after.sig] <- TRUE
    } else
