@@ -49,9 +49,15 @@ tradeGraphs <- function(stats, free.params, params.filter = NULL, statistics, ti
         } else {
             data <- subset(stats, eval(parse(text=params.filter)), select =  c(var1, var2, var3))
         }
-        x <- recast(data, as.formula(paste0(var1, " ~ ", var2)) , id.var=c(var1,var2), measure.var=c(var3))$labels[[1]][,1]
-        y <-  recast(data, as.formula(paste0(var1, " ~ ", var2)) , id.var=c(var1,var2), measure.var=c(var3))$labels[[2]][,1]
-        z <-  recast(data, as.formula(paste0(var1, " ~ ", var2)) , id.var=c(var1,var2), measure.var=c(var3))$data
+
+        data_r = recast(data, as.formula(paste0(var1, " ~ ", var2)), id.var=c(var1,var2), measure.var=c(var3))
+        x <- data_r[, 1]
+         y <- as.numeric(colnames(data_r)[-1])
+z <- unlist(data_r[, -1])
+
+        # x <- recast(data, as.formula(paste0(var1, " ~ ", var2)) , id.var=c(var1,var2), measure.var=c(var3))$labels[[1]][,1]
+        # y <-  recast(data, as.formula(paste0(var1, " ~ ", var2)) , id.var=c(var1,var2), measure.var=c(var3))$labels[[2]][,1]
+        # z <-  recast(data, as.formula(paste0(var1, " ~ ", var2)) , id.var=c(var1,var2), measure.var=c(var3))$data
 
         col <- heat.colors(length(z))[rank(z)]
 
