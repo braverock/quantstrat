@@ -217,10 +217,8 @@ ruleSignal <- function(mktdata=mktdata, timestamp, sigcol, sigval, orderqty=0, o
                               orderprice=as.numeric(orderprice))
         }
 
-        if(!is.null(orderqty) && orderqty!=0 && length(orderprice) && is.numeric(orderprice[1])) #orderprice could have length > 1
+        if(!is.null(orderqty) && orderqty!=0 && length(orderprice))
         {
-          if(orderqty != 'all' || getPosQty(portfolio, symbol, timestamp) != 0)
-             {
                 addOrder(portfolio=portfolio, 
                          symbol=symbol, 
                          timestamp=timestamp, 
@@ -239,7 +237,6 @@ ruleSignal <- function(mktdata=mktdata, timestamp, sigcol, sigval, orderqty=0, o
                          TxnFees=TxnFees,
                          label=label,
 			                   time.in.force=time.in.force)
-            }
         }
     }
     if(sethold) hold <<- TRUE
