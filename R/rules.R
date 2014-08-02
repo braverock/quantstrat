@@ -492,8 +492,15 @@ applyRules <- function(portfolio,
     holdtill=first(time(Dates))-1 # TODO FIXME make holdtill default more robust?
     mktinstr<-getInstrument(symbol)
     curIndex<-1
-    if(nrow(mktdata)>1) freq <- periodicity(mktdata)  # run once and pass to ruleOrderProc
-    else if (indexClass(mktdata) == 'Date') freq='daily'
+    if(nrow(mktdata)>1)
+        freq <- periodicity(mktdata)  # run once and pass to ruleOrderProc
+    else {
+        # For applyStrategy.rebalancing, which could run on a 1-row subset of mktdata
+        # This should work for all index classes in ruleOrderProc's default switch expression
+        freq <- structure(list(difftime = structure(NA, units="secs", class="difftime"), 
+            frequency=1, start=start(mktdata), end=end(mktdata), units="secs", 
+            scale="seconds", label="second"), class="periodicity")
+    }
     
     # do order price subsetting outside of nextIndex and curIndex loop
     # this avoids repeated [.xts calls; and mktPrices is never altered, so copies aren't made
