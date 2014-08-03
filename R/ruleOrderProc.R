@@ -193,18 +193,18 @@ ruleOrderProc <- function(portfolio, symbol, mktdata, timestamp=NULL, ordertype=
                  # check to see if price moved through the limit                        
                  if((orderQty > 0 && orderType != 'stoplimit') || (orderQty < 0 && (orderType=='stoplimit'))) {
                    # buy limit, or sell stoplimit
-                   if( (has.Lo(mktdata) && orderPrice > as.numeric(Lo(mktdataTimestamp))) || 
+                   if( (has.Lo(mktdata) && orderPrice > as.numeric(Lo(mktdataTimestamp)[,1])) || 
                          (!has.Lo(mktdata) && orderPrice > as.numeric(getPrice(mktdataTimestamp, prefer=prefer)[,1])))
                    {
-                     txnprice = min(orderPrice, Hi(mktdataTimestamp))
+                     txnprice = min(orderPrice, Hi(mktdataTimestamp)[,1])
                      txntime = timestamp
                    } else next() # price did not move through my order, should go to next order  
                  } else if((orderQty < 0 && orderType != 'stoplimit') || (orderQty > 0 && (orderType=='stoplimit'))) { 
                    # sell limit or buy stoplimit
-                   if ( (has.Hi(mktdata) && orderPrice < as.numeric(Hi(mktdataTimestamp))) ||
+                   if ( (has.Hi(mktdata) && orderPrice < as.numeric(Hi(mktdataTimestamp)[,1])) ||
                           (!has.Hi(mktdata) && orderPrice < as.numeric(getPrice(mktdataTimestamp,prefer=prefer)[,1])) )
                    {
-                     txnprice = max(orderPrice, Lo(mktdataTimestamp))
+                     txnprice = max(orderPrice, Lo(mktdataTimestamp)[,1])
                      txntime = timestamp
                    } else next() # price did not move through my order, should go to next order 
                  } else {
@@ -344,8 +344,8 @@ ruleOrderProc <- function(portfolio, symbol, mktdata, timestamp=NULL, ordertype=
                  
                  order.side <- ordersubset[ii, "Order.Side"]
                  
-                 if(order.side == 'long'  && as.numeric(Lo(mktdataTimestamp)) < orderPrice
-                    || order.side == 'short' && as.numeric(Hi(mktdataTimestamp)) > orderPrice)
+                 if(order.side == 'long'  && as.numeric(Lo(mktdataTimestamp)[,1]) < orderPrice
+                    || order.side == 'short' && as.numeric(Hi(mktdataTimestamp)[,1]) > orderPrice)
                  {
                    txnprice <- orderPrice
                    txntime <- timestamp
@@ -357,9 +357,9 @@ ruleOrderProc <- function(portfolio, symbol, mktdata, timestamp=NULL, ordertype=
                    order.threshold <- as.numeric(ordersubset[ii, "Order.Threshold"])
                    
                    if(order.side == 'long')
-                     new.order.price <- max(orderPrice, as.numeric(Hi(mktdataTimestamp)) + order.threshold)
+                     new.order.price <- max(orderPrice, as.numeric(Hi(mktdataTimestamp)[,1]) + order.threshold)
                    if(order.side == 'short')
-                     new.order.price <- min(orderPrice, as.numeric(Lo(mktdataTimestamp)) + order.threshold)
+                     new.order.price <- min(orderPrice, as.numeric(Lo(mktdataTimestamp)[,1]) + order.threshold)
                    
                    if(new.order.price != orderPrice)
                    {
