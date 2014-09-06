@@ -145,19 +145,19 @@ select.samples <- function(nsamples, param.combos)
 {
     nsamples <- min(nsamples, nrow(param.combos))
 
-    param.combos <- param.combos[sample(nrow(param.combos), size=nsamples),]
+    param.combos <- param.combos[sample(nrow(param.combos), size=nsamples),,drop=FALSE]
     
     if(NCOL(param.combos) == 1)
-        param.combos <- param.combos[order(param.combos)]
+        param.combos <- param.combos[order(param.combos),,drop=FALSE]
     else
         param.combos <- param.combos[with(param.combos,order(param.combos[,1],param.combos[,2])),]
 
-    data.frame(param.combos)
+    param.combos
 }
 
 install.param.combo <- function(strategy, param.combo, paramset.label)
 {
-    for(param.label in names(param.combo))
+    for(param.label in colnames(param.combo))
     {
         distribution <- strategy$paramsets[[paramset.label]]$distributions[[param.label]]
 
@@ -179,7 +179,7 @@ install.param.combo <- function(strategy, param.combo, paramset.label)
                 {
                     if(strategy[[components.type]][[index]]$label == component.label)
                     {
-                        strategy[[components.type]][[index]]$arguments[[variable.name]] <- param.combo[[param.label]]
+                        strategy[[components.type]][[index]]$arguments[[variable.name]] <- param.combo[,param.label]
 
                         found <- TRUE
                         break
@@ -394,6 +394,11 @@ apply.paramset <- function(strategy.st, paramset.label, portfolio.st, account.st
     } else {
         param.combos <- paramsets
     }
+    # This is work-around for a buglet in iterators:::getIterVal.dataframeiter
+    # Convert param.combos to matrix if it's only one column, else the
+    # iterator will drop the data.frame dimensions, resulting in a vector
+    if(ncol(param.combos) == 1)
+        param.combos <- as.matrix(param.combos)
 
     env.functions <- c('clone.portfolio', 'clone.orderbook', 'install.param.combo')
     env.instrument <- as.list(FinancialInstrument:::.instrument)
