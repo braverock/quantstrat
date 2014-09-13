@@ -402,6 +402,7 @@ apply.paramset <- function(strategy.st, paramset.label, portfolio.st, account.st
 
     env.functions <- c('clone.portfolio', 'clone.orderbook', 'install.param.combo')
     env.instrument <- as.list(FinancialInstrument:::.instrument)
+    symbols <- names(getPortfolio(portfolio.st)$symbols)
 
     if(is.null(audit))
         .audit <- new.env()
@@ -454,7 +455,7 @@ apply.paramset <- function(strategy.st, paramset.label, portfolio.st, account.st
         .verbose=verbose, .errorhandling='pass',
         .packages=c('quantstrat', packages),
         .combine=combine, .multicombine=TRUE, .maxcombine=max(2,nrow(param.combos)),
-        .export=c(env.functions, 'env.instrument'), ...)
+        .export=c(env.functions, symbols), ...)
     # remove all but the param.combo iterator before calling %dopar%
     # this allows us to pass '...' through foreach to the expression
     fe$args <- fe$args[1]
@@ -479,6 +480,9 @@ apply.paramset <- function(strategy.st, paramset.label, portfolio.st, account.st
         }
 
         list2env(env.instrument, envir=FinancialInstrument:::.instrument)
+
+        for (sym in symbols)
+          assign(sym, get(sym), .GlobalEnv)
 
         put.portfolio(portfolio.st, portfolio)
         put.account(account.st, account)
