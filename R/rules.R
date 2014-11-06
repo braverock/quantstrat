@@ -88,11 +88,11 @@ add.rule <- function(strategy, name, arguments, parameters=NULL, label=NULL, typ
     tmp_rule<-list()
     if(!is.function(name) && isTRUE(storefun)) {
         if(!is.function(get(name))){
-            if(!is.function(get(paste("sig",name,sep='.')))){
+            if(!is.function(get(paste("rule",name,sep='.')))){
                 message(paste("Skipping rule",name,"because there is no function by that name to call"))
                 next()      
             } else {
-                name<-paste("sig",rule$name,sep='.')
+                name<-paste("rule",rule$name,sep='.')
             }
         }
         fn<-match.fun(name)
@@ -649,11 +649,11 @@ ruleProc <- function (ruletypelist,timestamp=NULL, path.dep, ruletype, ..., para
         if (!rule$path.dep==path.dep) next()
         if(!is.function(rule$name)) {
             if(!is.function(get(rule$name))){
-                if(!is.function(get(paste("sig",rule$name,sep='.')))){
+                if(!is.function(get(paste("rule",rule$name,sep='.')))){
                     message(paste("Skipping rule",rule$name,"because there is no function by that name to call"))
                     next()      
                 } else {
-                    rule$name<-paste("sig",rule$name,sep='.')
+                    rule$name<-paste("rule",rule$name,sep='.')
                 }
             }   
         }
