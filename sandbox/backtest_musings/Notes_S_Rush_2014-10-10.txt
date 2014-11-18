@@ -1,0 +1,50 @@
+Main Idea: Setting out the correct process for a systemic trading system
+
+- Be careful with the "archetypal strategy" benchmark. If the strategy is loosely
+implemented, it starts to look a lot like the straw man arguements similar to
+the tests against buy and hold. This is also an area where I very quickly lose
+interest in the rest of the paper/presentation because the author doesn't
+understand the alternative strategy that he/she is arguing against.
+
+- I like the advise to measure yourself against multiple benchmarks even if
+you think the benchmark is inappropriate because someone else will probably
+do it anyway.
+
+- Page 4, bottom "tradeStats()" Are you assuming the readers will be familiar
+with quantstrat?
+
+- Page 5 I agree with what you are saying on creating a testable hypothesis
+but I think that I would be careful to use the word "prediction". There are
+many rigorous tests that work well in the cross section and provide some
+meanful insight as to how market work but are not useful in predicting what
+will happen in the next period. I might argue that in the context of systemic
+trading strategy development, it is the prediction that matters. A good
+hypothesis does not need to be predictive in the time dimension but does need
+to have a testable conclusion. This might seem like splitting hairs but if
+are targeting anyone with a scientific background, there is a difference
+between an experiment that has a predictable outcome and an experiment
+that verifies a natural process. In physical sciences, they look the same
+but in social sciences, they are different. An example is the correlation vs
+causation problem of people carrying umbrellas before it rains. Clearly
+umbrellas don't cause rain but if you knew nothing about the world, observing
+people carrying umbrellas would be an excellent predictor of rain. In strategy
+development, it would most likely be better to assume that umbrellas cause
+rain rather than produce a global weather model. This is bad science but
+probably more profitable.
+
+- Page 9 In look ahead bias, I would add that even assuming that a rule has
+access to and can act on contemporaneous information may be too optimistic.
+No matter how fast you are, there is a time cost to observing and acting.
+Marine Corps officers used to be taught the "OODA Loop" Observe, Orient,
+Decide, Act. You cannot execute the loop instantaneously so your actions will
+always lag observable information.
+
+- Page 11 The figures on this page are not large enough to add value to the
+paper.
+
+- Page 11 I like the description of evaluating signals with distributions.
+
+- Page 16 Bottom figure may look good on a good printer but is unreadable
+in a 30" monitor.
+
+

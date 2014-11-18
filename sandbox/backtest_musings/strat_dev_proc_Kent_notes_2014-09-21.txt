@@ -1,0 +1,24 @@
+
+Subject:
+Re: Strategy development process draft
+From:
+Kent Hoxsey <khoxsey@gmail.com>
+Date:
+09/21/2014 08:10 PM
+To:
+"Brian G. Peterson" <brian@braverock.com>
+
+Interesting stuff. One initial scoping question comes to mind: what kind of experience do you expect your audience to bring to this? I can picture quite a range (leaving out experienced professionals for now):
+- raw newbies trying to figure out the business (Ilya and passionate learners everywhere)
+- screen traders attempting to systematize (me, maybe Paul T)
+- experienced finance people figuring out prop (Simon, perhaps Josh)
+- academics (Marc, Matthew)
+Plenty of overlap between these groups, particularly given a large slice of "raw noob" in all of us who have never known a system with edge and thus never traded actual size. And it gets even more interesting if you allow for experienced professionals who *do* know systems with edge and *have* traded real size.
+
+I think the emphasis shifts depending on whether you are aiming to include the experienced professionals or not. Budding/aspirational strategists such as me/Josh/Simon and anyone working within the context of a prop or management firm will likely have constraints and objectives defined in advance. In contrast, an academic like Marc will benefit from the example trading system objectives (in your FIXME) as he attempts to define indicators/signals for consulting clients.
+
+Thinking back on my experience with both MDFA and CRSI, I have to say I never formulated a testable hypothesis. My only tests were whether the strategy was positive or negative. Based on my own experience as well as what I have seen of other people attempting to design strategies (or even Simon, attempting to integrate and validate a "working" strategy he purchased), this is a common approach or perhaps the only approach. So when you state "most strategy ideas will be rejected during hypothesis creation and testing", you are saying something both obvious to all and deeply counter-intuitive, if not outright subversive. So I am looking forward to further exposition later in the document. Because "creating and confirming a hypothesis" sounds a lot like "identifying an edge".
+
+As we get into the outline, the one obvious feature I would request is some explicit discussion of the bar-vs-tick data issue. With both MDFA and CRSI, I had promising bar-data indicators fall apart when faced with actual order books. The stats didn't give a good indication this would happen, but were just too close to the edge of profitability to survive any adverse data. (Identifying edge is my current hurdle, so more is better IMHO).
+
+Looking good so far, excited to see what comes next.

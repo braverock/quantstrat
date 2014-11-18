@@ -1,0 +1,1293 @@
+---
+title: Developing & Backtesting Systematic Trading Strategies
+author: Brian G. Peterson
+bibliography: stat_process.bib
+output:
+  rmarkdown::tufte_handout 
+  #toc: true
+  #toc_depth: 2
+  #number_sections: true
+
+keywords: quantitative trading, backtest, quantitative strategy, scientific method
+subject: quantitative trading, backtest, quantitative strategy, scientific method
+
+footer: Copyright 2014 Brian G. Peterson CC-BY-NC-SA.  Please do not distribute this draft without permission.
+copyright: Copyright 2014 Brian G. Peterson CC-BY-NC-SA.  Please do not distribute this draft without permission.
+
+abstract: Analysts and portfolio managers face many challenges in developing new systematic trading systems.  This paper provides a detailed, repeatable process to aid in evaluating new ideas, developing those ideas into testable hypotheses, measuring results in comparable ways, and avoiding and measuring the ever-present risks of over-fitting. ^[*Essentially, all models are wrong, but some are useful*. - George Box[-@Box1987] ]
+
+---
+___
+
+# Constraints, Benchmarks, and Objectives 
+
+It is important to understand what you are trying to achieve 
+*before* you set out to achieve it.  
+
+Without a set of clearly defined goals there is great potential to 
+accept a strategy or backtest that is really incompatible with the
+(previously unstated) business objectives and constraints.
+Worse, it can lead to adjusting your goal to try to follow the 
+backtest, which can culminate in all sorts of bad decision making, and also
+increases the probability of erroneously accepting an overfitted backtest.
+
+## Understanding your business constraints (and advantages)
+
+Think about the constraints, costs, and advantages that you are under
+first, before formulating a hypothesis, or writing a strategy specification.
+Many strategists skip this step.  Don't.  It is a waste of time and 
+energy to design a strategy for a constraint set that is not available to you.
+
+Some examples include:
+
+  - execution platform
+  - access and proximity to markets
+  - products you can trade
+  - data availability and management
+  - business structure
+  - capital available 
+  - fees/rebates
+
+
+## Choosing a benchmark {#benchmarks}
+
+The choice of what benchmarks to measure yourself against provides both
+opportunities for better understanding your performance and risks of
+benchmark chasing and overfitting.
+Mutual Fund managers have it easy, or hard, because of the "Morningstar"
+categorization of styles and benchmarks.  Mutual fund managers have 
+benchmarks clearly defined, and can be easily measured against what are 
+often exchange traded products or well known indices.  
+A good suite of benchmarks for your strategy should reflect your business
+objectives and constraints, as well as help you measure performance over
+time.
+
+## What constitutes a good benchmark for a trading strategy?  
+
+There are several categories of potential benchmarks:
+
+1. archetypal strategies
+
+    In many cases, you can use a well-known archetypal strategy 
+    as a benchmark.  For example, a momentum strategy could use 
+    an MA-cross strategy as a benchmark.  
+    If you are comparing two or more candidate indicators or 
+    signal processes, you can also use one as a benchmark for 
+    the other (more on this later).
+   
+2. alternative indices
+
+    EDHEC, Barclays, HFR, and others offer alternative investment 
+    style indices. One of these may be a good fit as a benchmark 
+    for your strategy.  Be aware that they tend to have a downward 
+    bias imposed by averaging, or are even averages of averages.
+    So 'beating the benchmark' in your backtest would be a bare
+    minimum first step if using one of these as your benchmark.
+    As an example, many CTA's are trend followers, so a momentum 
+    strategy in commodities may often be fairly compared to a
+    CTA index. 
+   
+3. custom tracking portfolios  
+
+    In some ways an extension of (1.) above, you can create your 
+    own benchmark by creating a custom tracking portfolio.
+    As the most common example, a cap-weighted index is 
+    really a strategy archetype.  The tracking portfolio for such
+    an index invests in a basket of securities using a capitalization 
+    as the weights for the portfolio,and rebalances this portfolio on 
+    the schedule defined in the index specification.
+    Other custom tracking portfolios or synthetic strategies 
+    may also be appropriate for measuring your strategy against.
+   
+4. market observables  
+   
+    Market observable benchmarks are perhaps the simplest 
+    available benchmarks, and can tie in well 
+    to business [objectives](#objective) and 
+    to [optimization](#optimization).
+   
+    Some easily observable benchmarks in this category:
+   
+    - $/day, %/day
+    - $/contract
+    - % daily volume
+    - % open interest
+   
+## measuring performance against your benchmark
+
+Good benchmarks help to provide insight into the drivers of strategy returns.
+
+Choosing more than one benchmark can help to guard against 
+targeting the benchmark (a form of overfitting).
+Identifying specific limitations of your benchmarks, for example:
+
+ - lack of goodness of fit, 
+ - a different investible universe, 
+ - lack of stationarity, 
+ - or specific representative features of the benchmark 
+ 
+can also assist in refining the choice of benchmarks
+and avoiding taking them too seriously.  
+
+No matter what benchmarks you pick, if you are going to share 
+these benchmarks with outside investors or other members of your
+team, you need to be careful that you understand and disclose 
+the limitations of the benchmark(s) that you've chosen.  
+Failure to disclose known divergences from a benchmark you will 
+be measured against may look like a limitation rather than a 
+feature, so be sure to explain why differences should exist.
+
+You *will* be measured by others against these benchmarks for 
+performance, style drift, etc. so failure to disclose known
+limitations of your benchmark(s) will waste everyone's time. 
+
+Large bodies of research have been built up over time about how to 
+measure performance against such benchmarks. *TrackingError*,
+*SharpeRatio*'s, *FactorAnalytics*, and more are well 
+represented in **R**.  
+
+## Choosing an Objective {#objectives}
+
+In strategy creation, it is very dangerous to start without a clear
+objective.  
+
+Market observable benchmarks (see above) may form the core of 
+the first objectives you use to evaluate strategy ideas.  
+
+Your business objective states the types of returns you require for your 
+capital, your tail risk objectives, the amount of leverage you intend to 
+or are willing to use, and your drawdown constraints (which are closely 
+related to the leverage you intend to employ). 
+
+Some of these may be dictated by the constraints your business structure 
+has (see above).
+For example, leverage constraints generally have a hard limit imposed 
+by the entity you are using to access the market, whether that is a 
+broker/dealer, a 106.J membership, a leased seat, a clearing member,
+or a customer relationship.  Drawdown constraints have hard limits dictated
+by the leverage you intend to employ: 10:1 leverage imposes a 10% hard 
+drawdown constraint, 4:1 imposes a 25% drawdown constraint, and so on.
+
+Often, there will also be certain return objectives below which a strategy 
+is not worth doing.
+
+Ideally, the business objectives for the strategy will be specified as
+ranges, with minimum acceptable, desired target, and maximum acceptable or
+plausible targets.
+
+Once you have these objectives described, you need to formulate them so that 
+they may be easily used to programmatically evaluate your strategy.
+^[**FIXME** *we need a version of constrained_objective() from PortA in quantstrat*]
+
+\newthought{Formulate your business objectives} in the same form commonly 
+used in portfolio optimization:
+
+ *maximize some measure of return *
+ 
+ *subject to *
+ 
+ *minimizing one or more measures of risk *
+ 
+The most commonly used objective of this type is the Sharpe Ratio 
+which is most often calculated as mean return over volatility.
+  
+Many other modified Sharpe-style ratios also exist:
+
+* Information Ratio: annualized return over annualized risk
+* Profit factor: gross profits divided by gross losses
+* Sortino Ratio: (annualized return - risk free) over downside volatility
+* Calmar Ratio: annualized return  over max drawdown
+* return over expected tail loss
+
+All of these ratios have the properties that you want to 
+maximize them in optimization, and that they are roughly comparable 
+across different trading systems.
+
+Additional properties of the trading system that you may target 
+when evaluating strategy performance but which we would not put into the
+category of *business requirements* include:
+
+ * correlation to perfect profit
+ * slope of the equity curve
+ * linearity of the equity curve
+ * trade statistics
+ etc.
+ 
+A strategy conceptualized as a diversifier for an 
+existing suite may well have different business objectives from a strategy
+designed to enter a new market or replicate published research or 
+take advantage of a transient market opportunity. 
+As such, it is further important to be aware that business objectives 
+are likely to differ from one strategy to another even inside the same 
+organization or on the same team.  
+ 
+Understanding your constraints, benchmarks, and objectives prior to 
+embarking on hypothesis generation or strategy creation and evaluation 
+will anchor your goals.  Defining these in advance will allow you to 
+quickly reject ideas that are incompatible with your goals and requirements.
+Proceeding without understanding the milieu in which the proposed
+strategy will operate risks overfitting and sloppy analysis, and
+should be avoided whenever possible.
+
+
+___
+# Hypothesis Driven Development ^[*Far better an approximate answer to the right question, which is often vague, than an exact answer to the wrong question, which can always be made precise*. - John Tukey [-@Tukey1962] p. 13 ]
+Strategy creation is expensive in time (for research) 
+and money (for implementation into a live trading environment).
+
+To maximize return on that investment, we follow a hypothesis driven 
+approach that allows us to confirm ideas quickly, 
+reject failures cheaply, and avoid many of the dangers of overfitting.
+
+Ideas generated via a brainstorming session are a useful starting 
+point, but they are typically not testable on their own.
+
+## creating good (testable) hypotheses
+
+To create a testable idea (a hypothesis), we need to:
+
+- formulate the idea as a declarative conjecture
+- make sure the conjecture is predictive
+- define the expected outcome of that conjecture
+- describe means of verifying (testing) the expected outcome
+
+Many ideas will fail the process at this point.  The idea will be 
+intriguing or interesting, but not able to be formulated as a conjecture.  
+Or, once formatted as a conjecture, you won't be able to 
+formulate an expected outcome.  Often, the conjecture is a statement
+about the nature of markets.  This may be an interesting, and 
+even verifiable point, but not be a *prediction* about market behavior. 
+So a good conjecture also makes a prediction, or an observation that 
+amounts to a prediction.  The prediction must specify either a cause, 
+or an observable state that precedes the predicted outcome.
+
+Finally, a good hypothesis must specify its own test(s). It should describe
+how the hypothesis will be verified. A non-testable "working hypothesis" is a 
+starting point for further investigation, but the goal has to be to specify tests.  
+In some cases, it is sufficient to describe a test of the
+prediction. We'll cover specific tests in depth later in this document. In
+statistical terms, we need the hypothesis to have a testable dependent
+variable.   In other cases it may be necessary to describe a statistical test
+to differentiate the hypothesized prediction from other measurable effects,
+or from noise, or factor interactions. Specified tests should identify
+measurable things that can help identify the (spurious) appearance of a valid hypothesis.
+
+\begin{marginfigure}
+\includegraphics{hypothesis_process}
+\end{marginfigure}
+
+\newthought{Most strategy ideas will be rejected} during hypothesis 
+creation and testing.
+
+Many ideas, thoughts, and observations about the state of the markets 
+lack sufficient structure to become a testable hypothesis.  While it 
+is possible that these ideas are indeed true, unless you can quantify 
+the idea into a (dis)provable conjecture, it can't be used to create a 
+quantitative strategy with any degree of confidence. Far from being a 
+negative thing, this is a good use of your time, and guards against 
+prematurely moving on with a fundamentally questionable or just 
+plain erroneous idea.  The faster an untestable idea can be set aside 
+for more verifiable ideas, the better.
+
+\newthought{Proceeding without a hypothesis risks ruin.} Many strategists 
+will still try to skip robust hypotheses in favor of sloppy ones such
+as "I hypothesize that this strategy idea will make money".  While the value
+of testing a more rigorous hypothesis should be clear, it may be more 
+difficult to see the risks imposed by having no hypothesis or a sloppy or
+incomplete hypothesis.  An incomplete or otherwise deficient hypothesis at this 
+stage will create a strong desire to "refine" the hypothesis later by adding
+new explanatory statements.  This is called an "ad hoc hypothesis", where
+new hypotheses are piled on top of old to better "explain" observation.
+(@Carroll2011 , p. 7 or online; see also "rule burden", below) 
+Engaging in the creation of ad hoc hypotheses risks ruin, as the 
+in-sample explanatory power of the model will seem to go up, while the
+out of sample power goes down.  It also invites going over the data 
+multiple times while the model is "refined", introducing progressively 
+more data snooping bias.
+
+___
+
+# Defining the strategy
+
+A trading strategy or investment approach is more than just 
+a testable hypothesis.
+ 
+After creating and confirming a hypothesis, you need to specify the strategy.
+The **R** package *quantstrat* formalizes the strategy structure into 
+*filters*, *indicators*, *signals*, and *rules*.
+
+\newthought{Filters} help to select the instruments to trade.  
+They may be part of the formulated hypothesis, or they may be 
+market characteristics that allow the rest of the strategy to
+trade better.  In fundamental equity investing, some strategies 
+consist only of filters.  For example, the StarMine package 
+that was bought by Thomson Reuters defines quantitative stock screens.
+Lo's Variance Ratio is another measure often used as a filter 
+to turn the strategy on or off for particular instruments
+(but can also be used as an indicator, since it is time-varying).
+
+\newthought{Indicators} are quantitative values derived from market data.
+
+Indicators have no knowledge of current positions or trades.
+  
+They are calculated in advance on market data (or on other indicators).
+Examples of indicators include moving averages, RSI, MACD, volatility bands,
+channels, factor models, and theoretical pricing models.
+
+One risk to watch out for when defining your indicators is confusing the 
+indicator with the strategy.  The indicator is a description of reality,
+a model that describes some aspect of the market, or a theoretical price.
+An indicator, on its own, is not a strategy.  The strategy depends on 
+interactions with the rest of its components to be fully specified.  
+         
+\newthought{Signals} describe the interaction between filters, market data, 
+and indicators. 
+
+Signal processes describe the desire for an action, 
+but the strategy may choose not to act or may not be actionable at the time. 
+They include 'classic' things like crossovers and thresholds, 
+as well as more complicated interactions between pricing models, other indicators, 
+and other signal processes.  It is our experience that signals 
+may often interact with other signals, so that final signal is a composite
+of multiple things, and the likelihood of actually  placing or modifying 
+orders will increase based on the combination of signals.
+
+Like indicators, signals are calculated in advance on market data
+while doing research or a backtest.  In production, they are typically calculated 
+in a streaming fashion. 
+
+As stated above, it is important to separate the desire for action from the 
+action itself. The signal happens only in its own context.  In very simple 
+strategies, signal and action may be the same, but in most real strategies 
+the separation serves to make clear what analysis can be done to support a
+decision, and what needs to be postponed until a path-dependent 
+decision is warranted.  
+         
+\newthought{Rules} make path-dependent actionable decisions.
+
+Rules, in both research/backtesting and in production, are what take input 
+from market data, indicators, and signals, and actually take action. 
+Entry, Exits, Risk, Profit Taking, and Portfolio Rebalancing are all
+rule processes.  Rules are path dependent, meaning that they are aware of 
+the current market state, the current portfolio, all working orders,
+and any other data available at the time the rule is being evaluated. 
+
+No action is instantaneous, so rules also have a cost in time.  There must 
+be some lag between observation (indicator or signal), decision (rule), 
+and action (order entry or modification).
+
+## strategy specification document
+
+The strategy specification document is a complete description of the
+strategy. A draft covering all components of the strategy should be
+completed before any code is written. It describes the business context and
+objectives, the hypothesis and tests for that hypothesis, and all the
+components of the strategy itself (filters, indicators, signals and rules).
+It also needs to describe details such as initial parameter choices and why
+those choices were made, and any data requirements (tick, bar, L2, external
+data, etc.).
+
+The strategy specification needs to be written at a level sufficient for the
+research analyst to write code from. Equally important, it should be
+written for review by the investment and risk committees.
+
+One of the key reasons for writing the specification before beginning coding, 
+beyond clarity and rigor of thinking, is that it provides another curb against 
+overfitting.  Changes to the specification should be deliberate, recorded 
+and indicate that something was incomplete or erroneous in the initial 
+specification.  The strategy designer will learn from success and failure 
+along the development path, and the outcomes of these incremental 
+experiments should be clearly reflected in the strategy specification 
+and its revision history.
+
+\newthought{Specification changes need to be conscious and recorded.}
+Loosely adjusting the specification as you go increases the likelihood 
+of an overfit and invalid test.
+
+___
+
+# Creating the Strategy
+
+Creating the strategy code for backtesting or production is outside the 
+scope of this document. In **R** you'll likely use *quantstrat*, and
+when transitioning to production, you'll use whatever execution platforms
+are supported by your organization or team.
+
+\newthought{Developing and testing the strategy in stages} using the tools 
+described in the following sections makes the strategy development process 
+less expensive, more rigorous, and less subject to over-fitting.  This is in 
+contrast to the process described by many of the references in this document
+which focus *only* on evaluating the entire strategy at once, and modifying
+the whole strategy before doing another analytical trial.
+
+___
+
+# Evaluating the Strategy ^[*No matter how beautiful your theory, no matter how clever you are or what your name is, if it disagrees with experiment, it’s wrong*. - Richard P. Feynman [-@Feynman1965]]         
+ 
+\newthought{How do you evaluate the backtest?}
+
+Conceptually, the goal should continue to be to reject or fix failures 
+quickly, before getting to the point of something that risks feeling too
+expensive to throw away.  We want to evaluate the backtest against 
+our hypothesis and business objectives.  The earlier in the strategy 
+framework we can identify and correct problems, the less likely we are 
+to fall victim to common errors in backtesting:
+  
+\newthought{Look Ahead Biases} are introduced when an analysis directly uses knowledge 
+  of future events.  They are most commonly found when using 'corrected'
+  or 'final' numbers in a backtest rather than the correct 'vintage' of data.
+  Other common examples are using the mean of the entire series, or 
+  using only surviving securities in an analysis performed after several 
+  candidate securities have been de-listed.  [see @baquero2005]
+  Look ahead bias is relatively easily corrected for in backtests by 
+  subsetting the data at each step so that indicators, signals, and rules
+  only have access to the data that would have been contemporaneously 
+  available.  Guarding against vintage or survivorship problems requires 
+  slightly more work, as the analyst must be aware that the data being 
+  used for the analysis comes in vintages.
+
+\newthought{Data Mining Bias} arises from testing multiple configurations 
+  and parameters of a trading system without carefully controlling for the 
+  introduction of bias.  It is typically caused by brute force searching 
+  of the parameter space without a driving hypothesis for why those parameters 
+  would be good candidates.[see @Aronson2006, Chapter 6, pp.287-320]
+
+  Correcting for data mining bias is covered in Aronson, and consists
+  mostly in designing the tests such that you do not pollute your data.
+  Walk forward analysis (covered later) is a key component of this,
+  as are adjustments and measurements of data mining effects after they occur.
+  
+\newthought{Data snooping} is the process by which knowledge of the data set 
+  contaminates your statistical testing (your backtest) because you 
+  have already looked at the data.  In an innocuous form, it 
+  could occur simply because you have market knowledge. [see @mistakes2011] Tukey 
+  called this "uncomfortable science" because of the bias that it can introduce,
+  but knowledge of how markets work, and what things have worked in the past
+  is an essential part of strategy development.  What you need to be cautious
+  of is making changes to the *strategy* to overcome specific deficiencies
+  you see in testing.  These types of changes, while sometimes unavoidable 
+  and even desirable, increase the probability of overfitting. 
+
+  @Sullivan1999 and @Hansen2005 provide tests derived from White's Reality Check 
+  [which is patented in @White2000], to measure the potential impact of data 
+  snooping on the backtested results.
+
+\newthought{One deficiency in the strategy literature} is that it has been 
+moving towards utilizing parameter optimization, machine learning, or 
+statistical classification methods (such as random forests or neural networks) 
+as a silver bullet for strategy development.  While a full treatment is beyond 
+the scope of this paper, it is worth mentioning that the model assessment 
+and selection techniques of the statistical classification and machine learning 
+literature are very valid in the context of evaluating trading strategies. 
+[see e.g. @Hastie2009, chapters 7 and 8] We advocate extensive use of model 
+validation tests, tests for effective number of parameters, and careful use 
+of training and cross validation tests in every part of strategy evaluation. 
+Of particular utility is the application of these techniques to each 
+*component* of the strategy, in turn, rather than or before testing the 
+entire strategy model.
+
+\newthought{Defining the objectives, hypotheses, and expected outcome(s)} of the 
+experiment (backtest) as declared before any strategy code is written or run 
+and evaluating against those goals on an ongoing basis will guard against 
+many of the error types described above by discarding results that are not 
+in line with the stated hypotheses.
+
+___
+
+# Evaluating Each Component of the Strategy ^[*Maintain alertness in each particular instance of particular ways in which our knowledge is incomplete*. - John @Tukey1962 p. 14]
+
+___
+
+# Evaluating Indicators
+
+In many ways, evaluating indicators in a vacuum is harder than evaluating 
+other parts of the strategy.  It is nearly impossible if you cannot 
+express a theory of action for the indicator.  
+*Why?*  This is true because the indicator is not just some analytical 
+output that has no grounding (at least we hope not).  A good indicator
+is describing some measurable aspect of reality: a theoretical "fair value"
+price, or the impact of a factor on that price, or turning points 
+of the series, or slope.
+
+If we have a good conceptualization of the hypothesized properties of 
+the indicator, we can construct what the signal processing field calls 
+the 'symmetric filter' on historical data.  These are often  optimized 
+ARMA or Kalman-like processes that filter out all the 'noise' to capture
+some pre-determined features of the series.  They're (usually) useless 
+for prediction, but are very descriptive of past behavior.
+
+\newthought{How is this useful} in evaluating an indicator?  Once you have constructed 
+the symmetric filter, you can evaluate the degree to which the indicator 
+matches perfect hindsight.  Using kernel methods, clustering, mean squared error, 
+or distance measures we can evaluate the degree of difference between 
+the indicator and the symmetric filter.  A low degree of difference (probably)
+indicates a good indicator for the features that the symmetric filter has been
+tuned to pick up on.
+
+\newthought{The danger of this approach} comes if you've polluted your 
+data by going over it too many times. Specifically, if you train the indicator
+on the entire data set, then of course it has the best possible fit 
+to the data.  Tests for look ahead bias and data snooping bias can help to
+detect and guard against that, but the most important guard has to be 
+the analyst paying attention to what they are doing, and constructing 
+the indicator function or backtest to not use non-contemporaneously 
+available data.  Ideally, polluted training periods will be strictly 
+limited and near the beginning of the historical series, or something 
+like walk forward will be used (sparingly) to choose parameters so
+that the parameter choosing process is run over programmatically 
+chosen subsets.  Failure to exercise care here leads almost 
+inevitably to overfitting (and poor out of sample results). 
+
+It is also possible to evaluate the accuracy of an indicator empirically 
+if you can describe the properties in ways that can be readily programmed.  
+For example, if the indicator is supposed to indicate turning points, 
+and is tuned to a mean duration of ten periods, then you can look for all 
+turning points that precede a short term trend centered around ten periods. 
+The downside of this type of detailed empirical analysis is that it is 
+inherently a one-off process, developed for a specific indicator.
+
+It is also important to be aware of the structural dangers of bars.  Many 
+indicators are constructed on periodic or "bar" data.  Bars are not a 
+particularly stable analytical unit, and are often sensitive to exact 
+starting or ending time of the bar, or to the methodologies used to 
+calculate the components (open, high, low, close, volume, etc.) of the bar.
+To mitigate these dangers, it is important to test the robustness of the 
+bar generating process itself, e.g. by varying the start time of the first 
+bar.  We will almost never run complete strategy tests on bar data, preferring
+to generate the periodic indicator, and then apply the signal and rules 
+processes to higher frequency data. In this way the data used to generate the
+indicator is just what is required by the indicator model, with more realistic
+market data used for generating signals and for evaluating rules and orders.
+
+The analysis on indicators described here provides another opportunity
+to reject your hypothesis, and go back to the drawing board. 
+
+
+# Evaluating Signals 
+From one or more indicators, you usually proceed to examining the effectiveness
+of the signal generating process.  One of the challenges in evaluating 
+the full backtest is that the backtest needs to make multiple assumptions about fills.
+We can evaluate signals without making any assumptions about the execution 
+that accompanies the desire to express a particular view.
+
+\begin{marginfigure}
+\includegraphics{boxplot}
+\end{marginfigure}
+
+\newthought{A signal is a directional prediction} for a point in time.  
+The point in time indicated for the signal will generally vary based on some
+parameterization of the indicator and/or signal function(s).  These may be 
+plotted using a forward looking boxplot which lines up returns from the signal 
+forward by using the signal as $t_0$, and then displaying a boxplot of period 
+returns from $t_{1...n}$. Without any assumptions about execution, we
+have constructed a distribution of forward return expectations from the
+signal generating process.
+
+Many analyses can be done with this data.  You can take a distribution of 
+overall return expectations, generate a conditional return distribution, 
+examine a linear or non-linear fit between the period expectations, and compare
+the expectations of multiple different input parameters.  When comparing 
+input parameter expectations, you should see 'clusters' of similar
+positive and/or negative return expectations in similar or contiguous
+parameter combinations.  Existence of these clusters indicates 
+what @Tomasini2009 refer to as a 'stable region' for the parameters
+(see parameter optimization below). 
+A random assortment of positive expectations is a bad sign, and should 
+lead to reviewing whether your hypotheses and earlier steps are robust.
+
+\begin{marginfigure}
+\includegraphics{gamlss}
+\end{marginfigure}
+
+The signals generated by the backtest(s) are also able to be empirically 
+classified.  You can measure statistics such as the number of entry and exit 
+signals, the distribution of the period between entries and exits, degree of 
+overlap between entry and exit signals, and so on.
+
+Given the empirical data about the signal process, it is possible
+to develop a simulation of statistically similar processes.  A simulation
+of this sort is described by @Aronson2006 for use in evaluating entire
+strategy backtest output (more on this below), but it is also useful at this 
+earlier stage.  These randomly simulated signal processes should display
+(random) distributions of returns, which can be used to assess return bias
+introduced by the historical data.  If you parameterize the statistical 
+properties of the simulation, you can compare these parameterized simulations
+to the expectation generated from each parameterization of the strategy's 
+signal generating process.
+
+It is important to separate a parameterized and conditional simulation 
+from an unconditional simulation. Many trading system Monte Carlo tools
+utilize unconditional sampling.  They then erroneously declare that a good 
+system must be due to luck because its expectations are far in the right-hand
+tail of the unconditional distribution. One of the only correct inferences that 
+you can deduce from a unconditional simulation would be a mean return bias of
+the historical series. 
+
+It would make little sense to simulate a system that scalps every tick when 
+you are evaluating a system with three signals per week.  It is critical to 
+center the simulation parameters around the statistical properties of the 
+system you are trying to evaluate.  The simulated signal processes should 
+have nearly indistinguishable frequency parameters (number of enter/exit 
+signals, holding period, etc.) to the process you are evaluating, to ensure 
+that you are really looking at comparable things. 
+
+In the analysis of signal processes, since every signal is a prediction, is
+where we can begin to fully apply the literature on model specification
+and testing of predictions.  From the simplest available methods such
+as mean squared model error or kernel distance from an ideal process, 
+through extensive evaluation as suggested for BIC, effective number of 
+parameters, and cross validation of @Hastie2009, and including time series 
+specific models such as the data driven approach "revealed performance"
+approach of @Racine2009, all available tools from the forecasting literature 
+should be considered for evaluating proposed signal processes.
+
+It should be clear that evaluating the signal generating process offers 
+multiple opportunities to re-evaluate assumptions about the method of
+action of the strategy, and to detect information bias or luck before 
+moving on to (developing and) testing the rest of the strategy.
+
+___
+
+# Evaluating Rules 
+
+By the time you get to this stage, you should have experimental confirmation 
+that the indicator(s) and signal process(es) provide statistically significant
+information about the instruments you are examining.  If not, stop and go back
+and reexamine your hypotheses.  Assuming that you do have both a theoretical 
+and empirical basis on which to proceed, it is time to define the 
+strategy's trading rules.
+
+Much of the work involved in evaluating "technical trading rules" described
+in the literature is really an evaluation of signal processes, described 
+in depth above.
+
+## entry rules
+
+Most signal processes designed by analysts and described in the literature 
+correspond to trade entry.  If the *signal* (prediction) has a positive 
+expectation, then the *rule* should have potential to make money.  
+It is most likely valuable with any proposed system to test both aggressive 
+and passive entry order rules.  If the system makes money in the backtest with 
+a passive entry on a signal, but loses money with an aggressive entry which 
+crosses the bid-ask spread, or requires execution within a very short time 
+frame after the signal, the likelihood that the strategy will work in 
+production is greatly reduced.  Conversely, if the system is relatively 
+insensitive in the backtest to the exact entry rule from the signal process,
+there will likely be a positive expectation for the entry in production.
+
+## exit rules
+
+There are two primary classes of exit rules, signal based and empirical;
+evaluation and risks for these two groupings is different. Exit rules, 
+whether being driven by the same signal process as the entry
+rules, or based on empirical evidence from the backtest, are often the 
+difference between a profitable and an unprofitable strategy. 
+
+Signal driven exit rules may follow the same signal process as the entry rules
+(e.g. band and midpoints models, or RSI-style overbought/oversold models), or
+they may have there own signal process. For example, a process that seeks to 
+identify slowing or reversal of momentum may be different from a process to 
+describe the formation and direction of a trend. When evaluating signal based 
+exits, the same process from above for testing aggressive vs. passive order 
+logic is likely valuable.  Additionally, testing trailing order logic after 
+the signal may "let the winners run" in a statistically significant manner.
+
+Empirical exit rules are usually identified after initial tests of other 
+types of exits, or after parameter optimization (see below).  They include 
+classic risk stops (see below) and profit targets, as well as trailing take 
+profits or pullback stops.  Empirical profit rule are usually identified 
+using the outputs of things like MAE/MFE, for example:
+
+ - if MFE shows that trades that have advanced *x* % or ticks are unlikely 
+   to advance further, so the trade should be taken off
+ - if a path fit is still strongly positive, even though the signal process
+   indicates to be on the lookout for an exit opportunity, so a trailing 
+   take profit may be in  order
+
+## risk rules
+
+There are several types of risk rules that may be tested in the backtest, 
+and the goals of adding them should be derived from your business objectives.
+By the time you get to adding risk rules in the backtest, the strategy should
+be built on a confirmed positive expectation for the signal process, 
+signal-based entry and exit rules should have been developed and confirmed,
+and any empirical profit taking rules should have been evaluated.
+There are two additional "risk" rule types that should commonly be considered 
+for addition to the strategy, empirical risk stops, and business constraints. 
+
+Empirical risk stops are generally placed such that they would cut off the 
+worst losing trades.  This is very strategy dependent.  You may be able to
+get some hints from the signal analysis described above, some examples: 
+
+ - if a path fit is strongly negative after putting on the trade
+ - if the return slope is negative after *x* periods
+ 
+Or, you may place an empirical risk stop based on what you see after 
+doing parameter optimization or post trade analysis (see tools below) to cut
+off the trade after there is a very low expectation of a winning trade, 
+for example:
+
+ - *x* ticks or % against the entry price
+ - in the bottom quantile of MAE
+ 
+The business constraint example we most often see in practice is that of a 
+drawdown constraint in a levered portfolio.  The drawdown constraint is a clear 
+business requirement, imposed by the leverage in the book.  It is possible to
+impose drawdown constraints utilizing a risk rule that would flatten the 
+position after a certain loss.  While it is common to use catastrophic loss 
+rules in strategies, we have had better luck controlling portfolio drawdowns
+via diversified asset allocation and portfolio optimization than via risk stops.
+
+@Bailey2014drawdown examines the impact of drawdown based risk rules, and 
+adjustments to order sizing based on drawdowns or other changes in account 
+equity. They develop an autoregressive model for estimating the potential 
+for drawdowns even in high-Sharpe or short history investments.  They further
+model the likely time to recover as investment sizes are varied following 
+the drawdown.
+
+It is also possible to model risk rules such as hedges or option insurance, 
+but these are best done in asset allocation and money management as an overlay 
+for the strategy or a portfolio of strategies, and not in the individual 
+strategy itself.  Rules to model orthogonal portfolio hedges or option 
+insurance significantly complicate the task of evaluating the impact of the 
+rules designed for the regular functioning of the strategy.
+
+As with other parts of strategy development and testing, it is again important
+to formulate a hypothesis about the effects of exit rules that you plan to add,
+and to document their intended effects, and the business reasons you've chosen
+for adding them.  this is especially important if you are adding rules after 
+parameter optimization.  Done poorly, exit or risk rules added after parameter 
+optimization are just cherry picking the best returns, while if done properly
+they may be used to take advantage of what you've learned about the statistical
+expectations for the system, and may improve out of sample correspondence to the 
+in-sample periods.
+
+## order sizing
+
+We tend to do minimal order sizing in backtests.  Most of our backtests are 
+run on "one lot" or equivalent portfolios.  The reason is that the backtest 
+is trying to confirm the hypothetical validity of the trading system, not 
+really trying to optimize execution beyond a certain point.  How much order
+sizing makes sense in a backtest is dependent on the strategy and your 
+business objectives. Typically, we will do "leveling" or "pyramiding" studies
+while backtesting, starting from our known-profitable business practices.  
+We will *not* do "compounding" or "percent of equity" studies, because our
+goal in backtesting is to confirm the validity of the positive expectation 
+and rules embodied in the system, not to project revenue opportunities.
+Once we have a strategy model we believe in, and especially once we have 
+been able to calibrate the model on live trades, we will tend to drive order 
+sizing from microstructure analysis, post trade analysis of our execution,
+and portfolio optimization.
+
+## rule burden
+
+\newthought{Beware of rule burden.} 
+Too many rules will make a backtest look excellent in-sample, and may 
+even work in walk forward analysis, but are very dangerous in production.
+One clue that you are over-fitting by adding too many rules is that
+you add a rule or rules to the backtest *after* running an exhaustive 
+analysis and being disappointed in the results.  This is introducing 
+data snooping bias.  Some data snooping is unavoidable, but if you've 
+run multiple parameter optimizations on your training set or (worse)
+multiple walk forward analyses, and then added rules after each run,
+you're likely introducing dangerous biases in your output.  
+
+___
+
+# Parameter optimization ^[*Every trading system is in some form an optimization.* (Tomasini)]
+
+Parameter optimization is important for indicators, signals, rules, and 
+complete trading systems.  Care needs to be taken to do this as safely as 
+possible.  That care needs to start with clearly defined objectives, as 
+has already been stated.  The goal of parameter optimization should be to 
+locate a parameter combination that most closely matches the hypotheses 
+and objectives.  To avoid overfitting, it is also critical to avoid outliers,
+looking for stable regions of both in and out of sample performance.
+[@Tomasini2009 , pp. 49-56]
+
+\begin{marginfigure}
+\includegraphics{param_region}
+\end{marginfigure}
+
+When a parameter or set of parameters is robust, it will have a few key 
+properties:
+
+- small parameter changes lead to small changes in P&L and objective 
+  expectations
+- out of sample deterioration is not large, on average (see walk forward 
+  optimization)
+- parameter choices have a sound theoretical or economic basis
+- parameter variation should produce correlated differences in multiple 
+  objectives
+
+For small numbers of parameters, it may be sufficient to graph parameters 
+against your objective, use quantiles, or examine neighbors around a 
+candidate parameter set.  When there are more than a couple of parameters, 
+or more than one objective, the inference to find a "stable region" is 
+somewhat more difficult.  Quantiles of the parameter sets lined up against 
+the objectives are still useful, but you may need to cluster these values 
+to find the best intersection, or apply formal global optimization solvers
+with a penalized objective to locate the best combination of parameters.
+
+\newthought{Limiting the degrees of freedom} in your parameter optimization
+is another way to guard against overfitting and data mining biases.  
+Most real strategies have only a few influential parameters, out of many
+other "fine tuning" parameters.  When backtesting, focus on the major drivers.
+These major drivers should be known in advance, from the theory 
+of the strategy.  If they are not obvious from the theory of the strategy,
+first work on refining the hypothesis so its premises may be tested.  If
+that is not possible or is still insufficient, effective parameter testing 
+[^@Hastie2009] can help to identify the major drivers in a small training and 
+testing set from the beginning of the data. By limiting the degrees of 
+freedom in this way, you limit the opportunities to cherry pick lucky 
+combinations, and statistically the required adjustment for data mining 
+bias is reduced, as are the number of trials (resulting in faster 
+parameter searches).
+
+\newthought{Incremental evaluation of rules} is another advanced form of 
+parameter optimization usually paired with more advanced global optimization 
+solvers or machine learning.  Incremental rule evaluation runs the 
+strategy with different combinations of rules.  In a normal evaluation 
+of this type, rules are separated by type (entry, exit, risk, rebalance, 
+and so on), and various combinations are tried, starting with minimal 
+enter/exit pairs, and adding incrementally to complexity.  These types
+of trials can be very informative as to what adds value to the strategy.  
+If not carefully controlled, they can also result in significant out of
+sample deterioration (see walk forward analysis).  
+
+\newthought{Choosing the best parameter set} should be a function of 
+your business objectives.  In the simplest case, your selection algorithm
+should maximize or minimize your business objective.  In more complex cases,
+you will likely have multiple business objectives, and will utilize a 
+penalized multi-objective optimization to choose the best combination.
+In an ideal case, you will also have a view on slope and linearity of the 
+equity curve, described by something like Kestner's K-Ratio[-@Kestner2003],
+which is really the t-test on the linear model, or by other descriptive
+statistics of the goodness of fit.  
+
+# Walk Forward Analysis
+
+A logical extension of parameter optimization, walk forward analysis 
+utilizes a rolling or expanding window as 'in-sample' for parameterization
+and another period as 'out of sample' using the chosen parameters.
+
+\begin{marginfigure}
+\includegraphics{walk_forward_gantt}
+\end{marginfigure}
+
+\newthought{Most strategies do not have stable parameters through time.}
+The world's top investors, in all styles and frequencies, adjust their 
+expectations, outlook, and approach over time as market conditions change.
+Warrent Buffett or Ray Dalio say that they follow the same "strategy" 
+over decades, but they still adapt to changing markets.  
+Walk forward analysis allows the parameterization of the strategy to 
+change over time as market conditions change.
+
+\newthought{Walk forward analysis guards against data mining bias.}
+At first, this may be counter-intuitive, as walk forward analysis is a 
+data mining process.  
+Barring regime shift (more on this later), the strategist generally assumes 
+local stationarity in market conditions.  If we are conducting parameter 
+optimization in alignment with our previously stated business objectives 
+(supplemented by statistical measures of goodness of fit), then
+utilizing walk forward analysis describes the strategy parameterization 
+that would have been most appropriate for the business at a point in time.
+If you are truly in a region of local stationarity in market characteristics,
+then you are choosing optimal parameters for your out of sample period
+*without* looking ahead and incurring bias.  
+
+\begin{marginfigure}
+\includegraphics{walk_forward_chart}
+\end{marginfigure}
+
+Another guard against data snooping bias is to have your walk forward 
+periods be realistic. If the strategy is hard to parameterize, or uses 
+hard to get or periodic data, then your walk forward analysis should 
+reflect these difficulties. 
+
+For example, you should make sure that you:
+
+- Choose between anchored walk forward or rolling walk forward based 
+  on whether the theoretical properties of your indicators(s) would 
+  benefit from that.
+- Only reparameterize the free parameters for the whole strategy on a 
+  frequency that makes sense for your strategy and business.  Indicators 
+  that adapt to changes in market data automatically are probably safer 
+  than doing frequent parameter searches of the recent past.
+- Don't vary the length of in and out of sample periods across multiple 
+  tests, unless you are using such variations to model out of sample 
+  deterioration.
+- If you use macroeconomic data released periodically (monthly or quarterly),
+  your in and out of sample periods should reflect when information arrives
+  to change how the strategy operates.
+- Understand whether windowing effects would strongly influence the results. 
+  If windowing effects are present, consider an anchored walk forward.
+
+In addition to the choosing mechanism used for parameter analysis, you may 
+additionally evaluate turnover and correspondence between in and out 
+of sample performance.  On turnover, you may choose to stay with the 
+parameter set you are already running, or the set with the lowest turnover,
+if the performance of this zero or low turnover parameter set is within 
+the error bounds of the estimation.  If you are utilizing a 
+population-based optimizer, it makes sense to evaluate the top performers
+from the in-sample period in the out of sample period, and utilize 
+the ones with the least drift as part of your starting population for 
+your next (non-overlapping) walk forward period.
+
+\newthought{Walk forward analysis should be used sparingly.}  One risk of
+using walk forward analysis is that you can introduce data snooping biases 
+if you apply it multiple times with differing goals, looking for the best 
+outcomes.  As with objective and hypothesis generation, you should be clear 
+about the definition of success before performing the test and polluting 
+your data set with prior knowledge.  
+
+# Regime Analysis
+
+\newthought{Parameter optimization and walk forward analysis assume local stationarity.}
+
+*How do you know if this is a reasonable assumption?*
+
+Regime models attempt to provide this information.  Many financial time series
+exhibit distinct states, with specific properties differing sharply between
+these different 'regimes'.  There are two primary classes of models that are 
+used for detecting regimes, Markov switching models and change point models. 
+In the context of strategy development, it can make sense to both test for 
+regime behaviors and develop a plan for managing regime change. If your data
+has well-defined regimes, and you can model these, you may find that very 
+different parameter sets are appropriate for the strategy in those regimes, 
+or that no parameter set produces reasonable results out of sample in 
+particularly challenging regimes, or that no change is necessary.  In any
+case, once you have a strategy model you believe in, doing some regime 
+analysis may provide some additional marginal benefit.
+
+
+___
+
+# Evaluating the whole system ^[*Net profit as a sole evaluation method ignores many of the characteristics important to this decision. - Robert @Pardo2008 *]
+
+>  Pardo says (pp. 202-209):
+
+> >  Some of the key characteristics of a robust trading strategy are:
+> > 
+> >  1. A relatively even distribution of trades
+> >  2. A relatively even distribution of trading profit
+> >  3. Relative balance between long and short profit
+> >  4. A large group of contiguous, profitable strategy parameters in the optimization
+> >  5. Acceptable trading performance in a wide range of markets
+> >  6. Acceptable risk
+> >  7. Relatively stable winning and losing runs
+> >  8. A large and statistically valid number of trades
+> >  9. A positive performance trajectory
+
+___
+# Evaluating Trades
+
+Entire books have been written extolling the virtues or lamenting the problems 
+of one performance measure over another.  We have chosen to take a rather 
+inclusive approach both to trade and P&L based measures and to return based 
+measures (covered later).  Generally, we run as many metrics as we can, and 
+look for consistently good metrics across all common return and cash based 
+measures. Trade and P&L based measures have an advantage of being precise 
+and reconcilable to clearing statements, but disadvantages of not
+being easily comparable between products, after compounding, etc.  
+
+\newthought{What is a trade, anyway?}
+
+The word "trade" has different meanings in different parts and types of 
+strategy analysis. Certainly a single transaction is a "trade".  When 
+speaking of "trades" in "trade statistics" you usually mean a pair or 
+more of transactions that both open and close a position.
+
+There are several ways of calculating the round trip "trades".  The 
+most common are FIFO, tax lots, flat to flat, and flat to reduced.
+
+1. FIFO
+
+    FIFO is "first in, first out", and pairs entry and exit transactions by 
+    time priority.  We generally do not calculate statistics on FIFO because 
+    it is impossible to match P&L to clearing statements; very few 
+    institutional investors will track to FIFO.  It can also be very difficult 
+    to calculate a cost basis if the quantities of your orders vary, or you 
+    get a large number of partial fills.
+    
+2. tax lots
+
+    Tax lot "trades" pair individual entry and exit transactions together 
+    to gain some tax advantage such as avoiding short term gains, harvesting
+    losses, lowering the realized gain, or shifting the realized gain or loss 
+    to another tax period or tax jurisdiction.  This type of analysis can 
+    be very beneficial, though it will be very dependent on the goals of the 
+    tax lot construction.
+    
+3. flat to flat
+    
+    Flat to flat "trade" analysis marks the beginning of the trade from the
+    first transaction to move the position off zero, and marks the end of
+    the "trade" with the transaction that brings the P&L back to zero, 
+    or "flat".
+    It will match brokerage statements of realized P&L when the positions is 
+    flat and average cost of open positions always, so it is easy to reconcile 
+    production trades using this methodology.  One advantage of the flat to flat 
+    methodology is that there are no overlapping "trades" so doing things like
+    bootstrap, jackknife, or Monte Carlo analysis on those trades is not 
+    terribly difficult. The challenge of using flat to flat is that it will 
+    not work well for strategies that are rarely flat; if a strategy adjusts 
+    its position up or down, levels into trades, etc. then getting useful 
+    aggregate statistics from flat to flat analysis may be difficult.
+    
+4. flat to reduced
+
+    The flat to reduced methodology marks the beginning of the "trade" from 
+    the first transaction to increase the position, and ends a "trade" when
+    the position is reduced at all, going closer to zero.  Brokerage 
+    accounting practices match this methodology exactly, they will adjust 
+    the average cost of the open position as positions get larger or further
+    from flat, and will realize gains whenever the position gets smaller 
+    (closer to flat). Flat to reduced is our preferred methodology most of the
+    time. This methodology works poorly for bootstrap or other trade 
+    resampling methodologies, as some of the aggregate statistics are highly 
+    intercorrelated because multiple "trades" share the same entry point.
+    You need to be aware of the skew in some statistics that may be created
+    by this methodology and either correct for it or not use those 
+    statistics. Specific problems will depend on the strategy and 
+    trading pattern. This method is a good default choice for "trade" 
+    definition because it is the easiest to reconcile to statements, other 
+    execution and analysis software, and accounting and regulatory standards.
+   
+   
+\newthought{Aggregate trade statistics are calculated on the entire backtest.}
+
+Basically all modern backtesting and execution platforms can calculate and 
+report aggregated trade statistics for the entire test period. Typically,
+you will be looking at these statistics to confirm that the performance of 
+the strategy is as expected for it's class, and in-line with the expectations 
+you established from the components of the strategy. 
+
++ common trade statistics :
+    - number of transactions and "trades" performed 
+    - gross and net trading profits/losses (P\&L) 
+    - mean/median trading P\&L per trade 
+    - standard deviation of trade P\&L 
+    - largest winning/losing trade 
+    - percent of positive/negative trades  
+    - Profit Factor : absolute value ratio of gross profits over gross losses 
+    - mean/median P\&L of profitable/losing trades 
+    - annualized Sharpe-like ratio 
+    - max drawdown 
+    - win/loss ratios of winning over losing trade P&L (total/mean/median) 
+
+
+Some authors advocate testing the strategy against "perfect profit", the 
+potential profit of buying every upswing and selling every downswing. 
+Such a "perfect profit" number is meaningless in almost all circumstances,
+as it relies on a number of assumptions of periodicity, execution technology, 
+etc. that are certain to be false.  While it would be possible to create an 
+"ideal profit" metric for a given strategy which would have similar stochastic
+entry/exit properties to the strategy being evaluated, our assertion is that 
+this type of simulation is more appropriately situated with analysis of
+the signal process, as described above.  It is certainly possible to extend 
+the signal analysis as described above to a given fixed set of rules, but 
+we believe this is an invitation to overfitting, and prefer to only perform
+that kind of speculative analysis inside the structure of a defined 
+experimental design such as parameter optimization, walk forward analysis, 
+or *k*-fold cross validation on strategy implementations, and leave the 
+simulated data much earlier in the process when confirming the power of the
+strategy components.
+
+The goal of many trading strategies is to produce a smoothly upward sloping 
+equity curve.  To compare the output of your strategy to an idealized 
+representation, most methodologies utilize linear models.  The linear fit 
+of the equity curve may be tested for slope, goodness of fit, and confidence
+bounds. @Kestner2003 proposes the K-Ratio, which is the p-test statistic on 
+the linear model.  @Pardo2008 (pp. 202-209) emphasizes the number of trades, 
+and the slope of the resulting curve.  You can extend the analysis beyond 
+the simple linear model to generalized linear models or generalized additive 
+models, which can provide more robust fits that do not vary as much with small 
+changes to the inputs.
+
+**Dangers of aggregate statistics ...**
+
+- hiding the most common outcomes
+- focusing on extremes
+- not enough trades or history for validity
+- colinearities of flat to reduced
+
+
+\newthought{Per-Trade statistics can provide insight for fine-tuning.}
+
+Analyzing individual trades can give you insight into how the strategy 
+performs on a very fine-grained level.
+
+Especially for path dependent behaviors such as:
+
+- developing a distribution of trade performances and volatilizes,
+- validating the signal expectations, which were inherently forward looking,
+- quick dips or run-ups immediately after the trade is put on, 
+- frequent drawdowns from peak before taking the trade off, 
+- positive or negative excursions while the trade is on.
+
+Analyzing excursions can provide empirical support from the backtest for 
+setting risk stops or profit taking levels.
+    \begin{marginfigure}
+    \includegraphics{MAE}
+    \end{marginfigure}
+Maximum Adverse Excursion or Maximum Favorable Excursion show how far 
+down (or up) every trade went during the course of its lifecycle.  You 
+can capture information on how many trades close close to their highs or lows,
+as well as evaluating points at which the P&L for the trade statistically
+just isn't going to get any better, or isn't going to recover.  While
+not useful for all strategies, many strategies will have clear patterns that
+may be incorporated into risk or profit rules.
+
+You can also separate the individual trades into quantiles (or other slices)
+by any statistic that you have available.  The different distributions,
+paths, and properties of these quantiles will frequently provide insight into 
+methods of action in the strategy, and can lead to further strategy development.
+
+___
+# Post Trade Analysis
+
+Post trade analysis offers an opportunity to calibrate the things you learned 
+in the backtest, and generate more hypotheses for improving the strategy. 
+Analyzing fills may proceed using all the tools described earlier in this 
+document. Additionally, you now have enough data to model slippage from the
+model prices, as well as any slippage (positive or negative) from the 
+other backtest statistics.
+
+One immediate benefit for post trade analysis is that you already have all 
+the tools to evaluate performance; they have been applied to every component 
+of the strategy.  Tests and output of all the analyses are already specified,
+and may be compared directly.
+
+\newthought{Some analysis is unique to post trade analysis.}
+Direct reconciliation between the backtest and production requires both the 
+theoretical and production output have all the same information available for 
+modeled prices, orders, and execution reports.  Once in the same format,
+it is possible to analyze variances in:
+
+- modeled theoretical price (these should match in most cases)
+- order timing and prices
+- P&L
+- evolution of the position, including partial fill analysis
+
+Backtests tend to model complete fills, and use deliberately conservative 
+fill assumptions. One outcome of this is that many strategies can receive 
+more or earlier fills in production.  If you've modeled your signal 
+expectations, these may be run over the production period as well, and 
+you can develop a model for when and how completely fills occur in production 
+after the signals and rules of the model would have wanted to be filled.  
+You can also model slippages at this point, in price, quantity, and time.
+
+Our practice is to impose haircuts on the research model based on production 
+results.  All negative results, whether the fault of the model or of
+execution, will be used to lower the backtest expectations on future
+trials.  All positive production results will be appropriately celebrated, 
+but will not be used to 'upward adjust' the model.
+
+Reconciliation of the differences will often lead to improvements in
+the strategy, or its production execution.
+
+___
+#Microstructure Analysis 
+
+\newthought{Microstructure can not be easily tested in a backtest.}
+The nature of backtesting is that you want to try many combinations quickly.  
+As such, the data you use for a backtest is almost always at least minimally 
+reduced from full L2 market data.  If you have a desire or a need to 
+formulate an opinion about how the strategy will perform given market 
+microstructure, this will be very hard to simulate, even from full L2 data.
+While simulators exist for L2 data that are quite accurate most of those
+are stochastic, very computationally intensive, and need to be run 
+hundreds or thousands of times with minor variations in assumptions and 
+timing.  
+
+Some things can be known from the L2 data without a simulator:
+
+- distribution or composition of the book
+- likelihood that the market will turn to a new price
+- total shown size for a given level at a certain point in time
+
+To refine expectations of execution, you have to gather real trade data.  
+By doing post trade analysis (see above) you can line up orders and fills 
+with the L1 or L2 book data, dealing with things like jitter and skew in the 
+timestamps.  You can then draw inferences about likelihoods of getting 
+filled, market impact, how your MAE/MFE and other trade statistics relate 
+to the backtest.
+
+When much of the overall net performance of the strategy depends on 
+the execution the only way to refine that expectation is to gather 
+real data on the target system, or to use an informative prior 
+constructed from a similar system that was or is actually traded 
+in production.  When you know that the signal process has a positive
+expectation, and a reasonable backtest also shows a positive expectation,
+one of the best ways to adjust the theoretical expectation is to 
+calibrate it against the output of post trade analysis.
+
+___
+#Evaluating Returns
+
+Returns based analysis is most valuable at daily or lower periodicities 
+(often requiring aggregating intraday transaction performance to daily returns)
+, is easily comparable across assets or strategies, and has many analytical 
+techniques not available for trades and P&L, but is not easily reconcilable 
+back to the trades.
+
+- tail risk measures
+- volatility analysis
+- factor analysis
+
+___
+# Rebalancing and asset allocation
+
+- revisit the business objective
+- make sure the business objective is suitable for optimization
+- particular challenges of portfolio optimization for trading strategies
+- discuss multi-layered optimization among strategies and configurations
+- rebalancing implications
+
+___
+# Probability of Overfitting ^[*A big computer, a complex algorithm and a long time does not equal science. - Robert Gentleman*]
+
+\newthought{This entire paper has been devoted to avoiding overfitting.}
+At the end of the modeling process, we still need to evaluate how likely 
+it is that the model may be overfit, and develop a haircut for the model
+that may identify how much out of sample deterioration could be expected.
+
+All strategy models are to one degree or another *fitted* to the data that
+they are trained on.  This fitting is expected.  A fitted model should be 
+parameterized to be the best possible description of the period it was 
+trained in.  Some degree of out of sample deterioration of performance 
+should be expected from any quantitative model. 
+
+A natural consequence of the fitting process 
+
+- linear models such as @Bailey2014pm and @Bailey2014deSharpe 
+  - track the number of trials
+    - how do you define a 'trial'?
+    
+- White's Reality Check from @White2000
+- data mining bias and cross validation from @Aronson2006
+- BIC and *k*-fold cross validation of @Hastie2009
+
+- out of sample deterioration   
+
+
+# Acknowledgements
+
+The author would like to thank his team for thoughtful comments and questions,
+and would also like to thank Stephen Rush at the University of Connecticut for 
+his insightful comments on an early draft of this paper.  All remaining errors 
+or omissions should be attributed to the author. All views expressed in this 
+paper are to be viewed as those of Brian Peterson, and do not necessarily 
+reflect the opinions or policies of DV Trading or DV Asset Management.  
+
+©2014 Brian G. Peterson 
+
+\includegraphics[width=.5in]{cc-by-nc-sa}  
+
+*Please do not distribute this draft without permission.*
+\newpage  
+
+___
+
+# References          
