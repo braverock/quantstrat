@@ -147,7 +147,7 @@ measure performance against such benchmarks. *TrackingError*,
 *SharpeRatio*'s, *FactorAnalytics*, and more are well 
 represented in **R**.  
 
-## Choosing an Objective {#objectives}
+## Choosing an Objective {#objectives} ^[*When measuring results against objectives, start by making sure the objectives are correct.* - Ben @Horowitz2014]
 
 In strategy creation, it is very dangerous to start without a clear
 objective.  
