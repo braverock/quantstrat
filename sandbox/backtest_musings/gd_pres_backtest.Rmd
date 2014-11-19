@@ -42,7 +42,7 @@ Many system developers consider "*I hypothesize that this strategy idea will mak
 - build a hypothesis for the system
 - build the system in pieces
 - test the system in pieces
-- measure how likely it is that you've overfit 
+- measure how likely it is that you have overfit 
 
 Constraints and Objectives
 =============================
@@ -122,11 +122,11 @@ Definitions
 ### Indicators
 
 - quantitative values derived from market data
+- includes all common "technicals" such as moving averages, relative value, etc.
 
 ### Signals
 
-- describe the interaction between filters, market data, 
-and indicators
+- describe the interaction between filters, market data, and indicators
 - can be viewed as a prediction at a point in time
 
 ### Rules
@@ -206,9 +206,9 @@ Measuring Rules
 If your signal process doesn't have predictive power, stop now.
 \end{center}
 
-- rules should refine the way the strategy 'listens' to signals
+  - rules should refine the way the strategy 'listens' to signals
   - entries may be passive or aggressive, or may level or pyramid into a position
-  - exits may have their own signal process, or may be empirical
+  - exits may have their own signal process, or may be derived empirically
   - risk rules should be added near the end, for empirical 'stops' or to meet business constraints
 
 Parameter Optimization
@@ -286,7 +286,7 @@ Dangers of aggregate statistics:
   - hiding the most common outcomes
   - focusing on extremes
   - not enough trades or history for validity
-  - colinearities of overlapping "trades" 
+  - collinearities of overlapping "trades" 
 
 Using Returns
 =============================
@@ -331,7 +331,7 @@ Detecting Backtest Overfitting
 - **CSCV sampling** (combinatorially symmetric cross validation): "generate $S/2$ testing sets of size $T/2$ 
   by recombining the $S$ slices of the overall sample of size $T$ ". [@Bailey2014probability, p.17]
 - **Multiple Hypothesis Testing** looks at Type I vs Type II error in evaluating 
-  backtests and look at appropriate haircuts based on this. [@Harvey2013backtesting ; -@Harvey2013multiple ; -@Harvey2014 ]
+  backtests and at appropriate haircuts based on these probabilities. [@Harvey2013backtesting ; -@Harvey2013multiple ; -@Harvey2014 ]
 
 
 Conclusion & Questions
@@ -371,16 +371,16 @@ Thanks to my team, and my family, who make it possible.
 \vfill
 
 Code to apply the techniques discussed here may be found in the 
-**R** *quantstrat* and *PerformanceAnalytics* packages. [@quantstrat2014; @perfa2014]
+**R** *quantstrat*, *PerformanceAnalytics*, and *PortfolioAnalytics* packages. [@quantstrat2014; @perfa2014; @porta2014]
 
 \vfill
 
-All remaining errors or omissions should be 
-attributed to the author. All views expressed in this presentation are  
-those of Brian Peterson, and do not necessarily reflect the opinions or 
-policies of DV Trading or DV Asset Management.  
+All remaining errors or omissions should be attributed to the author. 
+All views expressed in this presentation are those of Brian Peterson, 
+and do not necessarily reflect the opinions or policies of DV Trading 
+or DV Asset Management.  
 
 Resources
 =========================================================
 
-\fontsize{5}{1}\selectfont
+\fontsize{4.5}{.75}\selectfont
