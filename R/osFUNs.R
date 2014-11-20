@@ -201,7 +201,7 @@ osMaxPos <- function(data, timestamp, orderqty, ordertype, orderside, portfolio,
     if(orderqty<0 & orderside=='short'){
         if ((orderqty+pos)>PosLimit[,"MinPos"]) {
             #we have room to expand the position
-            if(orderqty<=(PosLimit[,"MinPos"]/PosLimit[,"ShortLevels"]) ) {
+            if(orderqty>=(PosLimit[,"MinPos"]/PosLimit[,"ShortLevels"]) ) {
                 orderqty=orderqty
             } else {
                 orderqty = round(PosLimit[,"MinPos"]/PosLimit[,"ShortLevels"],0) #note no round lots
