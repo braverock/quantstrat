@@ -1,83 +1,3 @@
-## add parameters to strategy objects: ALPHA CODE USE WITH CARE 
-#add.parameter <- 
-#       function (strategy, 
-#               type = c('indicator','signal'), 
-#               add.to.name,
-#               method = c('lookup','lookup.range','calc'), 
-#               arguments = NULL, 
-#               label = NULL,
-#               ...,
-#               store=FALSE) 
-#{
-#   if(!is.strategy(strategy)) stop("You must pass in a strategy object to manipulate")
-#   # perhaps I should add parameters and parameter.args as arguments to the constructors...
-#   
-#   tmp.param<-list()
-#   
-#   type=type[1] #this should probably come out eventually
-#   
-#   method = method[1] #only use the first if the user didn't specify, or over-specified
-#   
-#   if(is.null(label)) {
-#       label<-method
-#   }
-#   tmp.param$label <- label
-#   tmp.param$method <- method
-#   tmp.param$call <- match.call()
-#   tmp.param$arguments <- arguments
-#   class(tmp.param)<-'quantstrat.parameter'
-#   
-#   switch(type,
-#           indicator = {type='indicators'},
-#           signal = {type='signals'},
-#           rule = {type='rules'}) #NOTE rules not supported yet, since they need a rule type too
-#   
-#   # need to think about how to create a 'parameters' list, and whether 
-#   # it should be at the strategy level or lower down, on the individual 
-#   # signal/indicator/rule
-#   
-#   if(!is.list(strategy[[type]][[add.to.name]]$parameters)){
-#       strategy[[type]][[add.to.name]]$parameters <- list()
-#   }
-#   strategy[[type]][[add.to.name]][['parameters']][[method]] <- tmp.param
-#   
-#   if (store) assign(strategy$name,strategy,envir=as.environment(.strategy))
-#   else return(strategy)
-#}
-#
-#
-## add parameters to strategy objects: ALPHA CODE USE WITH CARE 
-#paramLookup <- function(strategy, symbol , type, name, parameter, ...) {
-#   # should take in a strategy and parameter object, and return an argument list for 'symbol'
-#   #as.pairlist(paramTable[,symbol]
-#   paramTable<-get(paste(strategy,type,name,'table',pos=.strategy))
-#   as.pairlist(paramTable[,symbol])
-#}
-#
-## add parameters to strategy objects: ALPHA CODE USE WITH CARE 
-#add.paramLookupTable <- function(strategy, type, name, paramTable){
-#   assign(paste(strategy,type,name,'table',pos=.strategy),paramTable)
-#}
-#
-## get parameterized arguments list out of the strategy environment
-#getParams <- function (strategy, symbol, type, name)
-#{
-#   
-#   params <- strategy[[type]][[name]]$parameters
-#   param.ret<-list()
-#   for (param in params) {
-#       switch(param$method,
-#               lookup = {param.ret<-c(param.ret,paramLookup(strategy,symbol,parameter=param))},
-#               lookup.range = {},
-#               calc = {},
-#               {warning("parameter method",param$method,'not recognized for',type,name); next()}
-#       )
-#   }
-#   # return an arguments list back to the 'apply*' fn
-#   return(param.ret)
-#}
-
-
 ###############################################################################
 # R (http://r-project.org/) Quantitative Strategy Model Framework
 #
@@ -136,7 +56,7 @@ label2index <- function(strategy, type, label)
 
 #retrieve the needed parameters and existing values after add*
 
-#' Extract the parameter structure from a strategy object.
+#' Extract the parameter structure from a strategy object. (deprecated)
 #' 
 #' Users can use this function to extract the parameters used in a strategy, and use the output as a reminder/ cheatsheet
 #' when they create the parameter distribution or parameter constraints. But it's not required to run to specify the distribution or constraints of parameters. 
@@ -156,7 +76,6 @@ label2index <- function(strategy, type, label)
 #' }
 #' @param strategy The strategy object.
 #' @author Yu Chen
-#' @export
 getParameterTable<-function (strategy) #,staticSwitch)
 {
     
@@ -235,19 +154,9 @@ getParameterTable<-function (strategy) #,staticSwitch)
     return(paramPack)
     
 }
-#
-#
-#getParameterInfo<-function(paramStructure){
-#   paramInfo<-list()
-#   for(paraLine in paramStructure){
-#       paraInfo[[1]]<-paraLine$paramType
-#   }
-#}
-#getParameterMatrix<-function(paraStructure){
-#   
-#}
 
-#' Function used to create an object that contains the distribution of parameters to be generated from, before testing parameters of a strategy.
+
+#' Function used to create an object that contains the distribution of parameters to be generated from, before testing parameters of a strategy. (deprecated)
 #' 
 #' 
 #' Each call to the function will set/update the distribution of ONE parameter in the 'parameter distribution object' that is associated with a specific strategy.  
@@ -279,7 +188,6 @@ getParameterTable<-function (strategy) #,staticSwitch)
 #' @param psindex A number specify the index within the parameter distribution object, it is used to make change/ repalce a parameter distribution in the object.
 #' @return The returned object is a structure contains the distribution of parameters, if the input argument 'paramDist' is provided, the function update the input paramDist object and return the updated one. When specify the distribution of several parameters, usually the first returned object is passed to the next several call of the function as input argument 'paramDist'. See example. 
 #' @author Yu Chen
-#' @export
 setParameterDistribution<-function(paramDist=NULL, strategy, component.type, component.label, distribution=NULL, weight, label, psindex=NULL) #All is needed,  set to illegal values
 {
     missing.msg <- ': missing in call to setParameterDistribution'
@@ -336,7 +244,7 @@ setParameterDistribution<-function(paramDist=NULL, strategy, component.type, com
     return(paramDist)
 }
 
-#' Generate parameter sets for a specific strategy, test the strategy on each set of parameters, output result package.
+#' Generate parameter sets for a specific strategy, test the strategy on each set of parameters, output result package. (deprecated)
 #' 
 #' The function do several things in one call, to test different parameters on a strategy. It generates parameter sets based on specified distribution (a defined parameter distribution object generated by setParameterDistribution function) and constraints (A defined parameter constraint object generated by setParameterConstraint function), 
 #' apply the generated parameter sets to the specified strategy and return the results package, put the generated portfolio objects and account objects in .blotter environment.
@@ -392,10 +300,12 @@ setParameterDistribution<-function(paramDist=NULL, strategy, component.type, com
 #' @seealso \code{\link{setParameterDistribution}}, \code{\link{setParameterConstraint}}
 #' 
 #' @author Yu Chen
-#' @export
 applyParameter<-function(strategy,portfolios,parameterPool,parameterConstraints,method,sampleSize,verbose=FALSE,...)
 {
+    .Deprecated("apply.paramsets","The original parameter code in applyParameter hase been deprecated.  Use apply.paramsets instead.")  
+  
     #need to create combination of distribution values in each slot of the parameterPool
+    
     
     initialPortf<-.getPortfolio(portfolios)
     symbols<-ls(initialPortf$symbols)
@@ -720,12 +630,10 @@ applyParameter<-function(strategy,portfolios,parameterPool,parameterConstraints,
     
 }
 
-#for(pname in names(as.list(ss$blotter))){
-#   assign(paste(pname,'p',23,sep='.'),get(paste('ss$blotter$',pname,sep='')),envir=as.environment(.blotter))
-#}
 
-
-#' Internal function used in applyParameter function for process constraints on relationship between two parameter values. Basicly is the same as sigComparison function in signal.R written by Brian, with minor change.
+#' Internal function used in applyParameter function for process constraints on relationship between two parameter values. (deprecated)
+#' 
+#' Basically is the same as sigComparison function in signal.R written by Brian, with minor change.  
 #' 
 #' Currently, this function compares two columns.  
 #' Patches to compare an arbitrary number of columns would be gladly accepted.
@@ -781,7 +689,7 @@ paramConstraint <- function(label,data=mktdata, columns, relationship=c("gt","lt
 }
 
 
-#' Function to construct parameter constraint object.
+#' Function to construct parameter constraint object. (deprecated)
 #' 
 #' Function to construct parameter constraint object. The returned value will be one of the inputs to the applyParameter function.
 #'  
@@ -802,7 +710,6 @@ paramConstraint <- function(label,data=mktdata, columns, relationship=c("gt","lt
 #' @param relationship relationship between the 1st parameter and 2nd one. ('gt' means 1st parameter > 2nd parameter).
 #' @return The returned object is a structure contains the constraints on pairs of parameters, if the input argument 'paramConstraintObj' is provided, the function update the input paramConstraintObj object and return the updated one. When specify the constraints of several pairs of parameters, usually the first returned object is passed to the next several call of the function as input argument 'paramConstraintObj'. See example. 
 #' @author Yu Chen
-#' @export
 setParameterConstraint<-function(paramConstraintObj=list(),constraintLabel,paramList,relationship)
 {
     if(!hasArg(paramConstraintObj) || !exists(as.character(substitute(paramConstraintObj))))

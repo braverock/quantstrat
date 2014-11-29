@@ -1,12 +1,12 @@
 Package: quantstrat
 Type: Package
 Title: Quantitative Strategy Model Framework
-Version: 0.9.1648
+Version: 0.9.1657
 Date: $Date$
 Author: Peter Carl, Brian G. Peterson, Joshua Ulrich, Jan Humme
 Depends:
     xts(>= 0.8-2),TTR(>= 0.2),
-    blotter(>= 0.7.2),
+    blotter(>= 0.9),
     FinancialInstrument(>= 0.12.5),
     foreach(>= 1.4.0)
 Suggests:
