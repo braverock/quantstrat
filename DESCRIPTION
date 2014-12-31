@@ -1,7 +1,7 @@
 Package: quantstrat
 Type: Package
 Title: Quantitative Strategy Model Framework
-Version: 0.9.1662
+Version: 0.9.1663
 Date: $Date$
 Author: Peter Carl, Brian G. Peterson, Joshua Ulrich, Jan Humme
 Depends:
@@ -14,12 +14,16 @@ Suggests:
     PortfolioAnalytics,
     rgl,
     testthat,
-    xtsExtra
+    xtsExtra,
+    rCharts,
+    gamlss.util,
+    reshape2,
+    beanplot
 Maintainer: Brian G. Peterson <brian@braverock.com>
 Description: Specify, build, and back-test quantitative
     financial trading and portfolio strategies
 Contributors: Yu Chen, Joe Dunn, Dirk Eddelbuettel,
-    Jeffrey A. Ryan, Garrett See
+    Michael Guan, Jeffrey A. Ryan, Garrett See
 LazyLoad: yes
 License: GPL-3
 ByteCompile: TRUE

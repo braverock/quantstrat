@@ -26,3 +26,5 @@ luxor.sample.MAE.stoptrailing.R	Jaekle & Tomasini; sample MAE stoptrailing graph
 luxor.sample.MFE.takeprofit.R	Jaekle & Tomasini; sample MFE take profit graph
 luxor.sample.tradeGraphs.sma.R	Jaekle & Tomasini; sample 3D SMA graph
 luxor.sample.tradeGraphs.timespan.R	Jaekle & Tomasini; sample 3D timespan graph
+signal.SMA.R	SMA Cross Strategy with Signal Analysis Example; See maCross.R
+signal.RSI.R	RSI Cross Strategy with Signal Analysis Example; See rsi.R
