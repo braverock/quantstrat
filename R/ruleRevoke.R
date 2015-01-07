@@ -43,7 +43,7 @@ ruleRevoke <- ruleCancel <- function(data=mktdata, timestamp, sigcol, sigval, or
 ###############################################################################
 # R (http://r-project.org/) Quantitative Strategy Model Framework
 #
-# Copyright (c) 2012
+# Copyright (c) 2009-2015
 # Niklas Kolster, Jan Humme
 #
 # This library is distributed under the terms of the GNU Public License (GPL)

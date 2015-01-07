@@ -41,7 +41,7 @@ match.names <- function(match_names,data_names) {
 ###############################################################################
 # R (http://r-project.org/) Quantitative Strategy Model Framework
 #
-# Copyright (c) 2009-2012
+# Copyright (c) 2009-2015
 # Peter Carl, Dirk Eddelbuettel, Brian G. Peterson, Jeffrey Ryan, and Joshua Ulrich 
 #
 # This library is distributed under the terms of the GNU Public License (GPL)

@@ -300,12 +300,12 @@ save.strategy <- function(strategy.name)
 ###############################################################################
 # R (http://r-project.org/) Quantitative Strategy Model Framework
 #
-# Copyright (c) 2009-2012
+# Copyright (c) 2009-2015
 # Peter Carl, Dirk Eddelbuettel, Brian G. Peterson, Jeffrey Ryan, and Joshua Ulrich 
 #
 # This library is distributed under the terms of the GNU Public License (GPL)
 # for full details see the file COPYING
 #
-# $Id: strategy.R 1594 2014-03-29 20:39:45Z braverock $
+# $Id$
 #
 ###############################################################################

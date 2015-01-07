@@ -527,7 +527,7 @@ updateOrders <- function(portfolio,
 ###############################################################################
 # R (http://r-project.org/) Quantitative Strategy Model Framework
 #
-# Copyright (c) 2009-2012
+# Copyright (c) 2009-2015
 # Peter Carl, Dirk Eddelbuettel, Brian G. Peterson, 
 # Jeffrey Ryan, Joshua Ulrich, and Garrett See 
 #
