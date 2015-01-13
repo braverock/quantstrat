@@ -291,15 +291,17 @@ prematurely moving on with a fundamentally questionable or just
 plain erroneous idea.  The faster an untestable idea can be set aside 
 for more verifiable ideas, the better.
 
-\newthought{Proceeding without a hypothesis risks ruin.} Many strategists 
-will still try to skip robust hypotheses in favor of sloppy ones such
-as "I hypothesize that this strategy idea will make money".  While the value
-of testing a more rigorous hypothesis should be clear, it may be more 
-difficult to see the risks imposed by having no hypothesis or a sloppy or
-incomplete hypothesis.  An incomplete or otherwise deficient hypothesis at this 
-stage will create a strong desire to "refine" the hypothesis later by adding
-new explanatory statements.  This is called an "ad hoc hypothesis", where
-new hypotheses are piled on top of old to better "explain" observation.
+\newthought{Proceeding without a hypothesis risks ruin.} ^[*A big computer, 
+a complex algorithm and a long time does not equal science. - Robert Gentleman*]
+Many strategists will still try to skip robust hypotheses in favor of sloppy 
+ones such as "I hypothesize that this strategy idea will make money". 
+
+While the value of testing a more rigorous hypothesis should be clear, it may 
+be more difficult to see the risks imposed by having no hypothesis or a sloppy 
+or incomplete hypothesis.  An incomplete or otherwise deficient hypothesis at 
+this stage will create a strong desire to "refine" the hypothesis later by 
+adding new explanatory statements.  This is called an "ad hoc hypothesis", 
+where new hypotheses are piled on top of old to better "explain" observation.
 (@Carroll2011 , p. 7 or online; see also "rule burden", below) 
 Engaging in the creation of ad hoc hypotheses risks ruin, as the 
 in sample (IS) explanatory power of the model will seem to go up, while the
@@ -1430,7 +1432,7 @@ Also discuss:
 - *techniques for backing out from weights to capital to order sizes*
 
 ___
-# Probability of Overfitting ^[*A big computer, a complex algorithm and a long time does not equal science. - Robert Gentleman*]
+# Probability of Overfitting ^[*We should recognize the reality that any simulated (backtest) performance presented to us likely overstates future prospects. By how much? -Antti Ilmanen* [-@Ilmanen2011] p. 112 ] 
 
 \newthought{This entire paper has been devoted to avoiding overfitting.}
 At the end of the modeling process, we still need to evaluate how likely 
@@ -1626,11 +1628,14 @@ attributed to the author. All views expressed in this paper are to be viewed
 as those of Brian Peterson, and do not necessarily reflect the opinions or 
 policies of DV Trading or DV Asset Management.  
 
-©2014 Brian G. Peterson 
+©2014-2015 Brian G. Peterson 
 
 \includegraphics[width=1.75cm]{cc-by-nc-sa}  
 
 *Please do not distribute this draft without permission.*
+
+The most recently published version of this document may be found at \url{http://goo.gl/na4u5d}
+
 \newpage  
 
 ___
