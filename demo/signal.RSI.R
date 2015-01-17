@@ -3,7 +3,6 @@
 # System: A simple RSI strategy for evaluating signals.
 # Author: Michael Guan
 ###########################################################################
-rm(list=ls())
 
 # Load Packages:
 require(iterators)
@@ -84,13 +83,15 @@ plot.signals(results$sigret.by.asset$XLF, rows=2, columns = 5)
 # Distributional Box Plot via gamlss
 distributional.boxplot(results$sigret.by.asset$XLF$paramset.2)
 
-
-
-
-
-
-
-
-
-
+###############################################################################
+# R (http://r-project.org/) Quantitative Strategy Model Framework
+#
+# Copyright (c) 2009-2015
+# Peter Carl, Dirk Eddelbuettel, Brian G. Peterson,
+# Jeffrey Ryan, Joshua Ulrich, and Garrett See
+#
+# This library is distributed under the terms of the GNU Public License (GPL)
+# for full details see the file COPYING
+#
+###############################################################################
 

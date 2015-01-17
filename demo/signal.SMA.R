@@ -3,8 +3,8 @@
 # System: A simple moving average strategy for evaluating signal
 # Author: Michael Guan
 ###########################################################################
+
 # Load Packages:
-rm(list=ls())
 require(iterators)
 require(quantstrat)
 
@@ -151,13 +151,10 @@ distributional.boxplot(signal=results.m$sigret.by.asset$IYT$paramset.5.20,
 plot.signals(results.m$sigret.by.asset$XLE, rows=5, columns = 4)
 beanplot.signals(results.m$sigret.by.asset$XLE, rows=5, columns = 4)
 
-
-
-
 ###############################################################################
 # R (http://r-project.org/) Quantitative Strategy Model Framework
 #
-# Copyright (c) 2009-2012
+# Copyright (c) 2009-2015
 # Peter Carl, Dirk Eddelbuettel, Brian G. Peterson,
 # Jeffrey Ryan, Joshua Ulrich, and Garrett See
 #
