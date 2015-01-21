@@ -18,7 +18,7 @@ n=2
 #Data
 currency("USD")
 currency("EUR")
-symbols = c("XLF", "XLP")
+symbols = c("SPY")
 for(symbol in symbols){ # establish trade-able instruments
   stock(symbol, currency="USD",multiplier=1)
   getSymbols(symbol,src='yahoo')
@@ -67,7 +67,7 @@ results =apply.paramset.signal.analysis(strategy.st,
                                         port.st, 
                                         sigcol = signal.label,
                                         sigval = 1,
-                                        on='days',
+                                        on=NULL,
                                         forward.days=10,
                                         cum.sum=TRUE,
                                         include.day.of.signal=F,
@@ -78,10 +78,10 @@ results =apply.paramset.signal.analysis(strategy.st,
 
 
 # Plot Paramset Combined Barchart [Subset list to plot a sub portion if too large]
-plot.signals(results$sigret.by.asset$XLF, rows=2, columns = 5)
+signal.plot(results$sigret.by.asset$SPY, rows=2, columns = 5)
 
 # Distributional Box Plot via gamlss
-distributional.boxplot(results$sigret.by.asset$XLF$paramset.2)
+distributional.boxplot(results$sigret.by.asset$SPY$paramset.2)
 
 ###############################################################################
 # R (http://r-project.org/) Quantitative Strategy Model Framework

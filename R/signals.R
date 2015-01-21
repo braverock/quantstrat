@@ -522,6 +522,7 @@ apply.paramset.signal.analysis<-function(strategy.st, paramset.label, portfolio.
 #' \code{\link{apply.paramset.signal.analysis}}
 #' \code{\link{applyIndicators}}
 #' \code{\link{applySignals}}
+#' @export
 
 applyIndicatorSignals<-function(strategy, portfolio, mktdata, sigcol, ...){
   
@@ -560,6 +561,7 @@ applyIndicatorSignals<-function(strategy, portfolio, mktdata, sigcol, ...){
 #' @return objective function values
 #' @seealso 
 #' \code{\link{apply.paramset.signal.analysis}}
+#' @export
 
 signal.generate.statistics<-function(post.ret, obj.fun=NULL, decreasing=TRUE){
   if(is.null(obj.fun)) stop("Must define an objective function for signal sorting.")
@@ -597,6 +599,7 @@ signal.generate.statistics<-function(post.ret, obj.fun=NULL, decreasing=TRUE){
 #' @return \code{matrix} of post signal price changes; rows = nth signal, column = nth period since signal
 #' @seealso 
 #' \code{\link{apply.paramset.signal.analysis}}
+#' @export
 
 post.signal.returns<-function(signals,sigval,on=NULL,forward.days,cum.sum=TRUE,
                               include.day.of.signal=FALSE,mktdata=NULL){
@@ -750,6 +753,7 @@ post.signal.returns<-function(signals,sigval,on=NULL,forward.days,cum.sum=TRUE,
 #' @return Single Objective Value
 #' @seealso 
 #' \code{\link{apply.paramset.signal.analysis}}
+#' @export
 
 signal.obj.slope<-function(x){
   mu = colMeans(x)
@@ -779,10 +783,9 @@ signal.obj.slope<-function(x){
 #' @param h the y-value(s) for horizontal line(s).
 #' @param hlinecol A specification for the default plotting color. See section ‘Color Specification’.
 #' @author Michael Guan
-#' @return plot
-#' 
+#' @export
 
-plot.signals<-function(signals,rows=NULL,columns=NULL,mai = c(0.1,0.4,0.2,0.1), mgp = c(1,1,0),
+signal.plot<-function(signals,rows=NULL,columns=NULL,mai = c(0.1,0.4,0.2,0.1), mgp = c(1,1,0),
                        xlab='',ylab='',cex.main=0.6,xaxt='n',cex.axis=0.5,h=0,hlinecol='red',...){
   
   if(is.null(signals)) stop('No signals to plot')
@@ -825,6 +828,7 @@ plot.signals<-function(signals,rows=NULL,columns=NULL,mai = c(0.1,0.4,0.2,0.1), 
 #' @param hlinecol A specification for the default plotting color. See section ‘Color Specification’.
 #' @author Michael Guan
 #' @return plot
+#' @export
  
 beanplot.signals<-function(signals,rows=NULL,columns=NULL,mai = c(0.1,0.4,0.2,0.1), mgp = c(1,1,0),
                            xlab='',ylab='',cex.main=0.6,xaxt='n',cex.axis=0.5,
@@ -863,6 +867,7 @@ beanplot.signals<-function(signals,rows=NULL,columns=NULL,mai = c(0.1,0.4,0.2,0.
 #' @param h the y-value(s) for horizontal line(s).
 #' @author Michael Guan
 #' @return plot
+#' @export
 
 distributional.boxplot<-function(signal,x.val=seq(1, 50, 5),val=10,ylim=c(-5, 5),
                                  xlim=c(0, 50),mai=c(1,1,0.3,0.5),h=0,...){
@@ -913,10 +918,10 @@ distributional.boxplot<-function(signal,x.val=seq(1, 50, 5),val=10,ylim=c(-5, 5)
 #' @examples
 #' \dontrun{
 #' # signalAnalysisExample1.R
-#' plot.signal.path(results$sigret.by.asset$RTH$paramset.1.5[1:10,])
+#' plot.signal.path(results$sigret.by.asset$RTH$paramset.1.5[1:10,])s
 #' }
 #' @export
-plot.signal.path<-function(data,main='Cumulative Return Paths'){
+signal.path.plot<-function(data,main='Cumulative Return Paths'){
   require(rCharts) #TODO: Need to wrap around If statement
   require(reshape2)
   data = t(data)

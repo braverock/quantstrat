@@ -105,9 +105,9 @@ distributional.boxplot(signal=results$sigret.by.asset$IYT$paramset.5.20,
                        x.val=seq(1, 50, 5),val=10,ylim=c(-20, 20),
                        xlim=c(0, 50),mai=c(1,1,0.3,0.5),h=0)
 
-plot.signals(results$sigret.by.asset$XLE, rows=5, columns = 4)
+signal.plot(results$sigret.by.asset$XLE, rows=5, columns = 4)
 beanplot.signals(results$sigret.by.asset$XLE, rows=5, columns = 4)
-plot.signal.path(results$sigret.by.asset$IYT$paramset.5.20)
+signal.path.plot(results$sigret.by.asset$IYT$paramset.5.20)
 
 
 # Daily Signal With Post Weekly Return Analysis
