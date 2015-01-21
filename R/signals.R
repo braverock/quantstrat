@@ -918,7 +918,7 @@ distributional.boxplot<-function(signal,x.val=seq(1, 50, 5),val=10,ylim=c(-5, 5)
 #' @examples
 #' \dontrun{
 #' # signalAnalysisExample1.R
-#' plot.signal.path(results$sigret.by.asset$RTH$paramset.1.5[1:10,])s
+#' plot.signal.path(results$sigret.by.asset$RTH$paramset.1.5[1:10,])
 #' }
 #' @export
 signal.path.plot<-function(data,main='Cumulative Return Paths'){
