@@ -21,7 +21,6 @@ ___
 
 # Constraints, Benchmarks, and Objectives ^[*Essentially, all models are wrong, but some are useful*. - George Box[-@Box1987] ]
 
-
 It is important to understand what you are trying to achieve 
 *before* you set out to achieve it.  
 

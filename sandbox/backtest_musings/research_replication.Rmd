@@ -472,13 +472,13 @@ be stored in a version control system such as [*bitbucket*](https://bitbucket.or
 
 
 Reproducibility of research has gained attention in recent years, with prominent 
-papers in journals such as *Science*[@Peng2011] and *Nature*[@Barnes2010, @Ince2012].
-Finance and Economics have entries in @Vlaeminck2013 or the *Economist*
-[@Economist2013], among others.  
+papers in journals such as *Science*[@Peng2011], *Nature*[@Barnes2010, @Ince2012]
+, and *PLOSOne*[@Ioannidis2005, @Moonesinghe2007]. Finance and Economics have 
+entries in @Vlaeminck2013 or the *Economist*[@Economist2013], among others.  
 
-Following good computing practices even for routine research is always good 
-policy, and will be useful if work is submitted for publication ,reviewed by peers,
-management, or even "only" your future self.
+Following good citation and computing practices even for routine research is 
+always good policy, and will be particularly useful if work is submitted for 
+publication, reviewed by peers, management, or even "only" your future self.
 
 ___________
 
