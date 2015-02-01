@@ -127,6 +127,8 @@ applyStrategy.rebalancing <- function(strategy ,
         
         # combine plist into one sorted index
         pindex <- unique(sort(do.call(c, c(plist, use.names=FALSE))))
+        # prepend minimum value, so first rebalance period will be evaluated
+        pindex <- c(.POSIXct(-8520336000, tz=attr(pindex,'tzone')), pindex)
         st$rebalance_index<-pindex
         
         #now we need to do the endpoints loop. 
@@ -138,7 +140,12 @@ applyStrategy.rebalancing <- function(strategy ,
                 #sret<-ret[[portfolio]][[symbol]]
                 mktdata<-get(symbol,pos=st)
                 #now subset
-                md_subset<-mktdata[as.POSIXct(index(mktdata))>pindex[i-1]&as.POSIXct(index(mktdata))<=pindex[i]]
+                posix_ix <- as.POSIXct(index(mktdata))
+                # include prior row, in case there is a signal on the last
+                # observation of the rebalance period (#5990)
+                mdi <- seq.int(.firstCross(posix_ix, pindex[i-1], "gt")-1,
+                               .firstCross(posix_ix, pindex[i], "gte"))
+                md_subset <- mktdata[mdi,]
                 if(nrow(md_subset)<1) {
                     next()
                 } else {
