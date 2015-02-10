@@ -89,15 +89,18 @@ There are several categories of potential benchmarks:
    
 3. custom tracking portfolios  
 
-    In some ways an extension of (1.) above, you can create your 
-    own benchmark by creating a custom tracking portfolio.
-    As the most common example, a cap-weighted index is 
-    really a strategy archetype.  The tracking portfolio for such
-    an index invests in a basket of securities using a capitalization 
-    as the weights for the portfolio,and rebalances this portfolio on 
-    the schedule defined in the index specification.
-    Other custom tracking portfolios or synthetic strategies 
-    may also be appropriate for measuring your strategy against.
+    In some ways an extension of (1.) above, you can create your own benchmark 
+    by creating a custom tracking portfolio. As the most common example, a 
+    cap-weighted index is really a strategy archetype.  The tracking portfolio 
+    for a capitalization-weighted index invests in a basket of securities using 
+    market capitalization as the weights for the portfolio. This portfolio is 
+    then rebalanced on the schedule defined in the index specification 
+    (typically quarterly or annually). Components may be added or removed 
+    following some rule at these rebalancing periods, or on some other abnormal 
+    event such as a bankruptcy. Other custom tracking portfolios or synthetic 
+    strategies may also be appropriate for measuring your strategy against, 
+    depending on what edge(s) the strategy hopes to capture, and from what 
+    universe of investible products. 
    
 4. market observables  
    
@@ -159,16 +162,18 @@ capital, your tail risk objectives, the amount of leverage you intend to
 or are willing to use, and your drawdown constraints (which are closely 
 related to the leverage you intend to employ). 
 
-Some of these may be dictated by the constraints your business structure 
-has (see above).
-For example, leverage constraints generally have a hard limit imposed 
+Some of the constraints on your business objective may be dictated by the 
+constraints your business structure has (see above).
+
+For example:
+- Leverage constraints generally have a hard limit imposed 
 by the entity you are using to access the market, whether that is a 
 broker/dealer, a 106.J membership, a leased seat, a clearing member,
-or a customer relationship.  Drawdown constraints have hard limits dictated
+or a customer relationship.  
+- Drawdown constraints have hard limits dictated
 by the leverage you intend to employ: 10:1 leverage imposes a 10% hard 
 drawdown constraint, 4:1 imposes a 25% drawdown constraint, and so on.
-
-Often, there will also be certain return objectives below which a strategy 
+- Often, there will also be certain return objectives below which a strategy 
 is not worth doing.
 
 Ideally, the business objectives for the strategy will be specified as
@@ -277,6 +282,14 @@ hypothesis.
 \includegraphics{hypothesis_process}
 \end{marginfigure}
 
+A good/complete hypothesis statement includes:
+
+- what is being analyzed (the subject), 
+- the dependent variable(s) (the output/result/prediction)
+- the independent variables (inputs into the model)
+- the anticipated possible outcomes, including direction or comparison
+- addresses *how you will validate or refute each hypothesis*
+
 \newthought{Most strategy ideas will be rejected} during hypothesis 
 creation and testing.
 
@@ -320,14 +333,16 @@ The **R** package *quantstrat* formalizes the strategy structure into
 *filters*, *indicators*, *signals*, and *rules*.
 
 \newthought{Filters} help to select the instruments to trade.  
-They may be part of the formulated hypothesis, or they may be 
-market characteristics that allow the rest of the strategy to
-trade better.  In fundamental equity investing, some strategies 
-consist only of filters.  For example, the StarMine package 
-that was bought by Thomson Reuters defines quantitative stock screens.
-Lo's Variance Ratio is another measure often used as a filter 
-to turn the strategy on or off for particular instruments
-(but can also be used as an indicator, since it is time-varying).
+They may be part of the formulated hypothesis, or they may be market 
+characteristics that allow the rest of the strategy to trade better.  
+In fundamental equity investing, some strategies consist only of filters.  
+For example, the StarMine package that was bought by Thomson Reuters defines 
+quantitative stock screens based on technicals or fundamentals.^[a modern, free
+alternative may be found at http://finviz.com/screener.ashx]
+Many analysts will expand or shrink their investible universe based on screens. 
+Lo's Variance Ratio is another measure often used as a filter to turn the 
+strategy on or off for particular instruments (but can also be used as an 
+indicator, since it is time-varying).
 
 \newthought{Indicators} are quantitative values derived from market data.
 
@@ -492,12 +507,47 @@ experiment (backtest) as declared before any strategy code is written or run
 and evaluating against those goals on an ongoing basis will guard against 
 many of the error types described above by discarding results that are not 
 in line with the stated hypotheses.
-
 ___
 
 # Evaluating Each Component of the Strategy ^[*Maintain alertness in each particular instance of particular ways in which our knowledge is incomplete*. - John @Tukey1962 p. 14]
 
-___
+It is important to evaluate each component of the strategy separately. If we
+wish to evaluate whether out hypotheses about the market are correct, it does 
+not make sense to first build a strategy with many moving parts and meticulously 
+fit it to the data until after all the components have been evaluated for their 
+own "goodness of fit".
+
+The different components of the strategy, from filters, through indicators, 
+signals, and different types of rules, are all trying to express different parts
+of the strategy's hypothesis and business objectives. Our goal, at every stage,
+should be to confirm that each individual component of the strategy is working: 
+adding value, improving the prediction, validating the hypothesis, etc.  before 
+moving on to the next component.  
+
+There are several reasons why it is important to test components separately:  
+
+\newthought{Testing individually guards against overfitting.}
+As described in the prior section, one of the largest risks of overfitting comes 
+from data snooping.  Rejecting an indicator, signal process, or other strategy 
+component as quickly in the process as possible guards against doing too much
+work fitting a poorly conceived strategy to the data.
+
+\newthought{Tests can be specific to the technique.} 
+In many cases, specific indicators, statistical models, or signal processes will
+have test methods that are tuned to that technique.  These tests will generally
+have better *power* to detect a specific effect in the data.  General tests,
+such as *p-values* or *t-tests*, may also be valuable, but their interpretation may
+vary from technique to technique, or they may be inappropriate for certain techniques.
+
+\newthought{It is more efficient.} The most expensive thing an analyst has is 
+time.  Building strategies is a long, intensive process.  By testing individual 
+components you can reject a badly-formed specification.  Re-using components
+with known positive properties increases chances of success on a new strategy.
+In all cases, this is a more efficient use of time than going all the way through 
+the strategy creation process only to reject it at the end. 
+
+______
+
 # Evaluating Indicators
 
 In many ways, evaluating indicators in a vacuum is harder than evaluating 
@@ -563,6 +613,8 @@ indicators are constructed on periodic or "bar" data.  Bars are not a
 particularly stable analytical unit, and are often sensitive to exact 
 starting or ending time of the bar, or to the methodologies used to 
 calculate the components (open, high, low, close, volume, etc.) of the bar.
+Further, you don't know the ordering of events, whether the high came before 
+the low, 
 To mitigate these dangers, it is important to test the robustness of the 
 bar generating process itself, e.g. by varying the start time of the first 
 bar.  We will almost never run complete strategy tests on bar data, preferring
@@ -603,10 +655,10 @@ expectations, and compare the expectations of multiple different input
 parameters.  When comparing input parameter expectations, you should see 
 'clusters' of similar positive and/or negative return expectations in similar 
 or contiguous parameter combinations.  Existence of these clusters indicates 
-what @Tomasini2009 refer to as a 'stable region' for the parameters
-(see parameter optimization below). 
-A random assortment of positive expectations is a bad sign, and should 
-lead to reviewing whether your hypotheses and earlier steps are robust.
+what @Tomasini2009 refer to as a 'stable region' for the parameters (see 
+parameter optimization below). A random assortment of positive expectations is a
+bad sign, and should lead to reviewing whether your hypotheses and earlier steps 
+are robust.
 
 \begin{marginfigure}
 \includegraphics{gamlss}
@@ -648,11 +700,12 @@ Because every signal is a prediction, when analyzing signal processes, we
 can begin to fully apply the literature on model specification and testing of 
 predictions.  From the simplest available methods such as mean squared model 
 error or kernel distance from an ideal process, through extensive evaluation 
-as suggested for BIC, effective number of parameters, and cross validation of 
+as suggested for Akaike's Information Criterion(AIC), Bayesian Information 
+Criterion(BIC), effective number of parameters, cross validation of 
 @Hastie2009, and including time series specific models such as the data driven 
-approach "revealed performance" approach of @Racine2009, all available tools 
-from the forecasting literature should be considered for evaluating proposed 
-signal processes.
+"revealed performance" approach of @Racine2009: all available tools from the 
+forecasting literature should be considered for evaluating proposed signal 
+processes.
 
 It should be clear that evaluating the signal generating process offers 
 multiple opportunities to re-evaluate assumptions about the method of
@@ -726,13 +779,16 @@ Empirical exit rules are usually identified after initial tests of other
 types of exits, or after parameter optimization (see below).  They include 
 classic risk stops (see below) and profit targets, as well as trailing take 
 profits or pullback stops.  Empirical profit rules are usually identified 
-using the outputs of things like MAE/MFE, for example:
+using the outputs of things like MEan Adverse Excursion(MAE)/Mean Favorable 
+Excurison(MFE), for example:
 
  - MFE shows that trades that have advanced *x* % or ticks are unlikely 
    to advance further, so the trade should be taken off
  - a path fit is still strongly positive, even though the signal process
    indicates to be on the lookout for an exit opportunity, so a trailing 
    take profit may be in  order
+
+See more on MAE/MFE below.
 
 ## risk rules
 
@@ -1140,7 +1196,7 @@ the signal analysis as described above to a given fixed set of rules, but
 we believe this is an invitation to overfitting, and prefer to only perform
 that kind of speculative analysis inside the structure of a defined 
 experimental design such as parameter optimization, walk forward analysis, 
-or *k*-fold cross validation on strategy implementations, and leave the 
+or *k*-fold cross validation on strategy implementations. Leave the 
 simulated data much earlier in the process when confirming the power of the
 strategy components.
 
@@ -1194,14 +1250,20 @@ by any statistic that you have available.  The different distributions,
 paths, and properties of these quantiles will frequently provide insight into 
 methods of action in the strategy, and can lead to further strategy development.
 
+It is important when evaluating MAE/MFE to do this type of analysis in your test
+set.  One thing that you want to test out of smaple is whether the MAE threshold
+is stable over time.  You want to avoid, as with other parts of the strategy, 
+going over and "snooping" the data for the entire test period, or all your 
+target instruments.   
+
 ___
 # Post Trade Analysis
 
 Post trade analysis offers an opportunity to calibrate the things you learned 
 in the backtest, and generate more hypotheses for improving the strategy. 
 Analyzing fills may proceed using all the tools described earlier in this 
-document. Additionally, you now have enough data to model slippage from the
-model prices, as well as any slippage (positive or negative) from the 
+document. Additionally, you now have enough data with which to model slippage 
+from the model prices, as well as any slippage (positive or negative) from the 
 other backtest statistics.
 
 One immediate benefit for post trade analysis is that you already have all 
@@ -1543,8 +1605,14 @@ under *Evaluating Signals*, it is important that any resampled data preserve
 the autocorrelation structure of the original data to the degree possible.
 
 ## White's Reality Check 
-- White's Reality Check from @White2000 and @Hansen2005
-
+White's Data Mining Reality Check from @White2000 (usually referred to as DRMC or
+just "White's Reality Check" WRC) is a bootstrap based test which compares the 
+strategy returns to a benchmark.  The ideas were expanded in @Hansen2005. It 
+creates a set of bootstrap returns and then checks via abolute or mean squared
+error what the chances that the model could have been the result of random 
+selection. It applies a *p-value* test between the bootstrap distribution and 
+the backtest results to determine whether the results of the backtest appear to 
+be statistically significant.
 
 ## cross validation
 
@@ -1595,6 +1663,17 @@ While we think that this is important to note, in the same manner that it is
 always important to understand the statistical error bounds of your 
 calculations, it is not a fatal flaw.  
 
+Some question exists whether *k*-fold cross validation is appropriate for time
+series in the same way that it is for categorical or panel data.  Rob Hyndman
+addresses this directly here^[http://robjhyndman.com/hyndsight/tscvexample/] 
+and here^[https://www.otexts.org/fpp/2/5/].  What he describes as "forecast
+evaluation with a rolling origin" is essentially Walk Forward Analysis. One 
+important takeaway from Prof. Hyndman's treatment of the subject is that it is 
+important to define the expected result and tests to measure forecast accuracy 
+before performing the (back)test.  Then, all the tools of forecast evaluation 
+may be applied to evaluate how well your forecast is doing out of sample, and 
+whether you are likely to have overfit your model.
+
 ## linear models such as @Bailey2014pm and @Bailey2014deSharpe 
 
 - modifying existing expectations
@@ -1620,7 +1699,7 @@ overall sample of size $T$.
 
 # Acknowledgements
 
-I would like to thank my team for thoughtful comments and questions,
+I would like to thank my team for thoughtful comments and questions, John Bollinger,
 and Stephen Rush at the University of Connecticut for his insightful comments 
 on an early draft of this paper.  All remaining errors or omissions should be 
 attributed to the author. All views expressed in this paper are to be viewed 

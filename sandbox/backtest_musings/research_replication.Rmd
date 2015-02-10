@@ -108,13 +108,13 @@ hypothesis or hypotheses which are to be tested. The hypotheses presented by the
 source paper need extraction, enumeration, and expansion.  Expected tests for 
 the hypotheses also need to be considered and specified in this stage. 
 
-A hypothesis statement includes:
+The hypothesis descriptions should include:
 
 - what is being analyzed (the subject), 
 - the dependent variable(s) (the output/result/prediction)
 - the independent variables (inputs into the model)
 - the anticipated possible outcomes, including direction or comparison
-- address *how you will validate or refute each hypothesis*
+- addresses *how you will validate or refute each hypothesis*
 
 The précis form of structured paragraphs (containing the points above) may be 
 useful in stating the hypotheses, or a less regimented hypothesis/test pairing 
