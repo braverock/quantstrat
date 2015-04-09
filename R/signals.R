@@ -856,7 +856,7 @@ beanplot.signals<-function(signals,rows=NULL,columns=NULL,mai = c(0.1,0.4,0.2,0.
 
 #' Visualization of Single Signal 
 #' 
-#' This function employs \code(plotSimpleGamlss) in package \code(gamlss.util).
+#' This function employs \code{plotSimpleGamlss} in package \code{gamlss.util}.
 #'                          
 #' @param signal list of paramset forward looking price changes by asset
 #' @param x.val he values of the explanatory variable where we want to see the distribution

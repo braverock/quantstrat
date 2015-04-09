@@ -25,7 +25,7 @@ distributional.boxplot(signal, x.val = seq(1, 50, 5), val = 10,
 plot
 }
 \description{
-This function employs \code(plotSimpleGamlss) in package \code(gamlss.util).
+This function employs \code{plotSimpleGamlss} in package \code{gamlss.util}.
 }
 \author{
 Michael Guan
