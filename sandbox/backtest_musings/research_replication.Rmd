@@ -143,12 +143,21 @@ It is not necessary or desirable to gain deep understanding of every
 paper you will review during the course of your replication research.  The main
 goal is rather to understand the framework that your research goal fits into,
 and develop resources for deeper understanding when that is required.
+The literature review is to help organize the tools and knowledge needed to 
+complete the replication.  Like a chef measures out ingredients before starting 
+a recipe, or a carpenter gathers tools, the analyst is gathering tools and 
+knowledge to make sure they have enough to work with for the replication project.
 
 ## organization of the literature review
 The analyst will need to decide on an organizational scheme for the literature 
-review. There are two models which you will return to; which model is appropriate 
-will depend both on how the replication is to proceed, and how the analyst's 
-internal organizational structure is envisioned.  
+review. In the social sciences, it is common to present the literature review as 
+a narrative which describes a topic through its available research material 
+almost as a story arc.  The quantitative analyst trying to replicate strategy or 
+model research should probably avoid this purely narrative form because it 
+typically lacks enough detail to anchor replication. There are two models which 
+you will return to; which model is appropriate will depend both on how the 
+replication is to proceed, and how the analyst's internal organizational 
+structure is envisioned.  
 
 The first model is the *annotated bibliography*. It is organized alphabetically,
 by author, containing the bibliographic entry plus the paragraph of summary as 
@@ -176,16 +185,18 @@ quickly located by topic.
 The literature review should start with the key references of the paper you are 
 trying to replicate.  It should have become clear while reading and summarizing 
 the paper which papers provided starting material or key techniques for this 
-paper.  These papers should be located and summarized in a single paragraph 
-each, as described above.  
+paper.  There will also often be key original references in a particular topic, 
+cited by many other papers.  These papers should be located and summarized in a 
+single paragraph each, as described above.  
 
 ## finding similar work
 
 Other papers which should be included in the literature review are similar work.
 Resources like Google Scholar will automatically recommend similar papers, and
 even order them by number of papers that reference the paper in the results.
-The analyst will want to make sure that they at least review a few papers which 
-are at the top of a literature search on the key topics.
+Key words and phrases from the source material may be used to find more recent 
+papers.  The analyst will want to make sure that they at least review a few 
+papers which are at the top of a literature search on the key topics.
 
 ## references with implementation hints
 
@@ -197,6 +208,19 @@ a reference to *Multivariate Linear Models in R*[@Fox2011]. The paragraph
 describing this reference can focus on the specific chapter or technique of 
 interest, aiding the analyst in collecting their thoughts, and aiding any 
 readers to find the relevant material. 
+
+## refuting your hypothesis
+
+\textsc{The literature review may refute your initial hypothesis.}  In searching
+for more information about the topics or models you hope to replicate, you may 
+find sources that refute or challenge those methods or theories.  This should be 
+carefully documented, as it is potentially very valuable.  If the evidence in 
+the source materials is very detailed andhas a good experimental design, you 
+may choose to document the evidence and scrap or revise your hypotheses.  If the
+new source is suggestive, inconclusive, or refutes a related hypothesis that is
+not identical to the object of your replication study, then you may choose to 
+identify the argument, evidence, and tests, and add it to what you will test in 
+the replication phase of your project.
 
 ___________
 
@@ -415,7 +439,41 @@ paper is by adding more data.  Three categories suggest themselves:
    replication.  This type of analysis will often be saved for later work on
    the ideas contained in the source paper.  
   
+## going beyond simplifying assumptions
 
+Another necessary place to look for extensions to the replication is in that
+assumptions used while doing the analysis.  Almost all published papers use 
+simplifying assumptions.  Many of these assumptions exist to fit in well with 
+other similar literature.  Others are made to make the analysis easier on the 
+authors of the paper.  In many cases, these simplifying assumptions will make 
+a technique unsuitable for use with real data or real portfolios.  
+
+Some examples of common simplifying assumptions and ways to extend or rectify 
+them appear below:
+
+1. **Gaussian assumption** :
+    Probably the worst offender is the use of a Gaussian distribution to model
+    volatility, or errors, or noise, or to sample from.  Many authors 
+    acknowledge this in their text, and then use it anyway.  What would be a 
+    better choice for your modeling, and why?
+
+1. **sample moments** :
+    Papers use sample moments because it is easy, under the cover of saying
+    that sample moments introduce less model risk.  Many other and better 
+    methods exist for estimating moments.  Note that with volatility, this 
+    may be an extension of the **Gaussian assumption**, above.  In other cases,
+    it introduces additional ancillary model choices (and subsequent model 
+    testing).
+    
+1. **too many/too few parameters**:    
+    Choice of parameters is a key area where you can tune an analysis.  Many 
+    papers use a huge number of parameters; others choose a minimal or 
+    parsimonious model with few parameters.  Either of these choices which made
+    it easier to publish the paper in the first place are unlikely to make a 
+    usable model on a real portfolio.  @Kuhn2013 provides many guidelines on 
+    parameter or feature choice, and when and how to increase or decrease the 
+    number of parameters under consideration.
+    
 ## similar techniques
 
 It is quite likely that the Literature Review uncovered similar techniques to 
@@ -424,14 +482,16 @@ available in **R**, the analyst should strive to apply them to the data used for
 the replication. Typically, it is not worth spending a lot of time on this.  
 Exceptions usually include when a paper claims to have improved a technique, 
 but does an incomplete job of reporting results for the original (theoretically 
-deficient) technique.
+deficient) technique. Another case where you should spend a more time on similar
+techniques is where one of the Literature Review papers extends, clarifies, or
+refutes claims made in the paper under replication.
 
 ## probability of overfitting
 
-@Peterson2015 discusses multiple techniques for detecting biases and overfitting.
-Most replication reports should contain results of appropriate tests.  Specific 
-categories to pay attention to in most cases include selection biases, 
-look-ahead bias, and out of sample deterioration.
+@Peterson2015 and @Kuhn2013 discuss multiple techniques for detecting biases and 
+overfitting. Most replication reports should contain results of appropriate 
+tests.  Specific categories to pay attention to in most cases include selection 
+biases, look-ahead bias, and out of sample deterioration.
 
 
 ___________

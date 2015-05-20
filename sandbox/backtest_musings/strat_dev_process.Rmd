@@ -11,8 +11,8 @@ output:
 keywords: quantitative trading, backtest, quantitative strategy, scientific method
 subject: quantitative trading, backtest, quantitative strategy, scientific method
 
-footer: Copyright 2014 Brian G. Peterson CC-BY-NC-SA.  Please do not distribute this draft without permission.
-copyright: Copyright 2014 Brian G. Peterson CC-BY-NC-SA.  Please do not distribute this draft without permission.
+footer: Copyright 2014 Brian G. Peterson CC-BY-NC-SA.  
+copyright: Copyright 2014 Brian G. Peterson CC-BY-NC-SA. 
 
 abstract: Analysts and portfolio managers face many challenges in developing new systematic trading systems.  This paper provides a detailed, repeatable process to aid in evaluating new ideas, developing those ideas into testable hypotheses, measuring results in comparable ways, and avoiding and measuring the ever-present risks of over-fitting. ^[ *Back-testing. I hate it –- it's just optimizing over history. You never see a bad back-test. Ever. In any strategy.* - Josh Diedesch[-@Diedesch2014] ]
 
@@ -1700,17 +1700,15 @@ overall sample of size $T$.
 # Acknowledgements
 
 I would like to thank my team for thoughtful comments and questions, John Bollinger,
-and Stephen Rush at the University of Connecticut for his insightful comments 
-on an early draft of this paper.  All remaining errors or omissions should be 
-attributed to the author. All views expressed in this paper are to be viewed 
-as those of Brian Peterson, and do not necessarily reflect the opinions or 
-policies of DV Trading or DV Asset Management.  
+Ilya Kipnis, and Stephen Rush at the University of Connecticut for insightful 
+comments on early drafts of this paper.  All remaining errors or omissions 
+should be attributed to the author. All views expressed in this paper are to be 
+viewed as those of Brian Peterson, and do not necessarily reflect the opinions 
+or policies of DV Trading or DV Asset Management.  
 
 ©2014-2015 Brian G. Peterson 
 
 \includegraphics[width=1.75cm]{cc-by-nc-sa}  
-
-*Please do not distribute this draft without permission.*
 
 The most recently published version of this document may be found at \url{http://goo.gl/na4u5d}
 
