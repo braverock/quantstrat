@@ -60,7 +60,7 @@ clone.portfolio <- function(portfolio.st, cloned.portfolio.st, strip.history=TRU
         {
             portfolio$symbols[[symbol]]$txn <- portfolio$symbols[[symbol]]$txn[1,]
 
-            xts.tables <- grep('(^posPL|txn)',names(portfolio$symbols[[symbol]]))
+            xts.tables <- grep('(^posPL|txn)',names(portfolio$symbols[[symbol]]), value=TRUE)
             for(xts.table in xts.tables)
                 portfolio$symbols[[symbol]][[xts.table]] <- portfolio$symbols[[symbol]][[xts.table]][1,]
         }
