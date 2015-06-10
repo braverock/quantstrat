@@ -897,7 +897,7 @@ looking for stable regions of both in and out of sample performance.
 When a parameter or set of parameters is robust, it will have a few key 
 properties:
 
-- small parameter changes lead to small changes in P&L and objective 
+- small parameter changes lead to small changes in P\&L and objective 
   expectations
 - out of sample deterioration is not large, on average (see walk forward 
   optimization)
@@ -1072,10 +1072,10 @@ ___
 
 Entire books have been written extolling the virtues or lamenting the problems 
 of one performance measure over another.  We have chosen to take a rather 
-inclusive approach both to trade and P&L based measures and to return based 
+inclusive approach both to trade and P\&L based measures and to return based 
 measures (covered later).  Generally, we run as many metrics as we can, and 
 look for consistently good metrics across all common return and cash based 
-measures. Trade and P&L based measures have an advantage of being precise 
+measures. Trade and P\&L based measures have an advantage of being precise 
 and reconcilable to clearing statements, but disadvantages of not
 being easily comparable between products, after compounding, etc.  
 
@@ -1093,7 +1093,7 @@ most common are FIFO, tax lots, flat to flat, and flat to reduced.
 
     FIFO is "first in, first out", and pairs entry and exit transactions by 
     time priority.  We generally do not calculate statistics on FIFO because 
-    it is impossible to match P&L to clearing statements; very few 
+    it is impossible to match P\&L to clearing statements; very few 
     institutional investors will track to FIFO.  FIFO comes from accounting 
     for physical inventory, where old (first) inventory is accounted for in the
     first sales of that inventory. It can be very difficult to calculate a cost 
@@ -1114,9 +1114,9 @@ most common are FIFO, tax lots, flat to flat, and flat to reduced.
     
     Flat to flat "trade" analysis marks the beginning of the trade from the
     first transaction to move the position off zero, and marks the end of
-    the "trade" with the transaction that brings the P&L back to zero, 
+    the "trade" with the transaction that brings the P\&L back to zero, 
     or "flat".
-    It will match brokerage statements of realized P&L when the positions is 
+    It will match brokerage statements of realized P\&L when the positions is 
     flat and average cost of open positions always, so it is easy to reconcile 
     production trades using this methodology.  One advantage of the flat to flat 
     methodology is that there are no overlapping "trades" so doing things like
@@ -1180,7 +1180,7 @@ you established from the components of the strategy.
     - annualized Sharpe-like ratio 
     - max drawdown 
     - start-trade drawdown [@Fitschen2013, p. 185]
-    - win/loss ratios of winning over losing trade P&L (total/mean/median) 
+    - win/loss ratios of winning over losing trade P\&L (total/mean/median) 
 
 
 Some authors advocate testing the strategy against "perfect profit", the 
@@ -1240,7 +1240,7 @@ backtest for setting risk stops or profit taking levels.
 Maximum Adverse Excursion (MAE) or Maximum Favorable Excursion (MFE) show how 
 far down (or up) every trade went during the course of its life-cycle.  You 
 can capture information on how many trades close close to their highs or lows,
-as well as evaluating points at which the P&L for the trade statistically
+as well as evaluating points at which the P\&L for the trade statistically
 just isn't going to get any better, or isn't going to recover.  While
 not useful for all strategies, many strategies will have clear patterns that
 may be incorporated into risk or profit rules.
@@ -1279,7 +1279,7 @@ it is possible to analyze variances in:
 
 - modeled theoretical price (these should match in most cases)
 - order timing and prices
-- P&L
+- P\&L
 - evolution of the position, including partial fill analysis
 
 Backtests tend to model complete fills, and use deliberately conservative 
@@ -1346,7 +1346,7 @@ analysis that have been developed for investment and portfolio management.
 Returns based analysis is most valuable at daily or lower periodicities 
 (often requiring aggregating intraday transaction performance to daily returns)
 , is easily comparable across assets or strategies, and has many analytical 
-techniques not available for trades and P&L. Returns are not easily
+techniques not available for trades and P\&L. Returns are not easily
 reconcilable back to the trades both because of the transformation done to
 get to returns, changes in scale over time, and possible aggregation to lower 
 or regular frequencies different from the trading frequency. 
@@ -1367,10 +1367,10 @@ strategy.
 
 \newthought{Should we use cash or percent returns?}  If the strategy utilizes 
 the same order sizing in contract or cash terms throughout the tested period, 
-then cash P&L should work fine.  If instead the "money management" of the 
+then cash P\&L should work fine.  If instead the "money management" of the 
 strategy reinvests gains or changes order sizes based on account equity, then
 you will need to resample percent returns, or your results will not be 
-unbiased.  The cash P&L would exhibit a (presumably upward) bias from the 
+unbiased.  The cash P\&L would exhibit a (presumably upward) bias from the 
 portfolio growth in  the backtest portfolio over the course of the test if the 
 strategy is reinvesting. Conversely, if the strategy does not change order 
 sizes during the test (e.g. fixed 1-lot sizing), then using percent returns 
@@ -1379,13 +1379,25 @@ grows, but order sizes remain constant.  In this case, you may choose to use
 a fixed/constant denominator to get to simple "returns", which would be the 
 equivalent of saying that any cash generated by the strategy was withdrawn.
 
+Many analytical techniques presume percent return-based analysis rather than 
+analysis on cash P\&L.  Some examples include:
 - tail risk measures
 - volatility analysis
 - factor analysis
     - factor model Monte Carlo
 - style analysis
-- comparing strategies in return space
 - applicability to asset allocation (see below)
+
+
+\newthought{Comparing strategies in return space} can also be a good reason to 
+use percent returns rather than cash.  When comparing strategies, worknig in 
+return-space may allow for disparate strategies to be placed on a similar 
+footing.  Things like risk measures often make more sense when described 
+against their percent impact on capital, for example.
+
+While it may be tempting to do all of the analysis of a trading strategy in 
+only cash P&L, or only in return space, it is valuable to analyze almost every
+strategy in both ways, as the two approaches provide different insight.
 
 ___
 # Rebalancing and asset allocation
@@ -1670,7 +1682,7 @@ and here^[https://www.otexts.org/fpp/2/5/].  What he describes as "forecast
 evaluation with a rolling origin" is essentially Walk Forward Analysis. One 
 important takeaway from Prof. Hyndman's treatment of the subject is that it is 
 important to define the expected result and tests to measure forecast accuracy 
-before performing the (back)test.  Then, all the tools of forecast evaluation 
+*before* performing the (back)test.  Then, all the tools of forecast evaluation 
 may be applied to evaluate how well your forecast is doing out of sample, and 
 whether you are likely to have overfit your model.
 
@@ -1694,6 +1706,8 @@ overall sample of size $T$.
 ## data mining bias
 
 - data mining bias and cross validation from @Aronson2006
+- @Cawley2010
+- @Keogh2003
 
 \newpage 
 
