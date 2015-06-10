@@ -1573,9 +1573,9 @@ around a core bias position over very long periods of time, or a market making
 strategy which adds and reduces positions around some carried inventory.  In 
 these cases constructing resampled returns that are statistically similar 
 to the original strategy is very difficult.  One potential choice it to make
-use of the "increased to decreased" trade definition methodology.  If you are
+use of the "increased to reduced" trade definition methodology.  If you are
 considering only one instrument, or a series of independent instruments, 
-the increased to decreased methodology can be appropriately applied.^[one of the
+the increased to reduced methodology can be appropriately applied.^[one of the
 only cases in which a FIFO style methodology provides useful statistical 
 information] 
 
