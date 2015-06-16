@@ -4,6 +4,7 @@ author: Brian G. Peterson
 bibliography: stat_process.bib
 output:
   rmarkdown::tufte_handout 
+  #tufterhandout::html_tufte_handout
   #toc: true
   #toc_depth: 2
   #number_sections: true
@@ -512,7 +513,7 @@ ___
 # Evaluating Each Component of the Strategy ^[*Maintain alertness in each particular instance of particular ways in which our knowledge is incomplete*. - John @Tukey1962 p. 14]
 
 It is important to evaluate each component of the strategy separately. If we
-wish to evaluate whether out hypotheses about the market are correct, it does 
+wish to evaluate whether our hypotheses about the market are correct, it does 
 not make sense to first build a strategy with many moving parts and meticulously 
 fit it to the data until after all the components have been evaluated for their 
 own "goodness of fit".
