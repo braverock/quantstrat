@@ -780,8 +780,8 @@ Empirical exit rules are usually identified after initial tests of other
 types of exits, or after parameter optimization (see below).  They include 
 classic risk stops (see below) and profit targets, as well as trailing take 
 profits or pullback stops.  Empirical profit rules are usually identified 
-using the outputs of things like MEan Adverse Excursion(MAE)/Mean Favorable 
-Excurison(MFE), for example:
+using the outputs of things like Mean Adverse Excursion(MAE)/Mean Favorable 
+Excursion(MFE), for example:
 
  - MFE shows that trades that have advanced *x* % or ticks are unlikely 
    to advance further, so the trade should be taken off
@@ -1252,7 +1252,7 @@ paths, and properties of these quantiles will frequently provide insight into
 methods of action in the strategy, and can lead to further strategy development.
 
 It is important when evaluating MAE/MFE to do this type of analysis in your test
-set.  One thing that you want to test out of smaple is whether the MAE threshold
+set.  One thing that you want to test out of sample is whether the MAE threshold
 is stable over time.  You want to avoid, as with other parts of the strategy, 
 going over and "snooping" the data for the entire test period, or all your 
 target instruments.   
@@ -1391,7 +1391,7 @@ analysis on cash P\&L.  Some examples include:
 
 
 \newthought{Comparing strategies in return space} can also be a good reason to 
-use percent returns rather than cash.  When comparing strategies, worknig in 
+use percent returns rather than cash.  When comparing strategies, working in 
 return-space may allow for disparate strategies to be placed on a similar 
 footing.  Things like risk measures often make more sense when described 
 against their percent impact on capital, for example.
@@ -1464,11 +1464,11 @@ available.  This compares well in practice to the three years of monthly returns
 we have many strategies, each with many configurations or traded assets. 
 In the likely case that you don't have enough data to optimize over all the 
 configurations as in the example above, you can optimize over just the 
-aggregate strategy returns as described above.  At this point you most mature
+aggregate strategy returns as described above.  At this point your most mature
 strategy or strategies may very well have enough data for optimization 
 separately.  This opens the way for what is called layered objectives and 
 optimization.  You may have different business objectives for a single
-strategy, e.g. the objectives for a market maker an a medium term trend
+strategy, e.g. the objectives for a market maker and a medium term trend
 follower are different.  In this case, it is preferable to optimize the
 configurations for a single strategy, generating an OOS return for the 
 strategy on a daily scale that may be used as the input to the multi-strategy
@@ -1547,7 +1547,7 @@ or strategy development process which would decrease OOS degradation.
 
 Tomasini[-@Tomasini2009, pp. 104--109] describes a basic resampling mechanism 
 for trades.  The period returns for all "flat to flat" trades in the backtest 
-(and the flat periods with period returns of zero) are sampled from without 
+(and the flat periods with period returns of zero) which are sampled without 
 replacement.  After all trades or flat periods have been sampled, a new time 
 series is constructed by applying the original index to the resampled returns.
 This gives a number of series which will have the same mean and net return as 
@@ -1621,7 +1621,7 @@ the autocorrelation structure of the original data to the degree possible.
 White's Data Mining Reality Check from @White2000 (usually referred to as DRMC or
 just "White's Reality Check" WRC) is a bootstrap based test which compares the 
 strategy returns to a benchmark.  The ideas were expanded in @Hansen2005. It 
-creates a set of bootstrap returns and then checks via abolute or mean squared
+creates a set of bootstrap returns and then checks via absolute or mean squared
 error what the chances that the model could have been the result of random 
 selection. It applies a *p-value* test between the bootstrap distribution and 
 the backtest results to determine whether the results of the backtest appear to 
@@ -1714,16 +1714,33 @@ overall sample of size $T$.
 
 # Acknowledgements
 
-I would like to thank my team for thoughtful comments and questions, John Bollinger,
-Ilya Kipnis, and Stephen Rush at the University of Connecticut for insightful 
-comments on early drafts of this paper.  All remaining errors or omissions 
-should be attributed to the author. All views expressed in this paper are to be 
-viewed as those of Brian Peterson, and do not necessarily reflect the opinions 
-or policies of DV Trading or DV Asset Management.  
+I would like to thank my team, John Bollinger, George Coyle, Ilya Kipnis, and
+Stephen Rush for insightful comments and questions on various drafts of this paper. 
+All remaining errors or omissions should be attributed to the author. 
+
+All views expressed in this paper should be viewed as those of Brian Peterson, 
+and do not necessarily reflect the opinions or policies of 
+DV Trading or DV Asset Management.  
+
+
+___
+
+#Colophon
+
+This document rendered into \LaTeX  using *rmarkdown* (@Rmarkdown) via the 
+`rmarkdown::tufte_handout` template.  The BibTeX bibliography file is managed 
+via [JabRef](http://jabref.sourceforge.net/).
+
+
+___
 
 ©2014-2015 Brian G. Peterson 
 
 \includegraphics[width=1.75cm]{cc-by-nc-sa}  
+
+
+___
+
 
 The most recently published version of this document may be found at \url{http://goo.gl/na4u5d}
 
