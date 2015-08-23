@@ -658,7 +658,7 @@ post.signal.returns<-function(signals,sigval,on=NULL,forward.days,cum.sum=TRUE,
   for(j in 1:length(idx)){
     
     signal.ret[j,] = tryCatch({
-      na.omit(diff(mktdata[idx[j] + (days.increment * days.in.period)  ,4]))
+      na.omit(diff( getPrice(mktdata[idx[j] + (days.increment * days.in.period)  ,]) ))
     }, error = function(e){
       cat('')
       stop('Not enough forward data to evaluate post signal returns.')
