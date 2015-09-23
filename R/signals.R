@@ -290,14 +290,20 @@ sigThreshold <- function(label, data=mktdata, column, threshold=0, relationship=
             'gt'   = 1,
             '<'    =  ,
             'lt'   = 2,
-            'eq'   = 3, #FIXME any way to specify '='?
+            '=='   =  ,
+            'eq'   = 3,
+            '>='   =  ,
             'gte'  =  ,
             'gteq' =  ,
-            'ge'   = 4, #FIXME these fail with an 'unexpected =' error if you use '>='
+            'ge'   = 4,
+            '<='   =  ,
             'lte'  =  ,
             'lteq' =  ,
-            'le'   = 5)
-    .Call('firstCross', Data, threshold, rel, start)
+            'le'   = 5,
+            '!='   =  ,
+            'ne'   =  ,
+            'neq'  = 6)
+    .Call('firstCross', Data, threshold, rel, start, PACKAGE="quantstrat")
 }
 
 #' generate a signal from a formula
