@@ -122,21 +122,38 @@ getOrders <- function(portfolio,symbol,status="open",timespan=NULL,ordertype=NUL
     if(is.null(ordersubset))
         return(NULL)
 
-    #data quality checks
-    if(!is.null(status) & !length(grep(status,c("open", "closed", "canceled", "revoked","replaced")))==1) stop(paste("order status:",status,' must be one of "open", "closed", "canceled", "revoked", or "replaced"'))
+    # Only do logical comparisons for non-NULL arguments. Use coredata to avoid
+    # Ops.xts, since we don't need any xts functionality to find indices
+    indices <- NULL
+    ordercoredata <- coredata(ordersubset)
+    if(!is.null(status)) {
+        status <- match.arg(status, c("open", "closed", "canceled", "revoked", "replaced", "rejected"))
+        ind <- ordercoredata[,"Order.Status"] == status
+        indices <- if(is.null(indices)) ind else ind & indices
+    }
     if(!is.null(ordertype)) {
-        if(is.na(charmatch(ordertype,c("market","limit","stoplimit","stoptrailing","iceberg")))){
-            stop(paste("ordertype:",ordertype,' must be one of "market","limit","stoplimit", "stoptrailing" or "iceberg"'))
-        }
+        ordertype <- match.arg(ordertype, c("market", "limit", "stoplimit", "stoptrailing", "iceberg"))
+        ind <- ordercoredata[,"Order.Type"] == ordertype
+        indices <- if(is.null(indices)) ind else ind & indices
+    }
+    if(!is.null(side)) {
+        side <- match.arg(side, c("long", "short"))
+        ind <- ordercoredata[,"Order.Side"] == side
+        indices <- if(is.null(indices)) ind else ind & indices
+    }
+    if(!is.null(orderset)) {
+        ind <- ordercoredata[,"Order.Set"] == orderset
+        indices <- if(is.null(indices)) ind else ind & indices
+    }
+    if(!is.null(qtysign)) {
+        ind <- sign(as.numeric(ordercoredata[,"Order.Qty"])) == qtysign
+        indices <- if(is.null(indices)) ind else ind & indices
     }
 
-    indices <- which(#if(!is.null(timespan)) ordersubset[timespan,which.i=TRUE] else TRUE &
-                     (if(!is.null(status)) ordersubset[,"Order.Status"]==status else TRUE) &
-                     (if(!is.null(ordertype)) ordersubset[,"Order.Type"]==ordertype else TRUE) &
-                     (if(!is.null(side)) ordersubset[,"Order.Side"]==side else TRUE) &
-                     (if(!is.null(orderset)) ordersubset[,"Order.Set"]==orderset else TRUE) &
-                     (if(!is.null(qtysign)) sign(as.numeric(ordersubset[,"Order.Qty"]))==qtysign else TRUE)
-                    )
+    if(is.null(indices))
+        indices <- 1L:nrow(ordersubset)
+    else
+        indices <- which(indices)
 
     if(isTRUE(which.i)){
         return(indices)
