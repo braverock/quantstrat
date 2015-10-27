@@ -19,42 +19,42 @@ demo('macd',ask=FALSE)
 strategy.st <- 'macd'
 
 ### Set up Parameter Values
-.FastSMA = (1:20)
-.SlowSMA = (30:80)
+.FastMA = (1:20)
+.SlowMA = (30:80)
 .nsamples = 10 #for random parameter sampling, less important if you're using doParallel or doMC
 
 
-### SMA paramset
+### MA paramset
 
 add.distribution(strategy.st,
-                 paramset.label = 'SMA',
+                 paramset.label = 'MA',
                  component.type = 'indicator',
                  component.label = '_', #this is the label given to the indicator in the strat
-                 variable = list(n = .FastSMA),
+                 variable = list(n = .FastMA),
                  label = 'nFAST'
 )
 
 add.distribution(strategy.st,
-                 paramset.label = 'SMA',
+                 paramset.label = 'MA',
                  component.type = 'indicator',
                  component.label = '_', #this is the label given to the indicator in the strat
-                 variable = list(n = .SlowSMA),
+                 variable = list(n = .SlowMA),
                  label = 'nSLOW'
 )
 
 add.distribution.constraint(strategy.st,
-                            paramset.label = 'SMA',
+                            paramset.label = 'MA',
                             distribution.label.1 = 'nFAST',
                             distribution.label.2 = 'nSLOW',
                             operator = '<',
-                            label = 'SMA'
+                            label = 'MA'
 )
 
 
 ###
 
 results <- apply.paramset(strategy.st, 
-                          paramset.label='SMA', 
+                          paramset.label='MA', 
                           portfolio.st=portfolio.st, 
                           account.st=account.st, 
                           nsamples=.nsamples, 

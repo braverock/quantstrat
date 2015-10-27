@@ -64,25 +64,27 @@ strategy(strat.st, store=TRUE)
 
 #one indicator
 add.indicator(strat.st, name = "MACD", 
-			  arguments = list(x=quote(Cl(mktdata)),nFast=fastMA, nSlow=slowMA),
-			  label='_' 
+      			  arguments = list(x=quote(Cl(mktdata)),
+      			                   nFast=fastMA, 
+      			                   nSlow=slowMA),
+      			  label='_' 
 )
 
 #two signals
 add.signal(strat.st,name="sigThreshold",
-		   arguments = list(column="signal._",
-				   			relationship="gt",
-							threshold=0,
-							cross=TRUE),
-		   label="signal.gt.zero"
+    		   arguments = list(column="signal._",
+    				   			        relationship="gt",
+    							          threshold=0,
+    							          cross=TRUE),
+    		   label="signal.gt.zero"
 )
    
 add.signal(strat.st,name="sigThreshold",
-		   arguments = list(column="signal._",
-				            relationship="lt",
-							threshold=0,
-							cross=TRUE),
-	       label="signal.lt.zero"
+    		   arguments = list(column="signal._",
+    				                relationship="lt",
+    							          threshold=0,
+    							          cross=TRUE),
+    	     label="signal.lt.zero"
 )
 
 ####
@@ -90,15 +92,15 @@ add.signal(strat.st,name="sigThreshold",
 
 # entry
 add.rule(strat.st,name='ruleSignal', 
-		 arguments = list(sigcol="signal.gt.zero",
-				         sigval=TRUE, 
-						 orderqty=100, 
-						 ordertype='market', 
-						 orderside='long', 
-						 threshold=NULL),
-	     type='enter',
-		 label='enter',
-		 storefun=FALSE
+    		 arguments = list(sigcol="signal.gt.zero",
+    				              sigval=TRUE, 
+    						          orderqty=100, 
+    						          ordertype='market', 
+    						          orderside='long', 
+    						          threshold=NULL),
+    	               type='enter',
+    		             label='enter',
+    		             storefun=FALSE
 )
 
 #alternatives for risk stops:
@@ -109,21 +111,21 @@ add.rule(strat.st,name='ruleSignal',
 
 # exit
 add.rule(strat.st,name='ruleSignal', 
-		 arguments = list(sigcol="signal.lt.zero",
-				          sigval=TRUE, 
-						  orderqty='all', 
-						  ordertype='market', 
-						  orderside='long', 
-						  threshold=NULL,
-						  orderset='exit2'),
+    		 arguments = list(sigcol="signal.lt.zero",
+    				              sigval=TRUE, 
+    						          orderqty='all', 
+    						          ordertype='market', 
+    						          orderside='long', 
+    						          threshold=NULL,
+    						          orderset='exit2'),
          type='exit',
-		 label='exit'
+    		 label='exit'
 )
 
 #end rules
 ####
 
-getSymbols(stock.str,from=initDate)
+getSymbols(stock.str,from=initDate, to='2014-06-01')
 start_t<-Sys.time()
 out<-applyStrategy(strat.st , portfolios=portfolio.st,parameters=list(nFast=fastMA, nSlow=slowMA, nSig=signalMA,maType=maType),verbose=TRUE)
 end_t<-Sys.time()

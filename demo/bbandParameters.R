@@ -1,9 +1,8 @@
 # Parameter example for BBands demo
-# 
-# Author: Yu Chen
 ###############################################################################
 
 require(foreach,quietly=TRUE)
+require(iterators)
 require(quantstrat)
 
 # example parallel initialization for doParallel. this or doMC, or doRedis are 
@@ -12,46 +11,50 @@ require(quantstrat)
 #registerDoParallel() # by default number of physical cores -1
 
 demo('bbands',ask=FALSE)
-#the user should load a parallel backend for foreach before running, 
-# or this will run in single threaded mode
+strategy.st='bbands'
 
-#please run bbands demo before all these...
-#paramStructure<-getParameterTable(stratBBands)
-#print(paramStructure)
+### User Set up pf parameter ranges to test
+.nlist  = 10:40
+.sdlist = 1:4
 
-#tPD<-setParameterDistribution() need no more for initial object. 
+# number of random samples of the parameter distribution to use for random run
+.nsamples = 10 
 
-#Do expand test
-#tPD<-setParameterDistribution(tPD,'indicator',indexnum=1,distribution=list(sd=(1:3)))
-#tPD<-setParameterDistribution(tPD,'signal',indexnum=2,distribution=list(sd=sample(1:10, size=1, replace=FALSE)))
-#tPD<-setParameterDistribution(tPD,'signal',indexnum=3,distribution=list(n=sample(1:10, size=1, replace=FALSE)))
-#
-##update the 3rd slot by using psindex
-#tPD<-setParameterDistribution(tPD,'signal',indexnum=2,distribution=list(n=c(20,30)),psindex=3)
-#testPackList<-applyParameter(strategy=stratBBands,portfolios='bbands',parameterPool=tPD,method='expand')
+add.distribution(strategy.st,
+                 paramset.label = 'BBparams',
+                 component.type = 'indicator',
+                 component.label = 'BBands', #this is the label given to the indicator in the strat
+                 variable = list(n = .nlist),
+                 label = 'nFAST'
+)
+
+add.distribution(strategy.st,
+                 paramset.label = 'BBparams',
+                 component.type = 'indicator',
+                 component.label = 'BBands', #this is the label given to the indicator in the strat
+                 variable = list(sd = .sdlist),
+                 label = 'nSLOW'
+)
+
+
+results <- apply.paramset(strategy.st, 
+                          paramset.label='BBparams', 
+                          portfolio.st=portfolio.st, 
+                          account.st=account.st, 
+                          nsamples=.nsamples, 
+                          verbose=TRUE)
+
+stats <- results$tradeStats
+
+print(stats)
 
 
 
-
-#tPD
-
-#debug(applyParameter)
-#undebug(applyParameter)
-
-
-tPD <- NULL
-
-# Just provide legal values and use random sampling.
-tPD<-setParameterDistribution(tPD, strategy=stratBBands, component.type='indicator', component.label='BBands', distribution=list(sd=(1:3)), weight=c(.25, .25, .5), label='sd')
-tPD<-setParameterDistribution(tPD, strategy=stratBBands, component.type='signal', component.label='Cl.lt.LowerBand', distribution=list(relationship=c("lt", "lte")), label='rel')
-#tPD<-setParameterDistribution(tPD,strategy=stratBBands,'signal',indexnum=2,distribution=list(relationship=c("lte")))
-tPD<-setParameterDistribution(tPD, strategy=stratBBands, component.type='indicator', component.label='BBands', distribution=list(n=20:30), label='n')
-
-#pConstr<-setParameterConstraint()
-pConstraint<-setParameterConstraint(constraintLabel='PC1',paramList=c('sd','n'),relationship='gt')
-
-#testPackList<-applyParameter(strategy=stratBBands,portfolios=portfolio.st,parameterPool=tPD,method='expand',parameterConstraints=pConstraint)
-testPackList<-applyParameter(strategy=stratBBands,portfolios=portfolio.st,parameterPool=tPD,method='random',sampleSize=8,parameterConstraints=pConstraint)
+##### PLACE THIS BLOCK AT END OF DEMO SCRIPT ################### 
+# book  = getOrderBook(port)
+# stats = tradeStats(port)
+# rets  = PortfReturns(acct)
+################################################################
 
 ###############################################################################
 # R (http://r-project.org/) Quantitative Strategy Model Framework
@@ -65,11 +68,3 @@ testPackList<-applyParameter(strategy=stratBBands,portfolios=portfolio.st,parame
 # $Id: bbands.R 1097 2012-07-01 00:30:39Z braverock $
 #
 ###############################################################################
-
-print(testPackList$statsTable)
-
-##### PLACE THIS BLOCK AT END OF DEMO SCRIPT ################### 
-# book  = getOrderBook(port)
-# stats = tradeStats(port)
-# rets  = PortfReturns(acct)
-################################################################

@@ -35,31 +35,87 @@ initPortf(portfolio.st,symbols=stock.str, initDate=initDate)
 initAcct(account.st,portfolios='bbands', initDate=initDate)
 initOrders(portfolio=portfolio.st,initDate=initDate)
 addPosLimit(portfolio.st, stock.str, initDate, 200, 2 ) #set max pos
-stratBBands <- strategy("bbands")
+
+# set up parameters
+maType='SMA'
+n = 20
+sdp = 2
+
+strat.st<-portfolio.st
+# define the strategy
+strategy(strat.st, store=TRUE)
 
 #one indicator
-stratBBands <- add.indicator(strategy = stratBBands, name = "BBands", arguments = list(HLC = quote(HLC(mktdata)), maType='SMA'), label='BBands')
+add.indicator(strategy = strat.st, 
+              name = "BBands", 
+              arguments = list(HLC = quote(HLC(mktdata)), 
+                               n=n, 
+                               maType=maType, 
+                               sd=sdp 
+                               ), 
+              label='BBands')
 
 
 #add signals:
-stratBBands <- add.signal(stratBBands,name="sigCrossover",arguments = list(columns=c("Close","up"),relationship="gt"),label="Cl.gt.UpperBand")
-stratBBands <- add.signal(stratBBands,name="sigCrossover",arguments = list(columns=c("Close","dn"),relationship="lt"),label="Cl.lt.LowerBand")
-stratBBands <- add.signal(stratBBands,name="sigCrossover",arguments = list(columns=c("High","Low","mavg"),relationship="op"),label="Cross.Mid")
+add.signal(strategy = strat.st,
+           name="sigCrossover",
+           arguments = list(columns=c("Close","up"),
+                            relationship="gt"),
+           label="Cl.gt.UpperBand")
+
+add.signal(strategy = strat.st,
+           name="sigCrossover",
+           arguments = list(columns=c("Close","dn"),
+                            relationship="lt"),
+           label="Cl.lt.LowerBand")
+
+add.signal(strategy = strat.st,name="sigCrossover",
+           arguments = list(columns=c("High","Low","mavg"),
+                            relationship="op"),
+           label="Cross.Mid")
 
 # lets add some rules
-stratBBands <- add.rule(stratBBands,name='ruleSignal', arguments = list(sigcol="Cl.gt.UpperBand",sigval=TRUE, orderqty=-100, ordertype='market', orderside=NULL, threshold=NULL,osFUN=osMaxPos),type='enter')
-stratBBands <- add.rule(stratBBands,name='ruleSignal', arguments = list(sigcol="Cl.lt.LowerBand",sigval=TRUE, orderqty= 100, ordertype='market', orderside=NULL, threshold=NULL,osFUN=osMaxPos),type='enter')
-stratBBands <- add.rule(stratBBands,name='ruleSignal', arguments = list(sigcol="Cross.Mid",sigval=TRUE, orderqty= 'all', ordertype='market', orderside=NULL, threshold=NULL,osFUN=osMaxPos),type='exit')
+add.rule(strategy = strat.st,name='ruleSignal',
+         arguments = list(sigcol="Cl.gt.UpperBand",
+                          sigval=TRUE,
+                          orderqty=-100, 
+                          ordertype='market',
+                          orderside=NULL,
+                          threshold=NULL,
+                          osFUN=osMaxPos),
+         type='enter')
+
+add.rule(strategy = strat.st,name='ruleSignal',
+         arguments = list(sigcol="Cl.lt.LowerBand",
+                          sigval=TRUE,
+                          orderqty= 100, 
+                          ordertype='market',
+                          orderside=NULL,
+                          threshold=NULL,
+                          osFUN=osMaxPos),
+         type='enter')
+
+add.rule(strategy = strat.st,name='ruleSignal',
+         arguments = list(sigcol="Cross.Mid",
+                          sigval=TRUE,
+                          orderqty= 'all',
+                          ordertype='market',
+                          orderside=NULL,
+                          threshold=NULL,
+                          osFUN=osMaxPos),
+         label='exitMid',
+         type='exit')
+
 
 #alternately, to exit at the opposite band, the rules would be...
-#stratBBands <- add.rule(stratBBands,name='ruleSignal', arguments = list(data=quote(mktdata),sigcol="Lo.gt.UpperBand",sigval=TRUE, orderqty= 'all', ordertype='market', orderside=NULL, threshold=NULL),type='exit')
-#stratBBands <- add.rule(stratBBands,name='ruleSignal', arguments = list(data=quote(mktdata),sigcol="Hi.lt.LowerBand",sigval=TRUE, orderqty= 'all', ordertype='market', orderside=NULL, threshold=NULL),type='exit')
+#add.rule(strategy = strat.st,name='ruleSignal', arguments = list(data=quote(mktdata),sigcol="Lo.gt.UpperBand",sigval=TRUE, orderqty= 'all', ordertype='market', orderside=NULL, threshold=NULL),type='exit')
+#add.rule(strategy = strat.st,name='ruleSignal', arguments = list(data=quote(mktdata),sigcol="Hi.lt.LowerBand",sigval=TRUE, orderqty= 'all', ordertype='market', orderside=NULL, threshold=NULL),type='exit')
 
 #TODO add thresholds and stop-entry and stop-exit handling to test
 
 getSymbols(stock.str,from=initDate,index.class=c('POSIXt','POSIXct'))
 start_t<-Sys.time()
-out<-try(applyStrategy(strategy=stratBBands , portfolios='bbands',parameters=list(sd=SD,n=N)) )
+out<-try(applyStrategy(strategy='bbands' , portfolios='bbands',parameters=list(sd=SD,n=N)) )
 
 # look at the order book
 #getOrderBook('bbands')

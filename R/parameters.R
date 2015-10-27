@@ -190,6 +190,8 @@ getParameterTable<-function (strategy) #,staticSwitch)
 #' @author Yu Chen
 setParameterDistribution<-function(paramDist=NULL, strategy, component.type, component.label, distribution=NULL, weight, label, psindex=NULL) #All is needed,  set to illegal values
 {
+    .Deprecated(new = 'add.distribution', msg = 'old parameter code deprecated, please use add.distribution instead')
+  
     missing.msg <- ': missing in call to setParameterDistribution'
 
     if(!hasArg(strategy))
@@ -648,6 +650,8 @@ applyParameter<-function(strategy,portfolios,parameterPool,parameterConstraints,
 #' @param relationship one of c("gt","lt","eq","gte","lte","op") or reasonable alternatives
 paramConstraint <- function(label,data=mktdata, columns, relationship=c("gt","lt","eq","gte","lte", "op"))
 {
+
+  
     if(length(relationship) != 1)
         stop('paramConstraint: length(relationship)!=1')
 
