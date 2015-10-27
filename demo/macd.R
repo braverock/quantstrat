@@ -64,7 +64,7 @@ strategy(strat.st, store=TRUE)
 
 #one indicator
 add.indicator(strat.st, name = "MACD", 
-			  arguments = list(x=quote(Cl(mktdata))),
+			  arguments = list(x=quote(Cl(mktdata)),nFast=fastMA, nSlow=slowMA),
 			  label='_' 
 )
 
