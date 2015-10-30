@@ -378,7 +378,7 @@ applyRules <- function(portfolio,
                 mktPrice <- mktPrices[[orderType]]$negQty
         }
         # ensure we have a mktPrice
-        if (is.na(mktPrice) || is.null(mktPrice))
+        if (is.null(mktPrice) || (length(mktPrice) == 1L && is.na(mktPrice)))
             stop("no price discernable for ", orderType, " in applyRules")
 
         # use .firstCross to find the location of the first orderPrice that crosses mktdata[,col]
