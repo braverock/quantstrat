@@ -2,7 +2,7 @@
 % Please edit documentation in R/orders.R
 \name{get.orderbook}
 \alias{get.orderbook}
-\alias{getOrderbook}
+\alias{getOrderBook}
 \title{get the order book object}
 \usage{
 get.orderbook(portfolio, envir = .strategy)

@@ -6,8 +6,6 @@
 
 chart.forward.training <- function(audit.filename)
 {
-    if(!require(xtsExtra, quietly=TRUE)) stop('The "xtsExtra" package is required to use this function')
-
     .audit <- NULL
 
     load(audit.filename)

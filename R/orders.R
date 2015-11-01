@@ -23,7 +23,7 @@
 #' }   
 #' @aliases
 #' get.orderbook
-#' getOrderbook
+#' getOrderBook
 #' @rdname getOrderBook      
 #' @export get.orderbook 
 #' @export getOrderBook

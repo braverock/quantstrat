@@ -6,8 +6,6 @@
 
 chart.forward <- function(audit.filename)
 {
-    if(!require(xtsExtra, quietly=TRUE)) stop('The "xtsExtra" package is required to use this function')
-
     #.audit <- NULL
     if(is.null(.audit)) stop ('You need to run a walk forward test first to create the .audit environment')
   
