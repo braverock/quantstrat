@@ -102,5 +102,5 @@
 #' @keywords package
 # @examples
 #' 
-#' @import blotter FinancialInstrument quantmod xts zoo
+#' @import blotter FinancialInstrument foreach quantmod xts zoo
 NULL
