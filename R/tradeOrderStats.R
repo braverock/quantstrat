@@ -1,6 +1,6 @@
 #' get order information associated with closing positions
 #' 
-#'
+#' Combine perTradeStats output with closed order information.
 #'
 #' TODO: decide which of these columns are actually important
 #' TODO: add option for opening order/trade pairing rather than closing

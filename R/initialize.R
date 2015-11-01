@@ -185,7 +185,7 @@ add.init <- function(strategy, name, arguments, parameters=NULL, label=NULL, ...
 #' 
 #' @param strategy an object (or the name of an object) of type 'strategy' to add the init function definition to
 #' @param symbol   symbol
-#' @param ...      
+#' @param \dots any other passthrough parameters
 
 #' @export
 initSymbol <- function(strategy, symbol, ...){

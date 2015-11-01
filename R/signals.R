@@ -477,7 +477,7 @@ apply.paramset.signal.analysis<-function(strategy.st, paramset.label, portfolio.
     if(verbose)cat("Applying Parameter Set: ",toString(param.combo),'\n')  
     
     # Attached Paramset to Strategy Object
-    strategy <- quantstrat:::install.param.combo(strategy, param.combo, paramset.label) 
+    strategy <- install.param.combo(strategy, param.combo, paramset.label) 
     
     # Generate Indicators and Signals for Given Paramset
     name.ref = paste('paramset.',gsub(", ",".",toString(param.combo)),sep='')
@@ -522,6 +522,7 @@ apply.paramset.signal.analysis<-function(strategy.st, paramset.label, portfolio.
 #' @param portfolio text name of the portfolio to associate the order book with
 #' @param mktdata market data
 #' @param sigcol String name of signal to use for analysis 
+#' @param ... any other passthru parameters
 #' @author Michael Guan
 #' @return \code{xts} object with columns representing signals for each symbol
 #' @seealso 
@@ -595,7 +596,7 @@ signal.generate.statistics<-function(post.ret, obj.fun=NULL, decreasing=TRUE){
 #' This function collects and aggregates post signal price changes for N days forward.
 #' 
 #' @param signals xts object with signals, one column
-#' @param sigvals signal value to match against
+#' @param sigval signal value to match against
 #' @param on the periods endpoints to find as a character string
 #' @param forward.days number of days to look forward after signal (days to exit post signal)
 #' @param cum.sum \code{TRUE},\code{FALSE}; cumulative sum of price changes
@@ -776,7 +777,7 @@ signal.obj.slope<-function(x){
 #' there are lots paramsets, it is best to plot a smaller portion so the 
 #' information can be displayed clearly.
 #'                          
-#' @param signal list of paramset forward looking price changes by asset
+#' @param signals list of paramset forward looking price changes by asset
 #' @param rows number of rows for plot
 #' @param columns number of columns for plot
 #' @param mai A numerical vector of the form c(bottom, left, top, right) which gives the margin size specified in inches.
@@ -787,7 +788,8 @@ signal.obj.slope<-function(x){
 #' @param xaxt A character which specifies the x axis type. Specifying "n" suppresses plotting of the axis. The standard value is "s": for compatibility with S values "l" and "t" are accepted but are equivalent to "s": any value other than "n" implies plotting.
 #' @param cex.axis The magnification to be used for axis annotation relative to the current setting of cex.
 #' @param h the y-value(s) for horizontal line(s).
-#' @param hlinecol A specification for the default plotting color. See section ‘Color Specification’.
+#' @param hlinecol A specification for the default plotting color. See section \sQuote{Color Specification}.
+#' @param ... any other passthru parameters
 #' @author Michael Guan
 #' @export
 
@@ -817,10 +819,10 @@ signal.plot<-function(signals,rows=NULL,columns=NULL,mai = c(0.1,0.4,0.2,0.1), m
 
 #' Visualization of Signal Across Lookback with Beanplots
 #'
-#' This function is similar to \code{plot.signals} but uses beanplots 
+#' This function is similar to \code{signal.plot} but uses beanplots 
 #' instead of barplots. Requires 'beanplot' package
 #'                          
-#' @param signal list of paramset forward looking price changes by asset
+#' @param signals list of paramset forward looking price changes by asset
 #' @param rows number of rows for plot
 #' @param columns number of columns for plot
 #' @param mai A numerical vector of the form c(bottom, left, top, right) which gives the margin size specified in inches.
@@ -831,7 +833,8 @@ signal.plot<-function(signals,rows=NULL,columns=NULL,mai = c(0.1,0.4,0.2,0.1), m
 #' @param xaxt A character which specifies the x axis type. Specifying "n" suppresses plotting of the axis. The standard value is "s": for compatibility with S values "l" and "t" are accepted but are equivalent to "s": any value other than "n" implies plotting.
 #' @param cex.axis The magnification to be used for axis annotation relative to the current setting of cex.
 #' @param h the y-value(s) for horizontal line(s).
-#' @param hlinecol A specification for the default plotting color. See section ‘Color Specification’.
+#' @param hlinecol A specification for the default plotting color. See section \sQuote{Color Specification}.
+#' @param ... any other passthru parameters
 #' @author Michael Guan
 #' @return plot
 #' @export
@@ -871,6 +874,7 @@ beanplot.signals<-function(signals,rows=NULL,columns=NULL,mai = c(0.1,0.4,0.2,0.
 #' @param xlim the x limits in the plot
 #' @param mai A numerical vector of the form c(bottom, left, top, right) which gives the margin size specified in inches.
 #' @param h the y-value(s) for horizontal line(s).
+#' @param ... any other passthru parameters
 #' @author Michael Guan
 #' @return plot
 #' @export
@@ -924,7 +928,7 @@ distributional.boxplot<-function(signal,x.val=seq(1, 50, 5),val=10,ylim=c(-5, 5)
 #' @examples
 #' \dontrun{
 #' # signalAnalysisExample1.R
-#' plot.signal.path(results$sigret.by.asset$RTH$paramset.1.5[1:10,])
+#' signal.plot.path(results$sigret.by.asset$RTH$paramset.1.5[1:10,])
 #' }
 #' @export
 signal.path.plot<-function(data,main='Cumulative Return Paths'){

@@ -127,7 +127,7 @@ distributional.boxplot(signal=results.w$sigret.by.asset$IYT$paramset.5.20,
                        x.val=seq(1, 10, 2),val=10,ylim=c(-20, 20),
                        xlim=c(0, 10),mai=c(1,1,0.3,0.5),h=0)
 
-plot.signals(results.w$sigret.by.asset$XLE, rows=5, columns = 4)
+signal.plot(results.w$sigret.by.asset$XLE, rows=5, columns = 4)
 beanplot.signals(results.w$sigret.by.asset$XLE, rows=5, columns = 4)
 
 
@@ -148,7 +148,7 @@ distributional.boxplot(signal=results.m$sigret.by.asset$IYT$paramset.5.20,
                        x.val=seq(1, 5, 1),val=10,ylim=c(-30, 30),
                        xlim=c(0, 5),mai=c(1,1,0.3,0.5),h=0)
 
-plot.signals(results.m$sigret.by.asset$XLE, rows=5, columns = 4)
+signal.plot(results.m$sigret.by.asset$XLE, rows=5, columns = 4)
 beanplot.signals(results.m$sigret.by.asset$XLE, rows=5, columns = 4)
 
 ###############################################################################

@@ -146,7 +146,7 @@ walk.forward <- function(strategy.st, paramset.label, portfolio.st, account.st,
             }
 
             # configure strategy to use selected param.combo
-            strategy <- quantstrat:::install.param.combo(strategy, param.combo, paramset.label)
+            strategy <- install.param.combo(strategy, param.combo, paramset.label)
 
             result$testing.timespan <- testing.timespan
 
