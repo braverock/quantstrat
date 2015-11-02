@@ -386,11 +386,10 @@ addOrder <- function(portfolio,
         else
         {
             if(is.numeric(time.in.force))
-                time.in.force <- timestamp + time.in.force
+                time.in.force <- as.POSIXct(timestamp) + time.in.force
 
             time.in.force <- format(time.in.force, "%Y-%m-%d %H:%M:%OS")
-            #TODO FIXME this line probably needs to be sensitive to the index of the market data, Date vs POSIXct
-  }
+        }
     }
 
     #set up the other parameters

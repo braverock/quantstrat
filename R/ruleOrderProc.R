@@ -69,13 +69,13 @@ ruleOrderProc <- function(portfolio, symbol, mktdata, timestamp=NULL, ordertype=
   if(any(!tif.xts==''))
   {
     if (any(indexClass(ordersubset)=='Date'))
-        tif <- as.Date(tif.xts)
+        tif <- as.Date(coredata(tif.xts))
     else
     {
-        tif <- strptime(tif.xts, format='%Y-%m-%d %H:%M:%OS')
+        tif <- strptime(coredata(tif.xts), format='%Y-%m-%d %H:%M:%OS')
         tif.na <- is.na(tif)
         if(any(tif.na))
-            tif[tif.na] <- strptime(tif.xts[tif.na], format='%Y-%m-%d %H:%M:%S')
+            tif[tif.na] <- strptime(coredata(tif.xts[tif.na]), format='%Y-%m-%d %H:%M:%S')
     }
 
     #check which ones should be expired
