@@ -9,23 +9,26 @@ rsi        Relative Strength Index (RSI) strategy demonstrating long-only thresh
 bee        Milktrader's Bumblebee FastMA/BBands cross system
 bbandParameters  example of parameter test on bbands demo strategy
 macdParameters  example of parameter test on macd demo strategy
-luxor.1.strategy.basic.R	Jaekle & Tomasini; Sections 3.2: basic luxor strategy not using ordersets or orderchains
-luxor.2.add.paramsets.R	Jaekle & Tomasini; Sections 3.3: variation of the input parameters
-luxor.3.paramset.sma.R	Jaekle & Tomasini; Sections 3.3: variation of the input parameters
-luxor.4.paramset.timespan.R	Jaekle & Tomasini; Sections 3.4: inserting an intraday time filter
-luxor.5.strategy.ordersets.R	Jaekle & Tomasini; Sections 3.5: strategy implementation using ordersets and orderchains
-luxor.6.paramset.stoploss.R	Jaekle & Tomasini; Sections 3.5: paramset implementation for stoploss optimization
-luxor.6.paramset.stoptrailing.R	Jaekle & Tomasini; Sections 3.5: paramset implementation for stop trailing optimization
-luxor.6.paramset.takeprofit.R	Jaekle & Tomasini; Sections 3.5: paramset implementation for take profit optimization
-luxor.7.exit.and.risk.R	Jaekle & Tomasini; Sections 3.5: running with stoploss and/or stoptrailing and/or takeprofit
-luxor.8.walk.forward.R	Jaekle & Tomasini; Sections 6: walk forward analysis
-luxor.getSymbols.R	Jaekle & Tomasini; reading symbols
-luxor.include.R	Jaekle & Tomasini; Sections constants
-luxor.sample.MAE.stoploss.R	Jaekle & Tomasini; sample MAE stoploss graph
-luxor.sample.MAE.stoptrailing.R	Jaekle & Tomasini; sample MAE stoptrailing graph
-luxor.sample.MFE.takeprofit.R	Jaekle & Tomasini; sample MFE take profit graph
-luxor.sample.tradeGraphs.sma.R	Jaekle & Tomasini; sample 3D SMA graph
-luxor.sample.tradeGraphs.timespan.R	Jaekle & Tomasini; sample 3D timespan graph
-signal.SMA.R	SMA Cross Strategy with Signal Analysis Example; See maCross.R
-signal.RSI.R	RSI Cross Strategy with Signal Analysis Example; See rsi.R
+macdRebalancing  example of applyStrategy.rebalancing on macd demo strategy
+rocema    Rate-of-Change EMA strategy: demonstrating ternary indicator, ordersets to handle simultaneous stop-loss and take-profit orders
+luxor.1.strategy.basic	Jaekle & Tomasini; Sections 3.2: basic luxor strategy not using ordersets or orderchains
+luxor.2.add.paramsets	Jaekle & Tomasini; Sections 3.3: variation of the input parameters
+luxor.3.paramset.sma	Jaekle & Tomasini; Sections 3.3: variation of the input parameters
+luxor.4.paramset.timespan	Jaekle & Tomasini; Sections 3.4: inserting an intraday time filter
+luxor.5.strategy.ordersets	Jaekle & Tomasini; Sections 3.5: strategy implementation using ordersets and orderchains
+luxor.6.paramset.stoploss	Jaekle & Tomasini; Sections 3.5: paramset implementation for stoploss optimization
+luxor.6.paramset.stoptrailing	Jaekle & Tomasini; Sections 3.5: paramset implementation for stop trailing optimization
+luxor.6.paramset.takeprofit	Jaekle & Tomasini; Sections 3.5: paramset implementation for take profit optimization
+luxor.7.exit.and.risk	Jaekle & Tomasini; Sections 3.5: running with stoploss and/or stoptrailing and/or takeprofit
+luxor.8.walk.forward	Jaekle & Tomasini; Sections 6: walk forward analysis
+luxor.getSymbols	Jaekle & Tomasini; reading symbols
+luxor.include	Jaekle & Tomasini; Sections constants
+luxor.sample.MAE.stoploss	Jaekle & Tomasini; sample MAE stoploss graph
+luxor.sample.MAE.stoptrailing	Jaekle & Tomasini; sample MAE stoptrailing graph
+luxor.sample.MFE.takeprofit	Jaekle & Tomasini; sample MFE take profit graph
+luxor.sample.tradeGraphs.sma	Jaekle & Tomasini; sample 3D SMA graph
+luxor.sample.tradeGraphs.timespan	Jaekle & Tomasini; sample 3D timespan graph
+luxor.sample.walk.forward	Jaekle & Tomasini; walk forward chart sample
+signal.SMA	SMA Cross Strategy with Signal Analysis Example; See maCross.R
+signal.RSI	RSI Cross Strategy with Signal Analysis Example; See rsi.R
 
