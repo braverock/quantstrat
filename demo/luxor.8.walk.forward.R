@@ -12,12 +12,20 @@ require(quantstrat)
 
 source(paste0(path.package("quantstrat"),"/demo/luxor.include.R"))
 source(paste0(path.package("quantstrat"),"/demo/luxor.getSymbols.R"))
+source(paste0(path.package("quantstrat"),"/demo/luxor.5.strategy.ordersets.R"))
 
 ### foreach and doMC
 
 require(foreach)
 require(doMC)
 registerDoMC(cores=8)
+
+### robustbase and PerformanceAnalytics
+
+if (!requireNamespace("robustbase", quietly=TRUE))
+  stop("package 'robustbase' required, but not installed")
+if (!requireNamespace("PerformanceAnalytics", quietly=TRUE))
+  stop("package 'PerformanceAnalytics' required, but not installed")
 
 ### blotter
 
@@ -68,7 +76,20 @@ my.obj.func <- function(x)
 
 ### walk.forward
 
-r <- walk.forward(strategy.st, paramset.label='WFA', portfolio.st=portfolio.st, account.st=account.st, period='months', k.training=3, k.testing=1, obj.func=my.obj.func, obj.args=list(x=quote(result$apply.paramset)), user.func=ess, user.args=list('account.st'=account.st, 'portfolio.st'=portfolio.st), audit.prefix='wfa', anchored=FALSE, verbose=TRUE)
+r <- walk.forward(strategy.st,
+                  paramset.label='WFA',
+                  portfolio.st=portfolio.st,
+                  account.st=account.st,
+                  period='days',
+                  k.training=3,
+                  k.testing=1,
+                  obj.func=my.obj.func,
+                  obj.args=list(x=quote(result$apply.paramset)),
+                  user.func=ess,
+                  user.args=list('account.st'=account.st, 'portfolio.st'=portfolio.st),
+                  audit.prefix='wfa',
+                  anchored=FALSE,
+                  verbose=TRUE)
 
 ### analyse
 
