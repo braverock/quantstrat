@@ -40,12 +40,6 @@
 # TODO: fix expand.grid
 # TODO: "and" multiple constraints i.o. "or"
 
-
-#require(foreach, quietly=TRUE)
-require('foreach')
-#require(iterators, quietly=TRUE)
-require('iterators')
-
 # creates a copy of a portfolio, stripping all history (transactions etc)
 
 clone.portfolio <- function(portfolio.st, cloned.portfolio.st, strip.history=TRUE)
@@ -367,6 +361,7 @@ add.distribution.constraint <- function(strategy, paramset.label, distribution.l
 #' @author Jan Humme
 #' @export
 #' @seealso \code{\link{add.distribution.constraint}}, \code{\link{add.distribution.constraint}}, \code{\link{delete.paramset}}
+#' @importFrom iterators iter
 
 apply.paramset <- function(strategy.st, paramset.label, portfolio.st, account.st, mktdata=NULL, nsamples=0, user.func=NULL, user.args=NULL, calc='slave', audit=NULL, packages=NULL, verbose=FALSE, paramsets, ...)
 {
