@@ -11,7 +11,7 @@
 #' tradeGraphs (
 #'      stats = stats,
 #'      free.params = c("Param.indicator.1.nFast", "Param.indicator.2.nSlow"),
-#'	params.filter = "Param.indicator.2.nSlow < 40 & Param.indicator.1.nFast > 5"
+#'      params.filter = "Param.indicator.2.nSlow < 40 & Param.indicator.1.nFast > 5"
 #'      statistics = c("Net.Trading.PL", "maxDrawdown", "Avg.Trade.PL", "Num.Trades")
 #'      title = 'Luxor'
 #' )
@@ -24,9 +24,11 @@ tradeGraphs <- function(stats, free.params, params.filter = NULL, statistics, ti
     # TODO: fix axes to use non scientific notation
     # TODO: fix use of full rainbow for small fractions (eg. Profit.Factor, now only uses red)
 
-    if(!require(rgl, quietly=TRUE)) stop('The "rgl" package is required to use this function')
+    if(!requireNamespace("rgl", quietly=TRUE))
+        stop('The "rgl" package is required to use this function')
 
-    if(!require(reshape2, quietly=TRUE))    stop('The "reshape2" package is required to use this function')
+    if(!requireNamespace("reshape2", quietly=TRUE))
+        stop('The "reshape2" package is required to use this function')
    
     if(missing(stats))      stop('stats undefined')
    
@@ -34,35 +36,27 @@ tradeGraphs <- function(stats, free.params, params.filter = NULL, statistics, ti
     if(length(free.params) != 2)    stop('free.params must be a vector of length 2')
        
     if(missing(statistics))         stop('must specify at least one statistics column to draw graph')
-	   
-	   
+
     var1 <- free.params[1]
     var2 <- free.params[2]
-	       
-	       
-    for(statistic in statistics) {
-			       
-        var3 <- statistic
-	           
+
+    for(var3 in statistics) {
         if (length(params.filter) == 0 ) {
             data <- stats[,c(var1, var2, var3)]
         } else {
             data <- subset(stats, eval(parse(text=params.filter)), select =  c(var1, var2, var3))
         }
 
-        data_r = recast(data, as.formula(paste0(var1, " ~ ", var2)), id.var=c(var1,var2), measure.var=c(var3))
+        data_r <- reshape2::recast(data, as.formula(paste0(var1, " ~ ", var2)),
+                                   id.var=c(var1,var2), measure.var=c(var3))
         x <- data_r[, 1]
-         y <- as.numeric(colnames(data_r)[-1])
-z <- unlist(data_r[, -1])
-
-        # x <- recast(data, as.formula(paste0(var1, " ~ ", var2)) , id.var=c(var1,var2), measure.var=c(var3))$labels[[1]][,1]
-        # y <-  recast(data, as.formula(paste0(var1, " ~ ", var2)) , id.var=c(var1,var2), measure.var=c(var3))$labels[[2]][,1]
-        # z <-  recast(data, as.formula(paste0(var1, " ~ ", var2)) , id.var=c(var1,var2), measure.var=c(var3))$data
+        y <- as.numeric(colnames(data_r)[-1])
+        z <- unlist(data_r[, -1])
 
         col <- heat.colors(length(z))[rank(z)]
 
-        open3d()
-        persp3d(x,y,z, color=col, xlab=var1, ylab=var2, zlab=var3, main = title)
+        rgl::open3d()
+        rgl::persp3d(x,y,z, color=col, xlab=var1, ylab=var2, zlab=var3, main = title)
     }
 }
 
