@@ -302,9 +302,15 @@ applyRules <- function(portfolio,
             # check if there's anything to do
             if(length(strategy$rules[[type]])>=1){
                 for (rule in strategy$rules[[type]]){
+                    sigcol <- rule$arguments$sigcol
+                    sigval <- rule$arguments$sigval
+                    # ensure mktdata contains sigcol
+                    if (!is.null(sigcol) && !sigcol %in% colnames(mktdata)) {
+                        stop("mktdata does not contain 'sigcol': ", sigcol)
+                    }
                     if(isTRUE(rule$path.dep)){ # only apply to path dependent rule
                         # check for sigcol, sigval, otherwise use all
-                        if(is.null(rule$arguments$sigcol) | is.null(rule$arguments$sigval) ){
+                        if(is.null(sigcol) || is.null(sigval)) {
                             if(is.null(rule$timespan)) {
                                 assign.dindex(1:length(Dates))
                             } else {
@@ -312,9 +318,9 @@ applyRules <- function(portfolio,
                             }
                         } else {
                             if(is.null(rule$timespan)) {
-                                assign.dindex(c(get.dindex(),which(mktdata[,rule$arguments$sigcol] == rule$arguments$sigval)))
+                                assign.dindex(c(get.dindex(),which(mktdata[, sigcol] == sigval)))
                             } else {
-                                assign.dindex(c(get.dindex(),which(merge(.xts(,.index(mktdata)),mktdata[rule$timespan,rule$arguments$sigcol]) == rule$arguments$sigval)))
+                                assign.dindex(c(get.dindex(),which(merge(.xts(,.index(mktdata)),mktdata[rule$timespan, sigcol]) == sigval)))
                             }
                         }
                     }
