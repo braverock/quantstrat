@@ -29,10 +29,11 @@ chart.forward.training <- function(audit.filename)
         PL.xts <- cbind(PL.xts, R)
     }
     
-    # add a column for the chosen portfolio, doubling it
+    # .audit$param.combo.nr contains the rowname of the best portfolio
     chosen.one <- .audit$param.combo.nr
     chosen.portfolio.st = ls(name=.audit, pattern=glob2rx(paste('portfolio', '*', chosen.one, sep='.')))
-
+    # add a column for the chosen portfolio, doubling it and
+    # making it plot last, so it's not over-plotted by other portfolios
     R <- PL.xts[,chosen.portfolio.st]
     PL.xts <- cbind(PL.xts, R)
     
@@ -42,21 +43,15 @@ chart.forward.training <- function(audit.filename)
     CumMax <- cummax(PL.xts)
     Drawdowns.xts <- -(CumMax - PL.xts)
     data.to.plot <- as.xts(cbind(PL.xts, Drawdowns.xts))
-    
-    # now plot it
-    dev.new()
-    plot.xts(
-        data.to.plot,
-        screens=rep(1:2,each=n+1),
-        col=c(rep('grey',n), 'blue'),
-        minor.ticks=FALSE,
-        main=NA
-    )
-    title(
-        main='Walk Forward Analysis',
-        sub=audit.filename
-    )
-    
+
+    # based on the suggestion by Ross, note that the number of
+    # lines is increased by 1 since the 'chosen' portfolio is added as the last one
+    # and highlighted using the blue color
+    p <- plot(PL.xts, col=c("blue", rep("grey", n)), main="Walk Forward Analysis")
+    # set on=NA so it is drawn on a new panel
+    p <- lines(Drawdowns.xts, col=c("blue", rep("grey", n)), on=NA, main="Drawdowns")
+    print(p)
+
     .audit <- NULL
 }
 

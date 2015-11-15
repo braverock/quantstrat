@@ -47,20 +47,11 @@ chart.forward <- function(audit.filename)
     CumMax <- cummax(PL.xts)
     Drawdowns.xts <- -(CumMax - PL.xts)
     data.to.plot <- as.xts(cbind(PL.xts, Drawdowns.xts))
-    
-    # now plot it
-    dev.new()
-    plot.xts(
-        data.to.plot,
-        screens=rep(1:2,each=n+1),
-        col=c(rep('grey',n), 'blue'),
-        minor.ticks=FALSE,
-        main=NA
-    )
-    title(
-        main='Walk Forward Analysis',
-        sub=audit.filename
-    )
-    
+
+    p <- plot(PL.xts, col=c("blue", rep("grey", n-1)), main="Walk Forward Analysis")
+    # set on=NA so it is drawn on a new panel
+    p <- lines(Drawdowns.xts, col=c("blue", rep("grey", n-1)), on=NA, main="Drawdowns")
+    print(p)
+
     .audit <- NULL
 }

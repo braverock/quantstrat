@@ -10,7 +10,7 @@
 
 require('quantstrat')
 
-chart.forward.testing('../data/luxor.wfa.ples.GBPUSD.2003-01-02 05:30:00.2003-03-31 23:30:00.RData')
+chart.forward.training(paste0(path.package("quantstrat"),'/data/luxor.wfa.ples.RData'))
 
 ##### PLACE DEMO AND TEST DATES HERE #################
 #
