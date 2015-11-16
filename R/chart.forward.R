@@ -1,20 +1,25 @@
 #' Chart to analyse walk.forward() objective function
 #'
-#' @param audit.filename name of .audit environment file as produced by walk.forward()
+#' @param audit.filename name of .audit environment file as produced by walk.forward().
+#'        Filename will match pattern [audit.prefix].results.RData.
 #'
 #' @export
 
 chart.forward <- function(audit.filename)
 {
-    #.audit <- NULL
-    if(is.null(.audit)) stop ('You need to run a walk forward test first to create the .audit environment')
-  
-    if(!is.null(audit.filename))
-      load(audit.filename)
-    else 
-      stop('You need to provide an audit.filename.')
+    .audit <- NULL  # keep codetools happy
+    # ensure correct file written by walk.forward() is provided
+    if (!grepl("\\.results\\.RData$", audit.filename[1L])) {
+        stop("'audit.filename' should match pattern:\n  [audit.prefix].results.RData")
+    }
+    if (file.exists(audit.filename)) {
+        load(audit.filename)
+    } else {
+        stop("'audit.filename', ", audit.filename, " not found.")
+    }
 
-    # extract all portfolio names from the audit environment, except wfa portfolio
+    # extract all portfolio names from the audit environment,
+    # except result portfolio (which doesn't end with a digit)
     portfolios.st = ls(name=.audit, pattern='portfolio.*.[0-9]+')
     n <- length(portfolios.st)
 
@@ -33,8 +38,8 @@ chart.forward <- function(audit.filename)
         PL.xts <- cbind(PL.xts, R)
     }
     
-    # now for the result portfolio
-    portfolio.st <- 'portfolio.forex'
+    # now for the result portfolio (which doesn't end with a digit)
+    portfolio.st <- ls(name=.audit, pattern='portfolio.*[^.0-9]$')
     p <- getPortfolio(portfolio.st, envir=.audit)
     from <- index(p$summary[2])
     R <- cumsum(p$summary[paste(from, '/', sep=''),'Net.Trading.PL'])
@@ -52,6 +57,4 @@ chart.forward <- function(audit.filename)
     # set on=NA so it is drawn on a new panel
     p <- lines(Drawdowns.xts, col=c("blue", rep("grey", n-1)), on=NA, main="Drawdowns")
     print(p)
-
-    .audit <- NULL
 }

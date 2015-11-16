@@ -7,7 +7,8 @@
 chart.forward.training(audit.filename)
 }
 \arguments{
-\item{audit.filename}{name of .audit environment file as produced by walk.forward()}
+\item{audit.filename}{name of .audit environment file as produced by walk.forward().
+Filename will match pattern [audit.prefix].[symbol].[start timestamp].[end timestamp].RData.}
 }
 \description{
 Chart to analyse walk.forward() objective function
