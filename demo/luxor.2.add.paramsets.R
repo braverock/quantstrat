@@ -59,9 +59,33 @@ add.distribution.constraint(strategy.st,
 
 add.distribution(strategy.st,
 	paramset.label = 'Timespan',
-	component.type = 'rule',
-	component.label = 'timespan',
-	variable = list(n = .timespans),
+	component.type = 'enter',
+	component.label = 'EnterLONG',
+	variable = list(timespan = .timespans),
+	label = 'Timespan'
+)
+
+add.distribution(strategy.st,
+	paramset.label = 'Timespan',
+	component.type = 'enter',
+	component.label = 'EnterSHORT',
+	variable = list(timespan = .timespans),
+	label = 'Timespan'
+)
+
+add.distribution(strategy.st,
+	paramset.label = 'Timespan',
+	component.type = 'exit',
+	component.label = 'Exit2LONG',
+	variable = list(timespan = .timespans),
+	label = 'Timespan'
+)
+
+add.distribution(strategy.st,
+	paramset.label = 'Timespan',
+	component.type = 'exit',
+	component.label = 'Exit2SHORT',
+	variable = list(timespan = .timespans),
 	label = 'Timespan'
 )
 
