@@ -62,7 +62,7 @@ add.distribution(strategy.st,
 	component.type = 'enter',
 	component.label = 'EnterLONG',
 	variable = list(timespan = .timespans),
-	label = 'Timespan'
+	label = 'EnterLong'
 )
 
 add.distribution(strategy.st,
@@ -70,7 +70,7 @@ add.distribution(strategy.st,
 	component.type = 'enter',
 	component.label = 'EnterSHORT',
 	variable = list(timespan = .timespans),
-	label = 'Timespan'
+	label = 'EnterShort'
 )
 
 add.distribution(strategy.st,
@@ -78,7 +78,7 @@ add.distribution(strategy.st,
 	component.type = 'exit',
 	component.label = 'Exit2LONG',
 	variable = list(timespan = .timespans),
-	label = 'Timespan'
+	label = 'ExitLong'
 )
 
 add.distribution(strategy.st,
@@ -86,7 +86,31 @@ add.distribution(strategy.st,
 	component.type = 'exit',
 	component.label = 'Exit2SHORT',
 	variable = list(timespan = .timespans),
-	label = 'Timespan'
+	label = 'ExitShort'
+)
+
+add.distribution.constraint(strategy.st,
+	paramset.label = 'Timespan',
+	distribution.label.1 = 'EnterLong',
+	distribution.label.2 = 'EnterShort',
+	operator = '==',
+	label = 'EnterTimespan'
+)
+
+add.distribution.constraint(strategy.st,
+	paramset.label = 'Timespan',
+	distribution.label.1 = 'ExitLong',
+	distribution.label.2 = 'ExitShort',
+	operator = '==',
+	label = 'ExitTimespan'
+)
+
+add.distribution.constraint(strategy.st,
+	paramset.label = 'Timespan',
+	distribution.label.1 = 'EnterLong',
+	distribution.label.2 = 'ExitShort',
+	operator = '==',
+	label = 'EnterExitTimespan'
 )
 
 ###
