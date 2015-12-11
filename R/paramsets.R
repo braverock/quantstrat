@@ -231,8 +231,12 @@ delete.paramset <- function(strategy, paramset.label, store=TRUE)
         store <- TRUE
     }
 
-    if(!is.null(strategy$paramsets[[paramset.label]]))
+    if(!is.null(strategy$paramsets[[paramset.label]])) {
         strategy$paramsets[[paramset.label]] <- NULL
+    } else {
+        warning("strategy ", sQuote(strategy$name), " does not have a paramset ",
+                sQuote(paramset.label), " to delete. Aborting.", immediate.=TRUE)
+    }
 
     if(store)
     {
@@ -279,6 +283,13 @@ add.distribution <- function(strategy, paramset.label, component.type, component
     if(!(paramset.label %in% names(strategy$paramsets)))
         strategy <- create.paramset(strategy, paramset.label)
 
+    if(label %in% names(strategy$paramsets[[paramset.label]]$distributions)) {
+        fmt <- paste("add.distribution replacing previously defined",
+                     "distribution %s in paramset %s for strategy %s.")
+        msg <- sprintf(fmt, sQuote(label), sQuote(paramset.label), sQuote(strategy$name))
+        warning(msg, immediate.=TRUE, call.=FALSE)
+    }
+
     strategy$paramsets[[paramset.label]]$distributions[[label]] <- new_distribution
 
     if(store)
@@ -322,6 +333,13 @@ add.distribution.constraint <- function(strategy, paramset.label, distribution.l
 
     if(!(paramset.label %in% names(strategy$paramsets)))
         strategy <- create.paramset(strategy, paramset.label)
+
+    if(label %in% names(strategy$paramsets[[paramset.label]]$constraints)) {
+        fmt <- paste("add.distribution.constraint replacing previously defined",
+                     "constraint %s in paramset %s for strategy %s.")
+        msg <- sprintf(fmt, sQuote(label), sQuote(paramset.label), sQuote(strategy$name))
+        warning(msg, immediate.=TRUE, call.=FALSE)
+    }
 
     strategy$paramsets[[paramset.label]]$constraints[[label]] <- new_constraint
 
