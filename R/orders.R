@@ -64,7 +64,7 @@ put.orderbook <- function(portfolio.st, orderbook, envir=.strategy)
 #' @param \dots any other passthrough parameters
 #' @concept order book
 #' @export
-initOrders <- function(portfolio=NULL, symbols=NULL, initDate = '1999-12-31', ...)
+initOrders <- function(portfolio=NULL, symbols=NULL, initDate = '1950-01-01', ...)
 {
     # NOTE we could store all of these in one object, but I think that might get big
     orders<- try(getOrderBook(portfolio),silent=TRUE)
