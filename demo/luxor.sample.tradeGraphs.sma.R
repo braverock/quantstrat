@@ -9,6 +9,7 @@
 # 3D SMA graph example
 
 require(quantstrat)
+require(rgl)
 
 ### load 'stats' back into .GlobalEnv
 

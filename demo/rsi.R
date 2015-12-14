@@ -105,9 +105,3 @@ if("package:PerformanceAnalytics" %in% search() || require("PerformanceAnalytics
 # $Id$
 #
 ###############################################################################
-
-##### PLACE THIS BLOCK AT END OF DEMO SCRIPT ################### 
-# book  = getOrderBook(port)
-# stats = tradeStats(port)
-# rets  = PortfReturns(acct)
-################################################################

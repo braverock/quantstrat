@@ -9,6 +9,7 @@
 # 3D timespan graph example
 
 require(quantstrat)
+require(rgl)
 
 load(paste0(
         path.package('quantstrat'),

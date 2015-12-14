@@ -7,6 +7,7 @@
 # Load Packages:
 require(iterators)
 require(quantstrat)
+require(gamlss.util)  # depends on gamlss
 
 suppressWarnings(rm("order_book.RSI",pos=.strategy))
 suppressWarnings(rm("account.RSI","portfolio.RSI",pos=.blotter))

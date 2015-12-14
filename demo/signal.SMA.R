@@ -7,6 +7,7 @@
 # Load Packages:
 require(iterators)
 require(quantstrat)
+require(gamlss.util)  # depends on gamlss
 
 ###########################################################################
 # Configure Date Time Settings
@@ -153,9 +154,3 @@ beanplot.signals(results.m$sigret.by.asset$XLE, rows=5, columns = 4)
 # for full details see the file COPYING
 #
 ###############################################################################
-
-##### PLACE THIS BLOCK AT END OF DEMO SCRIPT ################### 
-# book  = getOrderBook(port)
-# stats = tradeStats(port)
-# rets  = PortfReturns(acct)
-################################################################
