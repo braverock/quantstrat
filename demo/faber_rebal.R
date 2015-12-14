@@ -54,22 +54,11 @@ if(oldtz=='') {
 # Try to clean up in case the demo was run previously
 suppressWarnings(rm("account.faber","portfolio.faber",pos=.blotter))
 suppressWarnings(rm("ltaccount", "ltportfolio", "ClosePrice", "CurrentDate", "equity", 
-            "GSPC", "stratFaber", "initDate", "initEq", "Posn", "UnitSize", "verbose"))
+            "GSPC", "stratFaber", "startDate", "initEq", "Posn", "UnitSize", "verbose"))
 suppressWarnings(rm("order_book.faber",pos=.strategy))
 
-##### PLACE DEMO AND TEST DATES HERE #################
-#
-#if(isTRUE(options('in_test')$in_test))
-#  # use test dates
-#  {initDate="2011-01-01" 
-#  endDate="2012-12-31"   
-#  } else
-#  # use demo defaults
-#  {initDate="1999-12-31"
-#  endDate=Sys.Date()}
-
 # Set initial values
-initDate='1997-12-31'
+startDate='1997-12-31'
 initEq=100000
 
 # Set up instruments with FinancialInstruments package
@@ -93,15 +82,15 @@ for(symbol in symbols) {
 }
 
 # Initialize portfolio and account
-initPortf('faber', symbols=symbols, initDate=initDate)
-initAcct('faber', portfolios='faber', initDate=initDate, initEq=100000)
-initOrders(portfolio='faber', initDate=initDate)
+initPortf('faber', symbols=symbols)
+initAcct('faber', portfolios='faber', initEq=100000)
+initOrders(portfolio='faber')
 
 # set intial position limits
 posval<-initEq/length(symbols)
 for(symbol in symbols){
     pos<-round((posval/first(getPrice(get(symbol)))[,1]),-2)
-    addPosLimit('faber',symbol,initDate, maxpos=pos,minpos=-pos)
+    addPosLimit('faber', symbol, startDate, maxpos=pos, minpos=-pos)
 }
 print("setup completed")
 
@@ -193,9 +182,3 @@ faber.stats
 # $Id$
 #
 ###############################################################################
-
-##### PLACE THIS BLOCK AT END OF DEMO SCRIPT ################### 
-# book  = getOrderBook(port)
-# stats = tradeStats(port)
-# rets  = PortfReturns(acct)
-################################################################

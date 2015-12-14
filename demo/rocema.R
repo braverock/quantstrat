@@ -29,7 +29,7 @@
 #.subset='2011'
 .subset='2011-01'
 
-initDate = '2011-01-01'
+startDate = '2011-01-01'
 initEq = 10000
 
 p = 'rocema'
@@ -73,10 +73,10 @@ ES <- ES[.subset]
 
 ###############################################################################
 
-initPortf(p, symbols='ES', initDate=initDate, currency="USD")
-initAcct(a, portfolios=p, initDate=initDate, currency="USD")
+initPortf(p, symbols='ES', currency="USD")
+initAcct(a, portfolios=p, currency="USD")
 
-initOrders(p, initDate=initDate)
+initOrders(p)
 
 ###############################################################################
 
@@ -226,19 +226,3 @@ txns
 
 cat('Net profit:', sum(txns$Net.Txn.Realized.PL), '\n')
 
-##### PLACE DEMO AND TEST DATES HERE #################
-#
-#if(isTRUE(options('in_test')$in_test))
-#  # use test dates
-#  {initDate="2011-01-01" 
-#  endDate="2012-12-31"   
-#  } else
-#  # use demo defaults
-#  {initDate="1999-12-31"
-#  endDate=Sys.Date()}
-
-##### PLACE THIS BLOCK AT END OF DEMO SCRIPT ################### 
-# book  = getOrderBook(port)
-# stats = tradeStats(port)
-# rets  = PortfReturns(acct)
-################################################################

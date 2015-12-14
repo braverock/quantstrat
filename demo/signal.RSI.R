@@ -10,7 +10,7 @@ require(quantstrat)
 
 suppressWarnings(rm("order_book.RSI",pos=.strategy))
 suppressWarnings(rm("account.RSI","portfolio.RSI",pos=.blotter))
-suppressWarnings(rm("account.st","portfolio.st","stock.str","stratRSI","initDate","initEq",'start_t','end_t'))
+suppressWarnings(rm("account.st","portfolio.st","stock.str","stratRSI","startDate","initEq",'start_t','end_t'))
 
 #Parameters
 n=2
@@ -27,14 +27,14 @@ for(symbol in symbols){ # establish trade-able instruments
 # Initialize Account, Portfolio, Strategy
 stratRSI <- strategy("RSI")
 
-initDate='1997-12-31'
+startDate='1997-12-31'
 initEq=100000
 port.st<-'RSI' #use a string here for easier changing of parameters and re-trying
 
-initPortf(port.st, symbols=symbols, initDate=initDate)
-initAcct(port.st, portfolios=port.st, initDate=initDate,initEq=initEq)
-initOrders(portfolio=port.st, initDate=initDate)
-for(symbol in symbols){ addPosLimit(port.st, symbol, initDate, 300, 3 ) } #set max pos 
+initPortf(port.st, symbols=symbols)
+initAcct(port.st, portfolios=port.st, initEq=initEq)
+initOrders(portfolio=port.st)
+for(symbol in symbols){ addPosLimit(port.st, symbol, startDate, 300, 3 ) } #set max pos 
 
 # Indicator
 stratRSI <- add.indicator(strategy = stratRSI, name = "RSI", arguments = list(price = quote(getPrice(mktdata)),n=n), label="RSI")

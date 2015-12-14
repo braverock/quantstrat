@@ -7,9 +7,9 @@ Sys.setenv(TZ="UTC")
 
 ###
 
-initDate = '2002-10-21'
+startDate = '2002-10-21'
 
-.from=initDate
+.from=startDate
 
 #.to='2008-07-04'
 .to='2002-10-31'

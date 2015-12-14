@@ -13,7 +13,7 @@
 require(quantstrat)
 suppressWarnings(rm("order_book.macd",pos=.strategy))
 suppressWarnings(rm("account.macd","portfolio.macd",pos=.blotter))
-suppressWarnings(rm("account.st","portfolio.st","stock.str","stratMACD","initDate","initEq",'start_t','end_t'))
+suppressWarnings(rm("account.st","portfolio.st","stock.str","stratMACD","startDate","initEq",'start_t','end_t'))
 
 stock.str='AAPL' # what are we trying it on
 
@@ -31,25 +31,14 @@ stock(stock.str,currency='USD',multiplier=1)
 #data(sample_matrix)                 # data included in package xts
 #sample_matrix<-as.xts(sample_matrix)
 
-##### PLACE DEMO AND TEST DATES HERE #################
-#
-#if(isTRUE(options('in_test')$in_test))
-#  # use test dates
-#  {initDate="2011-01-01" 
-#  endDate="2012-12-31"   
-#  } else
-#  # use demo defaults
-#  {initDate="1999-12-31"
-#  endDate=Sys.Date()}
-
-initDate='2006-12-31'
+startDate='2006-12-31'
 initEq=1000000
 portfolio.st='macd'
 account.st='macd'
 
-initPortf(portfolio.st,symbols=stock.str, initDate=initDate)
-initAcct(account.st,portfolios=portfolio.st, initDate=initDate)
-initOrders(portfolio=portfolio.st,initDate=initDate)
+initPortf(portfolio.st,symbols=stock.str)
+initAcct(account.st,portfolios=portfolio.st)
+initOrders(portfolio=portfolio.st)
 
 strat.st<-portfolio.st
 
@@ -119,7 +108,7 @@ add.rule(strat.st, 'rulePctEquity',
 #end rules
 ####
 
-getSymbols(stock.str,from=initDate,src='yahoo')
+getSymbols(stock.str,from=startDate,src='yahoo')
 start_t<-Sys.time()
 out<-applyStrategy.rebalancing(strat.st , portfolios=portfolio.st,parameters=list(nFast=fastMA, nSlow=slowMA, nSig=signalMA,maType=maType),verbose=TRUE)
 end_t<-Sys.time()
@@ -149,10 +138,3 @@ getOrderBook('macd')
 # $Id$
 #
 ##############################################################################
-
-##### PLACE THIS BLOCK AT END OF DEMO SCRIPT ################### 
-#
-# book  = getOrderBook(port)
-# stats = tradeStats(port)
-# rets  = PortfReturns(acct)
-################################################################

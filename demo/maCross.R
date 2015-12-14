@@ -20,24 +20,13 @@ stock.str='AAPL' # what are we trying it on
 currency('USD')
 stock(stock.str,currency='USD',multiplier=1)
 
-##### PLACE DEMO AND TEST DATES HERE #################
-#
-if(isTRUE(options('in_test')$in_test)){
-  # use test dates
-  initDate="2011-01-01" 
-  endDate="2012-12-31"   
-} else {
-  # use demo defaults
-  initDate="1999-12-31"
-  endDate=Sys.Date()
-}
-
+startDate="1999-12-31"
 initEq=1000000
 portfolio.st='macross'
 account.st='macross'
-initPortf(portfolio.st,symbols=stock.str, initDate=initDate)
-initAcct(account.st,portfolios=portfolio.st, initDate=initDate,initEq=initEq)
-initOrders(portfolio=portfolio.st,initDate=initDate)
+initPortf(portfolio.st,symbols=stock.str)
+initAcct(account.st,portfolios=portfolio.st, initEq=initEq)
+initOrders(portfolio=portfolio.st)
 
 stratMACROSS<- strategy(portfolio.st)
 
@@ -55,7 +44,7 @@ stratMACROSS <- add.rule(strategy = stratMACROSS,name='ruleSignal', arguments = 
 # stratMACROSS <- add.rule(strategy = stratMACROSS,name='ruleSignal', arguments = list(sigcol="ma50.lt.ma200",sigval=TRUE, orderqty=-100, ordertype='market', orderside='short'),type='enter')
 # stratMACROSS <- add.rule(strategy = stratMACROSS,name='ruleSignal', arguments = list(sigcol="ma50.gt.ma200",sigval=TRUE, orderqty=100, ordertype='market', orderside='short'),type='exit')
 
-getSymbols(stock.str,from=initDate,to=endDate)
+getSymbols(stock.str,from=startDate)
 for(i in stock.str)
   assign(i, adjustOHLC(get(i),use.Adjusted=TRUE))
 
@@ -96,9 +85,3 @@ Sys.setenv(TZ=ttz)
 # $Id$
 #
 ###############################################################################
-#
-##### PLACE THIS BLOCK AT END OF DEMO SCRIPT ################### 
-# book  = getOrderBook(port)
-# stats = tradeStats(port)
-# rets  = PortfReturns(acct)
-################################################################

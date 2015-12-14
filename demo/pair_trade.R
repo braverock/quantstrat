@@ -22,22 +22,11 @@ require(quantstrat)
 
 suppressWarnings(rm("order_book.pair1",pos=.strategy))
 suppressWarnings(rm("account.pairs", "portfolio.pair1", pos=.blotter))
-suppressWarnings(rm("initDate", "endDate", "startDate", "initEq", "SD", "N", 
+suppressWarnings(rm("startDate", "endDate", "startDate", "initEq", "SD", "N", 
                     "symb1", "symb2", "portfolio1.st", "account.st", 
                     "pairStrat", "out1"))
 
-##### PLACE DEMO AND TEST DATES HERE #################
-#
-#if(isTRUE(options('in_test')$in_test))
-#  # use test dates
-#  {initDate="2011-01-01" 
-#  endDate="2012-12-31"   
-#  } else
-#  # use demo defaults
-#  {initDate="1999-12-31"
-#  endDate=Sys.Date()}
-
-initDate <- '2009-01-01'    
+startDate <- '2009-01-01'    
 endDate <- '2011-05-01'
 startDate <- '2009-01-02'
 initEq <- 100000
@@ -83,9 +72,9 @@ stock(symb1, currency="USD", multiplier=1)
 stock(symb2, currency="USD", multiplier=1)
 
 # Initialize Portfolio, Account, and Orders
-initPortf(name=portfolio1.st, c(symb1,symb2), initDate=initDate)
-initAcct(account.st, portfolios=portfolio1.st, initDate=initDate, initEq=initEq)
-initOrders(portfolio=portfolio1.st, initDate=initDate)
+initPortf(name=portfolio1.st, c(symb1,symb2))
+initAcct(account.st, portfolios=portfolio1.st, initEq=initEq)
+initOrders(portfolio=portfolio1.st)
 
 # osFUN will need to know which symbol is leg 1 and which is leg 2 as well as 
 # what the values are for MaxPos and lvls.  So, create a slot in portfolio to 
@@ -96,9 +85,9 @@ names(pair) <- c(symb1, symb2, "MaxPos", "lvls")
 
 # Create initial position limits and levels by symbol
 # allow 3 entries for long and short if lvls=3.
-addPosLimit(portfolio=portfolio1.st, timestamp=initDate, symbol=symb1, 
+addPosLimit(portfolio=portfolio1.st, timestamp=startDate, symbol=symb1, 
             maxpos=MaxPos, longlevels=lvls, minpos=-MaxPos, shortlevels=lvls)
-addPosLimit(portfolio=portfolio1.st, timestamp=initDate, symbol=symb2, 
+addPosLimit(portfolio=portfolio1.st, timestamp=startDate, symbol=symb2, 
             maxpos=MaxPos, longlevels=lvls, minpos=-MaxPos, shortlevels=lvls)
 
 # Create a strategy object 
@@ -284,9 +273,3 @@ if("package:PerformanceAnalytics" %in% search() ||
 # $Id$
 #
 ###############################################################################
-
-##### PLACE THIS BLOCK AT END OF DEMO SCRIPT ################### 
-# book  = getOrderBook(port)
-# stats = tradeStats(port)
-# rets  = PortfReturns(acct)
-################################################################

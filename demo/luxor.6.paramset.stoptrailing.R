@@ -10,34 +10,23 @@
 
 require(quantstrat)
 
-##### PLACE DEMO AND TEST DATES HERE #################
-#
-#if(isTRUE(options('in_test')$in_test))
-#  # use test dates
-#  {initDate="2011-01-01" 
-#  endDate="2012-12-31"   
-#  } else
-#  # use demo defaults
-#  {initDate="1999-12-31"
-#  endDate=Sys.Date()}
-
 source(paste0(path.package("quantstrat"),"/demo/luxor.include.R"))
 source(paste0(path.package("quantstrat"),"/demo/luxor.getSymbols.R"))
 
 ###
 
-initPortf(portfolio.st, symbols='GBPUSD', initDate=initDate, currency='USD')
+initPortf(portfolio.st, symbols='GBPUSD', currency='USD')
 addPosLimit(
             portfolio=portfolio.st,
             symbol='GBPUSD',
-            timestamp=initDate,
+            timestamp=startDate,
             maxpos=.orderqty)
 
-initAcct(account.st, portfolios=portfolio.st, initDate=initDate, currency='USD')
+initAcct(account.st, portfolios=portfolio.st, currency='USD')
 
 ###
 
-initOrders(portfolio.st, initDate=initDate)
+initOrders(portfolio.st)
 
 load.strategy(strategy.st)
 
@@ -72,9 +61,3 @@ stats <- results$tradeStats
 View(t(stats))
 
 plot(100*stats$StopTrailingLONG, stats$Net.Trading.PL, type='b', xlab='StopTrailing %', ylab='Net.Trading.PL', main='Luxor')
-
-##### PLACE THIS BLOCK AT END OF DEMO SCRIPT ################### 
-# book  = getOrderBook(port)
-# stats = tradeStats(port)
-# rets  = PortfReturns(acct)
-################################################################

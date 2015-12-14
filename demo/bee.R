@@ -4,16 +4,9 @@
 # copyright (c) 2009-2012, Algorithm Alpha, LLC
 # Licensed GPL-2
 #
-##### PLACE DEMO AND TEST DATES HERE #################
+##### PLACE DEMO DATES HERE #################
 
-if(isTRUE(options('in_test')$in_test))
-  # use test dates
-  {initDate="2011-01-01" 
-  endDate="2012-12-31"   
-  } else
-  # use demo defaults
-  {initDate="1999-12-31"
-  endDate=Sys.Date()}
+startDate="1999-12-31"
 
 ############################# DEFINE VARIABLES ##############################
 
@@ -28,15 +21,15 @@ sd            = 0.5
 ############################# GET DATA ######################################
 
 suppressMessages(require(quantstrat))
-getSymbols(sym, from=initDate, to=endDate, index.class=c("POSIXt","POSIXct"))
+getSymbols(sym, from=startDate, index.class=c("POSIXt","POSIXct"))
 
 ############################# INITIALIZE ####################################
 
 currency('USD')
 stock(sym ,currency='USD', multiplier=1)
-initPortf(port, sym, initDate=initDate)
-initAcct(acct, port, initEq=initEq, initDate=initDate)
-initOrders(port, initDate=initDate )
+initPortf(port, sym)
+initAcct(acct, port, initEq=initEq)
+initOrders(port)
 bee = strategy(port)
 
 ############################# MAX POSITION LOGIC ############################
@@ -44,7 +37,7 @@ bee = strategy(port)
 addPosLimit(
             portfolio=port,
             symbol=sym, 
-            timestamp=initDate,  
+            timestamp=startDate,  
             maxpos=100)
 
 
@@ -140,7 +133,6 @@ updateAcct(acct)
 
 ########################### USEFUL CONTAINERS #############################
 
-invisible(mktdata)
 stratStats   = tradeStats(port)
 stratReturns = PortfReturns(acct)
 
@@ -152,9 +144,3 @@ suppressMessages(require(PerformanceAnalytics))
 
 cat('Sortino Ratio for bumblebee is: ', SortinoRatio(stratReturns), '\n')
 
-##### PLACE THIS BLOCK AT END OF DEMO SCRIPT ################### 
-book  = getOrderBook(port)
-stats = tradeStats(port)
-rets  = PortfReturns(acct)
-txns  = getTxns(port, sym)
-################################################################

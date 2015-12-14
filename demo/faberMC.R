@@ -48,22 +48,11 @@ require(quantstrat)
 # Try to clean up in case the demo was run previously
 suppressWarnings(rm("account.faber","account.faberMC","portfolio.faber","portfolio.combMC", 
                         "portfolio.GDAXI", "portfolio.GSPC", "portfolio.N225",pos=.blotter))
-suppressWarnings(rm("ltaccount","ltportfolio","ClosePrice","CurrentDate","equity","stratFaber","initDate","initEq","Posn","UnitSize","verbose"))
+suppressWarnings(rm("ltaccount","ltportfolio","ClosePrice","CurrentDate","equity","stratFaber","startDate","initEq","Posn","UnitSize","verbose"))
 suppressWarnings(rm("order_book.faber","order_book.combMC", "order_book.GDAXI", "order_book.GSPC", "order_book.N225", pos=.strategy))
 
-##### PLACE DEMO AND TEST DATES HERE #################
-#
-#if(isTRUE(options('in_test')$in_test))
-#  # use test dates
-#  {initDate="2011-01-01" 
-#  endDate="2012-12-31"   
-#  } else
-#  # use demo defaults
-#  {initDate="1999-12-31"
-#  endDate=Sys.Date()}
-
 # Set initial values
-initDate='2000-01-01'
+startDate='2000-01-01'
 initEq=100000
 
 # Set up instruments with FinancialInstruments package
@@ -79,7 +68,7 @@ EURUSD<-getPrice(to.monthly(getSymbols("EURUSD=X",auto.assign=FALSE),indexAt='la
 colnames(USDJPY)<-"USDJPY"
 colnames(EURUSD)<-"EURUSD"
 
-getSymbols(symbols,from=initDate)
+getSymbols(symbols,from=startDate)
 #takes out the carat
 symbols = c("GSPC", "N225", "GDAXI")
 
@@ -95,12 +84,12 @@ for(symbol in symbols) {
     indexFormat(x)<-'%Y-%m-%d'
     colnames(x)<-gsub("x",symbol,colnames(x))
     assign(symbol,x)
-	initPortf(symbol, symbols=symbol, initDate=initDate, currency=getInstrument(symbol)$currency)
-	initOrders(portfolio=symbol, initDate=initDate)
+	initPortf(symbol, symbols=symbol, currency=getInstrument(symbol)$currency)
+	initOrders(portfolio=symbol)
 }
 
 
-initAcct('faberMC', portfolios=symbols, initDate=initDate, currency="USD")
+initAcct('faberMC', portfolios=symbols, currency="USD")
 
 # Initialize portfolio and account
 
@@ -143,8 +132,8 @@ print("trade blotter portfolio update:")
 print(end_t-start_t)
 
 #and a combined portfolio
-initPortf('combMC', symbols=symbols, initDate=initDate, currency="USD")
-initOrders(portfolio= 'combMC', initDate=initDate)
+initPortf('combMC', symbols=symbols, currency="USD")
+initOrders(portfolio= 'combMC')
 comb.out<-applyStrategy(strategy=stratFaber , portfolios='combMC')
 updatePortf(Portfolio='combMC',Dates=paste('::',as.Date(Sys.time()),sep=''))
 
@@ -172,9 +161,3 @@ for(symbol in symbols){
 # $Id: faber.R 371 2010-08-12 20:18:09Z braverock $
 #
 ###############################################################################
-
-##### PLACE THIS BLOCK AT END OF DEMO SCRIPT ################### 
-# book  = getOrderBook(port)
-# stats = tradeStats(port)
-# rets  = PortfReturns(acct)
-################################################################

@@ -29,12 +29,12 @@ if (!requireNamespace("PerformanceAnalytics", quietly=TRUE))
 
 ### blotter
 
-initPortf(portfolio.st, symbols='GBPUSD', initDate=initDate, currency='USD')
-initAcct(account.st, portfolios=portfolio.st, initDate=initDate, currency='USD', initEq=100000)
+initPortf(portfolio.st, symbols='GBPUSD', currency='USD')
+initAcct(account.st, portfolios=portfolio.st, currency='USD', initEq=100000)
 
 ### quantstrat
 
-initOrders(portfolio.st, initDate=initDate)
+initOrders(portfolio.st)
 
 load.strategy(strategy.st)
 
@@ -45,7 +45,7 @@ enable.rule(strategy.st, 'chain', 'TakeProfit')
 addPosLimit(
             portfolio=portfolio.st,
             symbol='GBPUSD',
-            timestamp=initDate,
+            timestamp=startDate,
             maxpos=.orderqty)
 
 ### objective function

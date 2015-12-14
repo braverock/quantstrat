@@ -17,22 +17,13 @@ suppressWarnings(rm("order_book.macross",pos=.strategy))
 suppressWarnings(rm("account.macross","portfolio.macross",pos=.blotter))
 suppressWarnings(rm("account.st","portfolio.st","stock.str","strategy.st",'start_t','end_t'))
 
-if(isTRUE(options('in_test')$in_test)){
-  # use test dates
-  initDate="2011-01-01" 
-  endDate="2012-12-31"   
-} else {
-  # use demo defaults
-  initDate="1999-12-31"
-  endDate=Sys.Date()
-}
-
 ###########################################################################
 # Data
+startDate="1999-12-31"
 stock.str=c('XLY','XLF','XLP','XLI','RTH','XLV','XLK','XLE','IYT')
 currency('USD')
 stock(stock.str,currency='USD',multiplier=1)
-getSymbols(stock.str,from=initDate,to=endDate,src = 'yahoo')
+getSymbols(stock.str,from=startDate,src = 'yahoo')
 for(i in stock.str)
   assign(i, adjustOHLC(get(i),use.Adjusted=TRUE))
 
@@ -41,9 +32,9 @@ for(i in stock.str)
 initEq=1000000
 portfolio.st='macross'
 account.st='macross'
-initPortf(portfolio.st,symbols=stock.str, initDate=initDate)
-initAcct(account.st,portfolios=portfolio.st, initDate=initDate,initEq=initEq)
-initOrders(portfolio=portfolio.st,initDate=initDate)
+initPortf(portfolio.st,symbols=stock.str)
+initAcct(account.st,portfolios=portfolio.st, initEq=initEq)
+initOrders(portfolio=portfolio.st)
 
 strategy.st<- strategy(portfolio.st)
 

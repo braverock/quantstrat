@@ -12,23 +12,12 @@ require(quantstrat)
 
 source(paste0(path.package("quantstrat"),"/demo/luxor.include.R"))
 
-##### PLACE DEMO AND TEST DATES HERE #################
-#
-#if(isTRUE(options('in_test')$in_test))
-#  # use test dates
-#  {initDate="2011-01-01" 
-#  endDate="2012-12-31"   
-#  } else
-#  # use demo defaults
-#  {initDate="1999-12-31"
-#  endDate=Sys.Date()}
-
 source(paste0(path.package("quantstrat"),"/demo/luxor.getSymbols.R"))
 
 ### blotter
 
-initPortf(portfolio.st, symbols='GBPUSD', initDate=initDate, currency='USD')
-initAcct(account.st, portfolios=portfolio.st, initDate=initDate, currency='USD')
+initPortf(portfolio.st, symbols='GBPUSD', currency='USD')
+initAcct(account.st, portfolios=portfolio.st, currency='USD')
 
 ### quantstrat
 
@@ -45,10 +34,10 @@ load.strategy('luxor')
 addPosLimit(
             portfolio=portfolio.st,
             symbol='GBPUSD',
-            timestamp=initDate,
+            timestamp=startDate,
             maxpos=.orderqty)
 
-initOrders(portfolio.st, initDate=initDate)
+initOrders(portfolio.st)
 
 applyStrategy(strategy.st, portfolio.st, prefer='Open')
 
@@ -75,9 +64,3 @@ dev.new()
 chart.ME(portfolio.st, 'GBPUSD', scale='percent', type='MAE')
 dev.new()
 chart.ME(portfolio.st, 'GBPUSD', scale='percent', type='MFE')
-
-##### PLACE THIS BLOCK AT END OF DEMO SCRIPT ################### 
-# book  = getOrderBook(port)
-# stats = tradeStats(port)
-# rets  = PortfReturns(acct)
-################################################################

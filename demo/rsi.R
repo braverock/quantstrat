@@ -2,7 +2,7 @@ require(quantstrat)
 
 suppressWarnings(rm("order_book.RSI",pos=.strategy))
 suppressWarnings(rm("account.RSI","portfolio.RSI",pos=.blotter))
-suppressWarnings(rm("account.st","portfolio.st","stock.str","stratRSI","initDate","initEq",'start_t','end_t'))
+suppressWarnings(rm("account.st","portfolio.st","stock.str","stratRSI","startDate","initEq",'start_t','end_t'))
 
 # Initialize a strategy object
 stratRSI <- strategy("RSI")
@@ -46,25 +46,14 @@ for(symbol in symbols){ # establish trade-able instruments
 # you can test with something like this:
 # applySignals(strategy=stratRSI, mktdata=applyIndicators(strategy=stratRSI, mktdata=symbols[1]))
 
-##### PLACE DEMO AND TEST DATES HERE #################
-#
-#if(isTRUE(options('in_test')$in_test))
-#  # use test dates
-#  {initDate="2011-01-01" 
-#  endDate="2012-12-31"   
-#  } else
-#  # use demo defaults
-#  {initDate="1999-12-31"
-#  endDate=Sys.Date()}
-
-initDate='1997-12-31'
+startDate='1997-12-31'
 initEq=100000
 port.st<-'RSI' #use a string here for easier changing of parameters and re-trying
 
-initPortf(port.st, symbols=symbols, initDate=initDate)
-initAcct(port.st, portfolios=port.st, initDate=initDate,initEq=initEq)
-initOrders(portfolio=port.st, initDate=initDate)
-for(symbol in symbols){ addPosLimit(port.st, symbol, initDate, 300, 3 ) } #set max pos 
+initPortf(port.st, symbols=symbols)
+initAcct(port.st, portfolios=port.st, initEq=initEq)
+initOrders(portfolio=port.st)
+for(symbol in symbols){ addPosLimit(port.st, symbol, startDate, 300, 3 ) } #set max pos 
 
 print("setup completed")
 
