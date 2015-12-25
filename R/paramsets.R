@@ -476,6 +476,8 @@ apply.paramset <- function(strategy.st, paramset.label, portfolio.st, account.st
     # now call %dopar%
     results <- fe %dopar%
     {
+        param.combo.num <- rownames(param.combo)
+        print(paste("Processing param.combo", param.combo.num))
         print(param.combo)
 
         # doSEQ and doMC make all environments available to the slave, but
@@ -504,7 +506,7 @@ apply.paramset <- function(strategy.st, paramset.label, portfolio.st, account.st
 
         result <- list()
         result$param.combo <- param.combo
-        result$portfolio.st <- paste(portfolio.st, rownames(param.combo), sep='.')
+        result$portfolio.st <- paste(portfolio.st, param.combo.num, sep='.')
 
         clone.portfolio(portfolio.st, result$portfolio.st)
         clone.orderbook(portfolio.st, result$portfolio.st)
@@ -544,6 +546,10 @@ apply.paramset <- function(strategy.st, paramset.label, portfolio.st, account.st
         }
         result$portfolio <- getPortfolio(result$portfolio.st)
         result$orderbook <- getOrderBook(result$portfolio.st)
+
+        # portfolio name has param.combo rowname in suffix, so
+        # print param.combo number for diagnostics
+        print(paste("Returning results for param.combo", param.combo.num))
 
         return(result)
     }
