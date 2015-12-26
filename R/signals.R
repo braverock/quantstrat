@@ -472,7 +472,7 @@ apply.paramset.signal.analysis<-function(strategy.st, paramset.label, portfolio.
   #   Loop through each symbol
   # TODO: parallelize it
   for(i in 1:nrow(param.combos)){  # param.combo = param.combos[1,]
-    param.combo = param.combos[i,]
+    param.combo <- param.combos[i,,drop=FALSE]
     
     if(verbose)cat("Applying Parameter Set: ",toString(param.combo),'\n')  
     

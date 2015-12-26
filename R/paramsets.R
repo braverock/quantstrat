@@ -151,6 +151,10 @@ select.samples <- function(nsamples, param.combos)
 
 install.param.combo <- function(strategy, param.combo, paramset.label)
 {
+    if (is.null(dim(param.combo))) {
+        stop("'param.combo' must have a dim attribute")
+    }
+
     for(param.label in colnames(param.combo))
     {
         distribution <- strategy$paramsets[[paramset.label]]$distributions[[param.label]]
