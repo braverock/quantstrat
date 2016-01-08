@@ -18,15 +18,25 @@
 #' @param portfolio text name of the portfolio to place orders in
 #' @param symbol identifier of the instrument to revoke orders for
 #' @param ruletype must be 'risk' for ruleRevoke, see \code{\link{add.rule}}
+#' @param ... any other passthru parameters
 #' @author Niklas Kolster, Jan Humme
 #' @seealso \code{\link{osNoOp}} , \code{\link{add.rule}}
 #' @export
-ruleRevoke <- ruleCancel <- function(data=mktdata, timestamp, sigcol, sigval, orderside=NULL, orderset=NULL, portfolio, symbol, ruletype)
+ruleRevoke <- ruleCancel <- function(data=mktdata, timestamp, sigcol, sigval, orderside=NULL, orderset=NULL, portfolio, symbol, ruletype, ...)
 {
-    if(ruletype!='risk') stop('Ruletype for ruleRevoke or ruleCancel must be "risk".')
+    if (ruletype != 'risk') {
+        stop('Ruletype for ruleRevoke or ruleCancel must be "risk".')
+    }
 
-    pos <- getPosQty(portfolio, symbol, timestamp)
-    if(pos == 0)
+    # Get row index of timestamp for faster subsetting
+    if (hasArg(curIndex)) {
+        curIndex <- eval(match.call(expand.dots=TRUE)$curIndex, parent.frame())
+    } else {
+        curIndex <- mktdata[timestamp,which.i=TRUE]
+    }
+
+    if (curIndex > 0 && curIndex <= nrow(mktdata) &&
+        !is.na(mktdata[curIndex,sigcol]) && mktdata[curIndex,sigcol] == sigval)
     {
         updateOrders(portfolio=portfolio, 
                   symbol=symbol, 

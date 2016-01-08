@@ -5,7 +5,7 @@
 \title{rule to revoke(cancel) an unfilled limit order on a signal}
 \usage{
 ruleRevoke(data = mktdata, timestamp, sigcol, sigval, orderside = NULL,
-  orderset = NULL, portfolio, symbol, ruletype)
+  orderset = NULL, portfolio, symbol, ruletype, ...)
 }
 \arguments{
 \item{data}{an xts object containing market data.  depending on rules, may need to be in OHLCV or BBO formats, and may include indicator and signal information}
@@ -25,6 +25,8 @@ ruleRevoke(data = mktdata, timestamp, sigcol, sigval, orderside = NULL,
 \item{symbol}{identifier of the instrument to revoke orders for}
 
 \item{ruletype}{must be 'risk' for ruleRevoke, see \code{\link{add.rule}}}
+
+\item{...}{any other passthru parameters}
 }
 \description{
 As described elsewhere in the documentation, quantstrat models 
