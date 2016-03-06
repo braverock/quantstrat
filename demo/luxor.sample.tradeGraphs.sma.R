@@ -15,7 +15,7 @@ require(rgl)
 
 load(paste0(
 	path.package('quantstrat'),
-	'/data/luxor.parameters.2-10.30-55.RData')
+	'/data/luxor.parameters.1-10.30-55.RData')
 )
 
 ### show trade graphs from stats
