@@ -156,7 +156,7 @@ for(symbol in symbols){
 ret1 <- PortfReturns('faber')
 ret1$total <- rowSums(ret1)
 
-View(ret1)
+print(ret1)
 
 if("package:PerformanceAnalytics" %in% search() || require("PerformanceAnalytics",quietly=TRUE)){
   getSymbols("SPY", src='yahoo', index.class=c("POSIXt","POSIXct"), from='1999-01-01')

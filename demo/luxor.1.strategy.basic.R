@@ -117,7 +117,7 @@ add.rule(strategy.st, name='ruleSignal',
 
 applyStrategy(strategy.st, portfolio.st)
 
-View(getOrderBook(portfolio.st)[[portfolio.st]]$GBPUSD)
+print(getOrderBook(portfolio.st)[[portfolio.st]]$GBPUSD)
 
 ###############################################################################
 
@@ -127,7 +127,7 @@ chart.Posn(portfolio.st, "GBPUSD")
 
 ###############################################################################
 
-View(t(tradeStats(portfolio.st, 'GBPUSD')))
+print(t(tradeStats(portfolio.st, 'GBPUSD')))
 
 ###############################################################################
 

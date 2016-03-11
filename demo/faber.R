@@ -137,7 +137,7 @@ for(symbol in symbols){
 ret1 <- PortfReturns('faber')
 ret1$total <- rowSums(ret1)
 
-View(ret1)
+print(ret1)
 
 if("package:PerformanceAnalytics" %in% search() || require("PerformanceAnalytics",quietly=TRUE)){
 	getSymbols("SPY", src='yahoo', index.class=c("POSIXt","POSIXct"), from='1999-01-01')
@@ -148,7 +148,7 @@ if("package:PerformanceAnalytics" %in% search() || require("PerformanceAnalytics
 }
 
 faber.stats<-tradeStats('faber')[,c('Net.Trading.PL','Max.Drawdown','Num.Trades','Profit.Factor','Std.Dev.Trade.PL','Largest.Winner','Largest.Loser','Max.Equity','Min.Equity')]
-View(faber.stats)
+print(faber.stats)
 
 Sys.setenv(TZ=oldtz)
 ###############################################################################
