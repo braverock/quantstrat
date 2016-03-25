@@ -145,9 +145,16 @@ osMaxPos <- function(data, timestamp, orderqty, ordertype, orderside, portfolio,
         stop(paste('no position limit defined for portfolio', portfolio))
 	
 	#TODO add handling for orderqty='all', and handle risk ruletype separately
+    if(is.character(orderqty)) {
+        if(ruletype == "risk" && orderqty == "all") {
+            orderqty <- pos * -1
+        } else {
+            stop("orderqty ", orderqty, " is not supported for non-risk ruletypes")
+        }
+    }
 	
 	#check order side
-	if(is.null(orderside) & !isTRUE(orderqty == 0)){
+	if(is.null(orderside) && !isTRUE(orderqty == 0)) {
 		curqty<-pos
 		if (curqty>0 ){
 			#we have a long position
@@ -166,7 +173,7 @@ osMaxPos <- function(data, timestamp, orderqty, ordertype, orderside, portfolio,
 	
 	# check levels
 	# buy long
-    if(orderqty>0 & orderside=='long'){
+    if(orderqty>0 && orderside=='long') {
         if ((orderqty+pos)<PosLimit[,"MaxPos"]) {
             #we have room to expand the position
             if(orderqty<=(PosLimit[,"MaxPos"]/PosLimit[,"LongLevels"]) ) {
@@ -179,14 +186,13 @@ osMaxPos <- function(data, timestamp, orderqty, ordertype, orderside, portfolio,
             orderqty<-ifelse((PosLimit[,"MaxPos"]-pos)<=round(PosLimit[,"MaxPos"]/PosLimit[,"LongLevels"],0),PosLimit[,"MaxPos"]-pos, round(PosLimit[,"MaxPos"]/PosLimit[,"LongLevels"],0)) 
             if(orderqty+pos>PosLimit[,"MaxPos"]) orderqty <- PosLimit[,"MaxPos"]-pos
         }
-        return(orderqty)
+        return(as.integer(orderqty))
     }
     
     #sell long
-    if(orderqty<0 & orderside=='long'){
+    if(orderqty<0 && orderside=='long') {
 		if(ruletype=='risk'){
-          if(orderqty=='all') return(-1*pos)
-          else return(orderqty)
+          return(orderqty)
         } 
 		if ((orderqty+pos)>=0) {
             return(orderqty)
@@ -198,7 +204,7 @@ osMaxPos <- function(data, timestamp, orderqty, ordertype, orderside, portfolio,
     }
     
     #sell short
-    if(orderqty<0 & orderside=='short'){
+    if(orderqty<0 && orderside=='short') {
         if ((orderqty+pos)>PosLimit[,"MinPos"]) {
             #we have room to expand the position
             if(orderqty>=(PosLimit[,"MinPos"]/PosLimit[,"ShortLevels"]) ) {
@@ -211,19 +217,18 @@ osMaxPos <- function(data, timestamp, orderqty, ordertype, orderside, portfolio,
             orderqty<-ifelse((PosLimit[,"MinPos"]-pos)>=round(PosLimit[,"MinPos"]/PosLimit[,"ShortLevels"],0),PosLimit[,"MinPos"]-pos, round(PosLimit[,"MinPos"]/PosLimit[,"ShortLevels"],0)) 
             if(orderqty+pos>PosLimit[,"MaxPos"]) orderqty <- PosLimit[,"MinPos"]-pos
         }
-        return(orderqty)
+        return(as.integer(orderqty))
     }
     
     #buy cover short
-    if(orderqty>0 & orderside=='short'){
+    if(orderqty>0 && orderside=='short') {
         if(ruletype=='risk'){
-            if(orderqty=='all') return(-1*pos)
-            else return(orderqty)
+            return(orderqty)
         } 
         if ((orderqty+pos)<=0) {
             return(orderqty)
         } else {
-            orderqty<-pos #flatten position, don't cross through zero
+            orderqty <- -pos #flatten position, don't cross through zero
             #TODO add code to break into two orders?
             return(orderqty)
         }
