@@ -5,6 +5,7 @@ Version: 0.9.1709
 Date: $Date$
 Author: Peter Carl, Brian G. Peterson, Joshua Ulrich, Jan Humme
 Depends:
+    R(>= 2.10),
     quantmod,
     xts(>= 0.8-2),
     blotter(>= 0.9),
