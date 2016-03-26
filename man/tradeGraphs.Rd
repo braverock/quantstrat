@@ -29,7 +29,7 @@ Draw 3D graphs from tradeStats results using rgl
 tradeGraphs (
      stats = stats,
      free.params = c("Param.indicator.1.nFast", "Param.indicator.2.nSlow"),
-params.filter = "Param.indicator.2.nSlow < 40 & Param.indicator.1.nFast > 5"
+     params.filter = "Param.indicator.2.nSlow < 40 & Param.indicator.1.nFast > 5"
      statistics = c("Net.Trading.PL", "maxDrawdown", "Avg.Trade.PL", "Num.Trades")
      title = 'Luxor'
 )

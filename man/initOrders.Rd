@@ -4,7 +4,7 @@
 \alias{initOrders}
 \title{initialize order container}
 \usage{
-initOrders(portfolio = NULL, symbols = NULL, initDate = "1999-12-31", ...)
+initOrders(portfolio = NULL, symbols = NULL, initDate = "1950-01-01", ...)
 }
 \arguments{
 \item{portfolio}{text name of the portfolio to associate the order book with}

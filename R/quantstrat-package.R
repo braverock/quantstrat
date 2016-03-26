@@ -102,5 +102,10 @@
 #' @keywords package
 # @examples
 #' 
-#' @import blotter FinancialInstrument foreach quantmod xts zoo
+#' @import blotter FinancialInstrument foreach methods quantmod xts zoo
+#' @importFrom grDevices dev.new heat.colors
+#' @importFrom graphics abline boxplot lines par plot
+#' @importFrom methods hasArg
+#' @importFrom stats as.formula coef end lm na.omit start time
+#' @importFrom utils glob2rx installed.packages
 NULL
