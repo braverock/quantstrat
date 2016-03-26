@@ -170,34 +170,31 @@ osMaxPos <- function(data, timestamp, orderqty, ordertype, orderside, portfolio,
 				orderside<-'short'
 		}
 	}
+    # TODO: need to ensure that orderside and pos align if orderside != NULL?
+    # i.e. it's possible user passes orderside = "long" when pos < 0.
 	
 	# check levels
 	# buy long
     if(orderqty>0 && orderside=='long') {
-        if ((orderqty+pos)<PosLimit[,"MaxPos"]) {
-            #we have room to expand the position
-            if(orderqty<=(PosLimit[,"MaxPos"]/PosLimit[,"LongLevels"]) ) {
-                orderqty=orderqty
-            } else {
-                orderqty = round(PosLimit[,"MaxPos"]/PosLimit[,"LongLevels"],0) #note no round lots
-            }
-        } else {
-            # this order would put us over the MaxPos limit
-            orderqty<-ifelse((PosLimit[,"MaxPos"]-pos)<=round(PosLimit[,"MaxPos"]/PosLimit[,"LongLevels"],0),PosLimit[,"MaxPos"]-pos, round(PosLimit[,"MaxPos"]/PosLimit[,"LongLevels"],0)) 
-            if(orderqty+pos>PosLimit[,"MaxPos"]) orderqty <- PosLimit[,"MaxPos"]-pos
+        # note no round lots for max clip
+        clip <- round(PosLimit[,"MaxPos"] / PosLimit[,"LongLevels"], 0)
+
+        if ((orderqty+pos) > PosLimit[,"MaxPos"]) {
+            # this order would put us beyond the MaxPos limit
+            orderqty <- PosLimit[,"MaxPos"] - pos
         }
-        return(as.integer(orderqty))
+        # check clip size
+        orderqty <- min(orderqty, clip)
+
+        return(as.numeric(orderqty))  # strip attributes
     }
     
     #sell long
     if(orderqty<0 && orderside=='long') {
-		if(ruletype=='risk'){
-          return(orderqty)
-        } 
-		if ((orderqty+pos)>=0) {
+        if(ruletype=='risk' || (orderqty+pos)>=0) {
             return(orderqty)
         } else {
-			orderqty <- -pos #flatten position, don't cross through zero
+            orderqty <- -pos #flatten position, don't cross through zero
             #TODO add code to break into two orders?
             return(orderqty)
         }
@@ -205,27 +202,22 @@ osMaxPos <- function(data, timestamp, orderqty, ordertype, orderside, portfolio,
     
     #sell short
     if(orderqty<0 && orderside=='short') {
-        if ((orderqty+pos)>PosLimit[,"MinPos"]) {
-            #we have room to expand the position
-            if(orderqty>=(PosLimit[,"MinPos"]/PosLimit[,"ShortLevels"]) ) {
-                orderqty=orderqty
-            } else {
-                orderqty = round(PosLimit[,"MinPos"]/PosLimit[,"ShortLevels"],0) #note no round lots
-            }
-        } else {
-            # this order would put us over the MinPos limit
-            orderqty<-ifelse((PosLimit[,"MinPos"]-pos)>=round(PosLimit[,"MinPos"]/PosLimit[,"ShortLevels"],0),PosLimit[,"MinPos"]-pos, round(PosLimit[,"MinPos"]/PosLimit[,"ShortLevels"],0)) 
-            if(orderqty+pos>PosLimit[,"MaxPos"]) orderqty <- PosLimit[,"MinPos"]-pos
+        # note no round lots for max clip
+        clip <- round(PosLimit[,"MinPos"] / PosLimit[,"ShortLevels"], 0)
+
+        if ((orderqty+pos) < PosLimit[,"MinPos"]) {
+            # this order would put us beyond the MinPos limit
+            orderqty <- PosLimit[,"MinPos"] - pos
         }
-        return(as.integer(orderqty))
+        # check clip size
+        orderqty <- max(orderqty, clip)
+
+        return(as.numeric(orderqty))  # strip attributes
     }
     
     #buy cover short
     if(orderqty>0 && orderside=='short') {
-        if(ruletype=='risk'){
-            return(orderqty)
-        } 
-        if ((orderqty+pos)<=0) {
+        if(ruletype=='risk' || (orderqty+pos)<=0) {
             return(orderqty)
         } else {
             orderqty <- -pos #flatten position, don't cross through zero
