@@ -67,16 +67,16 @@ test_that("reduce short", {
 })
 
 test_that("increase short within limits", {
-  qty <- osMaxPos(NULL, timestamp, -1000, "", "short", portfolio, symbol, "risk")
+  qty <- osMaxPos(NULL, timestamp, -1000, "", "short", portfolio, symbol, "")
   expect_equal(qty, -1000)
-  qty <- osMaxPos(NULL, timestamp, -1000, "", NULL, portfolio, symbol, "risk")
+  qty <- osMaxPos(NULL, timestamp, -1000, "", NULL, portfolio, symbol, "")
   expect_equal(qty, -1000)
 })
 
 test_that("increase short beyond limits", {
-  qty <- osMaxPos(NULL, timestamp, -2000, "", "short", portfolio, symbol, "risk")
+  qty <- osMaxPos(NULL, timestamp, -2000, "", "short", portfolio, symbol, "")
   expect_equal(qty, -1000)
-  qty <- osMaxPos(NULL, timestamp, -2000, "", NULL, portfolio, symbol, "risk")
+  qty <- osMaxPos(NULL, timestamp, -2000, "", NULL, portfolio, symbol, "")
   expect_equal(qty, -1000)
 })
 
@@ -140,16 +140,16 @@ test_that("flatten long w/orderqty > abs(position)", {
 })
 
 test_that("increase long within limits", {
-  qty <- osMaxPos(NULL, timestamp, 1000, "", "long", portfolio, symbol, "risk")
+  qty <- osMaxPos(NULL, timestamp, 1000, "", "long", portfolio, symbol, "")
   expect_equal(qty, 1000)
-  qty <- osMaxPos(NULL, timestamp, 1000, "", NULL, portfolio, symbol, "risk")
+  qty <- osMaxPos(NULL, timestamp, 1000, "", NULL, portfolio, symbol, "")
   expect_equal(qty, 1000)
 })
 
 test_that("increase long beyond limits", {
-  qty <- osMaxPos(NULL, timestamp, 2000, "", "long", portfolio, symbol, "risk")
+  qty <- osMaxPos(NULL, timestamp, 2000, "", "long", portfolio, symbol, "")
   expect_equal(qty, 1000)
-  qty <- osMaxPos(NULL, timestamp, 2000, "", NULL, portfolio, symbol, "risk")
+  qty <- osMaxPos(NULL, timestamp, 2000, "", NULL, portfolio, symbol, "")
   expect_equal(qty, 1000)
 })
 
