@@ -87,15 +87,19 @@ add.rule <- function(strategy, name, arguments, parameters=NULL, label=NULL, typ
     if(is.na(charmatch(type,c("risk","order","rebalance","exit","enter","chain","pre","post")))) stop(paste("type:",type,' must be one of "risk", "order", "rebalance", "exit", "enter", "chain", "pre", or "post"'))
     tmp_rule<-list()
     if(!is.function(name) && isTRUE(storefun)) {
-        if(!is.function(get(name))){
-            if(!is.function(get(paste("rule",name,sep='.')))){
-                message(paste("Skipping rule",name,"because there is no function by that name to call"))
-                next()      
+        if(exists(name, mode="function")) {
+            fn <- get(name, mode="function")
+        } else {
+            rule.name <- paste("rule", name, sep=".")
+            if(exists(rule.name, mode="function")) {
+                fn <- get(rule.name, mode="function")
+                name <- rule.name
             } else {
-                name<-paste("rule",rule$name,sep='.')
+                message("Skipping rule ", name,
+                        " because there is no function by that name to call")
+                next
             }
         }
-        fn<-match.fun(name)
     } else {
         fn <- name
     }
@@ -653,17 +657,25 @@ ruleProc <- function (ruletypelist,timestamp=NULL, path.dep, ruletype, ..., para
     for (rule in ruletypelist){
         #TODO check to see if they've already been calculated
         if (!rule$path.dep==path.dep) next()
-        if(!is.function(rule$name)) {
-            if(!is.function(get(rule$name))){
-                if(!is.function(get(paste("rule",rule$name,sep='.')))){
-                    message(paste("Skipping rule",rule$name,"because there is no function by that name to call"))
-                    next()      
+
+        if(is.function(rule$name)) {
+            ruleFun <- rule$name
+        } else {
+            if(exists(rule$name, mode="function")) {
+                ruleFun <- get(rule$name, mode="function")
+            } else {
+                rule.name <- paste("rule", rule$name, sep=".")
+                if(exists(rule.name, mode="function")) {
+                    ruleFun <- get(rule.name, mode="function")
+                    rule$name <- rule.name
                 } else {
-                    rule$name<-paste("rule",rule$name,sep='.')
+                    message("Skipping rule ", rule$name,
+                            " because there is no function by that name to call")
+                    next
                 }
-            }   
+            }
         }
-        
+
         if(!isTRUE(rule$enabled)) next()
         
         # check to see if we should run in this timespan
@@ -696,7 +708,7 @@ ruleProc <- function (ruletypelist,timestamp=NULL, path.dep, ruletype, ..., para
         if(!is.null(rule$arguments$prefer)) .formals$prefer = rule$arguments$prefer
         
         # evaluate rule in applyRules' environment
-        tmp_val <- do.call(rule$name, .formals, envir=parent.frame(1))
+        tmp_val <- do.call(ruleFun, .formals, envir=parent.frame(1))
                 
 #            print(paste('tmp_val ==', tmp_val))
     } #end rules loop

@@ -102,9 +102,16 @@ function(strategy,
     #first do whatever the user stuck in this wrapup slot...
     if(length(strategy$wrapup)>0){
         for (wrapup_o in strategy$wrapup){
-            if(!is.function(get(wrapup_o$name))){
-                message(paste("Skipping wrapup",wrapup_o$name,"because there is no function by that name to call"))
-                next()      
+            if(is.function(wrapup_o$name)) {
+                wrapup_oFun <- wrapup_o$name
+            } else {
+                if(exists(wrapup_o$name, mode="function")) {
+                    wrapup_oFun <- get(wrapup_o$name, mode="function")
+                } else {
+                    message("Skipping wrapup function ", wrapup_o$name,
+                            " because there is no function by that name to call.")
+                    next
+                }
             }
             
             if(!isTRUE(wrapup_o$enabled)) next()
@@ -119,7 +126,7 @@ function(strategy,
             # remove ... to avoid matching multiple args
             .formals$`...` <- NULL
             
-            out[[wrapup_o$name]] <- do.call(wrapup_o$name, .formals)
+            out[[wrapup_o$name]] <- do.call(wrapup_oFun, .formals)
         }            
     }
     

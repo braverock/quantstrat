@@ -97,11 +97,18 @@ initStrategy <- function(strategy,
     # arbitrary user-defined initialization functions added to the initialization steps    
     # now do whatever else the user stuck in this init slot...
     for (init_o in strategy$init){
-        if(!is.function(get(init_o$name))){
-            message(paste("Skipping initialization function",init_o$name,"because there is no function by that name to call"))
-            next()      
+        if(is.function(init_o$name)) {
+            init_oFun <- init_o$name
+        } else {
+            if(exists(init_o$name, mode="function")) {
+                init_oFun <- get(init_o$name, mode="function")
+            } else {
+                message("Skipping initialization function ", init_o$name,
+                        " because there is no function by that name to call.")
+                next
+            }
         }
-        
+
         if(!isTRUE(init_o$enabled)) next()
         
         # replace default function arguments with init_o$arguments
@@ -114,7 +121,7 @@ initStrategy <- function(strategy,
         # remove ... to avoid matching multiple args
         .formals$`...` <- NULL
         
-        do.call(init_o$name, .formals)
+        do.call(init_oFun, .formals)
     }
 }
 
@@ -193,15 +200,22 @@ initSymbol <- function(strategy, symbol, ...){
 
     ## run user-defined initialization function contained in the strategy slot init_symbol
     init_s <- strategy$init_symbol
-    if(!is.function(get(init_s$name))){
-        message(paste("Iniziatialization function", init_s$name, "not found. Skipping"))
-        return()
+
+    if(is.function(init_s$name)) {
+        init_sFun <- init_s$name
+    } else {
+        if(exists(init_s$name, mode="function")) {
+            init_sFun <- get(init_s$name, mode="function")
+        } else {
+            message("Initialization function ", init_s$name, " not found. Skipping")
+            return()
+        }
     }
 
     if(!isTRUE(init_s$enabled)) next()
 
     ## (from initStrategy)
-    ## replace default function arguments with init_o$arguments
+    ## replace default function arguments with init_s$arguments
     .formals <- formals(init_s$name)
     .formals <- modify.args(.formals, init_s$arguments, dots=TRUE)
     ## now add dots
@@ -209,7 +223,7 @@ initSymbol <- function(strategy, symbol, ...){
     ## remove ... to avoid matching multiple args
     .formals$`...` <- NULL
     
-    do.call(init_s$name, .formals)
+    do.call(init_sFun, .formals)
 }
 
 

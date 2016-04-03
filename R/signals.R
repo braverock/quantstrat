@@ -93,16 +93,25 @@ applySignals <- function(strategy, mktdata, indicators=NULL, parameters=NULL, ..
     
     for (signal in strategy$signals){
         #TODO check to see if they've already been calculated
-        
-        if(!is.function(get(signal$name))){
-            if(!is.function(get(paste("sig",signal$name,sep='.')))){
-                message(paste("Skipping signal",signal$name,"because there is no function by that name to call"))
-                next()      
+
+        if(is.function(signal$name)) {
+            sigFun <- signal$name
+        } else {
+            if(exists(signal$name, mode="function")) {
+                sigFun <- get(signal$name, mode="function")
             } else {
-                signal$name<-paste("sig",signal$name,sep='.')
+                sig.name <- paste("sig", signal$name, sep=".")
+                if(exists(sig.name, mode="function")) {
+                    sigFun <- get(sig.name, mode="function")
+                    signal$name <- sig.name
+                } else {
+                    message("Skipping signal ", signal$name,
+                            " because there is no function by that name to call")
+                    next
+                }
             }
         }
- 
+
         if(!isTRUE(signal$enabled)) next()
         
         # replace default function arguments with signal$arguments
@@ -115,7 +124,7 @@ applySignals <- function(strategy, mktdata, indicators=NULL, parameters=NULL, ..
         # remove ... to avoid matching multiple args
         .formals$`...` <- NULL
 
-        tmp_val <- do.call(signal$name, .formals)
+        tmp_val <- do.call(sigFun, .formals)
 		
 		#add label
 		if(is.null(colnames(tmp_val)))

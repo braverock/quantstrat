@@ -163,15 +163,24 @@ applyIndicators <- function(strategy, mktdata, parameters=NULL, ...) {
     mktdata <- mktdata[, keep]
     
     for (indicator in strategy$indicators){
-        if(!is.function(get(indicator$name))){
-            if(!is.function(get(paste("sig",indicator$name,sep='.')))){		
-                message(paste("Skipping indicator",indicator$name,"because there is no function by that name to call"))
-                next()      
+        if(is.function(indicator$name)) {
+            indFun <- indicator$name
+        } else {
+            if(exists(indicator$name, mode="function")) {
+                indFun <- get(indicator$name, mode="function")
             } else {
-                indicator$name<-paste("ind",indicator$name,sep='.')
+                ind.name <- paste("ind", indicator$name, sep=".")
+                if(exists(ind.name, mode="function")) {
+                    indFun <- get(ind.name, mode="function")
+                    indicator$name <- ind.name
+                } else {
+                    message("Skipping indicator ", indicator$name,
+                            " because there is no function by that name to call")
+                    next
+                }
             }
         }
-        
+
         if(!isTRUE(indicator$enabled)) next()
         
         # replace default function arguments with indicator$arguments
@@ -184,7 +193,7 @@ applyIndicators <- function(strategy, mktdata, parameters=NULL, ...) {
         # remove ... to avoid matching multiple args
         .formals$`...` <- NULL
         
-        tmp_val <- do.call(indicator$name, .formals)
+        tmp_val <- do.call(indFun, .formals)
 		
 		#add label
         if(is.null(colnames(tmp_val)))
