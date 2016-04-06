@@ -96,8 +96,6 @@ initOrders <- function(portfolio=NULL, symbols=NULL, initDate = '1950-01-01', ..
 #' 
 #' It has some use as a reporting or post-hoc analytics tool, but it may not always be exported.
 #' 
-#' should this be symbols instead of symbol?
-#' 
 #' @param portfolio text name of the portfolio to associate the order book with
 #' @param symbol identifier of the instrument to find orders for.  The name of any associated price objects (xts prices, usually OHLC) should match these
 #' @param status one of "open", "closed", "canceled", "revoked", or "replaced", default "open"
@@ -116,7 +114,14 @@ getOrders <- function(portfolio,symbol,status="open",timespan=NULL,ordertype=NUL
     #if(is.null(timespan)) stop("timespan must be an xts style timestring")
     # get order book
     orderbook <- getOrderBook(portfolio)
-    if(!any(names(orderbook[[portfolio]]) == symbol)) stop(paste("symbol",symbol,"does not exist in portfolio",portfolio,"having symbols",names(orderbook[[portfolio]])))
+    if(length(symbol) > 1L) {
+        symbol <- symbol[1L]  # only one symbol at a time is currently supported
+        warning("Only single instruments are currently supported. Using first symbol only.")
+    }
+    if(!any(names(orderbook[[portfolio]]) == symbol)) {
+        stop("symbol ", symbol, " does not exist in portfolio ", portfolio,
+             ", which has symbols: ", paste(names(orderbook[[portfolio]]), collapse=", "))
+    }
 
     ordersubset <- orderbook[[portfolio]][[symbol]]
     if(is.null(ordersubset))

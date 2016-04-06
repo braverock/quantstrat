@@ -32,8 +32,6 @@ This function exists so that other code can find open orders, potentially to upd
 }
 \details{
 It has some use as a reporting or post-hoc analytics tool, but it may not always be exported.
-
-should this be symbols instead of symbol?
 }
 \seealso{
 getOrderBook
