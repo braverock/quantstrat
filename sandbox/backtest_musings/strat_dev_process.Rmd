@@ -3,7 +3,7 @@ title: Developing & Backtesting Systematic Trading Strategies
 author: Brian G. Peterson
 bibliography: stat_process.bib
 output:
-  rmarkdown::tufte_handout 
+  tufte::tufte_handout 
   #tufterhandout::html_tufte_handout
   #toc: true
   #toc_depth: 2
@@ -12,8 +12,8 @@ output:
 keywords: quantitative trading, backtest, quantitative strategy, scientific method
 subject: quantitative trading, backtest, quantitative strategy, scientific method
 
-footer: Copyright 2014 Brian G. Peterson CC-BY-NC-SA.  
-copyright: Copyright 2014 Brian G. Peterson CC-BY-NC-SA. 
+footer: Copyright 2014-2016 Brian G. Peterson CC-BY-NC-SA.  
+copyright: Copyright 2014-2016 Brian G. Peterson CC-BY-NC-SA. 
 
 abstract: Analysts and portfolio managers face many challenges in developing new systematic trading systems.  This paper provides a detailed, repeatable process to aid in evaluating new ideas, developing those ideas into testable hypotheses, measuring results in comparable ways, and avoiding and measuring the ever-present risks of over-fitting. ^[ *Back-testing. I hate it –- it's just optimizing over history. You never see a bad back-test. Ever. In any strategy.* - Josh Diedesch[-@Diedesch2014] ]
 
@@ -322,6 +322,14 @@ out of sample (OOS) power goes down.  It also invites going over the data
 multiple times while the model is "refined", introducing progressively 
 more data snooping bias.
 
+Social scientists have coined the term HARKing[@Kerr1998] for "hypothesizing 
+after the results are known".  This needs to be separated from true scientific 
+inference, which develops an **a priori** hypothesis from examining raw or 
+unmassaged data.  Defining a hypothesis should proceed from data to question to
+testable conjecture about a dependent variable.  Rejecting a hypothesis is more
+valuable that inventing one after the fact. (and avoids losing money on an random
+or over-fit model)
+
 ___
 
 # Defining the strategy
@@ -334,16 +342,17 @@ The **R** package *quantstrat* formalizes the strategy structure into
 *filters*, *indicators*, *signals*, and *rules*.
 
 \newthought{Filters} help to select the instruments to trade.  
-They may be part of the formulated hypothesis, or they may be market 
-characteristics that allow the rest of the strategy to trade better.  
-In fundamental equity investing, some strategies consist only of filters.  
-For example, the StarMine package that was bought by Thomson Reuters defines 
-quantitative stock screens based on technicals or fundamentals.^[a modern, free
-alternative may be found at http://finviz.com/screener.ashx]
-Many analysts will expand or shrink their investible universe based on screens. 
-Lo's Variance Ratio is another measure often used as a filter to turn the 
-strategy on or off for particular instruments (but can also be used as an 
-indicator, since it is time-varying).
+
+They may be part of the formulated hypothesis, or they may be market
+characteristics that allow the rest of the strategy to trade better. In
+fundamental equity investing, some strategies consist only of filters. For
+example, the StarMine package that was bought by Thomson Reuters defines
+quantitative stock screens based on technicals or fundamentals.^[a modern, free 
+alternative may be found at http://finviz.com/screener.ashx] Many analysts will
+expand or shrink their investible universe based on screens. Lo's Variance Ratio
+is another measure often used as a filter to turn the strategy on or off for
+particular instruments (but can also be used as an indicator, since it is
+time-varying).
 
 \newthought{Indicators} are quantitative values derived from market data.
 
@@ -1115,7 +1124,7 @@ most common are FIFO, tax lots, flat to flat, and flat to reduced.
     
     Flat to flat "trade" analysis marks the beginning of the trade from the
     first transaction to move the position off zero, and marks the end of
-    the "trade" with the transaction that brings the P\&L back to zero, 
+    the "trade" with the transaction that brings the position back to zero, 
     or "flat".
     It will match brokerage statements of realized P\&L when the positions is 
     flat and average cost of open positions always, so it is easy to reconcile 
@@ -1157,9 +1166,14 @@ most common are FIFO, tax lots, flat to flat, and flat to reduced.
     reduction to an increase, in expanding order from the first reduction. 
     This is "time and quantity" priority, and is analytically more repeatable 
     and manageable than FIFO.  If you have a reason for utilizing FIFO-like 
-    analysis, consider using "increased to reduced" instead.  Be aware that the 
-    "trade" statistics will not be reconcilable to any brokerage statement, 
-    this is purely an analytical methodology.
+    analysis, consider using "increased to reduced" instead.  This methodology
+    is sometimes called "average cost FIFO", and there is an average cost LIFO
+    variant as well. In contrast to traditional FIFO, realized P\&L on a 
+    per-period basis will match the brokerage statements using this methodology, 
+    as realized P\&L is taken from the same average cost basis. Be aware that 
+    the round-turn "trade" statistics may not be fully reconcilable to a 
+    brokerage statement, as the separation into round-turn "trades" is purely an 
+    analytical methodology.  
    
 \newthought{Aggregate trade statistics are calculated on the entire backtest.}
 
@@ -1734,7 +1748,7 @@ via [JabRef](http://jabref.sourceforge.net/).
 
 ___
 
-©2014-2015 Brian G. Peterson 
+©2014-2016 Brian G. Peterson 
 
 \includegraphics[width=1.75cm]{cc-by-nc-sa}  
 
