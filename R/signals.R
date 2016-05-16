@@ -251,7 +251,6 @@ sigPeak <- function(label,data,column, direction=c("peak","bottom")){
            "peak"   = { ret_sig <- Lag(data[,colNum],2) < Lag(data[,colNum],1) & Lag(data[,colNum],1) > data[,colNum] } ,
            "bottom","valley" = { ret_sig <- Lag(data[,colNum],2) > Lag(data[,colNum],1) & Lag(data[,colNum],1) < data[,colNum] }
     )
-    Lag(ret_sig,-1)
     colnames(ret_sig)<-paste(label,direction,"sig",sep='.')
     return(ret_sig)
 }
