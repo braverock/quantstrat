@@ -24,6 +24,8 @@ osMaxPos(data, timestamp, orderqty, ordertype, orderside, portfolio, symbol,
 
 \item{ruletype}{one of "risk","order","rebalance","exit","enter", see \code{\link{add.rule}}}
 
+\item{digits}{numeric number of digits to round position size to}
+
 \item{...}{any other passthru parameters}
 }
 \description{
