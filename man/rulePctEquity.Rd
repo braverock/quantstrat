@@ -5,7 +5,8 @@
 \title{rule to base trade size on a percentage of available equity.}
 \usage{
 rulePctEquity(trade.percent = 0.02, ..., longlevels = 1, shortlevels = 1,
-  digits = NULL, refprice = NULL, portfolio, symbol, timestamp)
+  digits = NULL, refprice = NULL, portfolio, account = NULL, symbol,
+  timestamp)
 }
 \arguments{
 \item{trade.percent}{max percentage of equity to allow the strategy to trade in this symbol}
@@ -20,7 +21,7 @@ rulePctEquity(trade.percent = 0.02, ..., longlevels = 1, shortlevels = 1,
 
 \item{portfolio}{text name of the portfolio to place orders in, typically set automatically}
 
-\item{account}{text name of the account to fetch initial equity from, defaults to initEq in the search path.}
+\item{account}{text name of the account to fetch initial equity from, defaults to initEq in the search path}
 
 \item{symbol}{identifier of the instrument to cancel orders for, typically set automatically}
 

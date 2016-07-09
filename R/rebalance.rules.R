@@ -16,6 +16,7 @@
 #' @param digits if not NULL(the default), will call \code{\link{round}} with specified number of digits
 #' @param refprice if not NULL(the default), will divide the calculated tra
 #' @param portfolio text name of the portfolio to place orders in, typically set automatically
+#' @param account text name of the account to fetch initial equity from, defaults to initEq in the search path
 #' @param symbol identifier of the instrument to cancel orders for, typically set automatically
 #' @param timestamp timestamp coercible to POSIXct that will be the time the order will be inserted on, typically set automatically 
 #' @param \dots any other passthrough parameters

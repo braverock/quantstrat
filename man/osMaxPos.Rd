@@ -5,7 +5,7 @@
 \title{order sizing function for position limits and level sizing}
 \usage{
 osMaxPos(data, timestamp, orderqty, ordertype, orderside, portfolio, symbol,
-  ruletype, ...)
+  ruletype, digits = 0, ...)
 }
 \arguments{
 \item{data}{an xts object containing market data.  depending on rules, may need to be in OHLCV or BBO formats, and may include indicator and signal information}
@@ -24,7 +24,7 @@ osMaxPos(data, timestamp, orderqty, ordertype, orderside, portfolio, symbol,
 
 \item{ruletype}{one of "risk","order","rebalance","exit","enter", see \code{\link{add.rule}}}
 
-\item{digits}{numeric number of digits to round position size to}
+\item{digits}{call \code{\link{round}} to round min/max clip size to specified number of digits}
 
 \item{...}{any other passthru parameters}
 }
