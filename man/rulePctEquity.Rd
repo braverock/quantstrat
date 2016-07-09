@@ -20,6 +20,8 @@ rulePctEquity(trade.percent = 0.02, ..., longlevels = 1, shortlevels = 1,
 
 \item{portfolio}{text name of the portfolio to place orders in, typically set automatically}
 
+\item{account}{text name of the account to fetch initial equity from, defaults to initEq in the search path.}
+
 \item{symbol}{identifier of the instrument to cancel orders for, typically set automatically}
 
 \item{timestamp}{timestamp coercible to POSIXct that will be the time the order will be inserted on, typically set automatically}
