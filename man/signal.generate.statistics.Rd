@@ -11,7 +11,7 @@ signal.generate.statistics(post.ret, obj.fun = NULL, decreasing = TRUE)
 
 \item{obj.fun}{custom objective function for measuring signal goodness}
 
-\item{decreasing}{if true, the higher the objective value, the better}
+\item{decreasing}{if \code{TRUE} (the default), larger objective function values are better}
 }
 \value{
 objective function values

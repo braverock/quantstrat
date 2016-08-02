@@ -415,7 +415,7 @@ sigTimestamp <- function(label, data=mktdata, timestamp, on="days") {
 #' @param cum.sum whether to use cumsum on price changes
 #' @param include.day.of.signal whether to include the day of signal generation
 #' @param obj.fun objective function for determining goodness of each paramset
-#' @param decreasing how to sort the obj.fun output values
+#' @param decreasing if \code{TRUE} (the default), larger objective function values are better
 #' @param mktdata market data
 #' @param verbose whether to output processing messages
 #' @author Michael Guan
@@ -434,9 +434,11 @@ sigTimestamp <- function(label, data=mktdata, timestamp, on="days") {
 
 apply.paramset.signal.analysis<-function(strategy.st, paramset.label, portfolio.st, sigcol,sigval,
                                          on,forward.days,cum.sum=TRUE,include.day.of.signal,
-                                         obj.fun,decreasing,mktdata=NULL,verbose=TRUE){
+                                         obj.fun,decreasing=TRUE,mktdata=NULL,verbose=TRUE){
   
   must.have.args(match.call(), c('strategy.st', 'paramset.label', 'portfolio.st')) #
+  if(missing(obj.fun))
+    stop("'obj.fun' must be provided in order to rank paramset signals")
   
   strategy <- must.be.strategy(strategy.st) 
   must.be.paramset(strategy, paramset.label)   
@@ -571,7 +573,7 @@ applyIndicatorSignals<-function(strategy, portfolio, mktdata, sigcol, ...){
 #'                           
 #' @param post.ret \code{matrix} of parameter set of post signal price deltas
 #' @param obj.fun custom objective function for measuring signal goodness
-#' @param decreasing if true, the higher the objective value, the better
+#' @param decreasing if \code{TRUE} (the default), larger objective function values are better
 #' @author Michael Guan
 #' @return objective function values
 #' @seealso 

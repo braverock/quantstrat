@@ -6,7 +6,7 @@
 \usage{
 apply.paramset.signal.analysis(strategy.st, paramset.label, portfolio.st,
   sigcol, sigval, on, forward.days, cum.sum = TRUE, include.day.of.signal,
-  obj.fun, decreasing, mktdata = NULL, verbose = TRUE)
+  obj.fun, decreasing = TRUE, mktdata = NULL, verbose = TRUE)
 }
 \arguments{
 \item{strategy.st}{an object of type 'strategy' to add the indicator to}
@@ -29,7 +29,7 @@ apply.paramset.signal.analysis(strategy.st, paramset.label, portfolio.st,
 
 \item{obj.fun}{objective function for determining goodness of each paramset}
 
-\item{decreasing}{how to sort the obj.fun output values}
+\item{decreasing}{if \code{TRUE} (the default), larger objective function values are better}
 
 \item{mktdata}{market data}
 
