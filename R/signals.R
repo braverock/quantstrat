@@ -621,12 +621,11 @@ post.signal.returns<-function(signals,sigval,on=NULL,forward.days,cum.sum=TRUE,
   
   # Incremental Index Values / Label Generation
   if(include.day.of.signal == TRUE){
-    days.increment = c(0,seq(1,forward.days))
-    name.ref = sapply( days.increment ,function(x){paste("Period",x,sep='.')})
+    days.increment = seq(0,forward.days)
   }else{
     days.increment = seq(1,forward.days+1)
-    name.ref = sapply( days.increment[-length(days.increment)] ,function(x){paste("Period",x,sep='.')})
   }
+  name.ref = paste0("Period.", head(days.increment, -1))
   
   # Get Relevant Market Data
   if(is.null(mktdata)){
