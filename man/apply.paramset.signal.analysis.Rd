@@ -61,8 +61,6 @@ To determine the goodness of a parameter set relative to all others, we let the 
 that will be used to calculate an objective value representing each parameter. These will then be sorted from best to worst. The
 objective function will take in a single matrix \code{ret.mat} of price changes. Each row represents an individual signal
 while each column represents periods/post signal.
-
-See demo 'signalAnalysisExample1.R' & 'signalAnalysisExample2.R'
 }
 \author{
 Michael Guan

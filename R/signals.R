@@ -403,8 +403,6 @@ sigTimestamp <- function(label, data=mktdata, timestamp, on="days") {
 #' objective function will take in a single matrix \code{ret.mat} of price changes. Each row represents an individual signal
 #' while each column represents periods/post signal. 
 #' 
-#' See demo 'signalAnalysisExample1.R' & 'signalAnalysisExample2.R'
-#' 
 #' @param strategy.st an object of type 'strategy' to add the indicator to
 #' @param paramset.label a label uniquely identifying the paramset within the strategy
 #' @param portfolio.st text name of the portfolio to associate the order book with
@@ -936,7 +934,6 @@ distributional.boxplot<-function(signal,x.val=seq(1, 50, 5),val=10,ylim=c(-5, 5)
 #' @return plot
 #' @examples
 #' \dontrun{
-#' # signalAnalysisExample1.R
 #' signal.plot.path(results$sigret.by.asset$RTH$paramset.1.5[1:10,])
 #' }
 #' @export
