@@ -1706,7 +1706,7 @@ whether you are likely to have overfit your model.
 - modifying existing expectations
 - track the number of trials
 - how do you define a 'trial'?
-- CCSV sampling
+- CSCV sampling
   - combinatorially symmetric cross validation
 "generate $S/2$ testing sets of size $T/2$ by recombining the $S$ slices of the
 overall sample of size $T$. 

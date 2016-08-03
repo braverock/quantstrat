@@ -39,8 +39,8 @@ currency("EUR")
 symbols = c("XLF", "XLP", "XLE", "XLY", "XLV", "XLI", "XLB", "XLK", "XLU")
 for(symbol in symbols){ # establish trade-able instruments
     stock(symbol, currency="USD",multiplier=1)
-	getSymbols(symbol)
 }
+getSymbols(symbols, src='yahoo', index.class=c("POSIXt","POSIXct"), from='1998-01-01')
 
 
 # you can test with something like this:

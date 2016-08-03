@@ -64,6 +64,13 @@ add.signal <- function(strategy, name, arguments, parameters=NULL, label=NULL, .
 }
 
 #' apply the signals in the strategy to arbitrary market data
+#' 
+#' This funcion is called internally by \code{\link{applyStrategy}} in normal 
+#' operation, but it is also useful for nanual testing during development.
+#'  
+#' If you are using this function to test your strategy, note that the 'mktdata' 
+#' argument should likely contain the output of \code{\link{applyIndicators}}.
+#' 
 #' @param strategy an object of type 'strategy' to add the signal to
 #' @param mktdata an xts object containing market data.  depending on signals, may need to be in OHLCV or BBO formats
 #' @param indicators if indicator output is not contained in the mktdata object, it may be passed separately as an xts object or a list.
