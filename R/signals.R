@@ -64,6 +64,13 @@ add.signal <- function(strategy, name, arguments, parameters=NULL, label=NULL, .
 }
 
 #' apply the signals in the strategy to arbitrary market data
+#' 
+#' This funcion is called internally by \code{\link{applyStrategy}} in normal 
+#' operation, but it is also useful for nanual testing during development.
+#'  
+#' If you are using this function to test your strategy, note that the 'mktdata' 
+#' argument should likely contain the output of \code{\link{applyIndicators}}.
+#' 
 #' @param strategy an object of type 'strategy' to add the signal to
 #' @param mktdata an xts object containing market data.  depending on signals, may need to be in OHLCV or BBO formats
 #' @param indicators if indicator output is not contained in the mktdata object, it may be passed separately as an xts object or a list.
@@ -403,8 +410,6 @@ sigTimestamp <- function(label, data=mktdata, timestamp, on="days") {
 #' objective function will take in a single matrix \code{ret.mat} of price changes. Each row represents an individual signal
 #' while each column represents periods/post signal. 
 #' 
-#' See demo 'signalAnalysisExample1.R' & 'signalAnalysisExample2.R'
-#' 
 #' @param strategy.st an object of type 'strategy' to add the indicator to
 #' @param paramset.label a label uniquely identifying the paramset within the strategy
 #' @param portfolio.st text name of the portfolio to associate the order book with
@@ -415,7 +420,7 @@ sigTimestamp <- function(label, data=mktdata, timestamp, on="days") {
 #' @param cum.sum whether to use cumsum on price changes
 #' @param include.day.of.signal whether to include the day of signal generation
 #' @param obj.fun objective function for determining goodness of each paramset
-#' @param decreasing how to sort the obj.fun output values
+#' @param decreasing if \code{TRUE} (the default), larger objective function values are better
 #' @param mktdata market data
 #' @param verbose whether to output processing messages
 #' @author Michael Guan
@@ -434,9 +439,11 @@ sigTimestamp <- function(label, data=mktdata, timestamp, on="days") {
 
 apply.paramset.signal.analysis<-function(strategy.st, paramset.label, portfolio.st, sigcol,sigval,
                                          on,forward.days,cum.sum=TRUE,include.day.of.signal,
-                                         obj.fun,decreasing,mktdata=NULL,verbose=TRUE){
+                                         obj.fun,decreasing=TRUE,mktdata=NULL,verbose=TRUE){
   
   must.have.args(match.call(), c('strategy.st', 'paramset.label', 'portfolio.st')) #
+  if(missing(obj.fun))
+    stop("'obj.fun' must be provided in order to rank paramset signals")
   
   strategy <- must.be.strategy(strategy.st) 
   must.be.paramset(strategy, paramset.label)   
@@ -571,7 +578,7 @@ applyIndicatorSignals<-function(strategy, portfolio, mktdata, sigcol, ...){
 #'                           
 #' @param post.ret \code{matrix} of parameter set of post signal price deltas
 #' @param obj.fun custom objective function for measuring signal goodness
-#' @param decreasing if true, the higher the objective value, the better
+#' @param decreasing if \code{TRUE} (the default), larger objective function values are better
 #' @author Michael Guan
 #' @return objective function values
 #' @seealso 
@@ -621,12 +628,11 @@ post.signal.returns<-function(signals,sigval,on=NULL,forward.days,cum.sum=TRUE,
   
   # Incremental Index Values / Label Generation
   if(include.day.of.signal == TRUE){
-    days.increment = c(0,seq(1,forward.days))
-    name.ref = sapply( days.increment ,function(x){paste("Period",x,sep='.')})
+    days.increment = seq(0,forward.days)
   }else{
     days.increment = seq(1,forward.days+1)
-    name.ref = sapply( days.increment[-length(days.increment)] ,function(x){paste("Period",x,sep='.')})
   }
+  name.ref = paste0("Period.", head(days.increment, -1))
   
   # Get Relevant Market Data
   if(is.null(mktdata)){
@@ -935,7 +941,6 @@ distributional.boxplot<-function(signal,x.val=seq(1, 50, 5),val=10,ylim=c(-5, 5)
 #' @return plot
 #' @examples
 #' \dontrun{
-#' # signalAnalysisExample1.R
 #' signal.plot.path(results$sigret.by.asset$RTH$paramset.1.5[1:10,])
 #' }
 #' @export

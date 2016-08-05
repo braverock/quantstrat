@@ -6,7 +6,7 @@
 \usage{
 apply.paramset.signal.analysis(strategy.st, paramset.label, portfolio.st,
   sigcol, sigval, on, forward.days, cum.sum = TRUE, include.day.of.signal,
-  obj.fun, decreasing, mktdata = NULL, verbose = TRUE)
+  obj.fun, decreasing = TRUE, mktdata = NULL, verbose = TRUE)
 }
 \arguments{
 \item{strategy.st}{an object of type 'strategy' to add the indicator to}
@@ -29,7 +29,7 @@ apply.paramset.signal.analysis(strategy.st, paramset.label, portfolio.st,
 
 \item{obj.fun}{objective function for determining goodness of each paramset}
 
-\item{decreasing}{how to sort the obj.fun output values}
+\item{decreasing}{if \code{TRUE} (the default), larger objective function values are better}
 
 \item{mktdata}{market data}
 
@@ -61,8 +61,6 @@ To determine the goodness of a parameter set relative to all others, we let the 
 that will be used to calculate an objective value representing each parameter. These will then be sorted from best to worst. The
 objective function will take in a single matrix \code{ret.mat} of price changes. Each row represents an individual signal
 while each column represents periods/post signal.
-
-See demo 'signalAnalysisExample1.R' & 'signalAnalysisExample2.R'
 }
 \author{
 Michael Guan

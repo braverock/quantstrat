@@ -131,12 +131,13 @@ getPosLimit <- function(portfolio, symbol, timestamp){
 #' @param portfolio text name of the portfolio to place orders in
 #' @param symbol identifier of the instrument to place orders for.  The name of any associated price objects (xts prices, usually OHLC) should match these
 #' @param ruletype one of "risk","order","rebalance","exit","enter", see \code{\link{add.rule}}
+#' @param digits call \code{\link{round}} to round min/max clip size to specified number of digits
 #' @param ... any other passthru parameters
 #' @seealso \code{\link{addPosLimit}},\code{\link{getPosLimit}}
 #' @export
 #' @note 
 #' TODO integrate orderqty='all' into osMaxPos for non-risk exit orders by combining side and pos for exits
-osMaxPos <- function(data, timestamp, orderqty, ordertype, orderside, portfolio, symbol, ruletype, ...){
+osMaxPos <- function(data, timestamp, orderqty, ordertype, orderside, portfolio, symbol, ruletype, digits=0, ...){
 	# check for current position
     pos<-getPosQty(portfolio,symbol,timestamp)
     # check against max position
@@ -177,7 +178,7 @@ osMaxPos <- function(data, timestamp, orderqty, ordertype, orderside, portfolio,
 	# buy long
     if(orderqty>0 && orderside=='long') {
         # note no round lots for max clip
-        clip <- round(PosLimit[,"MaxPos"] / PosLimit[,"LongLevels"], 0)
+        clip <- round(PosLimit[,"MaxPos"] / PosLimit[,"LongLevels"], digits)
 
         if ((orderqty+pos) > PosLimit[,"MaxPos"]) {
             # this order would put us beyond the MaxPos limit
@@ -203,7 +204,7 @@ osMaxPos <- function(data, timestamp, orderqty, ordertype, orderside, portfolio,
     #sell short
     if(orderqty<0 && orderside=='short') {
         # note no round lots for max clip
-        clip <- round(PosLimit[,"MinPos"] / PosLimit[,"ShortLevels"], 0)
+        clip <- round(PosLimit[,"MinPos"] / PosLimit[,"ShortLevels"], digits)
 
         if ((orderqty+pos) < PosLimit[,"MinPos"]) {
             # this order would put us beyond the MinPos limit

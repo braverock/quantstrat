@@ -18,6 +18,10 @@ applySignals(strategy, mktdata, indicators = NULL, parameters = NULL, ...)
 \item{...}{any other passthru parameters}
 }
 \description{
-apply the signals in the strategy to arbitrary market data
+This funcion is called internally by \code{\link{applyStrategy}} in normal 
+operation, but it is also useful for nanual testing during development.
+ 
+If you are using this function to test your strategy, note that the 'mktdata' 
+argument should likely contain the output of \code{\link{applyIndicators}}.
 }
 

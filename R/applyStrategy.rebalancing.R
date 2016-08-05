@@ -159,6 +159,7 @@ applyStrategy.rebalancing <- function(strategy ,
                                  indicators=sret$indicators, 
                                  signals=sret$signals, 
                                  parameters=parameters,  
+                                 verbose=verbose,
                                  ..., 
                                  path.dep=TRUE)
                     )

@@ -19,7 +19,6 @@ This function creates a rChart - hplot that is interactive. It displays
 }
 \examples{
 \dontrun{
-# signalAnalysisExample1.R
 signal.plot.path(results$sigret.by.asset$RTH$paramset.1.5[1:10,])
 }
 }
