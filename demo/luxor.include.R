@@ -40,7 +40,9 @@ account.st = 'IB'
 .FastWFA = c(1, 3, 5, 7, 9)
 .SlowWFA = c(42, 44, 46)
 
-# generate 24x24h ISO8601 timespan vector
+# generate 24x24h ISO8601 timespan vector 
+# this includes non-ISO8601 elements (e.g. "T01:00/T00:59")
+# that are discarded at processing
 
 .timespans.start<-paste(sprintf("T%02d",0:23),':00',sep='')
 .timespans.stop<-paste(sprintf("T%02d",0:23),':59',sep='')
