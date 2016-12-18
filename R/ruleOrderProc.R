@@ -325,7 +325,7 @@ ruleOrderProc <- function(portfolio, symbol, mktdata, timestamp=NULL, ordertype=
                                       symbol=symbol,
                                       timestamp=timestamp,
                                       qty=new.order.qty,
-                                      price=new.order.price-orderThreshold,
+                                      price=new.order.price,
                                       ordertype=orderType,
                                       prefer=prefer,
                                       side=order.side,
