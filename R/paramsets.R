@@ -414,8 +414,10 @@ apply.paramset <- function(strategy.st, paramset.label, portfolio.st, account.st
     # This is work-around for a buglet in iterators:::getIterVal.dataframeiter
     # Convert param.combos to matrix if it's only one column, else the
     # iterator will drop the data.frame dimensions, resulting in a vector
-    if(ncol(param.combos) == 1)
+    if(ncol(param.combos) == 1) {
         param.combos <- as.matrix(param.combos)
+        rownames(param.combos) <- seq_len(nrow(param.combos))
+    }
 
     env.functions <- c('clone.portfolio', 'clone.orderbook', 'install.param.combo')
     env.instrument <- as.list(FinancialInstrument:::.instrument)
