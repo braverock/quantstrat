@@ -29,6 +29,7 @@ getSymbols.FI(Symbols='GBPUSD',
 	      dir=system.file('extdata',package='quantstrat'),
 #	      dir='~/R/OHLC',
 	      from=.from, to=.to
+        , use_identifier=NA
 )
 
 # ALTERNATIVE WAY TO FETCH SYMBOL DATA
