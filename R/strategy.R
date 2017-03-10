@@ -141,9 +141,7 @@ applyStrategy <- function(strategy,
        symbols<- ls(pobj$symbols)
               
        for (symbol in symbols){
-         
          sret<-new.env(hash=TRUE)
-         
          if(isTRUE(load.mktdata)){
              if(isTRUE(initBySymbol)) initSymbol(strategy, symbol, ... = ...)
              mktdata <- get(symbol)
