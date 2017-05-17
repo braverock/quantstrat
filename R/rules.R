@@ -371,7 +371,7 @@ applyRules <- function(portfolio,
             relationship <-
                 switch(orderType,
                 limit = if(mktPrices$isOHLC) 'lt' else 'lte',      # will be filled if market Ask/Lo go below orderPrice
-                stoptrailing = if(mktPrices$isOHLC) 'gt' else 'gte'), # same behaviour as stop limit - likso
+                stoptrailing = if(mktPrices$isOHLC) 'gt' else 'gte', # same behaviour as stop limit - likso
                 stoplimit = if(mktPrices$isOHLC) 'gt' else 'gte')  # will be filled if market Ask/Hi go above orderPrice
 
             if(mktPrices$isOHLC || mktPrices$isBBO)                # get buy market price for this order type, if it exists
@@ -381,7 +381,7 @@ applyRules <- function(portfolio,
             relationship <-
                 switch(orderType,
                 limit = if(mktPrices$isOHLC) 'gt' else 'gte',      # will be filled if market Bid/Hi go above orderPrice
-                stoptrailing = if(mktPrices$isOHLC) 'lt' else 'lte'),  # same behaviour as stop limit - likso
+                stoptrailing = if(mktPrices$isOHLC) 'lt' else 'lte',  # same behaviour as stop limit - likso
                 stoplimit = if(mktPrices$isOHLC) 'lt' else 'lte')  # will be filled if market Bid/Lo go below orderPrice
 
             if(mktPrices$isOHLC || mktPrices$isBBO)                # get sell market price for this order type, if it exists
