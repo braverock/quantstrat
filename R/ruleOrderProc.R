@@ -196,10 +196,12 @@ ruleOrderProc <- function(portfolio, symbol, mktdata, timestamp=NULL, ordertype=
                    if( (has.Lo(mktdata) && orderPrice > as.numeric(Lo(mktdataTimestamp)[,1])) || 
                          (!has.Lo(mktdata) && orderPrice > as.numeric(getPrice(mktdataTimestamp, prefer=prefer)[,1])))
                    {
-                     if(orderType == 'stoplimit')
-                         txnprice <- min(orderPrice, Op(mktdataTimestamp)[,1])
-                     else
-                         txnprice <- orderPrice
+                     # Use Gap open price as transaction price for both stoplimit and limit order - likso
+                     # if(orderType == 'stoplimit')
+                     #     txnprice <- min(orderPrice, Op(mktdataTimestamp)[,1])
+                     # else
+                     #     txnprice <- orderPrice
+                     txnprice <- min(orderPrice, Op(mktdataTimestamp)[,1])
                      txntime = timestamp
                    } else next() # price did not move through my order, should go to next order  
                  } else if((orderQty < 0 && orderType != 'stoplimit') || (orderQty > 0 && (orderType=='stoplimit'))) { 
@@ -207,10 +209,12 @@ ruleOrderProc <- function(portfolio, symbol, mktdata, timestamp=NULL, ordertype=
                    if ( (has.Hi(mktdata) && orderPrice < as.numeric(Hi(mktdataTimestamp)[,1])) ||
                           (!has.Hi(mktdata) && orderPrice < as.numeric(getPrice(mktdataTimestamp,prefer=prefer)[,1])) )
                    {
-                     if(orderType == 'stoplimit')
-                         txnprice <- max(orderPrice, Op(mktdataTimestamp)[,1])
-                     else
-                         txnprice <- orderPrice
+                     # Use Gap open price as transaction price for both stoplimit and limit order - likso
+                     # if(orderType == 'stoplimit')
+                     #     txnprice <- max(orderPrice, Op(mktdataTimestamp)[,1])
+                     # else
+                     #     txnprice <- orderPrice
+                     txnprice <- max(orderPrice, Op(mktdataTimestamp)[,1])
                      txntime = timestamp
                    } else next() # price did not move through my order, should go to next order 
                  } else {
@@ -349,8 +353,15 @@ ruleOrderProc <- function(portfolio, symbol, mktdata, timestamp=NULL, ordertype=
                  # check to see if price moved through the limit
                  
                  order.side <- ordersubset[ii, "Order.Side"]
-                 
-                 if(order.side == 'long'  && as.numeric(Lo(mktdataTimestamp)[,1]) < orderPrice
+                 # To check if gap down/up open through the limit, if yes then exit with the open price - likso
+                 if(order.side == 'long'  && as.numeric(Op(mktdataTimestamp)[,1]) < orderPrice
+                    || order.side == 'short' && as.numeric(Op(mktdataTimestamp)[,1]) > orderPrice)
+                 {
+                   txnprice <- as.numeric(Op(mktdataTimestamp)[,1])
+                   txntime <- timestamp
+                 }                  
+                 # Original code to check if price moved through the limit - likso
+                 else if(order.side == 'long'  && as.numeric(Lo(mktdataTimestamp)[,1]) < orderPrice
                     || order.side == 'short' && as.numeric(Hi(mktdataTimestamp)[,1]) > orderPrice)
                  {
                    txnprice <- orderPrice

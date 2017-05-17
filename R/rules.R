@@ -371,7 +371,7 @@ applyRules <- function(portfolio,
             relationship <-
                 switch(orderType,
                 limit = if(mktPrices$isOHLC) 'lt' else 'lte',      # will be filled if market Ask/Lo go below orderPrice
-                stoptrailing = 'gte',                              # look for places where Mkt Bid >= our Ask
+                stoptrailing = if(mktPrices$isOHLC) 'gt' else 'gte'), # same behaviour as stop limit - likso
                 stoplimit = if(mktPrices$isOHLC) 'gt' else 'gte')  # will be filled if market Ask/Hi go above orderPrice
 
             if(mktPrices$isOHLC || mktPrices$isBBO)                # get buy market price for this order type, if it exists
@@ -381,7 +381,7 @@ applyRules <- function(portfolio,
             relationship <-
                 switch(orderType,
                 limit = if(mktPrices$isOHLC) 'gt' else 'gte',      # will be filled if market Bid/Hi go above orderPrice
-                stoptrailing = 'lte',                              # look for places where Mkt Ask <= our Bid
+                stoptrailing = if(mktPrices$isOHLC) 'lt' else 'lte'),  # same behaviour as stop limit - likso
                 stoplimit = if(mktPrices$isOHLC) 'lt' else 'lte')  # will be filled if market Bid/Lo go below orderPrice
 
             if(mktPrices$isOHLC || mktPrices$isBBO)                # get sell market price for this order type, if it exists
@@ -402,9 +402,15 @@ applyRules <- function(portfolio,
             if(orderQty > 0) {
                 relationship <- "lt"
                 newOrderPrice <- orderPrice - abs(orderThreshold)
+                # using lowest low for OHLC - likso
+                if (mktPrices$isOHLC)
+                  mktPrice <- mktPrices[[orderType]]$negQty
             } else {
                 relationship <- "gt"
                 newOrderPrice <- orderPrice + abs(orderThreshold)
+                # using highest high for OHLC - likso
+                if (mktPrices$isOHLC)
+                  mktPrice <- mktPrices[[orderType]]$posQty
             }
             out$move_order <- .firstCross(mktPrice, newOrderPrice, relationship, start=curIndex+1L)
         }
@@ -534,8 +540,8 @@ applyRules <- function(portfolio,
               posQty = mktdata[,has.Lo(mktdata,which=TRUE)[1]],
               negQty = mktdata[,has.Hi(mktdata,which=TRUE)[1]]),
           stoptrailing = list(
-              posQty = getPrice(mktdata, prefer='close')[,1],
-              negQty = getPrice(mktdata, prefer='close')[,1]))
+              posQty =  mktdata[,has.Hi(mktdata,which=TRUE)[1]],    # Use High and Low instead of Close - likso
+              negQty = mktdata[,has.Lo(mktdata,which=TRUE)[1]]))
     } else { # univariate or something built with fn_SpreadBuilder
         prefer <- if(hasArg("prefer")) match.call(expand.dots=TRUE)$prefer else NULL
         mktPrices <- list(
