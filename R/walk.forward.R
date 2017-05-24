@@ -11,7 +11,7 @@
 #
 ###############################################################################
 #
-# Authors: Jan Humme
+# Authors: Jan Humme, Brian G. Peterson
 #
 ###############################################################################
 
@@ -48,7 +48,7 @@
 #'
 #' @seealso \code{\link{applyStrategy}} \code{\link{apply.paramset}} \code{\link{endpoints}} \code{\link{tradeStats}}
 #'
-#' @author Jan Humme
+#' @author Jan Humme, Brian G. Peterson
 #'
 #' @export
 
@@ -70,12 +70,12 @@ walk.forward <- function(strategy.st, paramset.label, portfolio.st, account.st,
 
     # assuming that timespans for all portfolio symbols are same, so ok to use 1st symbol to calculate end points
     symbol.st <- first(ls(portfolio$symbols))
-    symbol <- get(symbol.st)
+    symbol.data <- get(symbol.st)
 
-    ep <- endpoints(symbol, on=period)
+    ep <- endpoints(symbol.data, on=period)
 
     total.start <- ep[1 + k.training] + 1
-    total.timespan <- paste(index(symbol[total.start]), '', sep='/')
+    total.timespan <- paste(index(symbol.data[total.start]), '', sep='/')
 
     if(anchored)
         training.start <- ep[1] + 1
@@ -93,7 +93,7 @@ walk.forward <- function(strategy.st, paramset.label, portfolio.st, account.st,
         if(is.na(training.end))
             break
 
-        training.timespan <- paste(index(symbol[training.start]), index(symbol[training.end]), sep='/')
+        training.timespan <- paste(index(symbol.data[training.start]), index(symbol.data[training.end]), sep='/')
 
         if(!missing(k.testing) && k.testing>0)
         {
@@ -105,22 +105,27 @@ walk.forward <- function(strategy.st, paramset.label, portfolio.st, account.st,
             if(is.na(testing.end))
                 break
 
-            testing.timespan <- paste(index(symbol[testing.start]), index(symbol[testing.end]), sep='/')
+            testing.timespan <- paste(index(symbol.data[testing.start]), index(symbol.data[testing.end]), sep='/')
         }
 
         result$training.timespan <- training.timespan
 
         print(paste('=== training', paramset.label, 'on', training.timespan))
 
-        .audit <- NULL
-        if(!is.null(audit.prefix))
-            .audit <- new.env()
+        .audit <- new.env()
 
         # run backtests on training window
-        result$apply.paramset <- apply.paramset(strategy.st=strategy.st, paramset.label=paramset.label,
-            portfolio.st=portfolio.st, account.st=account.st,
-            mktdata=symbol[training.timespan], nsamples=nsamples,
-            calc='slave', audit=.audit, verbose=verbose, ...=...)
+        result$apply.paramset <- apply.paramset(strategy.st=strategy.st
+                                                , paramset.label=paramset.label
+                                                , portfolio.st=portfolio.st
+                                                , account.st=account.st
+                                                , mktdata=symbol.data
+                                                , rule.subset=training.timespan
+                                                , nsamples=nsamples
+                                                , calc='slave'
+                                                , audit=.audit
+                                                , verbose=verbose
+                                                , ...=...)
 
         tradeStats.list <- result$apply.paramset$tradeStats
 
@@ -154,7 +159,11 @@ walk.forward <- function(strategy.st, paramset.label, portfolio.st, account.st,
             print(param.combo)
 
             # run backtest using selected param.combo
-            applyStrategy(strategy, portfolios=portfolio.st, mktdata=symbol[testing.timespan])
+            applyStrategy(strategy
+                          , portfolios=portfolio.st
+                          , mktdata=symbol.data
+                          , rule.subset=testing.timespan
+                          , ...)
         }
         else
         {
@@ -167,8 +176,8 @@ walk.forward <- function(strategy.st, paramset.label, portfolio.st, account.st,
         if(!is.null(.audit))
         {
             iso.format <- "%Y%m%dT%H%M%S"
-            time.range <- paste(format(index(symbol[training.start]), iso.format),
-                                format(index(symbol[training.end]), iso.format), sep=".")
+            time.range <- paste(format(index(symbol.data[training.start]), iso.format),
+                                format(index(symbol.data[training.end]), iso.format), sep=".")
             save(.audit, file = paste(audit.prefix, symbol.st, time.range, "RData", sep="."))
 
             .audit <- NULL
@@ -201,11 +210,17 @@ walk.forward <- function(strategy.st, paramset.label, portfolio.st, account.st,
         if(include.insamples)
         {
             # run backtests on in-sample reference portfolios
-            result$apply.paramset <- apply.paramset(strategy.st=strategy.st, paramset.label=paramset.label,
-                portfolio.st=portfolio.st, account.st=account.st,
-                #mktdata=NULL, nsamples=nsamples,
-                mktdata=symbol[total.timespan], nsamples=nsamples,
-                calc='slave', audit=.audit, verbose=verbose, ...=...)
+            result$apply.paramset <- apply.paramset(strategy.st=strategy.st
+                                                    , paramset.label=paramset.label
+                                                    , portfolio.st=portfolio.st
+                                                    , account.st=account.st
+                                                    , mktdata=symbol.data
+                                                    , rule.subset=total.timespan
+                                                    , nsamples=nsamples
+                                                    , calc='slave'
+                                                    , audit=.audit
+                                                    , verbose=verbose
+                                                    , ...=...)
         }
 
         save(.audit, file=paste(audit.prefix, 'results', 'RData', sep='.'))

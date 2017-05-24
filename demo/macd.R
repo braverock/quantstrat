@@ -114,7 +114,7 @@ add.rule(strat.st,name='ruleSignal',
 #end rules
 ####
 
-getSymbols(stock.str,from=startDate, to='2014-06-01')
+getSymbols(stock.str,from=startDate, to='2014-06-01', src='google')
 start_t<-Sys.time()
 out<-applyStrategy(strat.st , portfolios=portfolio.st,parameters=list(nFast=fastMA, nSlow=slowMA, nSig=signalMA,maType=maType),verbose=TRUE)
 end_t<-Sys.time()

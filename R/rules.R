@@ -73,9 +73,23 @@
 #' @param timespan an xts/ISO-8601 style \emph{time} subset, like "T08:00/T15:00", see Details
 #' @param store TRUE/FALSE whether to store the strategy in the .strategy environment, or return it.  default FALSE
 #' @param storefun TRUE/FALSE whether to store the function in the rule, default TRUE.  setting this option to FALSE may slow the backtest, but makes \code{\link{debug}} usable
+#' @param rule.subset ISO-8601 subset for period to execute rules over, default NULL
 #' @return if \code{strategy} was the name of a strategy, the name. It it was a strategy, the updated strategy. 
 #' @export
-add.rule <- function(strategy, name, arguments, parameters=NULL, label=NULL, type=c(NULL,"risk","order","rebalance","exit","enter","chain"), parent=NULL, ..., enabled=TRUE, indexnum=NULL, path.dep=TRUE, timespan=NULL, store=FALSE, storefun=TRUE) {
+add.rule <- function(strategy
+                     , name
+                     , arguments
+                     , parameters=NULL
+                     , label=NULL
+                     , type=c(NULL,"risk","order","rebalance","exit","enter","chain")
+                     , parent=NULL
+                     , ...
+                     , enabled=TRUE
+                     , indexnum=NULL
+                     , path.dep=TRUE
+                     , timespan=NULL
+                     , store=FALSE
+                     , storefun=TRUE) {
     if (!is.strategy(strategy)) {
         strategy<-try(getStrategy(strategy))
         if(inherits(strategy,"try-error"))
@@ -245,6 +259,7 @@ enable.rule <- function(strategy, type=c(NULL,"risk","order","rebalance","exit",
 #' @param path.dep TRUE/FALSE whether rule is path dependent, default TRUE, see Details 
 #' @param rule.order default NULL, use at your own risk to adjust order of rule evaluation
 #' @param debug if TRUE, return output list
+#' @param rule.subset ISO-8601 subset for period to execute rules over, default NULL
 #' @seealso \code{\link{add.rule}} \code{\link{applyStrategy}} 
 #' @export
 applyRules <- function(portfolio, 
@@ -257,6 +272,7 @@ applyRules <- function(portfolio,
                         ..., 
                         path.dep=TRUE,
                         rule.order=NULL,
+                        rule.subset=NULL,
                         debug=FALSE) {
     # TODO check for symbol name in mktdata using Josh's code:
     # symbol <- strsplit(colnames(mktdata)[1],"\\.")[[1]][1]
@@ -332,6 +348,14 @@ applyRules <- function(portfolio,
             }    
         }
         dindex<-get.dindex()
+              
+        #rule subsetting will decrease the periods we evaluate rules for
+        if(!is.null(rule.subset)){
+          assign.dindex(dindex[which(dindex %in% mktdata[rule.subset,which.i=TRUE])])
+          dindex <- get.dindex()
+          print('included indices:')
+          print(dindex)
+        }
         
         if(length(dindex)==0) dindex=1 #should this just return?
         

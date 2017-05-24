@@ -102,6 +102,7 @@ strategy <- function(name, ..., assets=NULL, constraints=NULL ,store=FALSE)
 #'                     Notice that this happenes only after the strategy has been applied.
 #' @param gc if TRUE, call \code{\link{gc}} after each symbol run, default FALSE (experimental)
 #' @param delorders if TRUE, delete the order book for a symbol at the end of the symbols loop, will cause issues with rebalancing, default FALSE (experimental)
+#' @param rule.subset ISO-8601 subset for period to execute rules over, default NULL
 #' @export
 #' @seealso \code{\link{strategy}},  \code{\link{applyIndicators}}, 
 #'  \code{\link{applySignals}}, \code{\link{applyRules}},
@@ -117,7 +118,8 @@ applyStrategy <- function(strategy,
                           updateStrat=FALSE,
                           initBySymbol=FALSE,
                           gc=FALSE,
-                          delorders=FALSE) {
+                          delorders=FALSE,
+                          rule.subset=NULL) {
 
   #TODO add saving of modified market data
   
@@ -183,10 +185,11 @@ applyStrategy <- function(strategy,
                                         parameters=parameters,  
                                         ..., 
                                         path.dep=FALSE,
+                                        rule.subset=rule.subset,
                                         debug=debug)
          
          # Check for open orders
-         rem.orders <- suppressWarnings(getOrders(portfolio=portfolio, symbol=symbol, status="open")) #, timespan=timespan, ordertype=ordertype,which.i=TRUE)
+         rem.orders <- suppressWarnings(getOrders(portfolio=portfolio, symbol=symbol, status="open")) 
          if(NROW(rem.orders)>0){pd <- TRUE}
          if(pd==TRUE){sret$rules$pathdep<-applyRules(portfolio=portfolio, 
                                                      symbol=symbol, 
@@ -198,6 +201,7 @@ applyStrategy <- function(strategy,
                                                      parameters=parameters,  
                                                      ..., 
                                                      path.dep=TRUE,
+                                                     rule.subset=rule.subset,
                                                      debug=debug)}
          
          if(isTRUE(initBySymbol)) {

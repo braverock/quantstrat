@@ -222,9 +222,11 @@ install.param.combo <- function(strategy, param.combo, paramset.label)
 #' @param store indicates whether to store the strategy in the .strategy environment
 #'
 #' @author Jan Humme
+#' @seealso 
+#'     \code{\link{add.distribution}}, 
+#'     \code{\link{add.distribution.constraint}}, 
+#'     \code{\link{apply.paramset}}
 #' @export
-#' @seealso \code{\link{add.distribution}}, \code{\link{add.distribution.constraint}}, \code{\link{apply.paramset}}
-
 delete.paramset <- function(strategy, paramset.label, store=TRUE)
 {
     must.have.args(match.call(), c('strategy', 'paramset.label'))
@@ -265,9 +267,11 @@ delete.paramset <- function(strategy, paramset.label, store=TRUE)
 #' @param store indicates whether to store the strategy in the .strategy environment
 #'
 #' @author Jan Humme
+#' @seealso 
+#'     \code{\link{add.distribution.constraint}}, 
+#'     \code{\link{delete.paramset}}, 
+#'     \code{\link{apply.paramset}}
 #' @export
-#' @seealso \code{\link{add.distribution.constraint}}, \code{\link{delete.paramset}}, \code{\link{apply.paramset}}
-
 add.distribution <- function(strategy, paramset.label, component.type, component.label, variable, weight=NULL, label, store=TRUE)
 {
     must.have.args(match.call(), c('strategy', 'paramset.label', 'component.type', 'component.label', 'variable', 'label'))
@@ -318,9 +322,11 @@ add.distribution <- function(strategy, paramset.label, component.type, component
 #' @param store indicates whether to store the strategy in the .strategy environment
 #'
 #' @author Jan Humme
+#' @seealso 
+#'     \code{\link{add.distribution}}, 
+#'     \code{\link{delete.paramset}}, 
+#'     \code{\link{apply.paramset}}
 #' @export
-#' @seealso \code{\link{add.distribution}}, \code{\link{delete.paramset}}, \code{\link{apply.paramset}}
-
 add.distribution.constraint <- function(strategy, paramset.label, distribution.label.1, distribution.label.2, operator, label, store=TRUE)
 {
     must.have.args(match.call(), c('strategy', 'paramset.label', 'distribution.label.1', 'distribution.label.2', 'operator', 'label'))
@@ -381,11 +387,28 @@ add.distribution.constraint <- function(strategy, paramset.label, distribution.l
 #' @param ... any other passthru parameters
 #'
 #' @author Jan Humme
-#' @export
-#' @seealso \code{\link{add.distribution.constraint}}, \code{\link{add.distribution.constraint}}, \code{\link{delete.paramset}}
+#' @seealso 
+#'     \code{\link{add.distribution.constraint}}, 
+#'     \code{\link{add.distribution.constraint}}, 
+#'     \code{\link{delete.paramset}}
 #' @importFrom iterators iter
-
-apply.paramset <- function(strategy.st, paramset.label, portfolio.st, account.st, mktdata=NULL, nsamples=0, user.func=NULL, user.args=NULL, calc='slave', audit=NULL, packages=NULL, verbose=FALSE, paramsets, ...)
+#' @export
+apply.paramset <- function(strategy.st
+                           , paramset.label
+                           , portfolio.st
+                           , ...
+                           , account.st
+                           , mktdata=NULL
+                           , nsamples=0
+                           , user.func=NULL
+                           , user.args=NULL
+                           , calc='slave'
+                           , audit=NULL
+                           , packages=NULL
+                           , verbose=FALSE
+                           , paramsets
+                           , rule.subset=NULL
+                           )
 {
     must.have.args(match.call(), c('strategy.st', 'paramset.label', 'portfolio.st'))
 
@@ -428,52 +451,66 @@ apply.paramset <- function(strategy.st, paramset.label, portfolio.st, account.st
     else
         .audit <- audit
 
-    combine <- function(...)
+    combine.results <- function(...)
     {
         args <- list(...)
 
         results <- list()
+        results$error <-list()
         for(i in 1:length(args))
         {
             r <- args[[i]]
-
-            # move portfolio from slave returned list into .blotter environment
-            put.portfolio(r$portfolio.st, r$portfolio, envir=.audit)
-            r$portfolio <- NULL
-
-            # move orderbook from slave returned list into .strategy environment
-            put.orderbook(r$portfolio.st, r$orderbook, envir=.audit)
-            r$orderbook <- NULL
-
-            if(calc == 'master')
-            {
+            
+            #check for error
+            if(class(r)=='try-error' || any(class(r)=='error')){
+              results$error[[i]]<-r
+            } else { #process normally
+              # move portfolio from slave returned list into .blotter environment
+              put.portfolio(r$portfolio.st, r$portfolio, envir=.audit)
+              #r$portfolio <- NULL
+              
+              # move orderbook from slave returned list into .strategy environment
+              put.orderbook(r$portfolio.st, r$orderbook, envir=.audit)
+              #r$orderbook <- NULL
+              
+              if(calc == 'master' || is.null(r$tradeStats) )
+              {
                 # calculate tradeStats on portfolio
-                updatePortf(r$portfolio.st, ...)
+                updatePortf(r$portfolio.st, Symbols = symbols, ...)
                 r$tradeStats <- tradeStats(r$portfolio.st)
-
+                
                 # run user specified function, if they provided one
                 if(!is.null(user.func) && !is.null(user.args))
-                    r$user.func <- do.call(user.func, user.args)
-            }
-
-            results[[r$portfolio.st]] <- r
-            
-            # add copy of tradeStats to summary list for convenience
-            if(!is.null(r$tradeStats))
+                  r$user.func <- do.call(user.func, user.args)
+              }
+              
+              results[[r$portfolio.st]] <- r
+              
+              # add copy of tradeStats to summary list for convenience
+              if(!is.null(r$tradeStats) ){
+                if(nrow(r$tradeStats)==0){
+                  tmpnames <- colnames(r$tradeStats)
+                  r$tradeStats <- data.frame(r$portfolio.st,t(rep(0,length(tmpnames)-1)))
+                  colnames(r$tradeStats) <- tmpnames
+                }
                 results$tradeStats <- rbind(results$tradeStats, cbind(r$param.combo, r$tradeStats))
-
-            # add copy of user.func results to summary list for convenience
-            if(!is.null(r$user.func))
+              }
+              
+              # add copy of user.func results to summary list for convenience
+              if(!is.null(r$user.func)){
                 results$user.func <- rbind(results$user.func, cbind(r$param.combo, r$user.func))
-        }
+              }
+            } #end non-error results block
+        } # end loop over results
+        dummy <- 1
         return(results)
-    }
+    } # end fn combine.results
 
     # create foreach object
     fe <- foreach(param.combo=iter(param.combos,by='row'),
         .verbose=verbose, .errorhandling='pass',
         .packages=c('quantstrat', packages),
-        .combine=combine, .multicombine=TRUE, .maxcombine=max(2,nrow(param.combos)),
+        .combine=combine.results, .multicombine=TRUE, .maxcombine=max(2,nrow(param.combos)),
         .export=c(env.functions, symbols), ...)
     # remove all but the param.combo iterator before calling %dopar%
     # this allows us to pass '...' through foreach to the expression
@@ -530,7 +567,11 @@ apply.paramset <- function(strategy.st, paramset.label, portfolio.st, account.st
         }
 
         strategy <- install.param.combo(strategy, param.combo, paramset.label)
-        applyStrategy(strategy, portfolios=result$portfolio.st, mktdata=mktdata, ...)
+        applyStrategy(strategy
+                      , portfolios=result$portfolio.st
+                      , mktdata=mktdata
+                      , rule.subset=rule.subset
+                      , ...)
 
         if(exists('redisContext'))
         {
@@ -560,19 +601,17 @@ apply.paramset <- function(strategy.st, paramset.label, portfolio.st, account.st
         return(result)
     }
 
-    #results$distributions <- distributions
-    #results$constraints <- constraints
 
-    if(is.null(audit))
-        .audit <- NULL
-    else
-    {
-        assign('distributions', distributions, envir=.audit)
-        assign('constraints', constraints, envir=.audit)
-        assign('paramset.label', paramset.label, envir=.audit)
-        assign('param.combos', param.combos, envir=.audit)
-        assign('tradeStats', results$tradeStats, envir=.audit)
-        assign('user.func', results$user.func, envir=.audit)
+    if(is.null(audit) && calc=='master'){
+      .audit <- .blotter
+    } else {
+      assign('distributions', distributions, envir=.audit)
+      assign('constraints', constraints, envir=.audit)
+      assign('paramset.label', paramset.label, envir=.audit)
+      assign('param.combos', param.combos, envir=.audit)
+      assign('tradeStats', results$tradeStats, envir=.audit)
+      assign('user.func', results$user.func, envir=.audit)
+      assign('foreach.errors', results$error, envir=.audit)
     }
 
     return(results)
