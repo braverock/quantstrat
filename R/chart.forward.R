@@ -2,16 +2,16 @@
 #'
 #' @param audit.filename name of .audit environment file as produced by walk.forward().
 #'        Filename will match pattern [audit.prefix].results.RData.
-#'
+#' 
+#' @seealso \code{\link{walk.forward}}
 #' @export
-
 chart.forward <- function(audit.filename)
 {
     .audit <- NULL  # keep codetools happy
-    # ensure correct file written by walk.forward() is provided
-    if (!grepl("\\.results\\.RData$", audit.filename[1L])) {
-        stop("'audit.filename' should match pattern:\n  [audit.prefix].results.RData")
-    }
+    # # ensure correct file written by walk.forward() is provided
+    # if (!grepl("\\.results\\.RData$", audit.filename[1L])) {
+    #     stop("'audit.filename' should match pattern:\n  [audit.prefix].results.RData")
+    # }
     if (file.exists(audit.filename)) {
         load(audit.filename)
     } else {

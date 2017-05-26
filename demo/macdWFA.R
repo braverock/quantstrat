@@ -5,7 +5,9 @@ require(foreach,quietly=TRUE)
 require(iterators)
 require(quantstrat)
 
-demo('macd',ask=FALSE)
+# run the macd demo in this session to set things up
+# use source rather than demo so that everything will be local in this session
+source(system.file('demo/macd.R',package='quantstrat'),echo = TRUE)
 
 # example parallel initialization for doParallel. this or doMC, or doRedis are 
 # most probably preferable to doSMP
@@ -61,7 +63,12 @@ results <- walk.forward(strategy.st,
                         period='months',
                         k.training = 12,
                         k.testing = 36,
-                        verbose=TRUE)
+                        verbose=TRUE,
+                        anchored = TRUE,
+                        audit.prefix = 'macdWFA',
+                        include.insamples = TRUE
+                        )
+                        
 
 wfa.stats <- results$tradeStats
 
