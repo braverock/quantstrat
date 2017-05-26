@@ -12,4 +12,3 @@ save.strategy(strategy.name)
 \description{
 save a strategy object from memory onto disk
 }
-

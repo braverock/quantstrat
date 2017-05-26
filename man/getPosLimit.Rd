@@ -19,4 +19,3 @@ get position and level limits on timestamp
 \seealso{
 \code{\link{addPosLimit}},\code{\link{osMaxPos}}
 }
-

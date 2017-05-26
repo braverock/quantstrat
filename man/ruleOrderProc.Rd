@@ -75,4 +75,3 @@ This function is meant to be sufficient for backtesting many/most strategies,
 but would need to be replaced for production use.  It provides the interface 
 for taking the order book and determining when orders become trades.
 }
-

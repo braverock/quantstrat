@@ -16,10 +16,11 @@ delete.paramset(strategy, paramset.label, store = TRUE)
 \description{
 Delete a paramset from a strategy, including its distributions and constraints.
 }
+\seealso{
+\code{\link{add.distribution}}, 
+    \code{\link{add.distribution.constraint}}, 
+    \code{\link{apply.paramset}}
+}
 \author{
 Jan Humme
 }
-\seealso{
-\code{\link{add.distribution}}, \code{\link{add.distribution.constraint}}, \code{\link{apply.paramset}}
-}
-

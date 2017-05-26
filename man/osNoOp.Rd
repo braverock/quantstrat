@@ -25,4 +25,3 @@ default function performs no operation (NoOp), returns orderqty
 \details{
 if orderqty 'all', will only work on an exit rule type, otherwize orderqty is zero.
 }
-

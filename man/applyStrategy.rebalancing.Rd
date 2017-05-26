@@ -35,4 +35,3 @@ This function is the wrapper that holds together the execution of a strategy wit
  \code{\link{applySignals}}, \code{\link{applyRules}},
  \code{\link{initStrategy}}, \code{\link{applyStrategy}}
 }
-

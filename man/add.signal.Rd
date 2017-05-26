@@ -54,4 +54,3 @@ respective column number.
 \code{\link{sigPeak}}
 \code{\link{sigThreshold}}
 }
-

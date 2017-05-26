@@ -13,4 +13,6 @@ Filename will match pattern [audit.prefix].[symbol].[start timestamp].[end times
 \description{
 Chart to analyse walk.forward() objective function
 }
-
+\seealso{
+\code{\link{walk.forward}}
+}

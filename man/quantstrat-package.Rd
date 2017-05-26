@@ -2,8 +2,8 @@
 % Please edit documentation in R/quantstrat-package.R
 \docType{package}
 \name{quantstrat-package}
-\alias{quantstrat}
 \alias{quantstrat-package}
+\alias{quantstrat}
 \title{Quantitative Strategy Model Framework}
 \description{
 Transaction-oriented infrastructure for constructing trading systems and
@@ -95,11 +95,6 @@ signal, or rule \item the \code{parameters=list{...}} applied when
 \code{\link{applyStrategy}} is called \item any additional arguments passed
 in \code{...} in the call to \code{applyStrategy} }
 }
-\author{
-Peter Carl, Brian G. Peterson, Joshua Ulrich, Garrett See, Yu Chen
-
-Maintainer: Brian G. Peterson <brian@braverock.com>
-}
 \seealso{
 \code{\link[quantmod:quantmod-package]{quantmod}},
 \code{\link[blotter:blotter-package]{blotter}},
@@ -107,5 +102,9 @@ Maintainer: Brian G. Peterson <brian@braverock.com>
 \code{\link[blotter:blotter-package]{blotter}},
 \code{\link[PerformanceAnalytics:PerformanceAnalytics-package]{PerformanceAnalytics}}
 }
-\keyword{package}
+\author{
+Peter Carl, Brian G. Peterson, Joshua Ulrich, Garrett See, Yu Chen
 
+Maintainer: Brian G. Peterson <brian@braverock.com>
+}
+\keyword{package}

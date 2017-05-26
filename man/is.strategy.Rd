@@ -12,4 +12,3 @@ is.strategy(x)
 \description{
 test to see if object is of type 'strategy'
 }
-

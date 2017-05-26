@@ -39,10 +39,9 @@ Order status will be changed to 'revoked', to separate it from cancelations or
 replacements from other causes.  This may make it easier it decipher the order book 
 to figure out what the strategy ewas doing.
 }
-\author{
-Niklas Kolster, Jan Humme
-}
 \seealso{
 \code{\link{osNoOp}} , \code{\link{add.rule}}
 }
-
+\author{
+Niklas Kolster, Jan Humme
+}

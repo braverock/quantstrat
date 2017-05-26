@@ -25,4 +25,3 @@ indicators, signals, and rules.
 \seealso{
 \code{\link{applyStrategy}}
 }
-

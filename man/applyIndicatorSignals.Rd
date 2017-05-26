@@ -23,12 +23,11 @@ applyIndicatorSignals(strategy, portfolio, mktdata, sigcol, ...)
 \description{
 Calculate signals given indicators and signal definitions.
 }
-\author{
-Michael Guan
-}
 \seealso{
 \code{\link{apply.paramset.signal.analysis}}
 \code{\link{applyIndicators}}
 \code{\link{applySignals}}
 }
-
+\author{
+Michael Guan
+}

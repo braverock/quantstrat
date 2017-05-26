@@ -55,4 +55,3 @@ getOrderBook
 \concept{
 order book
 }
-

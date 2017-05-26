@@ -84,6 +84,5 @@ tail(out)
 \code{\link{quote}}
 \code{\link{applyIndicators}}
 \code{\link{add.signal}}
-\code{link{add.rule}}
+\code{\link{add.rule}}
 }
-

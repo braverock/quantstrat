@@ -37,6 +37,8 @@ add.rule(strategy, name, arguments, parameters = NULL, label = NULL,
 \item{store}{TRUE/FALSE whether to store the strategy in the .strategy environment, or return it.  default FALSE}
 
 \item{storefun}{TRUE/FALSE whether to store the function in the rule, default TRUE.  setting this option to FALSE may slow the backtest, but makes \code{\link{debug}} usable}
+
+\item{rule.subset}{ISO-8601 subset for period to execute rules over, default NULL}
 }
 \value{
 if \code{strategy} was the name of a strategy, the name. It it was a strategy, the updated strategy.
@@ -101,4 +103,3 @@ and \code{sigval}.  If these are present and function in a manner similar to
 dimensionality of the index we need to loop over.  The speedup is the ratio of 
 (symbols\*total observations)/signal observations, so it can be significant for many strategies.
 }
-

@@ -4,10 +4,10 @@
 \alias{apply.paramset}
 \title{Apply a paramset to the strategy}
 \usage{
-apply.paramset(strategy.st, paramset.label, portfolio.st, account.st,
+apply.paramset(strategy.st, paramset.label, portfolio.st, ..., account.st,
   mktdata = NULL, nsamples = 0, user.func = NULL, user.args = NULL,
   calc = "slave", audit = NULL, packages = NULL, verbose = FALSE,
-  paramsets, ...)
+  paramsets, rule.subset = NULL)
 }
 \arguments{
 \item{strategy.st}{the name of the strategy object}
@@ -15,6 +15,8 @@ apply.paramset(strategy.st, paramset.label, portfolio.st, account.st,
 \item{paramset.label}{a label uniquely identifying the paramset within the strategy}
 
 \item{portfolio.st}{the name of the portfolio}
+
+\item{...}{any other passthru parameters}
 
 \item{account.st}{the name of the account}
 
@@ -35,8 +37,6 @@ apply.paramset(strategy.st, paramset.label, portfolio.st, account.st,
 \item{verbose}{return full information, in particular the .blotter environment, default FALSE}
 
 \item{paramsets}{a user-sepcified (sub)set of paramsets to run}
-
-\item{...}{any other passthru parameters}
 }
 \description{
 This function will run applyStrategy() on portfolio.st, once for each parameter combination as specified by
@@ -48,10 +48,11 @@ apply.paramset uses the foreach package to start the runs for each parameter com
 for parallel processing. It is up to the caller to load and register an appropriate backend, eg. doMC,
 doParallel or doRedis.
 }
+\seealso{
+\code{\link{add.distribution.constraint}}, 
+    \code{\link{add.distribution.constraint}}, 
+    \code{\link{delete.paramset}}
+}
 \author{
 Jan Humme
 }
-\seealso{
-\code{\link{add.distribution.constraint}}, \code{\link{add.distribution.constraint}}, \code{\link{delete.paramset}}
-}
-

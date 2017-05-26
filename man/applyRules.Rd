@@ -6,7 +6,7 @@
 \usage{
 applyRules(portfolio, symbol, strategy, mktdata, indicators = NULL,
   signals = NULL, parameters = NULL, ..., path.dep = TRUE,
-  rule.order = NULL, debug = FALSE)
+  rule.order = NULL, rule.subset = NULL, debug = FALSE)
 }
 \arguments{
 \item{portfolio}{text name of the portfolio to associate the order book with}
@@ -28,6 +28,8 @@ applyRules(portfolio, symbol, strategy, mktdata, indicators = NULL,
 \item{path.dep}{TRUE/FALSE whether rule is path dependent, default TRUE, see Details}
 
 \item{rule.order}{default NULL, use at your own risk to adjust order of rule evaluation}
+
+\item{rule.subset}{ISO-8601 subset for period to execute rules over, default NULL}
 
 \item{debug}{if TRUE, return output list}
 }
@@ -104,7 +106,7 @@ in the data.  This 'look ahead' is only done \emph{after} the order has been
 entered in the normal path-dependent process, and only to insert new indices for 
 evaluation, and so should not introduce biases.
 }
+
 \seealso{
 \code{\link{add.rule}} \code{\link{applyStrategy}}
 }
-

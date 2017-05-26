@@ -19,4 +19,3 @@ sigPeak(label, data, column, direction = c("peak", "bottom"))
 This function tests to see if the mktdata or indicator \code{column} observations 
 on either side are lower(higher) creating a local peak(bottom).
 }
-

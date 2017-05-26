@@ -37,4 +37,3 @@ x<-setParameterConstraint(constraintLabel='macdPC',
 \author{
 Yu Chen
 }
-

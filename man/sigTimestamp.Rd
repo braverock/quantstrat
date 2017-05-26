@@ -20,4 +20,3 @@ factor (e.g. \code{\link[xts]{.indexday}})}
 \description{
 This will generate a signal on a specific timestamp or at a specific time every day, week, weekday, etc.
 }
-

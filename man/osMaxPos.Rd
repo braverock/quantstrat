@@ -46,4 +46,3 @@ TODO integrate orderqty='all' into osMaxPos for non-risk exit orders by combinin
 \seealso{
 \code{\link{addPosLimit}},\code{\link{getPosLimit}}
 }
-

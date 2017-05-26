@@ -17,4 +17,3 @@ put a strategy object in .strategy env
 \seealso{
 getStrategy
 }
-

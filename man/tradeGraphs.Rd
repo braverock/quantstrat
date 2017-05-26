@@ -38,4 +38,3 @@ tradeGraphs (
 \author{
 Jan Humme, rewritten by Chinmay Patil
 }
-

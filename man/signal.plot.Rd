@@ -44,4 +44,3 @@ information can be displayed clearly.
 \author{
 Michael Guan
 }
-

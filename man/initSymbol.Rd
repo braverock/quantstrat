@@ -26,4 +26,3 @@ The custom initialization must be defined as named list containing
 }
 and included as the slot \code{init_symbol} of the strategy object.
 }
-

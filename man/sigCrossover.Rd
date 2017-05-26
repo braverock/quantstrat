@@ -30,4 +30,3 @@ direction specified by \code{relationship}, and NA otherwise.
 
 If you want all the information, use a comparison instead.
 }
-

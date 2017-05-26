@@ -33,4 +33,3 @@ This function employs \code{plotSimpleGamlss} in package \code{gamlss.util}.
 \author{
 Michael Guan
 }
-

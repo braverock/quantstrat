@@ -15,4 +15,3 @@ get.strategy(x, envir = .strategy)
 \description{
 retrieve strategy from the container environment
 }
-

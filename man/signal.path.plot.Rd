@@ -25,4 +25,3 @@ signal.plot.path(results$sigret.by.asset$RTH$paramset.1.5[1:10,])
 \author{
 Michael Guan
 }
-

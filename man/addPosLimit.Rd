@@ -59,4 +59,3 @@ the limit to take effect.
 \code{\link{osMaxPos}}
 \code{\link{getPosLimit}}
 }
-

@@ -23,4 +23,3 @@ The formula will return TRUE/FALSE for each row comparison as a time series colu
 \details{
 This code is adapted from the approach used by Vijay Vaidyanthan in his PAST(AAII/SIPRO) code to construct arbitrary, formulaic, comparisons.  Many thanks to Vijay for sharing his expertise.
 }
-

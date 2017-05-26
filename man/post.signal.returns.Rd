@@ -28,10 +28,9 @@ post.signal.returns(signals, sigval, on = NULL, forward.days,
 \description{
 This function collects and aggregates post signal price changes for N days forward.
 }
-\author{
-Michael Guan
-}
 \seealso{
 \code{\link{apply.paramset.signal.analysis}}
 }
-
+\author{
+Michael Guan
+}

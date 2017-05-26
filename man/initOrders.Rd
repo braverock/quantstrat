@@ -25,4 +25,3 @@ to retrieve the symbols list from the portfolio in the trade blotter.
 \concept{
 order book
 }
-

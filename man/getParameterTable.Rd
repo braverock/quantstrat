@@ -31,4 +31,3 @@ x<-getParameterTable(stratMACD)
 \author{
 Yu Chen
 }
-

@@ -6,7 +6,8 @@
 \usage{
 applyStrategy(strategy, portfolios, mktdata = NULL, parameters = NULL, ...,
   debug = FALSE, symbols = NULL, initStrat = FALSE, updateStrat = FALSE,
-  initBySymbol = FALSE, gc = FALSE, delorders = FALSE)
+  initBySymbol = FALSE, gc = FALSE, delorders = FALSE,
+  rule.subset = NULL)
 }
 \arguments{
 \item{strategy}{an object of type 'strategy' to add the indicator to}
@@ -35,6 +36,8 @@ Notice that this happenes only after the strategy has been applied.}
 \item{gc}{if TRUE, call \code{\link{gc}} after each symbol run, default FALSE (experimental)}
 
 \item{delorders}{if TRUE, delete the order book for a symbol at the end of the symbols loop, will cause issues with rebalancing, default FALSE (experimental)}
+
+\item{rule.subset}{ISO-8601 subset for period to execute rules over, default NULL}
 }
 \description{
 This function is the wrapper that holds together the execution of a strategy.
@@ -57,4 +60,3 @@ the user passes \code{mktdata} in the call to \code{applyStrategy}
  \code{\link{applySignals}}, \code{\link{applyRules}},
  \code{\link{initStrategy}},
 }
-

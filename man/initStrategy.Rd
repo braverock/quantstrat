@@ -49,10 +49,9 @@ beginning of an \code{\link{applyStrategy}} call.
 
 If used in conjuction with \code{initBySymbol}, \code{get.Symbols} should be \code{FALSE}.
 }
-\author{
-Garrett See, Brian Peterson
-}
 \seealso{
 \code{\link{applyStrategy}}, \code{\link{add.init}},
 }
-
+\author{
+Garrett See, Brian Peterson
+}

@@ -48,4 +48,3 @@ out <- applyIndicators('example', SPY)
 tail(out)
 }
 }
-

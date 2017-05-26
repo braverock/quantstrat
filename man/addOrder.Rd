@@ -43,13 +43,13 @@ addOrder(portfolio, symbol, timestamp, qty, price, ordertype, side,
 
 \item{return}{if TRUE, return the row that makes up the order, default FALSE (will assign into the environment)}
 
+\item{\dots}{any other passthru parameters}
+
 \item{TxnFees}{numeric fees (usually negative) or function name for calculating TxnFees (processing happens later, not in this function)}
 
 \item{label}{text label, default to '', set to rule label by \code{\link{ruleSignal}}}
 
 \item{time.in.force}{timestamp time-in-force; either a time stamp, or a number of seconds, or 'GTC' / '', 'GTC' and '' both meaning 'Good Till Canceled'; order expires if still 'open' at this timestamp, default is ''}
-
-\item{\dots}{any other passthru parameters}
 }
 \description{
 It is important to understand that all the order functionality included in \code{quantstrat}
@@ -139,4 +139,3 @@ backtest
 
 order book
 }
-

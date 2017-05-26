@@ -30,4 +30,3 @@ by appending '$' to the regex, searching for a match at the end of the
 column name, as would be constructed by the \code{\link{paste}} in
 e.g. \code{\link{applyIndicators}}.
 }
-

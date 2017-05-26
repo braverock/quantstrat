@@ -11,6 +11,8 @@ rulePctEquity(trade.percent = 0.02, ..., longlevels = 1, shortlevels = 1,
 \arguments{
 \item{trade.percent}{max percentage of equity to allow the strategy to trade in this symbol}
 
+\item{\dots}{any other passthrough parameters}
+
 \item{longlevels}{numeric number of levels}
 
 \item{shortlevels}{numeric number of short levels, default longlevels}
@@ -26,8 +28,6 @@ rulePctEquity(trade.percent = 0.02, ..., longlevels = 1, shortlevels = 1,
 \item{symbol}{identifier of the instrument to cancel orders for, typically set automatically}
 
 \item{timestamp}{timestamp coercible to POSIXct that will be the time the order will be inserted on, typically set automatically}
-
-\item{\dots}{any other passthrough parameters}
 }
 \description{
 This rule works with \code{\link{applyStrategy.rebalancing}} to set the
@@ -58,4 +58,3 @@ add.rule(strategy.name, 'rulePctEquity',
 \code{\link{addPosLimit}}, 
 \code{\link{add.rule}}
 }
-

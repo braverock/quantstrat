@@ -92,4 +92,3 @@ If \code{orderside} is NULL, the function will attempt to calculate the side fro
 \seealso{
 \code{\link{osNoOp}} , \code{\link{add.rule}}
 }
-

@@ -27,4 +27,3 @@ Comparison will be applied from the first to the second column in the \code{colu
 
 Relationship 'op' means 'opposite' side.  Reasonable attempt will be made to match.
 }
-

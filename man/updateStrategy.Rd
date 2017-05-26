@@ -64,10 +64,9 @@ The 'standard wrapup functions included are:
      }
 }
 }
-\author{
-Garrett See, Brian Peterson
-}
 \seealso{
 \code{\link{updatePortf}}, \code{\link{updateAcct}}, \code{\link{updateEndEq}}, \code{\link{chart.Posn}}
 }
-
+\author{
+Garrett See, Brian Peterson
+}

@@ -20,10 +20,9 @@ objective function values
 This function takes a list of matrix of post signal price changes and 
 applies an user defined objective function on it.
 }
-\author{
-Michael Guan
-}
 \seealso{
 \code{\link{apply.paramset.signal.analysis}}
 }
-
+\author{
+Michael Guan
+}

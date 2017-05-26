@@ -24,4 +24,3 @@ operation, but it is also useful for nanual testing during development.
 If you are using this function to test your strategy, note that the 'mktdata' 
 argument should likely contain the output of \code{\link{applyIndicators}}.
 }
-

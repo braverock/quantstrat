@@ -12,4 +12,3 @@ load.strategy(strategy.name)
 \description{
 load a strategy object from disk into memory
 }
-

@@ -25,4 +25,3 @@ Many strategies, including RSI or MACD styles, make trading decisions when an in
 is over or under a specific threshold.  
 This function generates the appropriate signal based on such a threshold.
 }
-

@@ -45,4 +45,3 @@ instead of barplots. Requires 'beanplot' package
 \author{
 Michael Guan
 }
-

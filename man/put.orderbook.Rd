@@ -22,4 +22,3 @@ getOrderBook
 \concept{
 order book
 }
-

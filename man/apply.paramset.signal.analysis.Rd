@@ -62,11 +62,10 @@ that will be used to calculate an objective value representing each parameter. T
 objective function will take in a single matrix \code{ret.mat} of price changes. Each row represents an individual signal
 while each column represents periods/post signal.
 }
-\author{
-Michael Guan
-}
 \seealso{
 \code{\link{add.distribution}}
 \code{\link{add.distribution.constraint}}
 }
-
+\author{
+Michael Guan
+}

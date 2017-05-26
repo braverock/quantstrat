@@ -52,4 +52,3 @@ tPD2<-setParameterDistribution(tPD2, strat, component.type='signal', component.l
 \author{
 Yu Chen
 }
-

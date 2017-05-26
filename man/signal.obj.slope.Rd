@@ -22,10 +22,9 @@ It is important to note that all objective functions are called within \code{sig
 passed in to it as parameter is an matrix of post signal price changes or cumulative equity for each signal. The matrix
 is of N-by-M dimensions. N being the row representing the Nth signal. M being the column representing Mth period.
 }
-\author{
-Michael Guan
-}
 \seealso{
 \code{\link{apply.paramset.signal.analysis}}
 }
-
+\author{
+Michael Guan
+}

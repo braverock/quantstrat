@@ -43,4 +43,3 @@ For example, if your strategy uses a synthetic basket instrument, you could use 
 initialization slot to add a custom constructor to build the basket instrument time 
 series and modify the symbols slot(s) of the strategy and portfolio.
 }
-

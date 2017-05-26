@@ -24,4 +24,3 @@ function to make it easy to enable (or disable) a specific rule in a strategy
 \seealso{
 \code{\link{add.rule}} \code{\link{applyStrategy}}
 }
-

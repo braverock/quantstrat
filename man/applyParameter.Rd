@@ -51,6 +51,7 @@ parameter test, series of similar objects are created with names account.macd.p.
 The function supports parallel execution, user only need to initial the parallel package and wrap up afterwards.
 The function will automaticly use the number of registered parallel sessions to run testing, See example.
 }
+
 \examples{
 \dontrun{
 require(foreach)
@@ -71,10 +72,9 @@ rmSessions(all=TRUE)
 }
 
 }
-\author{
-Yu Chen
-}
 \seealso{
 \code{\link{setParameterDistribution}}, \code{\link{setParameterConstraint}}
 }
-
+\author{
+Yu Chen
+}

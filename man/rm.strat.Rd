@@ -28,4 +28,3 @@ initOrders('example', 'SPY')
 rm.strat('example')
 }
 }
-

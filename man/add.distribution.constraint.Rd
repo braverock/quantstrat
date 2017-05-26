@@ -26,10 +26,11 @@ add.distribution.constraint(strategy, paramset.label, distribution.label.1,
 Creates a constraint on 2 distributions in a paramset, i.e. a restriction limiting the allowed
 combinations from the ranges for distribution 1 and distribution 2.
 }
+\seealso{
+\code{\link{add.distribution}}, 
+    \code{\link{delete.paramset}}, 
+    \code{\link{apply.paramset}}
+}
 \author{
 Jan Humme
 }
-\seealso{
-\code{\link{add.distribution}}, \code{\link{delete.paramset}}, \code{\link{apply.paramset}}
-}
-
