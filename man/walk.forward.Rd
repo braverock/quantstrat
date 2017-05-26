@@ -6,7 +6,7 @@
 \usage{
 walk.forward(strategy.st, paramset.label, portfolio.st, account.st, period,
   k.training, nsamples = 0, audit.prefix = NULL, k.testing,
-  obj.func = function(x) {     which(x == max(x)) }, obj.args = list(x =
+  obj.func = function(x) {     which(x == cummax(x)) }, obj.args = list(x =
   quote(tradeStats.list$Net.Trading.PL)), anchored = FALSE,
   include.insamples = TRUE, ..., verbose = FALSE)
 }
@@ -57,10 +57,14 @@ WFA stops when there are insufficient data left for a full testing window.
 
 For a complete description, see Jaekle&Tomasini chapter 6.
 }
-\author{
-Jan Humme
-}
 \seealso{
-\code{\link{applyStrategy}} \code{\link{apply.paramset}} \code{\link{endpoints}} \code{\link{tradeStats}}
+\code{\link{applyStrategy}} ,
+    \code{\link{apply.paramset}} ,
+    \code{\link{chart.forward}} ,
+    \code{\link{chart.forward.training}} ,  
+    \code{\link{endpoints}} ,
+    \code{\link{tradeStats}}
 }
-
+\author{
+Jan Humme, Brian G. Peterson
+}

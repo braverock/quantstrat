@@ -46,15 +46,20 @@
 #'
 #' @return a list consisting of a slot containing detailed results for each training + testing period, as well as the portfolio and the tradeStats() for the portfolio
 #'
-#' @seealso \code{\link{applyStrategy}} \code{\link{apply.paramset}} \code{\link{endpoints}} \code{\link{tradeStats}}
+#' @seealso 
+#'     \code{\link{applyStrategy}} ,
+#'     \code{\link{apply.paramset}} ,
+#'     \code{\link{chart.forward}} ,
+#'     \code{\link{chart.forward.training}} ,  
+#'     \code{\link{endpoints}} ,
+#'     \code{\link{tradeStats}}
 #'
 #' @author Jan Humme, Brian G. Peterson
 #'
 #' @export
-
 walk.forward <- function(strategy.st, paramset.label, portfolio.st, account.st,
     period, k.training, nsamples=0, audit.prefix=NULL, k.testing,
-    obj.func=function(x){which(x==max(x))},
+    obj.func=function(x){which(x==cummax(x))},
     obj.args=list(x=quote(tradeStats.list$Net.Trading.PL)),
     anchored=FALSE, include.insamples=TRUE,
     ..., verbose=FALSE)
