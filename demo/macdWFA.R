@@ -61,16 +61,19 @@ results <- walk.forward(strategy.st,
                         account.st=account.st, 
                         nsamples=.nsamples,
                         period='months',
-                        k.training = 12,
-                        k.testing = 36,
+                        k.training = 36,
+                        k.testing = 12,
                         verbose=TRUE,
                         anchored = TRUE,
                         audit.prefix = 'macdWFA',
                         include.insamples = TRUE
                         )
                         
-
 wfa.stats <- results$tradeStats
 
 print(wfa.stats)
 
+chart.forward('macdWFA.results.RData')
+
+# your dates will vary, check your working directory
+# chart.forward.training('macdWFA.AAPL.20070103T000000.20091231T000000.RData')

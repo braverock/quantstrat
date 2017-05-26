@@ -59,7 +59,7 @@
 #' @export
 walk.forward <- function(strategy.st, paramset.label, portfolio.st, account.st,
     period, k.training, nsamples=0, audit.prefix=NULL, k.testing,
-    obj.func=function(x){which(x==cummax(x))},
+    obj.func=function(x){which(x==max(x))},
     obj.args=list(x=quote(tradeStats.list$Net.Trading.PL)),
     anchored=FALSE, include.insamples=TRUE,
     ..., verbose=FALSE)
