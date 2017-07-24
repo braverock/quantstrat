@@ -300,6 +300,9 @@ add.distribution <- function(strategy, paramset.label, component.type, component
 
     strategy$paramsets[[paramset.label]]$distributions[[label]] <- new_distribution
 
+    #increment trials
+    strategy$trials <- strategy$trials+1
+    
     if(store)
     {
         put.strategy(strategy)
@@ -353,6 +356,9 @@ add.distribution.constraint <- function(strategy, paramset.label, distribution.l
 
     strategy$paramsets[[paramset.label]]$constraints[[label]] <- new_constraint
 
+    #increment trials
+    strategy$trials <- strategy$trials+1
+    
     if(store)
     {
         put.strategy(strategy)
@@ -385,6 +391,8 @@ add.distribution.constraint <- function(strategy, paramset.label, distribution.l
 #' @param verbose return full information, in particular the .blotter environment, default FALSE
 #' @param paramsets a user-sepcified (sub)set of paramsets to run
 #' @param ... any other passthru parameters
+#' @param rule.subset ISO-8601 subset for period to execute rules over, default NULL
+#' @param store indicates whether to store the strategy in the .strategy environment
 #'
 #' @author Jan Humme
 #' @seealso 
@@ -408,6 +416,7 @@ apply.paramset <- function(strategy.st
                            , verbose=FALSE
                            , paramsets
                            , rule.subset=NULL
+                           , store=TRUE
                            )
 {
     must.have.args(match.call(), c('strategy.st', 'paramset.label', 'portfolio.st'))
@@ -565,7 +574,7 @@ apply.paramset <- function(strategy.st
             redisContext <- redisGetContext()
             redisClose()
         }
-
+        
         strategy <- install.param.combo(strategy, param.combo, paramset.label)
         applyStrategy(strategy
                       , portfolios=result$portfolio.st
@@ -598,6 +607,11 @@ apply.paramset <- function(strategy.st
         # print param.combo number for diagnostics
         print(paste("Returning results for param.combo", param.combo.num))
 
+        #increment trials
+        
+        strategy$trials <- strategy$trials+nrow(param.combos)
+        if(store) assign(strat$name,strat,envir=as.environment(.strategy))
+        
         return(result)
     }
 

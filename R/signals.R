@@ -58,6 +58,9 @@ add.signal <- function(strategy, name, arguments, parameters=NULL, label=NULL, .
 	class(tmp_signal)<-'strat_signal'
     strategy$signals[[indexnum]]<-tmp_signal
 
+    #increment trials
+    strategy$trials <- strategy$trials+1
+    
     if (store) assign(strategy$name,strategy,envir=as.environment(.strategy))
     else return(strategy)
     strategy$name

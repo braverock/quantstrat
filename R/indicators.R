@@ -106,6 +106,9 @@ add.indicator <- function(  strategy
   
   strategy$indicators[[indexnum]]<-tmp_indicator
   
+  #increment trials
+  strategy$trials <- strategy$trials+1
+  
   if (store) assign(strategy$name,strategy,envir=as.environment(.strategy))
   else return(strategy)
   strategy$name
