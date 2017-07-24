@@ -64,41 +64,51 @@
 #' tail(out)
 #' }
 #' @export
-add.indicator <- function(strategy, name, arguments, parameters=NULL, label=NULL, ..., enabled=TRUE, indexnum=NULL, store=FALSE) {
-    if (!is.strategy(strategy)) {
-        strategy<-try(getStrategy(strategy))
-        if(inherits(strategy,"try-error"))
-            stop ("You must supply an object or the name of an object of type 'strategy'.")
-        store=TRUE    
-    } 
-    tmp_indicator<-list()
-    tmp_indicator$name<-name
-    # if we have a 'label', that will be the name of the indicator, if it already exists, 
-    #     it will be overwritten.  If label is NULL the indicator name will be "<name>.ind" 
-    #     unless that already exists in which case we will append that with a number. 
-    if(is.null(label)) {
-        label <- paste(name,"ind",sep='.')
-        gl <- grep(label, names(strategy$indicators))
-        if (!identical(integer(0), gl)) label <- paste(label, length(gl)+1, sep=".")
-    }   
-    tmp_indicator$label<-label
-    tmp_indicator$enabled=enabled
-    if (!is.list(arguments)) stop("arguments must be passed as a named list")
-    tmp_indicator$arguments<-arguments
-	if(!is.null(parameters)) tmp_indicator$parameters = parameters
-	if(length(list(...))) tmp_indicator<-c(tmp_indicator,list(...))
-
-    #if(!hasArg(indexnum) || (hasArg(indexnum) && is.null(indexnum))) indexnum = length(strategy$indicators)+1
-    indexnum <- if (!is.null(indexnum)) {indexnum} else label 
-    
-    tmp_indicator$call<-match.call()
-	class(tmp_indicator)<-'strat_indicator'
-	
-    strategy$indicators[[indexnum]]<-tmp_indicator
-    
-    if (store) assign(strategy$name,strategy,envir=as.environment(.strategy))
-    else return(strategy)
-    strategy$name
+add.indicator <- function(  strategy
+                          , name
+                          , arguments
+                          , parameters=NULL
+                          , label=NULL
+                          , ...
+                          , enabled=TRUE
+                          , indexnum=NULL
+                          , store=FALSE
+                          ) 
+{
+  if (!is.strategy(strategy)) {
+    strategy<-try(getStrategy(strategy))
+    if(inherits(strategy,"try-error"))
+      stop ("You must supply an object or the name of an object of type 'strategy'.")
+    store=TRUE    
+  } 
+  tmp_indicator<-list()
+  tmp_indicator$name<-name
+  # if we have a 'label', that will be the name of the indicator, if it already exists, 
+  #     it will be overwritten.  If label is NULL the indicator name will be "<name>.ind" 
+  #     unless that already exists in which case we will append that with a number. 
+  if(is.null(label)) {
+    label <- paste(name,"ind",sep='.')
+    gl <- grep(label, names(strategy$indicators))
+    if (!identical(integer(0), gl)) label <- paste(label, length(gl)+1, sep=".")
+  }   
+  tmp_indicator$label<-label
+  tmp_indicator$enabled=enabled
+  if (!is.list(arguments)) stop("arguments must be passed as a named list")
+  tmp_indicator$arguments<-arguments
+  if(!is.null(parameters)) tmp_indicator$parameters = parameters
+  if(length(list(...))) tmp_indicator<-c(tmp_indicator,list(...))
+  
+  #if(!hasArg(indexnum) || (hasArg(indexnum) && is.null(indexnum))) indexnum = length(strategy$indicators)+1
+  indexnum <- if (!is.null(indexnum)) {indexnum} else label 
+  
+  tmp_indicator$call<-match.call()
+  class(tmp_indicator)<-'strat_indicator'
+  
+  strategy$indicators[[indexnum]]<-tmp_indicator
+  
+  if (store) assign(strategy$name,strategy,envir=as.environment(.strategy))
+  else return(strategy)
+  strategy$name
 }
 
 #' apply the indicators in the strategy to arbitrary market data
