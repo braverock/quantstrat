@@ -171,7 +171,7 @@ if (RHO >= 0 & RHO < 0.2){
   para_inter <- para0[2,] ### Set at the preferred level if RHO is misspecified 
 }
 
-WW <- 2000;  ### Number of repetitions 
+WW <- 100;  ### Number of repetitions 
 
 ### Generate a panel of t-ratios (WW*Nsim_tests) ###
 Nsim_tests <- (floor(M/para_inter[2]) + 1)*floor(para_inter[2]+1); # make sure Nsim_test >= M
@@ -280,4 +280,16 @@ print(paste("Percentage Haircut =", hc_avg))
 
 }
 
-Haircut_SR(3,120,1,1,1,0.1,100,0.4)
+# Haircut_SR(3,120,1,1,1,0.1,100,0.4)
+if(periodicity(mktdata)$scale == "daily"){
+  freq <- 3
+}
+obs <- nrow(mktdata) # TODO: determine better approach to user's required periodicity
+sharpe <- dailyStats(portfolio.st)$Ann.Sharpe # for now use Ann.Sharpe from dailyStats
+is.sharpe.ann <- 1 # dailyStats discloses annual Sharpe
+AC.corr.reqd <- 0 # (0=YES, 1=NO), TODO: get from strategy
+AC.level <- 0.1 # TODO: get from strategy
+trials <- get.strategy(portfolio.st)$trials
+Ave.corr <- 0.4 # TODO: get correlation from strategy combinations
+
+Haircut_SR(freq, obs, sharpe, is.sharpe.ann, AC.corr.reqd, AC.level, trials, Ave.corr)
