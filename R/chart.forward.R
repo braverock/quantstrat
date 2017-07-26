@@ -45,16 +45,20 @@ chart.forward <- function(audit.filename)
     R <- cumsum(p$summary[paste(from, '/', sep=''),'Net.Trading.PL'])
     names(R) <- portfolio.st
 
-    #PL.xts <- na.locf(PL.xts)
-    PL.xts <- na.locf(cbind(PL.xts, R))
-
+    # add a column for the chosen portfolio, doubling it and
+    # making it plot last (first column, per PerfA convention) 
+    # so it's not over-plotted by other portfolios
+    PL.xts <- cbind(R, PL.xts)
+    
+    PL.xts <- na.locf(PL.xts)
+    
     # add drawdown columns for all portfolio columns
     CumMax <- cummax(PL.xts)
     Drawdowns.xts <- -(CumMax - PL.xts)
     data.to.plot <- as.xts(cbind(PL.xts, Drawdowns.xts))
 
-    p <- plot(PL.xts, col=c("blue", rep("grey", n-1)), main="Walk Forward Analysis")
+    p <- plot(PL.xts, col=c("blue", rep("grey", n )), main="Walk Forward Analysis")
     # set on=NA so it is drawn on a new panel
-    p <- lines(Drawdowns.xts, col=c("blue", rep("grey", n-1)), on=NA, main="Drawdowns")
+    p <- lines(Drawdowns.xts, col=c("blue", rep("grey", n )), on=NA, main="Drawdowns")
     print(p)
 }
