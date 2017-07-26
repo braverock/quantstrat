@@ -43,9 +43,10 @@ chart.forward.training <- function(audit.filename)
     chosen.one <- .audit$param.combo.nr[1L]
     chosen.portfolio.st = ls(name=.audit, pattern=glob2rx(paste('portfolio', '*', chosen.one, sep='.')))
     # add a column for the chosen portfolio, doubling it and
-    # making it plot last, so it's not over-plotted by other portfolios
+    # making it plot last (first column, per PerfA convention) 
+    # so it's not over-plotted by other portfolios
     R <- PL.xts[,chosen.portfolio.st]
-    PL.xts <- cbind(PL.xts, R)
+    PL.xts <- cbind(R, PL.xts)
     
     PL.xts <- na.locf(PL.xts)
 
@@ -57,8 +58,8 @@ chart.forward.training <- function(audit.filename)
     # based on the suggestion by Ross, note that the number of
     # lines is increased by 1 since the 'chosen' portfolio is added as the last one
     # and highlighted using the blue color
-    p <- plot(PL.xts, col=c("blue", rep("grey", n)), main="Walk Forward Analysis")
+    p <- plot(PL.xts, col=c("blue", rep("grey", n )), main="Walk Forward Analysis")
     # set on=NA so it is drawn on a new panel
-    p <- lines(Drawdowns.xts, col=c("blue", rep("grey", n)), on=NA, main="Drawdowns")
+    p <- lines(Drawdowns.xts, col=c("blue", rep("grey", n )), on=NA, main="Drawdowns")
     print(p)
 }
