@@ -19,7 +19,7 @@ training period.
 \details{
 This function reads one of those training files and will construct a performance 
 chart of the in-sample performance of all the parameter sets during the training
-period, inbcluding the in-sample performance of the chosen parameter set.
+period, including the in-sample performance of the chosen parameter set.
 
 Note that parameter \code{audit filename} may also be an audit environment 
 which is already loaded in \R, for ease of development and debugging.  Little
