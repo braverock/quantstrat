@@ -11,8 +11,21 @@ chart.forward(audit.filename)
 Filename will match pattern [audit.prefix].results.RData.}
 }
 \description{
-Chart to analyse walk.forward() objective function
+The \code{\link{walk.forward}} function creates an audit environment, written 
+out as a results file, which contains the out of sample results of the (chosen)
+parameter set.  This function parses that file and generates a chart to 
+compare the performance of all parameter sets against the optimal one.
+}
+\details{
+\code{\link{chart.forward.training}} uses the audit environment for a single 
+in-sample training period to draw a chart for that in-sample data.
+
+Note that parameter \code{audit filename} may also be an audit environment 
+which is already loaded in \R, for ease of development and debugging.  Little
+checking is done to ensure the correct structure of this environment, so passing
+an unsuitable environment (such as the .blotter environment) will result in
+errors.
 }
 \seealso{
-\code{\link{walk.forward}}
+\code{\link{walk.forward}}, \code{\link{chart.forward.training}}
 }
