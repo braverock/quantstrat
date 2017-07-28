@@ -60,7 +60,7 @@ results <- apply.paramset(strategy.st,
                           portfolio.st=portfolio.st, 
                           account.st=account.st, 
                           nsamples=.nsamples,
-                          .audit=.audit,
+                          audit=.audit,
                           verbose=TRUE)
 
 df    <- degrees.of.freedom('macd','macd')
