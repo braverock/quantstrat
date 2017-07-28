@@ -32,11 +32,11 @@ Haircut_SR <- function(){
   num_obs <- nrow(p$summary)
   
   # 3. Sharpe ratio of strategy returns
-  SR <- max(stats$Ann.Sharpe, na.rm = TRUE)
+  SR <- min(3.5, max(stats$Ann.Sharpe, na.rm = TRUE)) # TODO: use max as opposed to mean, once figure out why max SR is so high
   SR_index <- which(stats$Ann.Sharpe == SR) # potentially use later to determine which test yielded optimal SR
   
   # 4. SR annualized? (1=Yes)
-  if(SR == max(stats$Ann.Sharpe, na.rm = TRUE)){
+  if(SR == min(3.5, max(stats$Ann.Sharpe, na.rm = TRUE))){ # TODO: use max as opposed to mean, once figure out why max SR is so high
     ind_an <- 1
   } else {
     ind_an <- NULL # is Sharpe ratio takes from stats object returned in apply.paramsets, which is annualized?
@@ -51,8 +51,8 @@ Haircut_SR <- function(){
   rho <- ACF$acf[[2]] # assume autocorrelation coefficient for lag = 1 is suitable for now
   
   # 7. # of tests assumed
-  #num_test <- get.strategy(portfolio.st)$trials
-  num_test <- 100
+  # num_test <- get.strategy(portfolio.st)$trials
+  num_test <- 20
   
   # 8. Average correlation assumed
   RHO <- 0.2 # use the assumption from HLZ (and the Cross-Section of Expected Returns) p.32-33 Section 5.3
@@ -219,7 +219,7 @@ t_sample <- sample_random_multests(para_inter[1], Nsim_tests, para_inter[3], par
   
 # Sharpe Ratio, monthly
 sr <- sr_annual / (12 ^(1/2))
-T <- sr * 120^(1/2)
+T <- sr * N^(1/2)
 p_val <- 2 * (1 - pt(T, N - 1))
 
 # Drawing observations from the underlying p-value distribution; simulate a
