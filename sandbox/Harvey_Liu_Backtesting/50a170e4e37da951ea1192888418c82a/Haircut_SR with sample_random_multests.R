@@ -1,41 +1,8 @@
-require(MASS) # for mvrnorm()
-
-### Generate empirical p-value distributions based on Harvey, Liu and Zhu (2014) ------ Harvey and Liu
-### (2014): "Backtesting", Duke University 
-sample_random_multests <- function(rho, m_tot, p_0, lambda, M_simu){ 
-  
-###Parameter input from Harvey, Liu and Zhu (2014) ############
-###Default: para_vec = [0.2, 1377, 4.4589*0.1, 5.5508*0.001,M_simu]###########
-  
-p_0 <- p_0 ;  # probability for a random factor to have a zero mean   
-lambda <- lambda; # average of monthly mean returns for true strategies
-m_tot <- m_tot; # total number of trials
-rho <- rho; # average correlation among returns
-  
-M_simu <- M_simu;  # number of rows (simulations) 
-  
-sigma <- 0.15/sqrt(12); # assumed level of monthly vol
-N <- 240; #number of time-series
-  
-sig_vec <- c(1, rho*rep(1, m_tot-1))
-SIGMA <- toeplitz(sig_vec)
-MU <- rep(0,m_tot)
-shock_mat <- mvrnorm(MU, SIGMA*(sigma^2/N), n = M_simu)
-
-prob_vec <- replicate(M_simu, runif(m_tot,0,1))
-
-mean_vec <- t(replicate(M_simu, rexp(m_tot, rate=1/lambda)))
-m_indi <- prob_vec > p_0
-mu_nul <- as.numeric(m_indi)*mean_vec #Null-hypothesis
-tstat_mat <- abs(mu_nul + shock_mat)/(sigma/sqrt(N))
-  
-sample_random_multests <- tstat_mat 
-}
-
 ### Sharpe ratio adjustment due to testing multiplicity ------ Harvey and Liu
 ### (2014): "Backtesting", Duke University 
 
-Haircut_SR <- function(sm_fre, num_obs, SR, ind_an, ind_aut, rho, num_test, RHO){
+# Haircut_SR <- function(sm_fre, num_obs, SR, ind_an, ind_aut, rho, num_test, RHO){
+Haircut_SR <- function(){
 
 ###############################
 ####### Parameter inputs ######
@@ -52,6 +19,44 @@ Haircut_SR <- function(sm_fre, num_obs, SR, ind_an, ind_aut, rho, num_test, RHO)
 ### Calculating the equivalent annualized Sharpe ratio 'sr_annual', after 
 ### taking autocorrelation into account 
 
+  # 1. sm_fre
+  p <- getPortfolio(portfolio.st)
+  freq <- periodicity(p$summary)$scale
+  sm_fre <- switch (freq,
+          "daily" = 1,
+          "weekly" = 2,
+          "monthly" = 3,
+          "quarterly" = 4,
+          "yearly" = 5)
+  # 2. num_obs
+  num_obs <- nrow(p$summary)
+  
+  # 3. Sharpe ratio of strategy returns
+  SR <- max(stats$Ann.Sharpe, na.rm = TRUE)
+  SR_index <- which(stats$Ann.Sharpe == SR) # potentially use later to determine which test yielded optimal SR
+  
+  # 4. SR annualized? (1=Yes)
+  if(SR == max(stats$Ann.Sharpe, na.rm = TRUE)){
+    ind_an <- 1
+  } else {
+    ind_an <- NULL # is Sharpe ratio takes from stats object returned in apply.paramsets, which is annualized?
+  }
+  
+  # 5. AC correction needed? (0=Yes), and per Brian for any quantstrat return series, autocorrelation adjustment will be required.
+  ind_aut <- 0
+  
+  # 6. AC level
+  roc <- ROC(cumsum(p$summary$Net.Trading.PL))
+  ACF <- acf(roc, na.action = na.pass, plot = FALSE)
+  rho <- ACF$acf[[2]] # assume autocorrelation coefficient for lag = 1 is suitable for now
+  
+  # 7. # of tests assumed
+  #num_test <- get.strategy(portfolio.st)$trials
+  num_test <- 100
+  
+  # 8. Average correlation assumed
+  RHO <- 0.2 # use the assumption from HLZ (and the Cross-Section of Expected Returns) p.32-33 Section 5.3
+  
 if(sm_fre == 1){
   fre_out <- 'Daily'
   } else if(sm_fre == 2){ 
@@ -175,6 +180,41 @@ WW <- 100;  ### Number of repetitions
 
 ### Generate a panel of t-ratios (WW*Nsim_tests) ###
 Nsim_tests <- (floor(M/para_inter[2]) + 1)*floor(para_inter[2]+1); # make sure Nsim_test >= M
+
+require(MASS) # for mvrnorm()
+
+### Generate empirical p-value distributions based on Harvey, Liu and Zhu (2014) ------ Harvey and Liu
+### (2014): "Backtesting", Duke University 
+sample_random_multests <- function(rho, m_tot, p_0, lambda, M_simu){ 
+  
+  ###Parameter input from Harvey, Liu and Zhu (2014) ############
+  ###Default: para_vec = [0.2, 1377, 4.4589*0.1, 5.5508*0.001,M_simu]###########
+  
+  p_0 <- p_0 ;  # probability for a random factor to have a zero mean   
+  lambda <- lambda; # average of monthly mean returns for true strategies
+  m_tot <- m_tot; # total number of trials
+  rho <- rho; # average correlation among returns
+  
+  M_simu <- M_simu;  # number of rows (simulations) 
+  
+  sigma <- 0.15/sqrt(12); # assumed level of monthly vol
+  N <- 240; #number of time-series
+  
+  sig_vec <- c(1, rho*rep(1, m_tot-1))
+  SIGMA <- toeplitz(sig_vec)
+  MU <- rep(0,m_tot)
+  shock_mat <- mvrnorm(MU, SIGMA*(sigma^2/N), n = M_simu)
+  
+  prob_vec <- replicate(M_simu, runif(m_tot,0,1))
+  
+  mean_vec <- t(replicate(M_simu, rexp(m_tot, rate=1/lambda)))
+  m_indi <- prob_vec > p_0
+  mu_nul <- as.numeric(m_indi)*mean_vec #Null-hypothesis
+  tstat_mat <- abs(mu_nul + shock_mat)/(sigma/sqrt(N))
+  
+  sample_random_multests <- tstat_mat 
+}
+
 t_sample <- sample_random_multests(para_inter[1], Nsim_tests, para_inter[3], para_inter[4], WW)
   
 # Sharpe Ratio, monthly
@@ -280,16 +320,19 @@ print(paste("Percentage Haircut =", hc_avg))
 
 }
 
-# Haircut_SR(3,120,1,1,1,0.1,100,0.4)
-if(periodicity(mktdata)$scale == "daily"){
-  freq <- 3
-}
-obs <- nrow(mktdata) # TODO: determine better approach to user's required periodicity
-sharpe <- dailyStats(portfolio.st)$Ann.Sharpe # for now use Ann.Sharpe from dailyStats
-is.sharpe.ann <- 1 # dailyStats discloses annual Sharpe
-AC.corr.reqd <- 0 # (0=YES, 1=NO), TODO: get from strategy
-AC.level <- 0.1 # TODO: get from strategy
-trials <- get.strategy(portfolio.st)$trials
-Ave.corr <- 0.4 # TODO: get correlation from strategy combinations
+# Run the function - all inputs gathered inside the function, from quantstrat/blotter environment objects
+Haircut_SR()
 
-Haircut_SR(freq, obs, sharpe, is.sharpe.ann, AC.corr.reqd, AC.level, trials, Ave.corr)
+# # Haircut_SR(3,120,1,1,1,0.1,100,0.4)
+# if(periodicity(mktdata)$scale == "daily"){
+#   freq <- 3
+# }
+# obs <- nrow(mktdata) # TODO: determine better approach to user's required periodicity
+# sharpe <- dailyStats(portfolio.st)$Ann.Sharpe # for now use Ann.Sharpe from dailyStats
+# is.sharpe.ann <- 1 # dailyStats discloses annual Sharpe
+# AC.corr.reqd <- 0 # (0=YES, 1=NO), TODO: get from strategy
+# AC.level <- 0.1 # TODO: get from strategy
+# trials <- get.strategy(portfolio.st)$trials
+# Ave.corr <- 0.4 # TODO: get correlation from strategy combinations
+# 
+# Haircut_SR(freq, obs, sharpe, is.sharpe.ann, AC.corr.reqd, AC.level, trials, Ave.corr)
