@@ -1,11 +1,11 @@
 Package: quantstrat
 Type: Package
 Title: Quantitative Strategy Model Framework
-Version: 0.10.2
-Date: 2017-05-24 $Date$
+Version: 0.10.3
+Date: 2017-07-27 $Date$
 Author: Peter Carl, Brian G. Peterson, Joshua Ulrich, Jan Humme
 Depends:
-    R(>= 3.3),
+    R(>= 3.2),
     quantmod,
     xts(>= 0.10),
     blotter(>= 0.9),
@@ -31,6 +31,6 @@ Contributors: Yu Chen, Joe Dunn, Dirk Eddelbuettel,
     Michael Guan, Jeffrey A. Ryan, Garrett See
 LazyLoad: yes
 License: GPL-3
-Copyright: (c) 2009-2016
+Copyright: (c) 2009-2017
 ByteCompile: TRUE
-RoxygenNote: 6.0.1
+RoxygenNote: 6.0.1.9000

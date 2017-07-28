@@ -21,7 +21,7 @@ strategy.st <- 'macd'
 ### Set up Parameter Values
 .FastMA = (1:20)
 .SlowMA = (30:80)
-.nsamples = 10 #for random parameter sampling, less important if you're using doParallel or doMC
+.nsamples = 30 #for random parameter sampling, less important if you're using doParallel or doMC
 
 
 ### MA paramset
@@ -53,13 +53,20 @@ add.distribution.constraint(strategy.st,
 
 ###
 
+.audit  <- new.env()
+
 results <- apply.paramset(strategy.st, 
                           paramset.label='MA', 
                           portfolio.st=portfolio.st, 
                           account.st=account.st, 
-                          nsamples=.nsamples, 
+                          nsamples=.nsamples,
+                          audit=.audit,
                           verbose=TRUE)
 
+df    <- degrees.of.freedom('macd','macd')
+
 stats <- results$tradeStats
+
+print(df)
 
 print(stats)
