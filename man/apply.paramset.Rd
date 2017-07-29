@@ -7,7 +7,7 @@
 apply.paramset(strategy.st, paramset.label, portfolio.st, ..., account.st,
   mktdata = NULL, nsamples = 0, user.func = NULL, user.args = NULL,
   calc = "slave", audit = NULL, packages = NULL, verbose = FALSE,
-  paramsets, rule.subset = NULL)
+  paramsets, rule.subset = NULL, store = TRUE)
 }
 \arguments{
 \item{strategy.st}{the name of the strategy object}
@@ -37,6 +37,10 @@ apply.paramset(strategy.st, paramset.label, portfolio.st, ..., account.st,
 \item{verbose}{return full information, in particular the .blotter environment, default FALSE}
 
 \item{paramsets}{a user-sepcified (sub)set of paramsets to run}
+
+\item{rule.subset}{ISO-8601 subset for period to execute rules over, default NULL}
+
+\item{store}{indicates whether to store the strategy in the .strategy environment}
 }
 \description{
 This function will run applyStrategy() on portfolio.st, once for each parameter combination as specified by
