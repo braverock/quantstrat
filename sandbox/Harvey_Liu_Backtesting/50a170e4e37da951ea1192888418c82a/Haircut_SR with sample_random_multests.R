@@ -175,7 +175,7 @@ if (RHO >= 0 & RHO < 0.2){
   para_inter <- para0[2,] ### Set at the preferred level if RHO is misspecified 
 }
 
-WW <- 100;  ### Number of repetitions 
+WW <- 2000;  ### Number of repetitions (in HL on p.30 the authors suggest using 5k simulations, but in the exhibit they use 2k)
 
 ### Generate a panel of t-ratios (WW*Nsim_tests) ###
 Nsim_tests <- (floor(M/para_inter[2]) + 1)*floor(para_inter[2]+1); # make sure Nsim_test >= M
