@@ -299,17 +299,14 @@ hc_avg <- (sr_annual - sr_avg)/sr_annual
 ######### Final Output ###########
 cat("Bonferroni Adjustment: \nAdjusted P-value =", p_BON,
     "\nHaircut Sharpe Ratio =", sr_BON,
-    "\nPercentage Haircut =", hc_BON)
-
-cat("Holm Adjustment: \nAdjusted P-value =", p_HOL,
+    "\nPercentage Haircut =", hc_BON,
+    "\nHolm Adjustment: \nAdjusted P-value =", p_HOL,
     "\nHaircut Sharpe Ratio =", sr_HOL,
-    "\nPercentage Haircut =", hc_HOL)
-
-cat("BHY Adjustment: \nAdjusted P-value =", p_BHY,
+    "\nPercentage Haircut =", hc_HOL,
+    "\nBHY Adjustment: \nAdjusted P-value =", p_BHY,
     "\nHaircut Sharpe Ratio =", sr_BHY,
-    "\nPercentage Haircut =", hc_BHY)
-
-cat("Average Adjustment: \nAdjusted P-value =", p_avg,
+    "\nPercentage Haircut =", hc_BHY,
+    "\nAverage Adjustment: \nAdjusted P-value =", p_avg,
     "\nHaircut Sharpe Ratio =", sr_avg,
     "\nPercentage Haircut =", hc_avg)
 
