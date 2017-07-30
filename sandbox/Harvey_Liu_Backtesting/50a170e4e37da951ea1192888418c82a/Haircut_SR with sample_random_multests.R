@@ -32,11 +32,11 @@ Haircut_SR <- function(){
   num_obs <- nrow(p$summary)
   
   # 3. Sharpe ratio of strategy returns
-  SR <- min(3.5, max(stats$Ann.Sharpe, na.rm = TRUE)) # TODO: use max as opposed to mean, once figure out why max SR is so high
+  SR <- max(stats$Ann.Sharpe, na.rm = TRUE) # Beware: Excessive annualized Sharpe ratios could be the result of short profitable backtests
   SR_index <- which(stats$Ann.Sharpe == SR) # potentially use later to determine which test yielded optimal SR
   
   # 4. SR annualized? (1=Yes)
-  if(SR == min(3.5, max(stats$Ann.Sharpe, na.rm = TRUE))){ # TODO: use max as opposed to mean, once figure out why max SR is so high
+  if(SR == max(stats$Ann.Sharpe, na.rm = TRUE)){ # Beware: Excessive annualized Sharpe ratios could be the result of short profitable backtests
     ind_an <- 1
   } else {
     ind_an <- NULL # is Sharpe ratio takes from stats object returned in apply.paramsets, which is annualized?
@@ -51,8 +51,7 @@ Haircut_SR <- function(){
   rho <- ACF$acf[[2]] # assume autocorrelation coefficient for lag = 1 is suitable for now
   
   # 7. # of tests assumed
-  # num_test <- get.strategy(portfolio.st)$trials
-  num_test <- 20
+  num_test <- getStrategy(portfolio.st)$trials
   
   # 8. Average correlation assumed
   RHO <- 0.2 # use the assumption from HLZ (and the Cross-Section of Expected Returns) p.32-33 Section 5.3
@@ -198,7 +197,7 @@ sample_random_multests <- function(rho, m_tot, p_0, lambda, M_simu){
   M_simu <- M_simu;  # number of rows (simulations) 
   
   sigma <- 0.15/sqrt(12); # assumed level of monthly vol
-  N <- 240; #number of time-series
+  N <- 240; #number of time-series (240 months ie. 20 years; see Harvey, Liu and Zhu (2014) Section 5.2 p.30)
   
   sig_vec <- c(1, rho*rep(1, m_tot-1))
   SIGMA <- toeplitz(sig_vec)
@@ -298,25 +297,21 @@ hc_avg <- (sr_annual - sr_avg)/sr_annual
 
 ##################################
 ######### Final Output ###########
-print("Bonferroni Adjustment:")
-print(paste("Adjusted P-value =", p_BON))
-print(paste("Haircut Sharpe Ratio =", sr_BON))
-print(paste("Percentage Haircut =", hc_BON))
+cat("Bonferroni Adjustment: \nAdjusted P-value =", p_BON,
+    "\nHaircut Sharpe Ratio =", sr_BON,
+    "\nPercentage Haircut =", hc_BON)
 
-print("Holm Adjustment:")
-print(paste("Adjusted P-value =", p_HOL))
-print(paste("Haircut Sharpe Ratio =", sr_HOL))
-print(paste("Percentage Haircut =", hc_HOL))
+cat("Holm Adjustment: \nAdjusted P-value =", p_HOL,
+    "\nHaircut Sharpe Ratio =", sr_HOL,
+    "\nPercentage Haircut =", hc_HOL)
 
-print("BHY Adjustment:")
-print(paste("Adjusted P-value =", p_BHY))
-print(paste("Haircut Sharpe Ratio =", sr_BHY))
-print(paste("Percentage Haircut =", hc_BHY))
+cat("BHY Adjustment: \nAdjusted P-value =", p_BHY,
+    "\nHaircut Sharpe Ratio =", sr_BHY,
+    "\nPercentage Haircut =", hc_BHY)
 
-print("Average Adjustment:")
-print(paste("Adjusted P-value =", p_avg))
-print(paste("Haircut Sharpe Ratio =", sr_avg))
-print(paste("Percentage Haircut =", hc_avg))
+cat("Average Adjustment: \nAdjusted P-value =", p_avg,
+    "\nHaircut Sharpe Ratio =", sr_avg,
+    "\nPercentage Haircut =", hc_avg)
 
 }
 
