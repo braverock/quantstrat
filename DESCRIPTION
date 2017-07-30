@@ -8,7 +8,7 @@ Depends:
     R(>= 3.2),
     quantmod,
     xts(>= 0.10),
-    blotter(>= 0.9),
+    blotter(>= 0.12.1),
     FinancialInstrument(>= 0.12.5),
     foreach(>= 1.4.0)
 Imports:

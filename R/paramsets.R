@@ -607,15 +607,13 @@ apply.paramset <- function(strategy.st
         # print param.combo number for diagnostics
         print(paste("Returning results for param.combo", param.combo.num))
 
-        #increment trials
-        
-        strategy$trials <- strategy$trials+nrow(param.combos)
-        if(store) assign(strat$name,strat,envir=as.environment(.strategy))
-        
         return(result)
     }
 
-
+    #increment trials
+    strategy$trials <- strategy$trials+nrow(param.combos)
+    if(store) assign(strat$name,strat,envir=as.environment(.strategy))
+    
     if(is.null(audit) && calc=='master'){
       .audit <- .blotter
     } else {

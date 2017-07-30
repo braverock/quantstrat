@@ -61,6 +61,7 @@ results <- apply.paramset(strategy.st,
                           account.st=account.st, 
                           nsamples=.nsamples,
                           audit=.audit,
+                          store=TRUE,
                           verbose=TRUE)
 
 df    <- degrees.of.freedom('macd','macd')
