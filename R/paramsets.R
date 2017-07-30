@@ -612,7 +612,7 @@ apply.paramset <- function(strategy.st
 
     #increment trials
     strategy$trials <- strategy$trials+nrow(param.combos)
-    if(store) assign(strat$name,strat,envir=as.environment(.strategy))
+    if(store) assign(strategy$name,strategy,envir=as.environment(.strategy))
     
     if(is.null(audit) && calc=='master'){
       .audit <- .blotter
