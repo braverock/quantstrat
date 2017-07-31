@@ -83,7 +83,10 @@ deflatedSharpe <- SharpeRatio.deflated <- function( portfolios
     } else {
       s <- strategy
     }
-    trials<-s$trials
+    s_trials<-s$trials
+    if(!is.null(trials) && s_trials>trials){
+      trials <- s_trials
+    }
   }
   if(trials==0 || !is.numeric(trials))
     stop("You must supply a numeric number of trials or a strategy with trials included")
