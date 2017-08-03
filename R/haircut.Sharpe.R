@@ -118,6 +118,66 @@
 #' Harvey and Liu (2015).  This documentation is just an overview to aid in 
 #' easy use of the \R function.
 #' 
+#' HL mention 3 well known adjustment methods in the statistics literature, which
+#' are originally prescribed in the paper "...and the Cross-Section of Expected
+#' Returns" by Harvey, Liu and Zhu. These are Bonferroni, Holm, and Benjamini,
+#' Hochberg, and Yekutieli (BHY).
+#' 
+#' 1. Bonferroni (BON)
+#' 
+#' \deqn{ {p^Bonferroni} } = min {|{M * p_i, 1}|}
+#' 
+#' Bonferroni applies the same adjustment to the p-value of each test, inflating
+#' the p-value by the number of tests. The multiple testing p-value is the minimum
+#' of each inflated p-value and 1 where 1 (or 100% if you prefer) is the upper bound
+#' of probability. HL use the example of p-values from 6 strategies where the p-values
+#' are (0.005, 0.009, 0.0128, 0.0135, 0.045, 0.06). According to a 5% significance
+#' cutoff the first 5 tests would be considered significant. Using the p.adjust function
+#' in R we can get the multiple adjusted p-values and according to Bonferroni only the
+#' first test would be considered significant.
+#' 
+#' 2. Holm
+#' 
+#' p-value adjustments can be categorized into 2 categories, namely: single-step and
+#' sequential. Single-step corrections equally adjust p-values as in Bonferroni.
+#' Sequential adjustments are an adaptive procedure based on the distribution of p-values.
+#' Sequential methods gained prominence after a seminal paper by Schweder & Spjotvoll (1982)
+#' and section 7.3 of this paper gives a useful example of an application of multiple
+#' testing hypothesis diagnostic plotting in R. Holm is an example of a sequential
+#' multiple testing procedure. For Holm, the equivalent adjusted p-value is
+#' 
+#' \deqn{p_{(i)}^{Holm}} = min[max((M - j + 1)*{p_{(j)}}),1]
+#' 
+#' Bonferroni adjusts single tests equally, whereas Holm applies a sequential approach.
+#' By conclusion it should not surprise you that adjusted Sharpe ratios under Bonferroni
+#' will therefore be lower than for Holm. At this point it is useful to mention that both
+#' Holm and Bonferroni attempt to prevent even 1 Type I error occurring, controlling what
+#' is called the family-wise error rate (FWER). The next adjustment proposed by HL is BHY
+#' and the main difference from the previous 2 adjustment methods is that BHY attempts to
+#' control the false discovery rate (FDR), implying more lenience than Holm and Bonferroni
+#' and therefore expected to yield higher adjusted Sharpe ratios.
+#' 
+#' 3. BHY
+#' 
+#' BHY's formulation of the FDR can be represented as follows. Firstly all p-values are
+#' sorted in descending order and the adjusted p-value sequence is defined by pairwaise
+#' comparisons.
+#' 
+#' TODO: BHY equation
+#' 
+#' We expect BHY to be more lenient as it controls the false discovery rate whereas Holm
+#' and Bonferroni control the family-wise error rate, trying to eliminate making even 1
+#' false discovery. Bonferroni is more stringent than Holm since it is a single-step
+#' adjustment versus the sequential approach of Holm. With these 3 methods HL attempt to
+#' adjust p-values to account for multiple testing and then convert these to haircut Sharpe
+#' ratios and in so doing control for data mining. For both Holm and BHY you need the
+#' empirical distribution of p-values from previously tried strategies.
+#' Harvey, Liu and Zhu (HLZ) model over 300 risk factors documented in the finance literature.
+#' However, using this model for the distribution of p-values is not complete since many tried
+#' strategies would not have been documented (referred to as Publication Bias) plus they
+#' are potentially correlated thereby violating the requirement for independence between tests.
+#' HLZ propose a new distribution to overcome these shortfalls.
+#' 
 #' 
 #' @param portfolios string name of portfolio, or optionally a vector of portfolios, see DETAILS
 #' @param ... any other passtrhrough parameters
