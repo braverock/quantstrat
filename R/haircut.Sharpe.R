@@ -13,26 +13,111 @@
 
 #' Haircut Sharpe Ratio to correct for number of trials and autocorrelation 
 #'
-#' In their 2015 JPM paper "Backtesting", Campbell Harvey and Yan Liu discuss
+#' In their 2015 JPM paper "Backtesting", Campbell Harvey and Yan Liu (HL) discuss
 #' the common practice of adjusting or 'haircutting' a set of backtest results
 #' to correct for assumed overfitting.  In the industry, this haircut is often 
-#' assumed to be 50% of reported performance.  They propose and demonstrate
+#' assumed to be 50\% of reported performance.  They propose and demonstrate
 #' three methods of adjusting for potential multiple testing bias by adapting 
 #' three methods for adjusting confidence on multiple trials from the statstical
-#' literature, which we will refer to as:
+#' literature.
 #' 
-#' 1. Bonferroni (BON)
-#' 2. Holm
-#' 3. Benjamini, Hochberg and Yekutieli (BHY)
+#' In multiple hypothesis testing the challenge is to guard against false 
+#' discoveries. HL argue that the appropriate "haircut Sharpe ratio" is
+#' non-linear, in that the highest Sharpe ratios (SR's) are only moderately
+#' penalized whilst marginal SR's more so. The implication is that high SR's
+#' are more likely true discoveries in a multiple hypothesis testing framework.
+#' 
+#' HL mention 5 caveats to their framework, namely;
+#'
+#' \itemize{
+#'  \item{Sharpe ratios may not be appropriate metrics for strategies with negatively skewed expected payoffs, such as option strategies.}
+#'  \item{Sharpe ratios normalize returns based on their volatility (ie. market risk), which may not be the most appropriate reflection of risk for a strategy.}
+#'  \item{Determining the appropriate significance level for multiple testing (where in single tests 5\% is the normal cutoff).}
+#'  \item{Which multiple testing method you choose could yield different conclusions. HL proposes 3 methods together with an average.}     
+#'  \item{The number of trials used to adjust for multiple tests}
+#' }
+#'  
+#' 
+#' @section Linking Sharpe ratio with t-statistic:
+#' 
+#' To explain the link between the Sharpe ratio and the t-stat and the application 
+#' of a multiple testing p-value adjustment, HL use the simplest case of an 
+#' individual investment strategy. Assume a null hypothesis in which the 
+#' strategy's mean return is significantly different from zero, therefore 
+#' implying a 2-sided alternative hypothesis. A strategy can be regarded as 
+#' profitable if its mean returns are either side of zero since investors can 
+#' generally go long or short. Since returns will at least be asymptotically 
+#' normally distributed (thanks to the Central Limit Theorem) a t-statistic 
+#' following a t-distribution can be constructed and tested for significance. 
+#' Due to the link between the Sharpe ratio and the t-stat it is possible to 
+#' assess the significance of a strategy's excess returns directly using the 
+#' Sharpe ratio. Assume \eqn{\hat{\mu}}{mu} denotes the mean of your sample of 
+#' historical returns (daily or weekly etc) and \eqn{\hat{\sigma}}{sigma} denotes 
+#' standard deviation, then:
+#' 
+#' \deqn{t-statistic = \frac{ \hat{\mu}}{(\frac{\hat{\sigma}}{\sqrt{T})}}}{tstatistic = mu/(sigma/sqrt(T))}
+#' 
+#' where \eqn{T-1} is degrees of freedom and since
+#' 
+#' \deqn{\widehat{SR} =  \frac{\hat{\mu}}{\hat{\sigma}}}{SR = mu/sigma}
+#' 
+#' it may be shown that
+#' 
+#' \deqn{\widehat{SR} = \frac{t-statistic}{\sqrt{T}}}{SR = tstatistic/sqrt(T)}
+#' 
+#' By implication a higher Sharpe ratio equates to a higher t-ratio, implying a 
+#' higher significance level (lower p-value) for an investment strategy. If we 
+#' denote p-value of the single test as \eqn{p^s} then we can present the p-value
+#' for a single test as:
+#' 
+#' \deqn{{p^s} = Pr( |r| > t-ratio)}{p^s = Pr(|r|>t-ratio)}
+#' 
+#' or
+#' 
+#' \deqn{{p^s} = Pr( |r| > \widehat{SR}.\sqrt{T}}{p^s = Pr( |r| > SR * sqrt{T}}
+#' 
+#' If the researcher was exploring a particular economic theory then this p-value 
+#' might make sense, but what if the researcher has tested multiple strategies 
+#' and presents only the most profitable one? In this case the p-value of the 
+#' single test may severely overstate the actual significance. A more truthful 
+#' p-value would be an adjusted multiple testing p-value which assuming we denote 
+#' as \eqn{p^m} which could be represented as:
+#' 
+#' \deqn{{p^m} = Pr( max{|{r_i}|, i = 1,...,N} > t-ratio)}{p^m = Pr( max(|r_i|, i = 1,...,N) > t-ratio)}
+#' 
+#' or
+#' 
+#' \deqn{ {p^m} = 1 - (1 - {p^s}{)^N} }{ p^m = 1 - (1 -p^s)^N }
+#' 
+#' By equating the p-value of a single test to a multiple test p-value we get 
+#' the defining equation of \eqn{p^m} which is
+#' 
+#' \deqn{  {p^m} = Pr( {|{r_i}|} > \widehat{SR}.\sqrt{T})  }{ p^m = Pr(|r_i| > SR * sqrt(T))  }
+#' 
+#' where
+#' 
+#' \deqn{ {p^m} = 1 - (1 - {p^s}{)^N} }{p^m = 1 - (1-p^s)^N }
+#' 
+#' 
+#' @section Multiple Testing Methods:
 #' 
 #' This function replicates the methods proposed by Harvey and Liu to adjust
 #' an observed Sharpe Ratio for the number of trials performed, the
 #' autocorrelation between the trials, the overall level of performance, and 
 #' the presumed or observed correlation between trials.
-#'   
+#'
+#' We will refer to these methods as:
+#' 
+#' 1. Bonferroni (BON)
+#' 
+#' 2. Holm
+#'
+#' 3. Benjamini, Hochberg and Yekutieli (BHY)
+#' 
 #' Full details on the calculations and adjustments should be found in 
 #' Harvey and Liu (2015).  This documentation is just an overview to aid in 
 #' easy use of the \R function.
+#' 
 #' 
 #' @param portfolios string name of portfolio, or optionally a vector of portfolios, see DETAILS
 #' @param ... any other passtrhrough parameters
@@ -47,11 +132,11 @@
 #' an object of type \code{haircutSR} containing:
 #' 
 #' \describe{
-#'    \item{Bonferroni}{a \code{data.frame containing slots \code{haircut_SR},\code{adj_pvalue},and \code{pct_adj}}
-#'    \item{Holm}{a \code{data.frame containing slots \code{haircut_SR},\code{adj_pvalue},and \code{pct_adj}}
-#'    \item{BHY}{a \code{data.frame containing slots \code{haircut_SR},\code{adj_pvalue},and \code{pct_adj}}
-#'    \item{average}{a \code{data.frame containing slots \code{haircut_SR},\code{adj_pvalue},and \code{pct_adj}}
-#'    \item{freq}{output frequency} <- fre_out
+#'    \item{Bonferroni}{a \code{data.frame} containing slots \code{haircut_SR},\code{adj_pvalue},and \code{pct_adj}}
+#'    \item{Holm}{a \code{data.frame} containing slots \code{haircut_SR},\code{adj_pvalue},and \code{pct_adj}}
+#'    \item{BHY}{a \code{data.frame} containing slots \code{haircut_SR},\code{adj_pvalue},and \code{pct_adj}}
+#'    \item{average}{a \code{data.frame} containing slots \code{haircut_SR},\code{adj_pvalue},and \code{pct_adj}}
+#'    \item{freq}{output frequency}
 #'    \item{sm_fre}{Sampling frequency; [1,2,3,4,5] = [Daily, Weekly, Monthly, Quarterly, Annual]}
 #'    \item{num_obs}{No. of observations in the frequency specified in the previous step}
 #'    \item{SR}{observed Sharpe Ratio}
@@ -70,6 +155,7 @@
 #' @importFrom TTR ROC
 #' @seealso \code{\link{SharpeRatio.deflated}}
 #' @rdname SharpeRatio.haircut
+#' @aliases haircutSharpe SharpeRatio.haircut
 #' @export SharpeRatio.haircut
 #' @export haircutSharpe
 haircutSharpe <- SharpeRatio.haircut <- function( portfolios
