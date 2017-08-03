@@ -39,11 +39,14 @@ haircutSharpe(portfolios, ..., strategy = NULL, trials = NULL,
 
 \item{RHO}{Average correlation among contemporaneous strategy returns}
 }
-\value{
-NONE yet, sorry!
-}
 \description{
-Haircut Sharpe Ratio to correct for number of trials and autocorrelation
+In their 2015 JPM paper "Backtesting", Campbell Harvey and Yan Liu discuss
+the common practice of adjusting or 'haircutting' a set of backtest results
+to correct for assumed overfitting.  In the industry, this haircut is often 
+assumed to be 50% of reported performance.  They propose and demonstrate
+three methods of adjusting for potential multiple testing bias by adapting 
+three methods for adjusting confidence on multiple trials from the statstical
+literature, which we will refer to as:
 
 The non-exported \code{.haircutSR} function is the internal implementation of
 the haircut Sharpe Ratio calculations. It is based off of the code  written 
@@ -51,10 +54,27 @@ by Jasen Mackie for his blog post referenced below. It calcualtes an equivalent
 adjusted Sharpe Ratio after taking the number and autocorrelation of the
 trials into account.
 }
+\details{
+1. Bonferroni (BON)
+2. Holm
+3. Benjamini, Hochberg and Yekutieli (BHY)
+
+This function replicates the methods proposed by Harvey and Liu to adjust
+an observed Sharpe Ratio for the number of trials performed, the
+autocorrelation between the trials, the overall level of performance, and 
+the presumed or observed correlation between trials.
+  
+Full details on the calculations and adjustments should be found in 
+Harvey and Liu (2015).  This documentation is just an overview to aid in 
+easy use of the \R function.
+}
 \references{
 Harvey, Campbell R. and Yan Liu. 2015. Backtesting The Journal of Portfolio Management. 41:1 pp. 13-28.#' @importFrom TTR ROC
 
 Mackie, Jasen. 2016. R-view: Backtesting - Harvey & Liu (2015). https://opensourcequant.wordpress.com/2016/11/17/r-view-backtesting-harvey-liu-2015/
+}
+\seealso{
+\code{\link{SharpeRatio.deflated}}
 }
 \author{
 Jasen Mackie, Brian G. Peterson

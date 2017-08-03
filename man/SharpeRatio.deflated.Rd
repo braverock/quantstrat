@@ -67,6 +67,9 @@ http://www.davidhbailey.com/dhbpapers/deflated-sharpe.pdf
 
 https://quantstrattrader.wordpress.com/2015/09/24/
 }
+\seealso{
+\code{\link{SharpeRatio.haircut}}
+}
 \author{
 Brian G. Peterson
 

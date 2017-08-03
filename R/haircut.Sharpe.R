@@ -13,6 +13,26 @@
 
 #' Haircut Sharpe Ratio to correct for number of trials and autocorrelation 
 #'
+#' In their 2015 JPM paper "Backtesting", Campbell Harvey and Yan Liu discuss
+#' the common practice of adjusting or 'haircutting' a set of backtest results
+#' to correct for assumed overfitting.  In the industry, this haircut is often 
+#' assumed to be 50% of reported performance.  They propose and demonstrate
+#' three methods of adjusting for potential multiple testing bias by adapting 
+#' three methods for adjusting confidence on multiple trials from the statstical
+#' literature, which we will refer to as:
+#' 
+#' 1. Bonferroni (BON)
+#' 2. Holm
+#' 3. Benjamini, Hochberg and Yekutieli (BHY)
+#' 
+#' This function replicates the methods proposed by Harvey and Liu to adjust
+#' an observed Sharpe Ratio for the number of trials performed, the
+#' autocorrelation between the trials, the overall level of performance, and 
+#' the presumed or observed correlation between trials.
+#'   
+#' Full details on the calculations and adjustments should be found in 
+#' Harvey and Liu (2015).  This documentation is just an overview to aid in 
+#' easy use of the \R function.
 #' 
 #' @param portfolios string name of portfolio, or optionally a vector of portfolios, see DETAILS
 #' @param ... any other passtrhrough parameters
@@ -22,9 +42,33 @@
 #' @param env optional environment to find market data in, if required.
 #'
 #' @author Jasen Mackie, Brian G. Peterson
-#' @return NONE yet, sorry!
+#' @return 
+#' 
+#' an object of type \code{haircutSR} containing:
+#' 
+#' \describe{
+#'    \item{Bonferroni}{a \code{data.frame containing slots \code{haircut_SR},\code{adj_pvalue},and \code{pct_adj}}
+#'    \item{Holm}{a \code{data.frame containing slots \code{haircut_SR},\code{adj_pvalue},and \code{pct_adj}}
+#'    \item{BHY}{a \code{data.frame containing slots \code{haircut_SR},\code{adj_pvalue},and \code{pct_adj}}
+#'    \item{average}{a \code{data.frame containing slots \code{haircut_SR},\code{adj_pvalue},and \code{pct_adj}}
+#'    \item{freq}{output frequency} <- fre_out
+#'    \item{sm_fre}{Sampling frequency; [1,2,3,4,5] = [Daily, Weekly, Monthly, Quarterly, Annual]}
+#'    \item{num_obs}{No. of observations in the frequency specified in the previous step}
+#'    \item{SR}{observed Sharpe Ratio}
+#'    \item{SR_ac_adj}{Observed Sharpe Ratio corrected for autocorrelation}
+#'    \item{ind_an}{Indicator; if annulized, 'ind_an' = 1; otherwise = 0}
+#'    \item{ind_aut}{Indicator; if adjusted for autocorrelations, 'ind_aut' = 0; otherwise = 1}
+#'    \item{rho}{Autocorrelation coefficient at the specified frequency}
+#'    \item{num_trials}{number or trials}
+#'    \item{RHO}{Average correlation among contemporaneous strategy returns}
+#'    \item{call}{call used for \code{\link{SharpeRatio.haircut}}}
+#'    \item{inner_call}{call used to call \code{\link{.haircutSR}}}
+#' }
+#' 
 #' @references 
 #' Harvey, Campbell R. and Yan Liu. 2015. Backtesting The Journal of Portfolio Management. 41:1 pp. 13-28.#' @importFrom TTR ROC
+#' @importFrom TTR ROC
+#' @seealso \code{\link{SharpeRatio.deflated}}
 #' @rdname SharpeRatio.haircut
 #' @export SharpeRatio.haircut
 #' @export haircutSharpe
@@ -136,7 +180,9 @@ haircutSharpe <- SharpeRatio.haircut <- function( portfolios
   RHO <- 0.2 # use the assumption from HLZ (and the Cross-Section of Expected Returns) p.32-33 Section 5.3
   
     
-  .haircutSR(sm_fre, num_obs, SR, ind_an, ind_aut, rho, num_test, RHO)
+  result <- .haircutSR(sm_fre, num_obs, SR, ind_an, ind_aut, rho, num_test, RHO)
+  result$call <- match.call()
+  result
 } # end haircut Sharpe wrapper
 
 #' The non-exported \code{.haircutSR} function is the internal implementation of
@@ -185,7 +231,7 @@ haircutSharpe <- SharpeRatio.haircut <- function( portfolios
     sr_out <- 'No'
   }
   
-  
+  # adjust SR to correct for autocorrelation
   if(ind_an == 1 & ind_aut == 0){
     sr_annual <- SR
   } else if(ind_an ==1 & ind_aut == 1){
@@ -243,18 +289,6 @@ haircutSharpe <- SharpeRatio.haircut <- function( portfolios
   ### Number of tests allowed ###
   M <- num_test;
   
-  
-  ###########################################
-  ########### Intermediate outputs ##########
-  print('Inputs:')
-  print(paste('Frequency =', fre_out))
-  print(paste('Number of Observations = ', num_obs))
-  print(paste('Initial Sharpe Ratio = ', SR))
-  print(paste('Sharpe Ratio Annualized = ', sr_out))
-  print(paste('Autocorrelation = ', rho))
-  print(paste('A/C Corrected Annualized Sharpe Ratio = ', sr_annual))
-  print(paste('Assumed Number of Tests = ', M))
-  print(paste('Assumed Average Correlation = ', RHO))
   
   ############################################
   ########## Sharpe ratio adjustment #########
@@ -328,7 +362,7 @@ haircutSharpe <- SharpeRatio.haircut <- function( portfolios
     
     ### BHY
     p_bhy_vec <- NULL
-    
+    p_0 <- Inf 
     for(i in 1:(M+1)){
       kk <- (M+1) - (i-1)
       if(kk == (M+1)){
@@ -372,22 +406,67 @@ haircutSharpe <- SharpeRatio.haircut <- function( portfolios
   hc_BHY <- (sr_annual - sr_BHY)/sr_annual
   hc_avg <- (sr_annual - sr_avg)/sr_annual
   
-  ##################################
-  ######### Final Output ###########
-  cat("Bonferroni Adjustment: \nAdjusted P-value =", p_BON,
-      "\nHaircut Sharpe Ratio =", sr_BON,
-      "\nPercentage Haircut =", hc_BON,
-      "\nHolm Adjustment: \nAdjusted P-value =", p_HOL,
-      "\nHaircut Sharpe Ratio =", sr_HOL,
-      "\nPercentage Haircut =", hc_HOL,
-      "\nBHY Adjustment: \nAdjusted P-value =", p_BHY,
-      "\nHaircut Sharpe Ratio =", sr_BHY,
-      "\nPercentage Haircut =", hc_BHY,
-      "\nAverage Adjustment: \nAdjusted P-value =", p_avg,
-      "\nHaircut Sharpe Ratio =", sr_avg,
-      "\nPercentage Haircut =", hc_avg,'\n')
+  # structure and return
+  result<-list()
+  result$Bonferroni <- data.frame(haircut_SR=sr_BON,
+                                  adj_pvalue=p_BON,
+                                  pct_adj=hc_BON)
+  result$Holm       <- data.frame(haircut_SR=sr_HOL,
+                                  adj_pvalue=p_HOL,
+                                  pct_adj=hc_HOL)
+  result$BHY        <- data.frame(haircut_SR=sr_BHY,
+                                  adj_pvalue=p_BHY,
+                                  pct_adj=hc_BHY)
+  result$average    <- data.frame(haircut_SR=sr_avg,
+                                  adj_pvalue=p_avg,
+                                  pct_adj=hc_avg)
+  result$freq <- fre_out
+  result$sm_fre  <- sm_fre
+  result$num_obs <- num_obs
+  result$SR <- SR
+  result$SR_ac_adj <- sr_annual
+  result$ind_an <- ind_an
+  result$ind_aut <- ind_aut 
+  result$rho <- rho
+  result$num_test <- num_test
+  result$RHO <- RHO
+  result$inner_call <- match.call()
   
+  return(structure(result, class='haircutSR'))
 } # end internal fn .haircutSR
+
+#' print method for Harvey and Liu Haircut Sharpe Ratio
+#'
+#' @param x an object of type \code{haircutSR} to be printed 
+#' @param ... any other passthough parameters
+#'
+#' @seealso \code{\link{SharpeRatio.haircut}}
+#' @method print haircutSR
+#' @export
+print.haircutSR <- function(x, ...){
+  cat('\n',
+      'Sharpe Ratio Haircut Report: \n\n',
+      'Observed Sharpe Ratio:',x$SR,'\n',
+      'Sharpe Ratio corrected for autocorrelation:',x$SR_ac_adj,'\n\n',
+      "Bonferroni Adjustment: \n",
+      "Adjusted P-value =", x$Bonferroni$adj_pvalue,'\n',
+      "Haircut Sharpe Ratio =", x$Bonferroni$haircut_SR,'\n',
+      "Percentage Haircut =", x$Bonferroni$pct_adj,'\n\n',
+      "Holm Adjustment: \n",
+      "Adjusted P-value =", x$Holm$adj_pvalue,'\n',
+      "Haircut Sharpe Ratio =", x$Holm$haircut_SR,'\n',
+      "Percentage Haircut =", x$Holm$pct_adj,'\n\n',
+      "BHY Adjustment: \n",
+      "Adjusted P-value =", x$BHY$adj_pvalue,'\n',
+      "Haircut Sharpe Ratio =", x$BHY$haircut_SR,'\n',
+      "Percentage Haircut =", x$BHY$pct_adj,'\n\n',
+      "Average Adjustment: \n",
+      "Adjusted P-value =", x$average$adj_pvalue,'\n',
+      "Haircut Sharpe Ratio =", x$average$haircut_SR,'\n',
+      "Percentage Haircut =", x$average$pct_adj,'\n')
+  
+  invisible(x)  
+}
 
 #' Generate empirical p-value distributions
 #' 

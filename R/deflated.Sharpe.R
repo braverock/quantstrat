@@ -48,6 +48,8 @@
 #' http://www.davidhbailey.com/dhbpapers/deflated-sharpe.pdf
 #'
 #' @author Brian G. Peterson
+#' @importFrom TTR ROC
+#' @seealso \code{\link{SharpeRatio.haircut}}
 #' @rdname SharpeRatio.deflated
 #' @aliases deflatedSharpe SharpeRatio.deflated
 #' @export deflatedSharpe
@@ -178,5 +180,6 @@ deflatedSharpe <- SharpeRatio.deflated <- function( portfolios
   result  <- pnorm(dsr_adj)
   dsr     <- sharpe * result
   pval    <- 1-result
+  
   return(data.frame(obs.Sharpe=sharpe, max.Sharpe=maxZ, deflated.Sharpe=dsr, p.value=pval, nTrials=nTrials))
 }
