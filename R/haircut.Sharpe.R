@@ -125,7 +125,7 @@
 #' 
 #' 1. Bonferroni (BON)
 #' 
-#' \deqn{ {p^Bonferroni} } = min {|{M * p_i, 1}|}
+#' \deqn{p^Bonferroni = min {|{M * p_i, 1}|}}{p^Bonferroni=min(|M*p_1,1|)}
 #' 
 #' Bonferroni applies the same adjustment to the p-value of each test, inflating
 #' the p-value by the number of tests. The multiple testing p-value is the minimum
@@ -146,7 +146,7 @@
 #' testing hypothesis diagnostic plotting in R. Holm is an example of a sequential
 #' multiple testing procedure. For Holm, the equivalent adjusted p-value is
 #' 
-#' \deqn{p_{(i)}^{Holm}} = min[max((M - j + 1)*{p_{(j)}}),1]
+#' \deqn{{p_{(i)}}^Holm = min[max((M - j + 1)*{p_{(j)}} ),1]}{p_i^Holm=min[max((M-j+1)*p_j),1]}
 #' 
 #' Bonferroni adjusts single tests equally, whereas Holm applies a sequential approach.
 #' By conclusion it should not surprise you that adjusted Sharpe ratios under Bonferroni
@@ -159,8 +159,8 @@
 #' 
 #' 3. BHY
 #' 
-#' BHY's formulation of the FDR can be represented as follows. Firstly all p-values are
-#' sorted in descending order and the adjusted p-value sequence is defined by pairwaise
+#' BHY's formulation of the FDR can be represented as follows. First all p-values are
+#' sorted in descending order and the adjusted p-value sequence is defined by pairwise
 #' comparisons.
 #' 
 #' TODO: BHY equation
@@ -211,7 +211,9 @@
 #' }
 #' 
 #' @references 
-#' Harvey, Campbell R. and Yan Liu. 2015. Backtesting The Journal of Portfolio Management. 41:1 pp. 13-28.#' @importFrom TTR ROC
+#' Harvey, Campbell R. and Yan Liu. 2015. Backtesting The Journal of Portfolio Management. 41:1 pp. 13-28. 
+#' 
+#' Harvey, Campbell R., Yan Liu, and Heqing Zhu. "… and the cross-section of expected returns." The Review of Financial Studies 29, no. 1 (2016): 5-68.
 #' @importFrom TTR ROC
 #' @seealso \code{\link{SharpeRatio.deflated}}
 #' @rdname SharpeRatio.haircut
