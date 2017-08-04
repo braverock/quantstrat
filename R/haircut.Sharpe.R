@@ -125,7 +125,7 @@
 #' 
 #' 1. Bonferroni (BON)
 #' 
-#' \deqn{p^Bonferroni = min {|{M * p_i, 1}|}}{p^Bonferroni=min(|M*p_1,1|)}
+#' \deqn{{p_{(i)}}^Bonferroni = min {|{M * p_i, 1}|}}{p_i^Bonferroni=min(|M*p_1,1|)}
 #' 
 #' Bonferroni applies the same adjustment to the p-value of each test, inflating
 #' the p-value by the number of tests. The multiple testing p-value is the minimum
@@ -177,6 +177,47 @@
 #' strategies would not have been documented (referred to as Publication Bias) plus they
 #' are potentially correlated thereby violating the requirement for independence between tests.
 #' HLZ propose a new distribution to overcome these shortfalls.
+#' 
+#' Harvey, Liu and Zhu (HLZ)
+#' 
+#' HLZ publish the list of resources they studied, over 300 factors for explaining the cross section
+#' of return patterns. See http://faculty.fuqua.duke.edu/~charvey/Factor-List.xlsx. There is a
+#' clear pattern of increasing factor discovery with each decade (HLZ, Figure 2: Factors and Publications, p.20).
+#' Assuming statistical and economic soundness of published t-statistics, HLZ conduct the 3
+#' multiple testing procedures described earlier. Their conclusion, assuming all tried factors
+#' are published is that an appropriate minimum threshold t-statistic for 5\% significance is 2.8.
+#' This equates to a p-value of only 0.50\% for single tests. Of course the assumption that all
+#' tried factors are published is not reasonable, and therefore the analysis does suggest a
+#' minimum threshold for accepting the significance of future tests, ie. less than or equal to 0.50\%.
+#' 
+#' HLZ limit their sample of factors to unique factors thereby minimizing test dependence which is
+#' a requirement for the 3 multiple testing procedures they propose. Since we know the requirements for
+#' being published are fairly stringent, HLZ estimate that 71\% of tried tests are not published. See
+#' appendix B of HLZ for details. Using this number of tested factors together with the 3 multiple
+#' testing procedures they propose a benchmark t-statistic of 3.18. This required threshold is
+#' intuitively larger than the 2.8 threshold generated assuming a lower number of tests.
+#' 
+#' Acknowledging the inevitable presence of test dependence and correlation among published test
+#' statistics (think of the many price multiple fators for instance) HLZ propose a "direct modeling approach"
+#' in which only t-statistics are required to account for this correlation. Correction for correlation
+#' in multiple testing procedures has only recently been documented in the statistics literature,
+#' and methods typically include simulating the entire time series to construct an empirical distribution
+#' for the range of test statistics. Of course the luxury of access to the entire dataset is not generally
+#' available to the risk factor researcher, and instead HLZ propose a "Truncated Exponential Distribution"
+#' for modelling the t-statistic sample of published and unpublished results. The intuitive reasoning
+#' for a monotonically decreasing exponential distribution for modelling t-statistics is that finding factors
+#' with small t-statistics should be easier than larger ones.
+#' 
+#' HLZ conclude that threshold cutoffs are increasing through time, imposing higher scrutiny to data mining
+#' today than to data mining in the past. Their justification is summarized by 3 reasons:
+#' 
+#' 1. The easily discovered factors have already been discovered.
+#' 
+#' 2. In Finance there is a limited amount of data, compared with particle physics for example where an
+#' experiment can create trillions of new observaions.
+#' 
+#' 3. The relative costs of data mining in the past were much higher than they are today,
+#' implying the more economically sound principle factors were likely to be tested.
 #' 
 #' 
 #' @param portfolios string name of portfolio, or optionally a vector of portfolios, see DETAILS
