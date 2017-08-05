@@ -96,8 +96,7 @@
 #' 
 #' where
 #' 
-#' \deqn{ {p^m} = 1 - (1 - {p^s}{)^N} }{p^m = 1 - (1-p^s)^N }
-#' 
+#' \deqn{ p^m = 1-(1-{p^s}{)^N} }{p^m = 1 - (1-p^s)^N }
 #' 
 #' @section Multiple Testing Methods:
 #' 
@@ -129,9 +128,9 @@
 #' 
 #' Bonferroni applies the same adjustment to the p-value of each test, inflating
 #' the p-value by the number of tests. The multiple testing p-value is the minimum
-#' of each inflated p-value and 1 where 1 (or 100% if you prefer) is the upper bound
+#' of each inflated p-value and 1 where 1 (or 100\% if you prefer) is the upper bound
 #' of probability. HL use the example of p-values from 6 strategies where the p-values
-#' are (0.005, 0.009, 0.0128, 0.0135, 0.045, 0.06). According to a 5% significance
+#' are (0.005, 0.009, 0.0128, 0.0135, 0.045, 0.06). According to a 5\% significance
 #' cutoff the first 5 tests would be considered significant. Using the p.adjust function
 #' in R we can get the multiple adjusted p-values and according to Bonferroni only the
 #' first test would be considered significant.
@@ -165,59 +164,84 @@
 #' 
 #' TODO: BHY equation
 #' 
-#' We expect BHY to be more lenient as it controls the false discovery rate whereas Holm
-#' and Bonferroni control the family-wise error rate, trying to eliminate making even 1
-#' false discovery. Bonferroni is more stringent than Holm since it is a single-step
-#' adjustment versus the sequential approach of Holm. With these 3 methods HL attempt to
-#' adjust p-values to account for multiple testing and then convert these to haircut Sharpe
-#' ratios and in so doing control for data mining. For both Holm and BHY you need the
-#' empirical distribution of p-values from previously tried strategies.
-#' Harvey, Liu and Zhu (HLZ) model over 300 risk factors documented in the finance literature.
-#' However, using this model for the distribution of p-values is not complete since many tried
-#' strategies would not have been documented (referred to as Publication Bias) plus they
-#' are potentially correlated thereby violating the requirement for independence between tests.
-#' HLZ propose a new distribution to overcome these shortfalls.
+#' We expect BHY to be more lenient as it controls the false discovery rate
+#' whereas Holm and Bonferroni control the family-wise error rate, trying to
+#' eliminate making even 1 false discovery. Bonferroni is more stringent than
+#' Holm since it is a single-step adjustment versus the sequential approach of
+#' Holm. With these 3 methods HL attempt to adjust p-values to account for
+#' multiple testing and then convert these to haircut Sharpe ratios and in so
+#' doing control for data mining. Both Holm and BHY require the empirical
+#' distribution of p-values from previously tried strategies.
 #' 
-#' Harvey, Liu and Zhu (HLZ)
+#' \strong{Empirical Study}
 #' 
-#' HLZ publish the list of resources they studied, over 300 factors for explaining the cross section
-#' of return patterns. See http://faculty.fuqua.duke.edu/~charvey/Factor-List.xlsx. There is a
-#' clear pattern of increasing factor discovery with each decade (HLZ, Figure 2: Factors and Publications, p.20).
-#' Assuming statistical and economic soundness of published t-statistics, HLZ conduct the 3
-#' multiple testing procedures described earlier. Their conclusion, assuming all tried factors
-#' are published is that an appropriate minimum threshold t-statistic for 5\% significance is 2.8.
-#' This equates to a p-value of only 0.50\% for single tests. Of course the assumption that all
-#' tried factors are published is not reasonable, and therefore the analysis does suggest a
-#' minimum threshold for accepting the significance of future tests, ie. less than or equal to 0.50\%.
+#' Harvey, Liu and Zhu (2016, HLZ) provides a large study of multiple testing 
+#' bias by examining market anomalies or risk factors previously published in
+#' major peer reviewed journals.  In constructing such a large study, they needed 
+#' to correct for multiple potential issues in the analysis, including lack of 
+#' complete data on all trials, lack of the number of failed trials, correlation
+#' among the published trials, and data snooping or look ahead bias as later 
+#' researchers learned features of the data from prior studies.   
 #' 
-#' HLZ limit their sample of factors to unique factors thereby minimizing test dependence which is
-#' a requirement for the 3 multiple testing procedures they propose. Since we know the requirements for
-#' being published are fairly stringent, HLZ estimate that 71\% of tried tests are not published. See
-#' appendix B of HLZ for details. Using this number of tested factors together with the 3 multiple
-#' testing procedures they propose a benchmark t-statistic of 3.18. This required threshold is
-#' intuitively larger than the 2.8 threshold generated assuming a lower number of tests.
+#' HLZ model over 300 risk factors documented in the finance literature.
+#' However, using this model for the distribution of p-values is not complete
+#' since many tried strategies would not have been documented (referred to as
+#' Publication Bias) plus they are potentially correlated thereby violating the
+#' requirement for independence between tests. HLZ propose a new distribution to
+#' overcome these shortfalls.
 #' 
-#' Acknowledging the inevitable presence of test dependence and correlation among published test
-#' statistics (think of the many price multiple fators for instance) HLZ propose a "direct modeling approach"
-#' in which only t-statistics are required to account for this correlation. Correction for correlation
-#' in multiple testing procedures has only recently been documented in the statistics literature,
-#' and methods typically include simulating the entire time series to construct an empirical distribution
-#' for the range of test statistics. Of course the luxury of access to the entire dataset is not generally
-#' available to the risk factor researcher, and instead HLZ propose a "Truncated Exponential Distribution"
-#' for modelling the t-statistic sample of published and unpublished results. The intuitive reasoning
-#' for a monotonically decreasing exponential distribution for modelling t-statistics is that finding factors
-#' with small t-statistics should be easier than larger ones.
+#' HLZ publish the list of resources they studied, over 300 factors for
+#' explaining the cross section of return patterns. See
+#' http://faculty.fuqua.duke.edu/~charvey/Factor-List.xlsx. There is a clear
+#' pattern of increasing factor discovery with each decade (HLZ, Figure 2:
+#' Factors and Publications, p.20). Assuming statistical and economic soundness
+#' of published t-statistics, HLZ conduct the 3 multiple testing procedures
+#' described earlier. Their conclusion, assuming all tried factors are published
+#' is that an appropriate minimum threshold t-statistic for 5\% significance is
+#' 2.8. This equates to a p-value of only 0.50\% for single tests. Of course the
+#' assumption that all tried factors are published is not reasonable, and
+#' therefore the analysis does suggest a minimum threshold for accepting the
+#' significance of future tests, ie. less than or equal to 0.50\%.
 #' 
-#' HLZ conclude that threshold cutoffs are increasing through time, imposing higher scrutiny to data mining
-#' today than to data mining in the past. Their justification is summarized by 3 reasons:
+#' HLZ limit their sample of factors to unique factors thereby minimizing test
+#' dependence which is a requirement for the 3 multiple testing procedures they
+#' propose. Since we know the requirements for being published are fairly
+#' stringent, HLZ estimate that 71\% of tried tests are not published. See 
+#' appendix B of HLZ for details. Using this number of tested factors together
+#' with the 3 multiple testing procedures they propose a benchmark t-statistic
+#' of 3.18. This required threshold is intuitively larger than the 2.8 threshold
+#' generated assuming a lower number of tests.
+#' 
+#' Acknowledging the inevitable presence of test dependence and correlation 
+#' among published test statistics (think of the many price multiple factors for
+#' instance) HLZ propose a "direct modeling approach" in which only t-statistics
+#' are required to account for this correlation. Correction for correlation in 
+#' multiple testing procedures has only recently been documented in the 
+#' statistics literature, and methods typically include simulating the entire 
+#' time series to construct an empirical distribution for the range of test 
+#' statistics (see e.g. \code{\link[pkg:blotter]{mcsim}} and
+#' \code{\link[pkg:blotter]{txnsim}}). Of course the luxury of access to the 
+#' entire dataset is not generally available to the risk factor researcher or
+#' potential investor being presented with a backtest, so HLZ propose a
+#' "Truncated Exponential Distribution" for modelling the t-statistic sample of
+#' published and unpublished results. The intuitive reasoning for a
+#' monotonically decreasing exponential distribution for modelling t-statistics
+#' is that finding factors with small t-statistics should be easier than larger
+#' ones.
+#' 
+#' HLZ conclude that threshold cutoffs are increasing through time, imposing
+#' higher scrutiny to data mining today than to data mining in the past. Their
+#' justification is summarized by 3 reasons:
 #' 
 #' 1. The easily discovered factors have already been discovered.
 #' 
-#' 2. In Finance there is a limited amount of data, compared with particle physics for example where an
-#' experiment can create trillions of new observaions.
+#' 2. In Finance there is a limited amount of data, compared with particle
+#' physics for example where an experiment can create trillions of new
+#' observaions.
 #' 
-#' 3. The relative costs of data mining in the past were much higher than they are today,
-#' implying the more economically sound principle factors were likely to be tested.
+#' 3. The relative costs of data mining in the past were much higher than they
+#' are today, implying the more economically sound principle factors were likely
+#' to be tested earlier.
 #' 
 #' 
 #' @param portfolios string name of portfolio, or optionally a vector of portfolios, see DETAILS
@@ -254,7 +278,8 @@
 #' @references 
 #' Harvey, Campbell R. and Yan Liu. 2015. Backtesting The Journal of Portfolio Management. 41:1 pp. 13-28. 
 #' 
-#' Harvey, Campbell R., Yan Liu, and Heqing Zhu. "… and the cross-section of expected returns." The Review of Financial Studies 29, no. 1 (2016): 5-68.
+#' Harvey, Campbell R., Yan Liu, and Heqing Zhu. 2016. "… and the cross-section of expected returns." The Review of Financial Studies 29, no. 1 (2016): 5-68.
+#' 
 #' @importFrom TTR ROC
 #' @seealso \code{\link{SharpeRatio.deflated}}
 #' @rdname SharpeRatio.haircut
@@ -486,14 +511,14 @@ haircutSharpe <- SharpeRatio.haircut <- function( portfolios
   c_const <- sum(1./m_vec);
   
   ########## Input for Holm & BHY ##########
-  ### Parameter input from Harvey, Liu and Zhu (2014) %%%%%%%
+  ### Parameter input from Harvey, Liu and Zhu (2014) 
   para0 <- matrix(c(0, 1295, 3.9660*0.1, 5.4995*0.001,
                     0.2, 1377, 4.4589*0.1, 5.5508*0.001,
                     0.4, 1476, 4.8604*0.1, 5.5413*0.001,
                     0.6, 1773, 5.9902*0.1, 5.5512*0.001,
                     0.8, 3109, 8.3901*0.1, 5.5956*0.001),
                   nrow = 5, ncol = 4, byrow = TRUE)
-  ### Interpolated parameter values based on user specified level of correlation RHO %%%%%%%%%%   
+  ### Interpolated parameter values based on user specified level of correlation RHO
   if (RHO >= 0 & RHO < 0.2){ 
     para_inter <- ((0.2 - RHO)/0.2)*para0[1,] + ((RHO - 0)/0.2)*para0[2,]
   } else if (RHO >= 0.2 & RHO < 0.4) {
