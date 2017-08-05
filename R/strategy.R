@@ -54,6 +54,7 @@ strategy <- function(name, ..., assets=NULL, constraints=NULL ,store=FALSE)
                             constraints = NULL,
                             init =list(),
                             wrapup = list(),
+                            trials = 0,
                             call = match.call()
                     ),
                     class=c("strategy")

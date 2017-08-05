@@ -1,20 +1,22 @@
 Package: quantstrat
 Type: Package
 Title: Quantitative Strategy Model Framework
-Version: 0.10.3
-Date: 2017-07-27 $Date$
+Version: 0.10.6
+Date: 2017-08-05 $Date$
 Author: Peter Carl, Brian G. Peterson, Joshua Ulrich, Jan Humme
 Depends:
     R(>= 3.2),
     quantmod,
     xts(>= 0.10),
-    blotter(>= 0.9),
+    blotter(>= 0.12.1),
     FinancialInstrument(>= 0.12.5),
     foreach(>= 1.4.0)
 Imports:
     methods,
     iterators,
-    zoo
+    zoo,
+    TTR,
+    MASS
 Suggests:
     PerformanceAnalytics,
     PortfolioAnalytics,

@@ -140,6 +140,9 @@ add.rule <- function(strategy
     if(!hasArg(indexnum) | (hasArg(indexnum) & is.null(indexnum))) indexnum = length(strategy$rules[[type]])+1
     strategy$rules[[type]][[indexnum]]<-tmp_rule
 
+    #increment trials
+    strategy$trials <- strategy$trials+1
+    
     if (store) assign(strategy$name,strategy,envir=as.environment(.strategy))
     else return(strategy)
     strategy$name

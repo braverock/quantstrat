@@ -61,12 +61,21 @@ results <- apply.paramset(strategy.st,
                           account.st=account.st, 
                           nsamples=.nsamples,
                           audit=.audit,
+                          store=TRUE,
                           verbose=TRUE)
 
 df    <- degrees.of.freedom('macd','macd')
 
-stats <- results$tradeStats
+tstats <- results$tradeStats
+
+defSR <- SharpeRatio.deflated('macd',strategy='macd',audit=.audit)
+
+hcSR  <- SharpeRatio.haircut('macd',strategy='macd',audit=.audit)
+
+print(tstats)
 
 print(df)
 
-print(stats)
+print(defSR)
+
+print(hcSR)
