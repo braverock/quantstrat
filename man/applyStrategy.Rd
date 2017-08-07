@@ -7,7 +7,7 @@
 applyStrategy(strategy, portfolios, mktdata = NULL, parameters = NULL, ...,
   debug = FALSE, symbols = NULL, initStrat = FALSE, updateStrat = FALSE,
   initBySymbol = FALSE, gc = FALSE, delorders = FALSE,
-  rule.subset = NULL)
+  rule.subset = NULL, mdenv = NULL)
 }
 \arguments{
 \item{strategy}{an object of type 'strategy' to add the indicator to}
@@ -38,6 +38,8 @@ Notice that this happenes only after the strategy has been applied.}
 \item{delorders}{if TRUE, delete the order book for a symbol at the end of the symbols loop, will cause issues with rebalancing, default FALSE (experimental)}
 
 \item{rule.subset}{ISO-8601 subset for period to execute rules over, default NULL}
+
+\item{mdenv}{environment to look in for market data, default NULL which expands to .GlobalEnv}
 }
 \description{
 This function is the wrapper that holds together the execution of a strategy.

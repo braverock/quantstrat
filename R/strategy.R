@@ -104,6 +104,8 @@ strategy <- function(name, ..., assets=NULL, constraints=NULL ,store=FALSE)
 #' @param gc if TRUE, call \code{\link{gc}} after each symbol run, default FALSE (experimental)
 #' @param delorders if TRUE, delete the order book for a symbol at the end of the symbols loop, will cause issues with rebalancing, default FALSE (experimental)
 #' @param rule.subset ISO-8601 subset for period to execute rules over, default NULL
+#' @param mdenv environment to look in for market data, default NULL which expands to .GlobalEnv
+#' 
 #' @export
 #' @seealso \code{\link{strategy}},  \code{\link{applyIndicators}}, 
 #'  \code{\link{applySignals}}, \code{\link{applyRules}},
@@ -120,7 +122,8 @@ applyStrategy <- function(strategy,
                           initBySymbol=FALSE,
                           gc=FALSE,
                           delorders=FALSE,
-                          rule.subset=NULL) {
+                          rule.subset=NULL,
+                          mdenv=NULL) {
 
   #TODO add saving of modified market data
   
@@ -147,7 +150,12 @@ applyStrategy <- function(strategy,
        for (symbol in symbols){
          if(isTRUE(load.mktdata)){
              if(isTRUE(initBySymbol)) initSymbol(strategy, symbol, ... = ...)
-             mktdata <- get(symbol)
+             if(!is.null(mdenv)){
+               envir <- mdenv
+             } else {
+               envir <- .GlobalEnv
+             }
+             mktdata <- get(symbol, envir=envir)
          }
          
          # loop over indicators
