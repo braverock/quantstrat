@@ -72,15 +72,14 @@ clone.orderbook <- function(portfolio.st, cloned.portfolio.st, strip.history=TRU
     #must.have.args(match.call(), c('portfolio.st', 'cloned.portfolio.st'))
 
     orderbook <- getOrderBook(portfolio.st)
-
-    i <- 1  # TODO: find index number by name
-    names(orderbook)[i] <- cloned.portfolio.st
+    names(orderbook) <- cloned.portfolio.st
 
     if(strip.history == TRUE)
     {
-        for(symbol in names(orderbook[[portfolio.st]]))
-            orderbook[[portfolio.st]][[symbol]] <- orderbook[[portfolio.st]][[symbol]][1,]
-    }
+        symbols <- names(orderbook[[cloned.portfolio.st]])
+        for(symbol in symbols)
+            orderbook[[cloned.portfolio.st]][symbol]  <- list(NULL)
+    } 
 
     put.orderbook(cloned.portfolio.st, orderbook)
 }
