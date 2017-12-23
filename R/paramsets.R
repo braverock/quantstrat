@@ -46,7 +46,20 @@ clone.portfolio <- function(portfolio.st, cloned.portfolio.st, strip.history=TRU
 {
     #must.have.args(match.call(), c('portfolio.st', 'cloned.portfolio.st'))
 
-    portfolio <- .getPortfolio(portfolio.st)
+    # must copy underlying environments IOT to actually clone
+    portfolio.list <- getPortfolio(portfolio.st) 
+    if(is.environment(portfolio.list)) 
+        return() # should never happen 
+    else
+        portfolio <- list2env(portfolio.list)  
+    portfolio$symbols <- list2env(lapply(portfolio$symbols, list2env))
+    attributes(portfolio) <- attributes(portfolio.list)[-1] # names are no longer attributes
+    
+    # sanity checks
+    # all.equal(.getPortfolio(portfolio.st), portfolio) # TRUE but now no longer pointer
+    # identical(data.table::address(portfolio), data.table::address(.getPortfolio(portfolio.st))) # FALSE, new address
+    # put.portfolio('test', .getPortfolio(portfolio.st)) # make test portfolio
+    # identical(data.table::address(.getPortfolio('test')), data.table::address(.getPortfolio(portfolio.st))) # TRUE, point to same address   
 
     if(strip.history==TRUE)
     {
