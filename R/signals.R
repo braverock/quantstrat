@@ -82,18 +82,17 @@ add.signal <- function(strategy, name, arguments, parameters=NULL, label=NULL, .
 #' @export
 applySignals <- function(strategy, mktdata, indicators=NULL, parameters=NULL, ...) {
     #TODO add Date subsetting
-
     # TODO check for symbol name in mktdata using Josh's code:
     # symbol <- strsplit(colnames(mktdata)[1],"\\.")[[1]][1]
 
     # TODO handle indicator lists as well as indicators that were cbound to mktdata
-
     # ensure no duplicate index values in mktdata
     if(any(diff(.index(mktdata)) == 0)) {
         warning("'mktdata' index contains duplicates; calling 'make.index.unique'")
         mktdata <- make.index.unique(mktdata)
     }
-
+    
+    
     if (!is.strategy(strategy)) {
         strategy<-try(getStrategy(strategy))
         if(inherits(strategy,"try-error"))
@@ -811,7 +810,7 @@ signal.obj.slope<-function(x){
 #' @export
 
 signal.plot<-function(signals,rows=NULL,columns=NULL,mai = c(0.1,0.4,0.2,0.1), mgp = c(1,1,0),
-                       xlab='',ylab='',cex.main=0.6,xaxt='n',cex.axis=0.5,h=0,hlinecol='red',...){
+                       xlab='',ylab='',cex.main=0.6,xaxt='n',cex.axis=0.5,h=0,hlinecol='red',outliers = TRUE,...){
   
   if(is.null(signals)) stop('No signals to plot')
   
@@ -828,7 +827,7 @@ signal.plot<-function(signals,rows=NULL,columns=NULL,mai = c(0.1,0.4,0.2,0.1), m
   # Generate Boxplot for each paramset
   for(plt in names(signals)){
     boxplot(x=signals[[plt]],main=plt,xlab=xlab,ylab=ylab,
-            cex.main=cex.main,xaxt=xaxt,cex.axis=cex.axis,...)
+            cex.main=cex.main,xaxt=xaxt,cex.axis=cex.axis,outline = outliers,...)
     abline(h=h,col=hlinecol)
   }
   
