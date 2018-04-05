@@ -1,8 +1,8 @@
 Package: quantstrat
 Type: Package
 Title: Quantitative Strategy Model Framework
-Version: 0.10.7
-Date: 2017-08-07 $Date$
+Version: 0.11.0
+Date: 2018-04-05 $Date$
 Author: Peter Carl, Brian G. Peterson, Joshua Ulrich, Jan Humme
 Depends:
     R(>= 3.2),
@@ -25,7 +25,9 @@ Suggests:
     rCharts,
     gamlss.util,
     reshape2,
-    beanplot
+    beanplot,
+    knitr,
+    rmarkdown
 Maintainer: Brian G. Peterson <brian@braverock.com>
 Description: Specify, build, and back-test quantitative
     financial trading and portfolio strategies.
@@ -36,3 +38,4 @@ License: GPL-3
 Copyright: (c) 2009-2017
 ByteCompile: TRUE
 RoxygenNote: 6.0.1.9000
+VignetteBuilder: knitr
