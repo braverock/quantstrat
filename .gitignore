@@ -4,6 +4,7 @@
 .directory
 #object files
 *.o
+*.so
 # Session Data files
 .RData
 # Example code in package build process
