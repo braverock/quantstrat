@@ -40,7 +40,10 @@
 #' \code{paramset.method=='max'}, we will take the paramset that has the highest
 #' total value, and remove that many degrees of freedom. If \code{paramset.method=='sum'},
 #' we will take an even more conservative view, and consider the sum of degrees 
-#' of freedom consumed by all examined parameter set combinations.
+#' of freedom consumed by all examined parameter set combinations.  The default,
+#' \code{paramset.method=='trial'}, falls in between, utilizing the same number
+#' of degrees of freedom as the 'max' paramset, and subtracting one additional 
+#' degree of freedom for each trial recorded. 
 #'  
 #' Collecting observations for market data is easy for lower frequencies, and 
 #' may not be worth doing for higher frequencies.  If the \code{portfolios}
@@ -70,7 +73,7 @@
 #' @param strategy an object of type 'strategy' or the name of a stored strategy to examine
 #' @param portfolios portfolios to examine for symbols to use for observations, default NULL, see Details.
 #' @param ... any other passthru parameters
-#' @param paramset.method one of 'max' or 'sum' to determine how to count, see Details.
+#' @param paramset.method one of 'trial', or 'max', or 'sum' to determine how to count, see Details.
 #' @param env environment to look in for market data, default .GlobalEnv
 #' @param verbose default TRUE
 #'
@@ -103,10 +106,10 @@
 degrees.of.freedom <- degreesOfFreedom <- dof <- function(strategy, 
                                                           portfolios=NULL, 
                                                           ..., 
-                                                          paramset.method=c('max','sum'), 
+                                                          paramset.method=c('trial','max','sum'), 
                                                           env=.GlobalEnv,
                                                           verbose=TRUE)
-  {
+{
   ret<-list()
   
   if (!is.strategy(strategy)) {
@@ -151,8 +154,11 @@ degrees.of.freedom <- degreesOfFreedom <- dof <- function(strategy,
       param.combos    <- expand.distributions(distributions)
       param.combos    <- apply.constraints(constraints, distributions, param.combos)
       param.combos$psums <- apply(param.combos,1,function(x)sum(na.omit(as.numeric(x))))
-      if(paramset.method== 'max'){
+      if(paramset.method == 'max' || paramset.method  == 'trial'){
         psdf <- psdf + max(na.omit(param.combos$psums))
+        if(paramset.method=='trial'){
+          psdf <- psdf + s$trials
+        }
       } else if (paramset.method == 'sum') {
         psdf <- psdf + sum(na.omit(param.combos$psums))
       }

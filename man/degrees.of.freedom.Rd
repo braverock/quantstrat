@@ -7,7 +7,8 @@
 \title{calculate degrees of freedom used by a strategy and available from test data}
 \usage{
 degrees.of.freedom(strategy, portfolios = NULL, ...,
-  paramset.method = c("max", "sum"), env = .GlobalEnv, verbose = TRUE)
+  paramset.method = c("trial", "max", "sum"), env = .GlobalEnv,
+  verbose = TRUE)
 }
 \arguments{
 \item{strategy}{an object of type 'strategy' or the name of a stored strategy to examine}
@@ -16,7 +17,7 @@ degrees.of.freedom(strategy, portfolios = NULL, ...,
 
 \item{...}{any other passthru parameters}
 
-\item{paramset.method}{one of 'max' or 'sum' to determine how to count, see Details.}
+\item{paramset.method}{one of 'trial', or 'max', or 'sum' to determine how to count, see Details.}
 
 \item{env}{environment to look in for market data, default .GlobalEnv}
 
@@ -68,7 +69,10 @@ combinations after applying all parameter sets and constraints.  If
 \code{paramset.method=='max'}, we will take the paramset that has the highest
 total value, and remove that many degrees of freedom. If \code{paramset.method=='sum'},
 we will take an even more conservative view, and consider the sum of degrees 
-of freedom consumed by all examined parameter set combinations.
+of freedom consumed by all examined parameter set combinations.  The default,
+\code{paramset.method=='trial'}, falls in between, utilizing the same number
+of degrees of freedom as the 'max' paramset, and subtracting one additional 
+degree of freedom for each trial recorded. 
  
 Collecting observations for market data is easy for lower frequencies, and 
 may not be worth doing for higher frequencies.  If the \code{portfolios}
