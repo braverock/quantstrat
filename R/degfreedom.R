@@ -54,7 +54,7 @@
 #' number of observations counted will not contain all the data.  In practice,
 #' the user should be aware of this, and take appropriate action, such as doing
 #' those calculations by hand.  Also, as a practical matter, it may make very 
-#' little difference as a pedrcentage of available degrees of freedom, since
+#' little difference as a percentage of available degrees of freedom, since
 #' the higher the frequency of the data, the smaller the percentage of the data 
 #' likely to be consumed by the strategy specification.
 #' 
