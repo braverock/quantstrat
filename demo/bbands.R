@@ -102,7 +102,7 @@ add.rule(strategy = strat.st,name='ruleSignal',
 
 #TODO add thresholds and stop-entry and stop-exit handling to test
 
-getSymbols(stock.str,from=startDate,index.class=c('POSIXt','POSIXct'), src='google')
+getSymbols(stock.str,from=startDate,index.class=c('POSIXt','POSIXct'), src='yahoo')
 start_t<-Sys.time()
 out<-try(applyStrategy(strategy='bbands' , portfolios='bbands',parameters=list(sd=SD,n=N)) )
 
