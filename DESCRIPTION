@@ -1,8 +1,8 @@
 Package: quantstrat
 Type: Package
 Title: Quantitative Strategy Model Framework
-Version: 0.11.0
-Date: 2018-04-05 $Date$
+Version: 0.12.0
+Date: 2018-04-23 $Date$
 Author: Peter Carl, Brian G. Peterson, Joshua Ulrich, Jan Humme
 Depends:
     R(>= 3.2),

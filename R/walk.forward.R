@@ -19,14 +19,20 @@
 #' 
 #' A wrapper for apply.paramset() and applyStrategy(), implementing a Rolling Walk Forward Analysis (WFA).
 #'
-#' walk.forward executes a strategy on a portfolio, while
-#' rolling a re-optimization of one of the strategies parameter sets during a specified time period (training window), then selecting an optimal
-#' parameter combination from the parameter set using an obj function, then applying the selected parameter combo to the next out-of-sample
-#' time period immediately following the training window (testing window). Once completed,
-#' the training window is shifted forward by a time period equal to the testing window size, and the process is repeated. 
-#' WFA stops when there are insufficient data left for a full testing window.
+#' walk.forward executes a strategy on a portfolio, while rolling a
+#' re-optimization of one of the strategies parameter sets during a specified
+#' time period (training window), then selecting an optimal parameter
+#' combination from the parameter set using an obj function, then applying the
+#' selected parameter combo to the next out-of-sample time period immediately
+#' following the training window (testing window). Once completed, the training
+#' window is shifted forward by a time period equal to the testing window size,
+#' and the process is repeated. WFA stops when there are insufficient data left
+#' for a full testing window.
 #'
-#' For a complete description, see Jaekle&Tomasini chapter 6.
+#' Note that walk.forward will generate out of sample (OOS) transactions using
+#' the chosen parameter set into the portfolio designated by portfolio.st. So
+#' walk.forward shoud be supplied with a 'clean' portfolio environment to avoid 
+#' issues such as out of order transactions. 
 #' 
 #' @param portfolio.st the name of the portfolio object
 #' @param account.st the name of the account object
@@ -43,9 +49,11 @@
 #' @param include.insamples will optionally run a full backtest for each param.combo in the paramset, and add the resulting in-sample portfolios and orderbooks to the file '<prefix>.results.RData'; default TRUE
 #' @param ... optional parameters to pass to apply.paramset()
 #' @param verbose dumps a lot of info during the run if set to TRUE, defaults to FALSE
+#' @param savewf boolean, if TRUE, the default, saves audit information on training and testing periods to working directory for later analysis
 #'
 #' @return a list consisting of a slot containing detailed results for each training + testing period, as well as the portfolio and the tradeStats() for the portfolio
 #'
+#' @references Tomasini, E. and Jaekle, U. Trading Systems. 2009. Chapter 6
 #' @seealso 
 #'     \code{\link{applyStrategy}} ,
 #'     \code{\link{apply.paramset}} ,
@@ -57,12 +65,23 @@
 #' @author Jan Humme, Brian G. Peterson
 #'
 #' @export
-walk.forward <- function(strategy.st, paramset.label, portfolio.st, account.st,
-    period, k.training, nsamples=0, audit.prefix=NULL, k.testing,
-    obj.func=function(x){which(x==max(x))},
-    obj.args=list(x=quote(tradeStats.list$Net.Trading.PL)),
-    anchored=FALSE, include.insamples=TRUE,
-    ..., verbose=FALSE)
+walk.forward <- function(  strategy.st
+                         , paramset.label
+                         , portfolio.st
+                         , account.st
+                         , period
+                         , k.training
+                         , nsamples=0
+                         , audit.prefix=NULL
+                         , k.testing
+                         , obj.func=function(x){which(x==max(x))}
+                         , obj.args=list(x=quote(tradeStats.list$Net.Trading.PL))
+                         , anchored=FALSE
+                         , include.insamples=TRUE
+                         , ...
+                         , verbose=FALSE
+                         , savewf=TRUE
+                         )
 {
     must.have.args(match.call(), c('portfolio.st', 'strategy.st', 'paramset.label', 'k.training'))
 
@@ -79,19 +98,23 @@ walk.forward <- function(strategy.st, paramset.label, portfolio.st, account.st,
 
     ep <- endpoints(symbol.data, on=period)
 
-    total.start <- ep[1 + k.training] + 1
-    total.timespan <- paste(index(symbol.data[total.start]), '', sep='/')
+    total.start <- ep[1]
+    total.timespan <- paste(index(symbol.data[total.start]), '', sep='/', index(last(symbol.data)))
 
-    if(anchored)
-        training.start <- ep[1] + 1
-
-    k <- 1; while(TRUE)
+    old.param.combo <- NULL
+    
+    k <- 1
+    
+    # now loop over training and testing periods, collecting output
+    while(TRUE)
     {
         result <- list()
-
+        
         # start and end of training window
-        if(!anchored)
-            training.start <- ep[k] + 1
+        if(anchored){ training.start <- ep[1]
+        } else {
+          training.start <- ep[k] + 1
+        }
         training.end   <- ep[k + k.training]
 
         # stop if training.end is beyond last data
@@ -120,7 +143,7 @@ walk.forward <- function(strategy.st, paramset.label, portfolio.st, account.st,
         .audit <- new.env()
 
         # run backtests on training window
-        result$apply.paramset <- apply.paramset(strategy.st=strategy.st
+        result$apply.paramset <- apply.paramset(  strategy.st=strategy.st
                                                 , paramset.label=paramset.label
                                                 , portfolio.st=portfolio.st
                                                 , account.st=account.st
@@ -130,7 +153,8 @@ walk.forward <- function(strategy.st, paramset.label, portfolio.st, account.st,
                                                 , calc='slave'
                                                 , audit=.audit
                                                 , verbose=verbose
-                                                , ...=...)
+                                                , ...=...
+                                                )
 
         tradeStats.list <- result$apply.paramset$tradeStats
 
@@ -140,13 +164,31 @@ walk.forward <- function(strategy.st, paramset.label, portfolio.st, account.st,
                 stop(paste(obj.func, 'unknown obj function', sep=': '))
 
             # select best param.combo
-            param.combo.idx <- do.call(obj.func, obj.args)
-            if(length(param.combo.idx) == 0)
+            param.combo.idx <- try(do.call(obj.func, obj.args))
+            if(length(param.combo.idx) == 0 || class(param.combo.idx)=="try-error"){
+              if(is.null(old.param.combo)){
                 stop('obj.func() returned empty result')
-
-            param.combo <- tradeStats.list[param.combo.idx, 1:grep('Portfolio', names(tradeStats.list)) - 1]
-            param.combo.nr <- row.names(tradeStats.list)[param.combo.idx]
-
+              } else {
+                param.combo<-old.param.combo
+                param.combo.nr<-row.names(old.param.combo)
+                warning('obj.func() returned empty result')
+                print('using param.combo:')
+                print(param.combo)
+              }
+            } else {
+              if(length(param.combo.idx)>1){
+                # choose the last row because expand.grid in paramsets will make 
+                # the last row the row with the largest parameter values, roughly 
+                # equivalent to highest stability of data usage, 
+                # or lowest degrees of freedom
+                param.combo.idx <- last(param.combo.idx)
+              }
+              param.combo <- tradeStats.list[param.combo.idx, 1:grep('Portfolio', names(tradeStats.list)) - 1]
+              param.combo.nr <- row.names(tradeStats.list)[param.combo.idx]
+            }
+              
+            old.param.combo<-param.combo
+            
             if(!is.null(.audit))
             {
                 assign('obj.func', obj.func, envir=.audit)
@@ -164,18 +206,16 @@ walk.forward <- function(strategy.st, paramset.label, portfolio.st, account.st,
             print(param.combo)
 
             # run backtest using selected param.combo
+            # NOTE, this will generate OOS transactions in the portfolio identified,
+            # so strart with a clean portfolio environment.
             applyStrategy(strategy
                           , portfolios=portfolio.st
                           , mktdata=symbol.data
                           , rule.subset=testing.timespan
                           , ...)
-        }
-        else
-        {
+        } else {
             if(is.null(tradeStats.list))
-                warning(paste('no trades in training window', training.timespan, '; skipping test'))
-
-            k <- k + 1
+                warning(paste('no trades in training window', training.timespan))
         }
 
         if(!is.null(.audit))
@@ -183,14 +223,14 @@ walk.forward <- function(strategy.st, paramset.label, portfolio.st, account.st,
             iso.format <- "%Y%m%dT%H%M%S"
             time.range <- paste(format(index(symbol.data[training.start]), iso.format),
                                 format(index(symbol.data[training.end]), iso.format), sep=".")
-            save(.audit, file = paste(audit.prefix, symbol.st, time.range, "RData", sep="."))
-
-            .audit <- NULL
+            if(savewf){
+              save(.audit, file = paste(audit.prefix, symbol.st, time.range, "RData", sep="."))
+            }
         }
 
         results[[k]] <- result
 
-        k <- k + k.testing
+        k <- k + k.testing # move the beginning of the next training set forward
     }
     #updatePortf(portfolio.st, Dates=paste('::',as.Date(Sys.time()),sep=''))
     updatePortf(portfolio.st, Dates=total.timespan, sep='')
@@ -214,24 +254,12 @@ walk.forward <- function(strategy.st, paramset.label, portfolio.st, account.st,
 
         if(include.insamples)
         {
-            # run backtests on in-sample reference portfolios
-            result$apply.paramset <- apply.paramset(strategy.st=strategy.st
-                                                    , paramset.label=paramset.label
-                                                    , portfolio.st=portfolio.st
-                                                    , account.st=account.st
-                                                    , mktdata=symbol.data
-                                                    , rule.subset=total.timespan
-                                                    , nsamples=nsamples
-                                                    , calc='slave'
-                                                    , audit=.audit
-                                                    , verbose=verbose
-                                                    , ...=...)
+          # copy the paramset results in here too
+          .audit$apply.paramset <- result$apply.paramset # this is only the last set, needs fixing
         }
-
-        save(.audit, file=paste(audit.prefix, 'results', 'RData', sep='.'))
-
-        .audit <- NULL
+        if(savewf){
+          save(.audit, file=paste(audit.prefix, 'results', 'RData', sep='.'))
+        }
     }
     return(results)
 } 
-

@@ -154,6 +154,14 @@ install.param.combo <- function(strategy, param.combo, paramset.label)
     if (is.null(dim(param.combo))) {
         stop("'param.combo' must have a dim attribute")
     }
+  
+    if (nrow(param.combo)>1) {
+      # choose the last row because expand.grid in paramsets will make 
+      # the last row the row with the largest parameter values, roughly 
+      # equivalent to highest stability of data usage, 
+      # or lowest degrees of freedom
+      param.combo <- param.combo[nrow(param.combo),] 
+    }
 
     for(param.label in colnames(param.combo))
     {

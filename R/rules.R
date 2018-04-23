@@ -343,7 +343,7 @@ applyRules <- function(portfolio,
                             if(is.null(rule$timespan)) {
                                 assign.dindex(c(get.dindex(),which(mktdata[, sigcol] == sigval)))
                             } else {
-                                assign.dindex(c(get.dindex(),which(merge(.xts(,.index(mktdata)),mktdata[rule$timespan, sigcol]) == sigval)))
+                                assign.dindex(c(get.dindex(),which(merge(.xts(.index(mktdata)),mktdata[rule$timespan, sigcol]) == sigval)))
                             }
                         }
                     }
@@ -354,13 +354,14 @@ applyRules <- function(portfolio,
               
         #rule subsetting will decrease the periods we evaluate rules for
         if(!is.null(rule.subset)){
-          assign.dindex(dindex[which(dindex %in% mktdata[rule.subset,which.i=TRUE])])
+          assign.dindex(c(mktdata[rule.subset,which.i=TRUE][1]
+                          ,dindex[which(dindex %in% mktdata[rule.subset,which.i=TRUE])]))
           dindex <- get.dindex()
           print('included indices:')
           print(dindex)
         }
         
-        if(length(dindex)==0) dindex=1 #should this just return?
+        if(length(dindex)==0) return(NULL) # not sure if NULL will cause other issues...
         
         #for debugging, set dindex to all index values:
         #assign.dindex(1:length(index(mktdata)))
@@ -616,7 +617,7 @@ applyRules <- function(portfolio,
                                 timespan <- format(timestamp, "::%Y-%m-%d %H:%M:%OS6") #may be unecessary
                             else
                                 timestamp=NULL
-
+                            print(paste(curIndex,timestamp))
                             closed.orders <- ruleOrderProc(portfolio=portfolio, symbol=symbol, mktdata=mktdata, timestamp=timestamp, periodicity=freq, curIndex=curIndex, ...)
                         }
                     },
