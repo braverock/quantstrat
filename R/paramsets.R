@@ -537,8 +537,8 @@ apply.paramset <- function(strategy.st
     results <- fe %dopar%
     {
         param.combo.num <- rownames(param.combo)
-        print(paste("Processing param.combo", param.combo.num))
-        print(param.combo)
+        #print(paste("Processing param.combo", param.combo.num))
+        #print(param.combo)
 
         # doSEQ and doMC make all environments available to the slave, but
         # doRedis only provides the .GlobalEnv, so we erase both .blotter
@@ -613,7 +613,7 @@ apply.paramset <- function(strategy.st
 
         # portfolio name has param.combo rowname in suffix, so
         # print param.combo number for diagnostics
-        print(paste("Returning results for param.combo", param.combo.num))
+        # print(paste("Returning results for param.combo", param.combo.num))
 
         return(result)
     }
