@@ -9,7 +9,7 @@
 #' A \code{data.frame} containing:
 #' 
 #' \describe{
-#'      \item{Order.Qty}{}
+#'     \item{Order.Qty}{}
 #'     \item{Order.Price}{}
 #'     \item{Order.Type}{}
 #'     \item{Order.Side}{}
