@@ -90,7 +90,7 @@ walk.forward <- function(  strategy.st
 
     portfolio <- .getPortfolio(portfolio.st)
 
-    results <- list()
+    results <- new.env()
 
     # assuming that timespans for all portfolio symbols are same, so ok to use 1st symbol to calculate end points
     symbol.st <- first(ls(portfolio$symbols))
@@ -108,7 +108,7 @@ walk.forward <- function(  strategy.st
     # now loop over training and testing periods, collecting output
     while(TRUE)
     {
-        result <- list()
+        result <- new.env()
         
         # start and end of training window
         if(anchored){ training.start <- ep[1]
@@ -263,3 +263,4 @@ walk.forward <- function(  strategy.st
     }
     return(results)
 } 
+
