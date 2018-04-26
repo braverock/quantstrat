@@ -357,8 +357,8 @@ applyRules <- function(portfolio,
           assign.dindex(c(mktdata[rule.subset,which.i=TRUE][1]
                           ,dindex[which(dindex %in% mktdata[rule.subset,which.i=TRUE])]))
           dindex <- get.dindex()
-          print('included indices:')
-          print(dindex)
+          #print('included indices:')
+          #print(dindex)
         }
         
         if(length(dindex)==0) return(NULL) # not sure if NULL will cause other issues...
@@ -617,7 +617,7 @@ applyRules <- function(portfolio,
                                 timespan <- format(timestamp, "::%Y-%m-%d %H:%M:%OS6") #may be unecessary
                             else
                                 timestamp=NULL
-                            print(paste(curIndex,timestamp))
+                            #print(paste(curIndex,timestamp))
                             closed.orders <- ruleOrderProc(portfolio=portfolio, symbol=symbol, mktdata=mktdata, timestamp=timestamp, periodicity=freq, curIndex=curIndex, ...)
                         }
                     },
