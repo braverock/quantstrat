@@ -149,6 +149,21 @@ select.samples <- function(nsamples, param.combos)
     param.combos
 }
 
+#' insert a specific parameter combo into a strategy object
+#' 
+#' In order to test \code{\link{applyStrategy}} with a specific parameter 
+#' combination, it is necessary to insert those parameters into a copy of the 
+#' strategy specification object.
+#' 
+#' This internal, non-exported function examines the paramset specification, 
+#' and then uses that to insert the chosen parameters into a copy of the strategy
+#' object.  It will search the strategy onject, component by component, and 
+#' attempt to locate the components named in the paramset, so that the individual 
+#' parameter values may be changed.
+#'
+#' @param strategy strategy object
+#' @param param.combo single parameter combination to be inserted
+#' @param paramset.label label for the paramset to use to determine slot locations inside the strategy object
 install.param.combo <- function(strategy, param.combo, paramset.label)
 {
     if (is.null(dim(param.combo))) {
@@ -377,14 +392,21 @@ add.distribution.constraint <- function(strategy, paramset.label, distribution.l
 
 #' Apply a paramset to the strategy
 #'
-#' This function will run applyStrategy() on portfolio.st, once for each parameter combination as specified by
-#' the parameter distributions and constraints in the paramset. Results are gathered and returned as a list
-#' containing a slot for each parameter combination.
+#' This function will run \code{\link{applyStrategy}} on \code{portfolio.st},
+#' once for each parameter combination as specified by the parameter
+#' distributions and constraints in the paramset. Results are gathered and
+#' returned as a list containing a slot for each parameter combination.
 #'
-#' apply.paramset uses the foreach package to start the runs for each parameter combination, and as such allows
-#' for parallel processing. It is up to the caller to load and register an appropriate backend, eg. doMC,
-#' doParallel or doRedis.
+#' apply.paramset uses the foreach package to start the runs for each parameter
+#' combination, and as such allows for parallel processing. It is up to the
+#' caller to load and register an appropriate backend, eg. doMC, doParallel or
+#' doRedis.
 #' 
+#' Note that we will attempt to pass dots through to most other called functions. 
+#' This could include arguments such as the \code{tradeDef} argument for
+#' \code{\link[blotter]{tradeStats}}, or additional arguments to be passed to 
+#' \code{\link{applyStrategy}}
+#'  
 #' @param strategy.st the name of the strategy object
 #' @param paramset.label a label uniquely identifying the paramset within the strategy
 #' @param portfolio.st the name of the portfolio
@@ -393,18 +415,19 @@ add.distribution.constraint <- function(strategy, paramset.label, distribution.l
 #' @param nsamples if > 0 then take a sample of only size nsamples from the paramset
 #' @param user.func an optional user-supplied function to be run for each param.combo at the end, either on the slave or on the master (see calc)
 #' @param user.args user-supplied list of arguments for user.func
-#' @param calc 'slave' to run updatePortfolio() and tradesStats() on the slave and return all portfolios and orderbooks as a list: higher parallelization but more data transfer between master and slave; 'master' to have updatePortf() and tradeStats() run at the master and return all portfolios and orderbooks in the .blotter and .strategy environments resp: less parallelization but also less data transfer between slave and master; default is 'slave'
+#' @param calc 'slave' to run \code{\link{[blotter]updatePortf}} and \code{\link[blotter]{tradesStats}} on the slave and return all portfolios and orderbooks as a list: higher parallelization but more data transfer between master and slave; 'master' to have \code{\link{[blotter]updatePortfolio}} and \code{\link[blotter]{tradesStats}} run at the master and return all portfolios and orderbooks in the .blotter and .strategy environments resp: less parallelization but also less data transfer between slave and master; default is 'slave'
 #' @param packages a vector specifying names of R packages to be loaded by the slave, default NULL
 #' @param audit a user-specified environment to store a copy of all portfolios, orderbooks and other data from the tests, or NULL to trash this information
 #' @param verbose return full information, in particular the .blotter environment, default FALSE
 #' @param paramsets a user-sepcified (sub)set of paramsets to run
 #' @param ... any other passthru parameters
-#' @param rule.subset ISO-8601 subset for period to execute rules over, default NULL
+#' @param rule.subset ISO-8601 subset for period to execute rules over, default NULL (will use all dates)
+#' @param perf.subset ISO-8601 subset for period to examine performance over, default NULL (will use all dates)
 #' @param store indicates whether to store the strategy in the .strategy environment
 #'
-#' @author Jan Humme
+#' @author Jan Humme, Brian Peterson
 #' @seealso 
-#'     \code{\link{add.distribution.constraint}}, 
+#'     \code{\link{add.distribution}}, 
 #'     \code{\link{add.distribution.constraint}}, 
 #'     \code{\link{delete.paramset}}
 #' @importFrom iterators iter
@@ -424,6 +447,7 @@ apply.paramset <- function(strategy.st
                            , verbose=FALSE
                            , paramsets
                            , rule.subset=NULL
+                           , perf.subset=NULL
                            , store=TRUE
                            )
 {
@@ -472,7 +496,7 @@ apply.paramset <- function(strategy.st
     {
         args <- list(...)
 
-        results <- list()
+        results <- new.env()
         results$error <-list()
         for(i in 1:length(args))
         {
@@ -494,7 +518,7 @@ apply.paramset <- function(strategy.st
               {
                 # calculate tradeStats on portfolio
                 updatePortf(r$portfolio.st, Symbols = symbols, ...)
-                r$tradeStats <- tradeStats(r$portfolio.st)
+                r$tradeStats <- tradeStats(r$portfolio.st,Dates = perf.subset, ...)
                 
                 # run user specified function, if they provided one
                 if(!is.null(user.func) && !is.null(user.args))
@@ -524,11 +548,15 @@ apply.paramset <- function(strategy.st
     } # end fn combine.results
 
     # create foreach object
-    fe <- foreach(param.combo=iter(param.combos,by='row'),
-        .verbose=verbose, .errorhandling='pass',
-        .packages=c('quantstrat', packages),
-        .combine=combine.results, .multicombine=TRUE, .maxcombine=max(2,nrow(param.combos)),
-        .export=c(env.functions, symbols), ...)
+    fe <- foreach( param.combo=iter(param.combos,by='row')
+                  ,.verbose=verbose, .errorhandling='pass'
+                  ,.packages=c('quantstrat', packages)
+                  ,.combine=combine.results
+                  , .multicombine=TRUE
+                  , .maxcombine=max(2,nrow(param.combos))
+                  ,.export=c(env.functions, symbols)
+                  , ...
+                 )
     # remove all but the param.combo iterator before calling %dopar%
     # this allows us to pass '...' through foreach to the expression
     fe$args <- fe$args[1]
@@ -564,7 +592,7 @@ apply.paramset <- function(strategy.st
         put.orderbook(portfolio.st, orderbook)
         put.strategy(strategy)
 
-        result <- list()
+        result <- new.env()
         result$param.combo <- param.combo
         result$portfolio.st <- paste(portfolio.st, param.combo.num, sep='.')
 
@@ -603,7 +631,7 @@ apply.paramset <- function(strategy.st
         if(calc == 'slave')
         {
             updatePortf(result$portfolio.st, ...)
-            result$tradeStats <- tradeStats(result$portfolio.st)
+            result$tradeStats <- tradeStats(result$portfolio.st, Dates=perf.subset, ...)
 
             if(!is.null(user.func) && !is.null(user.args))
                 result$user.func <- do.call(user.func, user.args)
