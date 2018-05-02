@@ -14,8 +14,9 @@
 #' an unsuitable environment (such as the .blotter environment) will result in
 #' errors.
 #' 
-#' @param audit.filename name of .audit environment file as produced by walk.forward().
-#'        Filename will match pattern [audit.prefix].results.RData.
+#' @param audit.filename name of .audit environment file as produced by \code{\link{walk.forward.}}
+#'        Filename will often match pattern [audit.prefix].results.RData. Alternately, an
+#'        audit environment provided by the output of \code{\link{walk.forward}}
 #' 
 #' @seealso \code{\link{walk.forward}}, \code{\link{chart.forward.training}}
 #' @export
@@ -36,6 +37,21 @@ chart.forward <- function(audit.filename)
     }
   }
 
+  if(length(ls(name=.audit,pattern='blotter'))){
+    # post 0.12.0 audit environment
+    
+    #get performance from OOS result portfolio (which doesn't end in a digit) 
+    portfolio.st <- ls(name=.audit$blotter, pattern='portfolio.*[^.0-9]$')
+    R <- cumsum(getPortfolio(portfolio.st)[['summary']][,'Net.Trading.PL']) 
+    R <- R[-1,]
+    names(R) <- portfolio.st
+    
+    #get the IS paramset cumPL from the environment
+    PL.xts <- audit.filename$insample.apply.paramset$cumPL
+    PL.xts <- PL.xts[-1,]
+    n <- ncol(PL.xts)
+  } else {
+    # we have an old style audit environment
     # extract all portfolio names from the audit environment,
     # except result portfolio (which doesn't end with a digit)
     portfolios.st = ls(name=.audit, pattern='portfolio.*.[0-9]+')
@@ -62,14 +78,15 @@ chart.forward <- function(audit.filename)
     from <- index(p$summary[2])
     R <- cumsum(p$summary[paste(from, '/', sep=''),'Net.Trading.PL'])
     names(R) <- portfolio.st
-
+  } # end if/else over audit environment
+  
     # add a column for the chosen portfolio, doubling it and
     # making it plot last (first column, per PerfA convention) 
     # so it's not over-plotted by other portfolios
     PL.xts <- cbind(R, PL.xts)
     
     PL.xts <- na.locf(PL.xts)
-    
+  
     # add drawdown columns for all portfolio columns
     CumMax <- cummax(PL.xts)
     Drawdowns.xts <- -(CumMax - PL.xts)

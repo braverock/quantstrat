@@ -8,7 +8,8 @@ walk.forward(strategy.st, paramset.label, portfolio.st, account.st, period,
   k.training, nsamples = 0, audit.prefix = NULL, k.testing,
   obj.func = function(x) {     which(x == max(x)) }, obj.args = list(x =
   quote(tradeStats.list$Net.Trading.PL)), anchored = FALSE,
-  include.insamples = TRUE, ..., verbose = FALSE, savewf = TRUE)
+  include.insamples = TRUE, ..., verbose = FALSE, savewf = TRUE,
+  saveenv = FALSE)
 }
 \arguments{
 \item{strategy.st}{the name of the strategy object}
@@ -25,7 +26,7 @@ walk.forward(strategy.st, paramset.label, portfolio.st, account.st, period,
 
 \item{nsamples}{the number of sample param.combos to draw from the paramset for training; 0 means all samples (see also apply.paramset)}
 
-\item{audit.prefix}{prefix to generate filenames for storage of audit data. For each training set, a separate file is created, containing an enviroment called .audit, with all in-sample portfolios and orderbooks as well as information as to which param.combos were evaluated, and the result of the objective function. In addition, a special file is generated that contains portfolio and orderbook for the concatenated testing param.combos as selected by the objective function, plus (optionally) complete in-sample portfolios and orderbooks for reference (see include.insamples)}
+\item{audit.prefix}{default NULL.  if not NULL, \code{walk.forward} will store the audit environment from each training period, containing an enviroment called .audit, with all in-sample portfolios and orderbooks as well as information as to which param.combos were evaluated, and the result of the objective function. In addition, a special file is generated that contains portfolio and orderbook for the concatenated testing param.combos as selected by the objective function, plus (optionally) complete in-sample portfolios and orderbooks for reference (see include.insamples)}
 
 \item{k.testing}{the number of periods to use for testing, eg. '1 month'}
 
@@ -35,13 +36,15 @@ walk.forward(strategy.st, paramset.label, portfolio.st, account.st, period,
 
 \item{anchored}{whether to use a fixed start for the training window (TRUE), or a sliding start (FALSE); defaults to FALSE}
 
-\item{include.insamples}{will optionally run a full backtest for each param.combo in the paramset, and add the resulting in-sample portfolios and orderbooks to the file '<prefix>.results.RData'; default TRUE}
+\item{include.insamples}{will optionally run a full backtest for each param.combo in the paramset, and add the resulting in-sample portfolios and orderbooks to the audit environment; default TRUE}
 
 \item{...}{optional parameters to pass to apply.paramset()}
 
 \item{verbose}{dumps a lot of info during the run if set to TRUE, defaults to FALSE}
 
 \item{savewf}{boolean, if TRUE, the default, saves audit information on training and testing periods to working directory for later analysis}
+
+\item{saveenv}{boolean, default FALSE. if TRUE, save the paramset environment information for each trial, and not just the tradeStats and chosen paramset}
 }
 \value{
 a list consisting of a slot containing detailed results for each training + testing period, as well as the portfolio and the tradeStats() for the portfolio
@@ -57,8 +60,17 @@ combination from the parameter set using an obj function, then applying the
 selected parameter combo to the next out-of-sample time period immediately
 following the training window (testing window). Once completed, the training
 window is shifted forward by a time period equal to the testing window size,
-and the process is repeated. WFA stops when there are insufficient data left
-for a full testing window.
+and the process is repeated. The final testing window may be shorter than the
+full testing window, if the length of the time series does not allow a full 
+testing window.
+
+'anchored' walk forward forces all training windows to start on the first
+observation of the market data.  This can be useful if the indicators make
+use of all the data, e.g. for a risk metric such as a volatility estimator,
+for a regime model, or for a long-memory process of some sort.  If
+\code{anchored=TRUE} and you have specified \code{k.training}, then the
+performance of each paramset will only be evaluated on the rolling training 
+window, even though larger (anchored) periods are used for input calculations.
 
 Note that walk.forward will generate out of sample (OOS) transactions using
 the chosen parameter set into the portfolio designated by portfolio.st. So

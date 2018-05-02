@@ -55,25 +55,27 @@ add.distribution.constraint(strategy.st,
 
 ###
 
-results <- walk.forward(strategy.st, 
-                        paramset.label='MA', 
-                        portfolio.st=portfolio.st, 
-                        account.st=account.st, 
-                        nsamples=.nsamples,
-                        period='months',
+wfresults <- walk.forward(strategy.st, 
+                        paramset.label = 'MA', 
+                        portfolio.st = portfolio.st, 
+                        account.st = account.st, 
+                        nsamples = .nsamples,
+                        period = 'months',
                         k.training = 36,
                         k.testing = 12,
-                        verbose=TRUE,
+                        verbose =TRUE,
                         anchored = TRUE,
                         audit.prefix = 'macdWFA',
-                        include.insamples = TRUE
+                        include.insamples = TRUE,
+                        savewf = FALSE
                         )
                         
-wfa.stats <- results$tradeStats
+wfa.stats <- wfresults$tradeStats
 
 print(wfa.stats)
 
-chart.forward('macdWFA.results.RData')
+# TODO FIXME
+chart.forward(wfresults)
 
 # your dates will vary, check your working directory
 # chart.forward.training('macdWFA.AAPL.20070103T000000.20091231T000000.RData')
