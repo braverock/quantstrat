@@ -407,6 +407,20 @@ add.distribution.constraint <- function(strategy, paramset.label, distribution.l
 #' \code{\link[blotter]{tradeStats}}, or additional arguments to be passed to 
 #' \code{\link{applyStrategy}}
 #'  
+#' It is also worth discussing the \code{nsamples} argument.  This option will 
+#' randomly sample from the total parameter space.  It is quite useful for testing
+#' your parameterization distributions.  It is not always terribly useful for 
+#' real tests,even for a large parameter space.  Use of this sampling methodology,
+#' if there are not enough samples, will make parameter surface analysis
+#' challenging, for example, because there may be 'voids' in any randomly chosen
+#' parameter space.  Also, if \code{apply.paramset} is called via \code{\link{walk.forward}}
+#' with \code{nsamples}, then the sampled parameter sets will be different for
+#' each training period, as the sampling methodology is independent.  This 
+#' latter issue could be addressed by passing \code{paramsets} instead, so if 
+#' you must use a parameter subset (e.g. one generated via some optimization 
+#' algorithm, or to use a constand sample for all training periods), then
+#' passing \code{paramsets} should be preferred to passing \code{nsamples}.
+#' 
 #' @param strategy.st the name of the strategy object
 #' @param paramset.label a label uniquely identifying the paramset within the strategy
 #' @param portfolio.st the name of the portfolio
@@ -498,6 +512,8 @@ apply.paramset <- function(strategy.st
 
         results <- new.env()
         results$error <-list()
+        results$cumPL <- xts()
+        
         for(i in 1:length(args))
         {
             r <- args[[i]]
@@ -519,7 +535,11 @@ apply.paramset <- function(strategy.st
                 # calculate tradeStats on portfolio
                 updatePortf(r$portfolio.st, Symbols = symbols, ...)
                 r$tradeStats <- tradeStats(r$portfolio.st,Dates = perf.subset, ...)
-                
+
+                r$cumPL <- cumsum(r$portfolio.st[,'Net.Trading.PL'])
+                if(!is.null(perf.subset)) r$cumPL <- r$cumPL[perf.subset]
+                colnames(r$cumPL) <- portfolio.st
+
                 # run user specified function, if they provided one
                 if(!is.null(user.func) && !is.null(user.args))
                   r$user.func <- do.call(user.func, user.args)
@@ -535,6 +555,10 @@ apply.paramset <- function(strategy.st
                   colnames(r$tradeStats) <- tmpnames
                 }
                 results$tradeStats <- rbind(results$tradeStats, cbind(r$param.combo, r$tradeStats))
+              }
+              
+              if(!is.null(r$cumPL)){
+                results$cumPL <- cbind(results$cumPL,r$cumPL)
               }
               
               # add copy of user.func results to summary list for convenience
@@ -632,7 +656,11 @@ apply.paramset <- function(strategy.st
         {
             updatePortf(result$portfolio.st, ...)
             result$tradeStats <- tradeStats(result$portfolio.st, Dates=perf.subset, ...)
-
+            
+            result$cumPL <- cumsum(getPortfolio(portfolio.st)[['summary']][,'Net.Trading.PL'])
+            if(!is.null(perf.subset)) result$cumPL <- result$cumPL[perf.subset]
+            colnames(result$cumPL) <- portfolio.st
+            
             if(!is.null(user.func) && !is.null(user.args))
                 result$user.func <- do.call(user.func, user.args)
         }
@@ -646,6 +674,11 @@ apply.paramset <- function(strategy.st
         return(result)
     }
 
+    #make sure we preserve the param combo name in cumPL
+    if(nrow(results$tradeStats)>0 && nrow(results$tradeStats)==ncol(results$cumPL)){
+      colnames(results$cumPL) <- rownames(results$tradeStats)
+    }
+    
     #increment trials
     strategy$trials <- strategy$trials+nrow(param.combos)
     if(store) assign(strategy$name,strategy,envir=as.environment(.strategy))
@@ -658,6 +691,7 @@ apply.paramset <- function(strategy.st
       assign('paramset.label', paramset.label, envir=.audit)
       assign('param.combos', param.combos, envir=.audit)
       assign('tradeStats', results$tradeStats, envir=.audit)
+      assign('cumPL',results$cumPL, envir=.audit)
       assign('user.func', results$user.func, envir=.audit)
       assign('foreach.errors', results$error, envir=.audit)
     }

@@ -7,7 +7,7 @@
 apply.paramset(strategy.st, paramset.label, portfolio.st, ..., account.st,
   mktdata = NULL, nsamples = 0, user.func = NULL, user.args = NULL,
   calc = "slave", audit = NULL, packages = NULL, verbose = FALSE,
-  paramsets, rule.subset = NULL, store = TRUE)
+  paramsets, rule.subset = NULL, perf.subset = NULL, store = TRUE)
 }
 \arguments{
 \item{strategy.st}{the name of the strategy object}
@@ -28,7 +28,7 @@ apply.paramset(strategy.st, paramset.label, portfolio.st, ..., account.st,
 
 \item{user.args}{user-supplied list of arguments for user.func}
 
-\item{calc}{'slave' to run updatePortfolio() and tradesStats() on the slave and return all portfolios and orderbooks as a list: higher parallelization but more data transfer between master and slave; 'master' to have updatePortf() and tradeStats() run at the master and return all portfolios and orderbooks in the .blotter and .strategy environments resp: less parallelization but also less data transfer between slave and master; default is 'slave'}
+\item{calc}{'slave' to run \code{\link{[blotter]updatePortf}} and \code{\link[blotter]{tradesStats}} on the slave and return all portfolios and orderbooks as a list: higher parallelization but more data transfer between master and slave; 'master' to have \code{\link{[blotter]updatePortfolio}} and \code{\link[blotter]{tradesStats}} run at the master and return all portfolios and orderbooks in the .blotter and .strategy environments resp: less parallelization but also less data transfer between slave and master; default is 'slave'}
 
 \item{audit}{a user-specified environment to store a copy of all portfolios, orderbooks and other data from the tests, or NULL to trash this information}
 
@@ -38,25 +38,48 @@ apply.paramset(strategy.st, paramset.label, portfolio.st, ..., account.st,
 
 \item{paramsets}{a user-sepcified (sub)set of paramsets to run}
 
-\item{rule.subset}{ISO-8601 subset for period to execute rules over, default NULL}
+\item{rule.subset}{ISO-8601 subset for period to execute rules over, default NULL (will use all dates)}
+
+\item{perf.subset}{ISO-8601 subset for period to examine performance over, default NULL (will use all dates)}
 
 \item{store}{indicates whether to store the strategy in the .strategy environment}
 }
 \description{
-This function will run applyStrategy() on portfolio.st, once for each parameter combination as specified by
-the parameter distributions and constraints in the paramset. Results are gathered and returned as a list
-containing a slot for each parameter combination.
+This function will run \code{\link{applyStrategy}} on \code{portfolio.st},
+once for each parameter combination as specified by the parameter
+distributions and constraints in the paramset. Results are gathered and
+returned as a list containing a slot for each parameter combination.
 }
 \details{
-apply.paramset uses the foreach package to start the runs for each parameter combination, and as such allows
-for parallel processing. It is up to the caller to load and register an appropriate backend, eg. doMC,
-doParallel or doRedis.
+apply.paramset uses the foreach package to start the runs for each parameter
+combination, and as such allows for parallel processing. It is up to the
+caller to load and register an appropriate backend, eg. doMC, doParallel or
+doRedis.
+
+Note that we will attempt to pass dots through to most other called functions. 
+This could include arguments such as the \code{tradeDef} argument for
+\code{\link[blotter]{tradeStats}}, or additional arguments to be passed to 
+\code{\link{applyStrategy}}
+ 
+It is also worth discussing the \code{nsamples} argument.  This option will 
+randomly sample from the total parameter space.  It is quite useful for testing
+your parameterization distributions.  It is not always terribly useful for 
+real tests,even for a large parameter space.  Use of this sampling methodology,
+if there are not enough samples, will make parameter surface analysis
+challenging, for example, because there may be 'voids' in any randomly chosen
+parameter space.  Also, if \code{apply.paramset} is called via \code{\link{walk.forward}}
+with \code{nsamples}, then the sampled parameter sets will be different for
+each training period, as the sampling methodology is independent.  This 
+latter issue could be addressed by passing \code{paramsets} instead, so if 
+you must use a parameter subset (e.g. one generated via some optimization 
+algorithm, or to use a constand sample for all training periods), then
+passing \code{paramsets} should be preferred to passing \code{nsamples}.
 }
 \seealso{
-\code{\link{add.distribution.constraint}}, 
+\code{\link{add.distribution}}, 
     \code{\link{add.distribution.constraint}}, 
     \code{\link{delete.paramset}}
 }
 \author{
-Jan Humme
+Jan Humme, Brian Peterson
 }
