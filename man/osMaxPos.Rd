@@ -24,7 +24,7 @@ osMaxPos(data, timestamp, orderqty, ordertype, orderside, portfolio, symbol,
 
 \item{ruletype}{one of "risk","order","rebalance","exit","enter", see \code{\link{add.rule}}}
 
-\item{digits}{call \code{\link{round}} to round min/max clip size to specified number of digits}
+\item{digits}{call \code{\link{round}} to round min/max clip size to specified number of digits after decimal place}
 
 \item{...}{any other passthru parameters}
 }

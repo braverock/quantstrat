@@ -131,7 +131,7 @@ getPosLimit <- function(portfolio, symbol, timestamp){
 #' @param portfolio text name of the portfolio to place orders in
 #' @param symbol identifier of the instrument to place orders for.  The name of any associated price objects (xts prices, usually OHLC) should match these
 #' @param ruletype one of "risk","order","rebalance","exit","enter", see \code{\link{add.rule}}
-#' @param digits call \code{\link{round}} to round min/max clip size to specified number of digits
+#' @param digits call \code{\link{round}} to round min/max clip size to specified number of digits after decimal place
 #' @param ... any other passthru parameters
 #' @seealso \code{\link{addPosLimit}},\code{\link{getPosLimit}}
 #' @export
