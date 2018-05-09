@@ -54,10 +54,13 @@ add.distribution.constraint(strategy.st,
 
 
 ###
-
+wfportfolio <- "wf.macd"
+initPortf(wfportfolio,symbols=stock.str)
+initOrders(portfolio=wfportfolio)
+wf_start <- Sys.time()
 wfresults <- walk.forward(strategy.st, 
                         paramset.label = 'MA', 
-                        portfolio.st = portfolio.st, 
+                        portfolio.st = wfportfolio, 
                         account.st = account.st, 
                         nsamples = .nsamples,
                         period = 'months',
@@ -65,17 +68,17 @@ wfresults <- walk.forward(strategy.st,
                         k.testing = 12,
                         verbose =TRUE,
                         anchored = TRUE,
-                        audit.prefix = 'macdWFA',
                         include.insamples = TRUE,
                         savewf = FALSE
                         )
-                        
+wf_end <-Sys.time()
+
+cat("\n Running the walk forward search: \n ")
+print(wf_end-wf_start)
+cat(" Total trials:",.strategy$macd$trials,"\n")
+
 wfa.stats <- wfresults$tradeStats
 
 print(wfa.stats)
 
-# TODO FIXME
 chart.forward(wfresults)
-
-# your dates will vary, check your working directory
-# chart.forward.training('macdWFA.AAPL.20070103T000000.20091231T000000.RData')
