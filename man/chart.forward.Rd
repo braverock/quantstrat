@@ -4,12 +4,14 @@
 \alias{chart.forward}
 \title{Chart to analyse walk.forward() objective function}
 \usage{
-chart.forward(audit.filename)
+chart.forward(audit.filename, portfolio.st = NULL)
 }
 \arguments{
 \item{audit.filename}{name of .audit environment file as produced by \code{\link{walk.forward.}}
 Filename will often match pattern [audit.prefix].results.RData. Alternately, an
 audit environment provided by the output of \code{\link{walk.forward}}}
+
+\item{portfolio.st}{string defining which portfolio should be used for out of sample, default NULL}
 }
 \description{
 The \code{\link{walk.forward}} function creates an audit environment, written 

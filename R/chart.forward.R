@@ -17,10 +17,10 @@
 #' @param audit.filename name of .audit environment file as produced by \code{\link{walk.forward.}}
 #'        Filename will often match pattern [audit.prefix].results.RData. Alternately, an
 #'        audit environment provided by the output of \code{\link{walk.forward}}
-#' 
+#' @param portfolio.st string defining which portfolio should be used for out of sample, default NULL
 #' @seealso \code{\link{walk.forward}}, \code{\link{chart.forward.training}}
 #' @export
-chart.forward <- function(audit.filename)
+chart.forward <- function(audit.filename, portfolio.st=NULL)
 {
   if(is.environment(audit.filename)){
     .audit <- audit.filename
@@ -37,11 +37,20 @@ chart.forward <- function(audit.filename)
     }
   }
 
-  if(length(ls(name=.audit,pattern='blotter'))){
+  if(length(ls(name=.audit,pattern='blotter'))){ 
     # post 0.12.0 audit environment
     
-    #get performance from OOS result portfolio (which doesn't end in a digit) 
-    portfolio.st <- ls(name=.audit$blotter, pattern='portfolio.*[^.0-9]$')
+    #get performance from OOS result portfolio (which doesn't end in a digit)
+    if(is.null(portfolio.st) && !is.null(.audit$portfolio.st)){
+      portfolio.st <- .audit$portfolio.st
+    } else {
+      portfolio.st <- ls(name=.audit$blotter, pattern='portfolio.*[^.0-9]$')
+    }
+    
+    if(length(portfolio.st)>1){ 
+      stop('Returned vector of portfolio names, please select one from',portfolio.st)
+    } 
+    
     R <- cumsum(getPortfolio(portfolio.st)[['summary']][,'Net.Trading.PL']) 
     R <- R[-1,]
     names(R) <- portfolio.st
@@ -49,7 +58,16 @@ chart.forward <- function(audit.filename)
     #get the IS paramset cumPL from the environment
     PL.xts <- audit.filename$insample.apply.paramset$cumPL
     PL.xts <- PL.xts[-1,]
-    n <- ncol(PL.xts)
+    
+    
+    n  <- ncol(PL.xts)
+    el <- .audit$wf.subsets$testing.start
+    el <- xts(as.character(el),order.by=el)
+    
+    # adjust to the mean of the training sets, which have a head start
+    pstart <- mean(PL.xts[first(index(el))])
+    R  <- R+pstart # adjust in-sample
+    
   } else {
     # we have an old style audit environment
     # extract all portfolio names from the audit environment,
@@ -78,6 +96,7 @@ chart.forward <- function(audit.filename)
     from <- index(p$summary[2])
     R <- cumsum(p$summary[paste(from, '/', sep=''),'Net.Trading.PL'])
     names(R) <- portfolio.st
+    el<-NULL
   } # end if/else over audit environment
   
     # add a column for the chosen portfolio, doubling it and
@@ -90,10 +109,12 @@ chart.forward <- function(audit.filename)
     # add drawdown columns for all portfolio columns
     CumMax <- cummax(PL.xts)
     Drawdowns.xts <- -(CumMax - PL.xts)
-    data.to.plot <- as.xts(cbind(PL.xts, Drawdowns.xts))
 
     p <- plot(PL.xts, col=c("blue", rep("grey", n )), main="Walk Forward Analysis")
     # set on=NA so it is drawn on a new panel
     p <- lines(Drawdowns.xts, col=c("blue", rep("grey", n )), on=NA, main="Drawdowns")
+    if(!is.null(el)){
+      p <- addEventLines(el, offset=.4, pos=2, srt=90, on=1)
+    }
     print(p)
 }

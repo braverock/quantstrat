@@ -8,8 +8,8 @@ walk.forward(strategy.st, paramset.label, portfolio.st, account.st, period,
   k.training, nsamples = 0, audit.prefix = NULL, k.testing,
   obj.func = function(x) {     which(x == max(x)) }, obj.args = list(x =
   quote(tradeStats.list$Net.Trading.PL)), anchored = FALSE,
-  include.insamples = TRUE, ..., verbose = FALSE, savewf = TRUE,
-  saveenv = FALSE)
+  include.insamples = TRUE, ..., verbose = FALSE, savewf = FALSE,
+  saveenv = FALSE, psgc = TRUE)
 }
 \arguments{
 \item{strategy.st}{the name of the strategy object}
@@ -42,15 +42,18 @@ walk.forward(strategy.st, paramset.label, portfolio.st, account.st, period,
 
 \item{verbose}{dumps a lot of info during the run if set to TRUE, defaults to FALSE}
 
-\item{savewf}{boolean, if TRUE, the default, saves audit information on training and testing periods to working directory for later analysis}
+\item{savewf}{boolean, default FALSE. if TRUE, saves audit information on training and testing periods to working directory for later analysis}
 
 \item{saveenv}{boolean, default FALSE. if TRUE, save the paramset environment information for each trial, and not just the tradeStats and chosen paramset}
+
+\item{psgc}{boolean, if TRUE, the default, run gc() in each worker session to conserve RAM.}
 }
 \value{
 a list consisting of a slot containing detailed results for each training + testing period, as well as the portfolio and the tradeStats() for the portfolio
 }
 \description{
-A wrapper for apply.paramset() and applyStrategy(), implementing a Rolling Walk Forward Analysis (WFA).
+A wrapper for \code{\link{apply.paramset}} and \code{\link{applyStrategy}},
+implementing a Rolling Walk Forward Analysis (WFA).
 }
 \details{
 walk.forward executes a strategy on a portfolio, while rolling a
@@ -76,6 +79,14 @@ Note that walk.forward will generate out of sample (OOS) transactions using
 the chosen parameter set into the portfolio designated by portfolio.st. So
 walk.forward shoud be supplied with a 'clean' portfolio environment to avoid 
 issues such as out of order transactions.
+
+The \code{psgc} argument is a tradeoff between memory efficiency and speed.
+\R does garbage collection promarily when it is running low on RAM, but this 
+automatic detection works poorly in parallel processes.  If TRUE, the default,
+\code{walk.proward} and \code{\link{apply.paramset}} will call \code{gc()}
+at key points to limit RAM usage.  For small tests, this is probably 
+unecessary and will only slow the test.  For large tests, even on substantial
+hardware, it may be the difference between completing the test and crashing \R.
 }
 \references{
 Tomasini, E. and Jaekle, U. Trading Systems. 2009. Chapter 6

@@ -17,7 +17,8 @@
 
 #' Rolling Walk Forward Analysis
 #' 
-#' A wrapper for apply.paramset() and applyStrategy(), implementing a Rolling Walk Forward Analysis (WFA).
+#' A wrapper for \code{\link{apply.paramset}} and \code{\link{applyStrategy}},
+#' implementing a Rolling Walk Forward Analysis (WFA).
 #'
 #' walk.forward executes a strategy on a portfolio, while rolling a
 #' re-optimization of one of the strategies parameter sets during a specified
@@ -42,7 +43,15 @@
 #' the chosen parameter set into the portfolio designated by portfolio.st. So
 #' walk.forward shoud be supplied with a 'clean' portfolio environment to avoid 
 #' issues such as out of order transactions. 
-#' 
+#'
+#' The \code{psgc} argument is a tradeoff between memory efficiency and speed.
+#' \R does garbage collection promarily when it is running low on RAM, but this 
+#' automatic detection works poorly in parallel processes.  If TRUE, the default,
+#' \code{walk.proward} and \code{\link{apply.paramset}} will call \code{gc()}
+#' at key points to limit RAM usage.  For small tests, this is probably 
+#' unecessary and will only slow the test.  For large tests, even on substantial
+#' hardware, it may be the difference between completing the test and crashing \R.
+#'   
 #' @param portfolio.st the name of the portfolio object
 #' @param account.st the name of the account object
 #' @param strategy.st the name of the strategy object
@@ -58,9 +67,10 @@
 #' @param include.insamples will optionally run a full backtest for each param.combo in the paramset, and add the resulting in-sample portfolios and orderbooks to the audit environment; default TRUE
 #' @param ... optional parameters to pass to apply.paramset()
 #' @param verbose dumps a lot of info during the run if set to TRUE, defaults to FALSE
-#' @param savewf boolean, if TRUE, the default, saves audit information on training and testing periods to working directory for later analysis
+#' @param savewf boolean, default FALSE. if TRUE, saves audit information on training and testing periods to working directory for later analysis
 #' @param saveenv boolean, default FALSE. if TRUE, save the paramset environment information for each trial, and not just the tradeStats and chosen paramset
-#'
+#' @param psgc boolean, if TRUE, the default, run gc() in each worker session to conserve RAM.
+#'  
 #' @return a list consisting of a slot containing detailed results for each training + testing period, as well as the portfolio and the tradeStats() for the portfolio
 #'
 #' @references Tomasini, E. and Jaekle, U. Trading Systems. 2009. Chapter 6
@@ -90,8 +100,9 @@ walk.forward <- function(  strategy.st
                          , include.insamples=TRUE
                          , ...
                          , verbose=FALSE
-                         , savewf=TRUE
+                         , savewf=FALSE
                          , saveenv=FALSE
+                         , psgc=TRUE
                          )
 {
     must.have.args(match.call(), c('portfolio.st', 'strategy.st', 'paramset.label', 'k.training'))
@@ -152,8 +163,7 @@ walk.forward <- function(  strategy.st
                                   )
 
     result <- new.env()
-    .audit <- new.env()
-    
+
     # set up our control variables
     old.param.combo <- NULL
     
@@ -162,7 +172,7 @@ walk.forward <- function(  strategy.st
     for(i in 1:nrow(wf.subsets))
     {
       result <- new.env()
-      if(saveenv){
+      if(!is.null(audit.prefix) || saveenv){
         .audit <- new.env()
       } else {
         .audit=NULL
@@ -279,15 +289,22 @@ walk.forward <- function(  strategy.st
           save(.audit, file = filestr)
         }
       }
-      
+
       if(include.insamples){
         results[[time.range]] <- result
       }
+      
     } # end full rolling training/testing loop
 
     if(include.insamples){
       # run apply.paramset on the entire period
-      .insampleaudit <- new.env()
+      if(!is.null(.audit)){
+        # only keep the debug auditing information if we are 
+        # keeping it for the rest of the simulation
+        .insampleaudit <- new.env()
+      } else {
+        .insampleaudit <- NULL
+      }
       results$insample.apply.paramset <- 
         apply.paramset( strategy.st=strategy.st
                         , paramset.label=paramset.label
@@ -316,6 +333,8 @@ walk.forward <- function(  strategy.st
     results$strategy   <- .strategy
     results$wf.subsets <- wf.subsets
     
+    results$portfolio.st <- portfolio.st
+    
     if(!is.null(.audit) && !is.null(audit.prefix))
     {
       results$audit      <- .audit
@@ -326,5 +345,6 @@ walk.forward <- function(  strategy.st
       cat('\n','Saving final results env in file: ',filestr,'\n')
       save(results, file = filestr)
     }
+    
     return(results)
 }

@@ -462,6 +462,7 @@ apply.paramset <- function(strategy.st
                            , paramsets
                            , rule.subset=NULL
                            , perf.subset=NULL
+                           , psgc=TRUE
                            , store=TRUE
                            )
 {
@@ -588,6 +589,8 @@ apply.paramset <- function(strategy.st
     # now call %dopar%
     results <- fe %dopar%
     {
+        if(psgc) gc()
+      
         param.combo.num <- rownames(param.combo)
         #print(paste("Processing param.combo", param.combo.num))
         #print(param.combo)
@@ -663,9 +666,15 @@ apply.paramset <- function(strategy.st
             
             if(!is.null(user.func) && !is.null(user.args))
                 result$user.func <- do.call(user.func, user.args)
+            
+            # clean up portfolio and orderbook on worker processes
+            rm(list=c(paste('portfolio', portfolio.st, sep='.'), paste('account', portfolio.st, sep='.')),envir=.blotter)
+            rm(list=c(paste('order_book', portfolio.st, sep='.')),envir=.strategy)
+            
+        } else {
+          result$portfolio <- getPortfolio(result$portfolio.st)
+          result$orderbook <- getOrderBook(result$portfolio.st)
         }
-        result$portfolio <- getPortfolio(result$portfolio.st)
-        result$orderbook <- getOrderBook(result$portfolio.st)
 
         # portfolio name has param.combo rowname in suffix, so
         # print param.combo number for diagnostics
@@ -696,6 +705,8 @@ apply.paramset <- function(strategy.st
       assign('foreach.errors', results$error, envir=.audit)
     }
 
+    
+    if(psgc) gc()
     return(results)
 }
 
