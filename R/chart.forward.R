@@ -105,12 +105,30 @@ chart.forward <- function(audit.filename, portfolio.st=NULL)
     PL.xts <- cbind(R, PL.xts)
     
     PL.xts <- na.locf(PL.xts)
-  
+    
+    units <- periodicity(R)$units
+
+    units <- switch(units,
+                    seconds = 'hours',
+                    minutes = 'hours',
+                    hours = 'days',
+                    days = 'months',
+                    weeks = 'years',
+                    months = 'years',
+                    quarters = 'years',
+                    years = 'years')
+    
+    if(units=='months' && nrow(R)>500) units <- 'years'
+    
     # add drawdown columns for all portfolio columns
     CumMax <- cummax(PL.xts)
     Drawdowns.xts <- -(CumMax - PL.xts)
 
-    p <- plot(PL.xts, col=c("blue", rep("grey", n )), main="Walk Forward Analysis")
+    p <- plot(PL.xts, 
+              col=c("blue", rep("grey", n )),
+              grid.ticks.on=units,
+              minor.ticks=NULL,
+              main="Walk Forward Analysis")
     # set on=NA so it is drawn on a new panel
     p <- lines(Drawdowns.xts, col=c("blue", rep("grey", n )), on=NA, main="Drawdowns")
     if(!is.null(el)){
