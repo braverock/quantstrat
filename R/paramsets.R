@@ -659,6 +659,7 @@ apply.paramset <- function(strategy.st
         {
             updatePortf(result$portfolio.st, ...)
             result$tradeStats <- tradeStats(result$portfolio.st, Dates=perf.subset, ...)
+            result$dailyStats <- dailyStats(result$portfolio.st, Dates=perf.subset, perSymbol = FALSE, method='moment', ...)
             
             result$cumPL <- cumsum(getPortfolio(portfolio.st)[['summary']][,'Net.Trading.PL'])
             if(!is.null(perf.subset)) result$cumPL <- result$cumPL[perf.subset]
@@ -667,9 +668,14 @@ apply.paramset <- function(strategy.st
             if(!is.null(user.func) && !is.null(user.args))
                 result$user.func <- do.call(user.func, user.args)
             
-            # clean up portfolio and orderbook on worker processes
-            rm(list=c(paste('portfolio', portfolio.st, sep='.'), paste('account', portfolio.st, sep='.')),envir=.blotter)
-            rm(list=c(paste('order_book', portfolio.st, sep='.')),envir=.strategy)
+            if(is.null(audit)){
+              # clean up portfolio and orderbook on worker processes
+              rm(list=c(paste('portfolio', portfolio.st, sep='.'), paste('account', portfolio.st, sep='.')),envir=.blotter)
+              rm(list=c(paste('order_book', portfolio.st, sep='.')),envir=.strategy)
+            } else {
+              result$portfolio <- getPortfolio(result$portfolio.st)
+              result$orderbook <- getOrderBook(result$portfolio.st)
+            }
             
         } else {
           result$portfolio <- getPortfolio(result$portfolio.st)
@@ -700,6 +706,7 @@ apply.paramset <- function(strategy.st
       assign('paramset.label', paramset.label, envir=.audit)
       assign('param.combos', param.combos, envir=.audit)
       assign('tradeStats', results$tradeStats, envir=.audit)
+      assign('dailyStats', results$dailyStats, envir=.audit)
       assign('cumPL',results$cumPL, envir=.audit)
       assign('user.func', results$user.func, envir=.audit)
       assign('foreach.errors', results$error, envir=.audit)

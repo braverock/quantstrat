@@ -245,13 +245,16 @@ walk.forward <- function(  strategy.st
         
         old.param.combo<-param.combo
         
+        result$testing.param.combo <- param.combo
+        result$testing.param.combo.idx <- param.combo.idx
+        
         if(!is.null(.audit))
         {
           assign('obj.func', obj.func, envir=.audit)
           assign('param.combo.idx', param.combo.idx, envir=.audit)
           assign('param.combo.nr', param.combo.nr, envir=.audit)
           assign('param.combo', param.combo, envir=.audit)
-        }
+        } 
         
         # configure strategy to use selected param.combo
         strategy <- install.param.combo(strategy, param.combo, paramset.label)
