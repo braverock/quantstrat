@@ -338,6 +338,18 @@ walk.forward <- function(  strategy.st
     
     results$portfolio.st <- portfolio.st
     
+    results$testing.parameters <- NULL
+    for (tp in ls(pattern='*.[0-9]+',pos=results)){
+      tr <- cbind(results[[tp]][['testing.param.combo']], 
+                  results[[tp]][['testing.timespan']])
+      if(is.null(results$testing.parameters)){
+        results$testing.parameters <- tr
+      } else {
+        results$testing.parameters <- rbind(results$testing.parameters, tr)
+      }
+    }
+    colnames(results$testing.parameters)[ncol(results$testing.parameters)] <- 'testing.timespan'
+    
     if(!is.null(.audit) && !is.null(audit.prefix))
     {
       results$audit      <- .audit
