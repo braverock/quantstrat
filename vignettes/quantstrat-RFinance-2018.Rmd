@@ -1198,7 +1198,7 @@ Thanks to all the contributors to quantstrat and blotter, especially Ross Bennet
 This work is licensed under a [Creative Commons Attribution 4.0 International License](http://creativecommons.org/licenses/by/4.0/)
 
 The *rmarkdown* [@Rmarkdown] source code for this document may be found on
-[github](https://github.com/braverock/quantstrat/vignettes/quantstrat-RFinance-2018.html)
+[github](https://github.com/braverock/quantstrat/vignettes/quantstrat-RFinance-2018.Rmd)
 
 ```{r versions, include=TRUE}
 si<-sessionInfo()
