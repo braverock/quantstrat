@@ -1,8 +1,8 @@
 #' Chart to analyse walk.forward() objective function
 #'
-#' The \code{\link{walk.forward}} function creates an audit environment, written 
+#' The \code{\link{walk.forward}} function creates an audit environment,  potentially written 
 #' out as a results file, which contains the out of sample results of the (chosen)
-#' parameter set.  This function parses that file and generates a chart to 
+#' parameter set.  This function parses that file  or environment and generates a chart to 
 #' compare the performance of all parameter sets against the optimal one. 
 #'
 #' \code{\link{chart.forward.training}} uses the audit environment for a single 

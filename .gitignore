@@ -28,3 +28,11 @@ vignettes/*.pdf
 *.knit.md
 .Rproj.user
 inst/doc
+*_cache*
+*_files*
+*.bak
+*.sav
+
+#tiingoapi file
+vignettes/tiingoapi.R
+

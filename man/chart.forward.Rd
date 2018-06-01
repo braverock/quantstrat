@@ -14,9 +14,9 @@ audit environment provided by the output of \code{\link{walk.forward}}}
 \item{portfolio.st}{string defining which portfolio should be used for out of sample, default NULL}
 }
 \description{
-The \code{\link{walk.forward}} function creates an audit environment, written 
+The \code{\link{walk.forward}} function creates an audit environment,  potentially written 
 out as a results file, which contains the out of sample results of the (chosen)
-parameter set.  This function parses that file and generates a chart to 
+parameter set.  This function parses that file  or environment and generates a chart to 
 compare the performance of all parameter sets against the optimal one.
 }
 \details{
