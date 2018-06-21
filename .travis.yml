@@ -1,0 +1,27 @@
+language: r
+
+# need sudo
+sudo: false
+
+# cache packages because devtools is a beast
+cache: packages
+
+# Be strict when checking our package
+warnings_are_errors: true
+
+# System dependencies
+#apt_packages:
+# - libcurl4-openssl-dev
+# - libxml2-dev
+
+# Binaries from Michael Rutter's ppa
+#r_binary_packages:
+
+# Done via install.packages
+#r_packages:
+
+# Install the bleeding edge version of a package from github (eg to pick
+# up a not-yet-released bugfix)
+r_github_packages:
+ - joshuaulrich/xts
+ - braverock/blotter
