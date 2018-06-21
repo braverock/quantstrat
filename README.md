@@ -19,7 +19,7 @@ require(devtools)
 install_github("braverock/quantstrat")
 ```
 
-If you can run one of the demo files, you would have successfully installed blotter.
+If you can run one of the demo files, you would have successfully installed quantstrat.
 
 ```
 demo('bbands', ask=FALSE)
