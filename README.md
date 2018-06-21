@@ -1,4 +1,4 @@
-[![Travis build status](https://travis-ci.org/braverock/quantstrat.svg?branch=master)](https://travis-ci.org/braverock/quantstrat)
+
 
 # quantstrat - Quantitative Strategy Model Framework
 
