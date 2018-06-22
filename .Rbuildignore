@@ -4,3 +4,9 @@ ChangeLog\.1\.0\.0
 ^.*\.Rproj$
 ^\.Rproj\.user$
 .travis.yml
+^.*_cache$
+^.*_files$
+tiingoapi.R
+^.*\.Rhistory
+^.*\.bak$
+^.*\.sav$
