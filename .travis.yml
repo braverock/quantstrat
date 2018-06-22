@@ -10,7 +10,8 @@ cache: packages
 warnings_are_errors: true
 
 # don't build the vignette
-r_check_args: "--no-vignettes"
+r_build_args: "--no-build-vignettes"
+r_check_args: "--no-build-vignettes --ignore-vignettes --as-cran"
 
 # System dependencies
 #apt_packages:
