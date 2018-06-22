@@ -107,5 +107,19 @@
 #' @importFrom graphics abline boxplot lines par plot
 #' @importFrom methods hasArg
 #' @importFrom stats as.formula coef end lm na.omit start time acf median pnorm pt qnorm qt rexp runif toeplitz var
-#' @importFrom utils glob2rx installed.packages head
+#' @importFrom utils glob2rx installed.packages head globalVariables
 NULL
+
+#' sample spx daily OHLCVA data set 1970:1971
+#' @name spx
+#' @docType data 
+#' @keywords data
+NULL
+
+# variables that will always be available if needed at run-time, 
+# but need to be available at compile time for 
+# R CMD check
+utils::globalVariables(names=c('beanplot','Change','env','gamlss','hPlot',
+                               'initDate','initEq','melt','mktdata','param.combo',
+                               'Period','plotSimpleGamlss','price','redisClose',
+                               'redisConnect','redisGetContext','timespan'))
