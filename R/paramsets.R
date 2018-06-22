@@ -438,7 +438,7 @@ add.distribution.constraint <- function(strategy, paramset.label, distribution.l
 #' @param rule.subset ISO-8601 subset for period to execute rules over, default NULL (will use all dates)
 #' @param perf.subset ISO-8601 subset for period to examine performance over, default NULL (will use all dates)
 #' @param store indicates whether to store the strategy in the .strategy environment
-#'
+#' @param psgc boolean, if TRUE, the default, will force \code{\link[base]{gc}} garbage collection periodically in workers to conserve RAM
 #' @author Jan Humme, Brian Peterson
 #' @seealso 
 #'     \code{\link{add.distribution}}, 

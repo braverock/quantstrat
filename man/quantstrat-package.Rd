@@ -103,7 +103,7 @@ in \code{...} in the call to \code{applyStrategy} }
 \code{\link[PerformanceAnalytics:PerformanceAnalytics-package]{PerformanceAnalytics}}
 }
 \author{
-Peter Carl, Brian G. Peterson, Joshua Ulrich, Garrett See, Yu Chen
+primary authors: Peter Carl, Brian G. Peterson, Joshua Ulrich, Jasen Mackie, Jan Humme 
 
 Maintainer: Brian G. Peterson <brian@braverock.com>
 }

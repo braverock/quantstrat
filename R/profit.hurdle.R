@@ -55,9 +55,8 @@
 #'    \item{Average for Multiple Tests: the average multiple testing return hurdle for the given level of significance}
 #' }
 #'
-#' @examples
-#' 
 #' @seealso \code{\link{SharpeRatio.haircut}}
+#' @aliases profit.hurdle
 #' @export profit.hurdle
 #' @export profitHurdle
 #' 
@@ -181,7 +180,7 @@ profitHurdle <- profit.hurdle <- function( portfolios
 ### (2014): "Backtesting", Duke University 
 
 # Profit_Hurdle <- function (num_tests, num_obs, alpha_sig, vol_annual, RHO){
-#' Title
+#' internal implementation of profit hurdle code, see \code{\link{profit.hurdle}}
 #'
 #' @param sm_fre 
 #' @param num_tests 
@@ -190,10 +189,7 @@ profitHurdle <- profit.hurdle <- function( portfolios
 #' @param vol_annual 
 #' @param RHO 
 #'
-#' @return
-#' @export
-#'
-#' @examples
+#' @rdname dotprofitHurdle
 .profitHurdle <- function(  sm_fre
                           , num_tests
                           , num_obs

@@ -859,7 +859,7 @@ signal.plot<-function(signals,rows=NULL,columns=NULL,mai = c(0.1,0.4,0.2,0.1), m
 beanplot.signals<-function(signals,rows=NULL,columns=NULL,mai = c(0.1,0.4,0.2,0.1), mgp = c(1,1,0),
                            xlab='',ylab='',cex.main=0.6,xaxt='n',cex.axis=0.5,
                            h=0,hlinecol='red',...){
-  require(beanplot)
+  if(!requireNamespace('beanplot', quietly=TRUE)) stop("The 'beanplot' package is required to use this function")
   
   if(is.null(signals)) stop('No signals to plot')
 
@@ -900,11 +900,9 @@ distributional.boxplot<-function(signal,x.val=seq(1, 50, 5),val=10,ylim=c(-5, 5)
                                  xlim=c(0, 50),mai=c(1,1,0.3,0.5),h=0,...){
   
   if(is.null(signal)) stop('No signals to plot')
-  if(!isTRUE("gamlss" %in% rownames(installed.packages()))) stop('Please install gamlss')
-  if(!isTRUE("gamlss.util" %in% rownames(installed.packages()))) stop('Please install gamlss.util')
-  
-  require(gamlss.util)
-  require(gamlss)
+
+  if(!requireNamespace('gamlss.util', quietly=TRUE)) stop("The 'gamlss.util' package is required to use this function")
+  if(!requireNamespace('gamlss', quietly=TRUE)) stop("The 'gamlss' package is required to use this function")
   
   # Reformat data
   n.row = nrow(signal)
@@ -948,8 +946,9 @@ distributional.boxplot<-function(signal,x.val=seq(1, 50, 5),val=10,ylim=c(-5, 5)
 #' }
 #' @export
 signal.path.plot<-function(data,main='Cumulative Return Paths'){
-  require(rCharts) #TODO: Need to wrap around If statement
-  require(reshape2)
+  if(!requireNamespace('rCharts', quietly=TRUE)) stop("The 'rCharts' package is required to use this function")
+  if(!requireNamespace('reshape2', quietly=TRUE)) stop("The 'reshape2' package is required to use this function")
+  
   data = t(data)
   n.row = nrow(data)
   ind.var = matrix(data)

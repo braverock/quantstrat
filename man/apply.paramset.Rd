@@ -43,6 +43,8 @@ apply.paramset(strategy.st, paramset.label, portfolio.st, ..., account.st,
 
 \item{perf.subset}{ISO-8601 subset for period to examine performance over, default NULL (will use all dates)}
 
+\item{psgc}{boolean, if TRUE, the default, will force \code{\link[base]{gc}} garbage collection periodically in workers to conserve RAM}
+
 \item{store}{indicates whether to store the strategy in the .strategy environment}
 }
 \description{

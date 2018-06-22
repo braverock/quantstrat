@@ -2,6 +2,7 @@
 % Please edit documentation in R/profit.hurdle.R
 \name{profitHurdle}
 \alias{profitHurdle}
+\alias{profit.hurdle}
 \title{Profit Hurdle function - A Minimum Profitability Method for Proposed Trading Strategies}
 \usage{
 profitHurdle(portfolios, ..., strategy = NULL, trials = NULL,
@@ -51,9 +52,6 @@ Using their model they propose haircuts for Sharpe ratios returned by trading st
 HL pose another way of viewing the problem is to ascertain a minimum average monthly
 return for a given significance level. This is replicated in \code{quantstrat} with the
  \code{profitHurdle} function.
-}
-\examples{
-
 }
 \references{
 Harvey, Campbell R. and Yan Liu. 2015. Backtesting The Journal of Portfolio Management. 41:1 pp. 13-28. 

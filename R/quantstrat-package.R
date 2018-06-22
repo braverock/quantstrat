@@ -91,7 +91,7 @@
 #' @name quantstrat-package
 #' @aliases quantstrat-package quantstrat
 #' @docType package
-#' @author Peter Carl, Brian G. Peterson, Joshua Ulrich, Garrett See, Yu Chen
+#' @author primary authors: Peter Carl, Brian G. Peterson, Joshua Ulrich, Jasen Mackie, Jan Humme 
 #' 
 #' Maintainer: Brian G. Peterson <brian@@braverock.com>
 #' @seealso \code{\link[quantmod:quantmod-package]{quantmod}},
@@ -106,6 +106,6 @@
 #' @importFrom grDevices dev.new heat.colors
 #' @importFrom graphics abline boxplot lines par plot
 #' @importFrom methods hasArg
-#' @importFrom stats as.formula coef end lm na.omit start time
-#' @importFrom utils glob2rx installed.packages
+#' @importFrom stats as.formula coef end lm na.omit start time acf median pnorm pt qnorm qt rexp runif toeplitz var
+#' @importFrom utils glob2rx installed.packages head
 NULL
