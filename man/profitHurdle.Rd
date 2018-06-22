@@ -56,7 +56,7 @@ return for a given significance level. This is replicated in \code{quantstrat} w
 \references{
 Harvey, Campbell R. and Yan Liu. 2015. Backtesting The Journal of Portfolio Management. 41:1 pp. 13-28. 
 
-Harvey, Campbell R., Yan Liu, and Heqing Zhu. 2016. "… and the cross-section of expected returns." The Review of Financial Studies 29, no. 1 (2016): 5-68.
+Harvey, Campbell R., Yan Liu, and Heqing Zhu. 2016. "... and the cross-section of expected returns." The Review of Financial Studies 29, no. 1 (2016): 5-68.
 
 Mackie, Jasen. 2016. R-view: Backtesting - Harvey & Liu (2015). https://opensourcequant.wordpress.com/2016/11/17/r-view-backtesting-harvey-liu-2015/
 }

@@ -278,7 +278,7 @@
 #' @references 
 #' Harvey, Campbell R. and Yan Liu. 2015. Backtesting The Journal of Portfolio Management. 41:1 pp. 13-28. 
 #' 
-#' Harvey, Campbell R., Yan Liu, and Heqing Zhu. 2016. "… and the cross-section of expected returns." The Review of Financial Studies 29, no. 1 (2016): 5-68.
+#' Harvey, Campbell R., Yan Liu, and Heqing Zhu. 2016. "... and the cross-section of expected returns." The Review of Financial Studies 29, no. 1 (2016): 5-68.
 #' 
 #' @importFrom TTR ROC
 #' @seealso \code{\link{SharpeRatio.deflated}}
