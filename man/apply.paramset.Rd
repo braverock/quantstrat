@@ -29,7 +29,7 @@ apply.paramset(strategy.st, paramset.label, portfolio.st, ..., account.st,
 
 \item{user.args}{user-supplied list of arguments for user.func}
 
-\item{calc}{'slave' to run \code{\link{[blotter]updatePortf}} and \code{\link[blotter]{tradesStats}} on the slave and return all portfolios and orderbooks as a list: higher parallelization but more data transfer between master and slave; 'master' to have \code{\link{[blotter]updatePortfolio}} and \code{\link[blotter]{tradesStats}} run at the master and return all portfolios and orderbooks in the .blotter and .strategy environments resp: less parallelization but also less data transfer between slave and master; default is 'slave'}
+\item{calc}{'slave' to run \code{\link[blotter]{updatePortf}} and \code{\link[blotter]{tradesStats}} on the slave and return all portfolios and orderbooks as a list: higher parallelization but more data transfer between master and slave; 'master' to have \code{\link[blotter]{updatePortfolio}} and \code{\link[blotter]{tradesStats}} run at the master and return all portfolios and orderbooks in the .blotter and .strategy environments resp: less parallelization but also less data transfer between slave and master; default is 'slave'}
 
 \item{audit}{a user-specified environment to store a copy of all portfolios, orderbooks and other data from the tests, or NULL to trash this information}
 

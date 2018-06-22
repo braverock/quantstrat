@@ -7,7 +7,7 @@
 chart.forward(audit.filename, portfolio.st = NULL)
 }
 \arguments{
-\item{audit.filename}{name of .audit environment file as produced by \code{\link{walk.forward.}}
+\item{audit.filename}{name of .audit environment file as produced by \code{\link{walk.forward}}
 Filename will often match pattern [audit.prefix].results.RData. Alternately, an
 audit environment provided by the output of \code{\link{walk.forward}}}
 

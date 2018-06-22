@@ -14,7 +14,7 @@
 #' an unsuitable environment (such as the .blotter environment) will result in
 #' errors.
 #' 
-#' @param audit.filename name of .audit environment file as produced by \code{\link{walk.forward.}}
+#' @param audit.filename name of .audit environment file as produced by \code{\link{walk.forward}}
 #'        Filename will often match pattern [audit.prefix].results.RData. Alternately, an
 #'        audit environment provided by the output of \code{\link{walk.forward}}
 #' @param portfolio.st string defining which portfolio should be used for out of sample, default NULL
