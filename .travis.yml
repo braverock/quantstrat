@@ -29,3 +29,4 @@ r_check_args: "--no-build-vignettes --ignore-vignettes --as-cran"
 r_github_packages:
  - joshuaulrich/xts
  - braverock/blotter
+ - ramnathv/rCharts
