@@ -10,6 +10,7 @@ bee        Milktrader's Bumblebee FastMA/BBands cross system
 bbandParameters  example of parameter test on bbands demo strategy
 macdParameters  example of parameter test on macd demo strategy
 macdRebalancing  example of applyStrategy.rebalancing on macd demo strategy
+macdWFA   Walk Forward Analysis on simple macd strategy
 rocema    Rate-of-Change EMA strategy: demonstrating ternary indicator, ordersets to handle simultaneous stop-loss and take-profit orders
 luxor.1.strategy.basic	Jaekle & Tomasini; Sections 3.2: basic luxor strategy not using ordersets or orderchains
 luxor.2.add.paramsets	Jaekle & Tomasini; Sections 3.3: variation of the input parameters
