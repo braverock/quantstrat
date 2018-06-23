@@ -24,14 +24,19 @@ r_binary_packages:
  - ggplot2
  - plyr
  - Rcpp
- - Rcurl
+ - RCurl
  - shiny
  - stringr
+ - stringi
  - beanplot
  - gamlss
  - gamlss.util
  - MASS
  - RColorBrewer
+ - utf8
+ - digest
+ - colorspace
+ - beanplot
 
 # Done via install.packages
 #r_packages:
