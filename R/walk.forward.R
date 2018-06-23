@@ -80,7 +80,7 @@
 #'     \code{\link{chart.forward}} ,
 #'     \code{\link{chart.forward.training}} ,  
 #'     \code{\link{endpoints}} ,
-#'     \code{\link{tradeStats}}
+#'     \code{\link[blotter]{tradeStats}}
 #'
 #' @author Jan Humme, Brian G. Peterson
 #'
