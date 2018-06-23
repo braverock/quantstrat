@@ -73,7 +73,6 @@
 #' @param timespan an xts/ISO-8601 style \emph{time} subset, like "T08:00/T15:00", see Details
 #' @param store TRUE/FALSE whether to store the strategy in the .strategy environment, or return it.  default FALSE
 #' @param storefun TRUE/FALSE whether to store the function in the rule, default TRUE.  setting this option to FALSE may slow the backtest, but makes \code{\link{debug}} usable
-#' @param rule.subset ISO-8601 subset for period to execute rules over, default NULL
 #' @return if \code{strategy} was the name of a strategy, the name. It it was a strategy, the updated strategy. 
 #' @export
 add.rule <- function(strategy
