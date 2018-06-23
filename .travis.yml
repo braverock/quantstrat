@@ -1,6 +1,6 @@
 language: r
 
-dist: xenial
+dist: trusty
 
 # need sudo
 sudo: true
