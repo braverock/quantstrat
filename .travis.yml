@@ -35,7 +35,6 @@ r_binary_packages:
  - utf8
  - digest
  - colorspace
- - beanplot
 
 # Done via install.packages
 #r_packages:
