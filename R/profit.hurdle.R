@@ -182,12 +182,12 @@ profitHurdle <- profit.hurdle <- function( portfolios
 # Profit_Hurdle <- function (num_tests, num_obs, alpha_sig, vol_annual, RHO){
 #' internal implementation of profit hurdle code, see \code{\link{profit.hurdle}}
 #'
-#' @param sm_fre 
-#' @param num_tests 
-#' @param num_obs 
-#' @param alpha_sig 
-#' @param vol_annual 
-#' @param RHO 
+#' @param sm_fre Sampling frequency; [1,2,3,4,5] = [Daily, Weekly, Monthly, Quarterly, Annual]
+#' @param num_tests No. of tests one allows for in multiple tests
+#' @param num_obs No. of monthly observations for a strategy
+#' @param alpha_sig Significance level (e.g., 5#)
+#' @param vol_annual Annual return volatility (e.g., 0.05 or 5#)
+#' @param RHO Assumed average correlation, default 0.2
 #'
 #' @rdname dotprofitHurdle
 .profitHurdle <- function(  sm_fre

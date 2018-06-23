@@ -7,17 +7,17 @@
 .profitHurdle(sm_fre, num_tests, num_obs, alpha_sig, vol_annual, RHO)
 }
 \arguments{
-\item{sm_fre}{}
+\item{sm_fre}{Sampling frequency; [1,2,3,4,5] = [Daily, Weekly, Monthly, Quarterly, Annual]}
 
-\item{num_tests}{}
+\item{num_tests}{No. of tests one allows for in multiple tests}
 
-\item{num_obs}{}
+\item{num_obs}{No. of monthly observations for a strategy}
 
-\item{alpha_sig}{}
+\item{alpha_sig}{Significance level (e.g., 5#)}
 
-\item{vol_annual}{}
+\item{vol_annual}{Annual return volatility (e.g., 0.05 or 5#)}
 
-\item{RHO}{}
+\item{RHO}{Assumed average correlation, default 0.2}
 }
 \description{
 internal implementation of profit hurdle code, see \code{\link{profit.hurdle}}
