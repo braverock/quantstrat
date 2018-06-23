@@ -1,12 +1,12 @@
 sandbox
 generatechangelog\.sh
 ChangeLog\.1\.0\.0
-^.*\.Rproj$
+^.*[.]Rproj.*$
 ^\.Rproj\.user$
-.travis.yml
+^.Rhistory$
+\.travis\.yml
 ^.*_cache$
 ^.*_files$
-tiingoapi.R
-^.*\.Rhistory
+tiingoapi\.R
 ^.*\.bak$
 ^.*\.sav$
