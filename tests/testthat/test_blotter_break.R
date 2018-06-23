@@ -18,7 +18,7 @@ endDate   = last(index(IBM))
 lines = "date,shrs,price,symbol
 2007-01-10,100,98.0,IBM
 2007-01-16,-200,99.5,IBM
-2007-01-16,150,99.45,IBM
+2007-01-17,150,99.45,IBM
 2007-01-18,-50,99.0,IBM"
 con       = textConnection(lines)
 tt.trades = read.csv(con, as.is = TRUE)
@@ -47,7 +47,7 @@ updatePortf(port)
 updateAcct(acct)
 updateEndEq(acct)
 
-context("check that breaking trade with another trade that day is accounted for correctly.")
+context("check that trades are accounted for correctly.")
 
 # should be flat
 test_that("input trades position is flat",
