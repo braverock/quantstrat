@@ -19,7 +19,19 @@ r_check_args: "--no-build-vignettes --ignore-vignettes --as-cran"
 # - libxml2-dev
 
 # Binaries from Michael Rutter's ppa
-#r_binary_packages:
+r_binary_packages:
+ - magrittr
+ - ggplot2
+ - plyr
+ - Rcpp
+ - Rcurl
+ - shiny
+ - stringr
+ - beanplot
+ - gamlss
+ - gamlss.util
+ - MASS
+ - RColorBrewer
 
 # Done via install.packages
 #r_packages:
