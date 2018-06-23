@@ -30,9 +30,6 @@ r_binary_packages:
  - shiny
  - stringr
  - stringi
- - beanplot
- - gamlss
- - gamlss.util
  - MASS
  - RColorBrewer
  - utf8
