@@ -1,7 +1,9 @@
 language: r
 
+dist: xenial
+
 # need sudo
-sudo: false
+sudo: true
 
 # cache packages because devtools is a beast
 cache: packages
