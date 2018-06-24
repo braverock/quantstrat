@@ -10,3 +10,5 @@ ChangeLog\.1\.0\.0
 tiingoapi\.R
 ^.*\.bak$
 ^.*\.sav$
+^README\.Rmd$
+^.*\.Rproj$
