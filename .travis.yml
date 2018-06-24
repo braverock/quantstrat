@@ -35,6 +35,15 @@ r_binary_packages:
  - utf8
  - digest
  - colorspace
+ - curl
+ - openssl
+ - git2r
+ - foreach
+ - iterators
+ - RJSONIO
+ - yaml
+ - testthat
+ - rgl
 
 # Done via install.packages
 #r_packages:

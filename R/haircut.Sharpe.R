@@ -219,8 +219,8 @@
 #' multiple testing procedures has only recently been documented in the 
 #' statistics literature, and methods typically include simulating the entire 
 #' time series to construct an empirical distribution for the range of test 
-#' statistics (see e.g. \code{\link[pkg:blotter]{mcsim}} and
-#' \code{\link[pkg:blotter]{txnsim}}). Of course the luxury of access to the 
+#' statistics (see e.g. \code{\link[blotter]{mcsim}} and
+#' \code{\link[blotter]{txnsim}}). Of course the luxury of access to the 
 #' entire dataset is not generally available to the risk factor researcher or
 #' potential investor being presented with a backtest, so HLZ propose a
 #' "Truncated Exponential Distribution" for modelling the t-statistic sample of

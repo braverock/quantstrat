@@ -42,7 +42,7 @@
 #' 
 #' @references 
 #' 
-#' Bailey, David H, and Marcos López de Prado. 2014. "The Deflated Sharpe Ratio: 
+#' Bailey, David H, and Marcos Lopez de Prado. 2014. "The Deflated Sharpe Ratio: 
 #' Correcting for Selection Bias, Backtest Overfitting and Non-Normality." 
 #' Journal of Portfolio Management 40 (5): 94-107. 
 #' http://www.davidhbailey.com/dhbpapers/deflated-sharpe.pdf

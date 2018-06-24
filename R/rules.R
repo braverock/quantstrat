@@ -73,7 +73,6 @@
 #' @param timespan an xts/ISO-8601 style \emph{time} subset, like "T08:00/T15:00", see Details
 #' @param store TRUE/FALSE whether to store the strategy in the .strategy environment, or return it.  default FALSE
 #' @param storefun TRUE/FALSE whether to store the function in the rule, default TRUE.  setting this option to FALSE may slow the backtest, but makes \code{\link{debug}} usable
-#' @param rule.subset ISO-8601 subset for period to execute rules over, default NULL
 #' @return if \code{strategy} was the name of a strategy, the name. It it was a strategy, the updated strategy. 
 #' @export
 add.rule <- function(strategy
@@ -111,7 +110,6 @@ add.rule <- function(strategy
             } else {
                 message("Skipping rule ", name,
                         " because there is no function by that name to call")
-                next
             }
         }
     } else {
@@ -321,7 +319,7 @@ applyRules <- function(portfolio,
         assign.dindex(dindex)
         #pre-process for dimension reduction here
         for ( type in names(strategy$rules)){
-            if(type=='rebalance') next()
+            if(type=='rebalance') #next()
             # check if there's anything to do
             if(length(strategy$rules[[type]])>=1){
                 for (rule in strategy$rules[[type]]){
@@ -699,7 +697,6 @@ ruleProc <- function (ruletypelist,timestamp=NULL, path.dep, ruletype, ..., para
                 } else {
                     message("Skipping rule ", rule$name,
                             " because there is no function by that name to call")
-                    next
                 }
             }
         }

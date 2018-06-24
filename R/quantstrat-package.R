@@ -116,6 +116,25 @@ NULL
 #' @keywords data
 NULL
 
+#' sample portfolio output from running luxor demo in file data/luxor-p066.RData
+#' @name portfolio.luxor
+#' @docType data 
+#' @keywords data
+NULL
+
+#' sample tradeStats output from running luxor demo in file data/luxor.parameters.1-10.30-55.RData
+#' @name stats
+#' @docType data 
+#' @keywords data
+NULL
+
+#' sample audit environment output from running luxor demo in file data/luxor.wfa.ples.RData
+#' @name .audit
+#' @rdname dotaudit
+#' @docType data 
+#' @keywords data
+NULL
+
 # variables that will always be available if needed at run-time, 
 # but need to be available at compile time for 
 # R CMD check

@@ -117,7 +117,6 @@ applySignals <- function(strategy, mktdata, indicators=NULL, parameters=NULL, ..
                 } else {
                     message("Skipping signal ", signal$name,
                             " because there is no function by that name to call")
-                    next
                 }
             }
         }

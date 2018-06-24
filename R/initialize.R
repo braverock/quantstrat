@@ -105,7 +105,6 @@ initStrategy <- function(strategy,
             } else {
                 message("Skipping initialization function ", init_o$name,
                         " because there is no function by that name to call.")
-                next
             }
         }
 
@@ -212,7 +211,7 @@ initSymbol <- function(strategy, symbol, ...){
         }
     }
 
-    if(!isTRUE(init_s$enabled)) next()
+    if(!isTRUE(init_s$enabled)) return()
 
     ## (from initStrategy)
     ## replace default function arguments with init_s$arguments
