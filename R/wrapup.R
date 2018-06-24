@@ -110,7 +110,6 @@ function(strategy,
                 } else {
                     message("Skipping wrapup function ", wrapup_o$name,
                             " because there is no function by that name to call.")
-                    next
                 }
             }
             

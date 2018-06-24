@@ -110,7 +110,6 @@ add.rule <- function(strategy
             } else {
                 message("Skipping rule ", name,
                         " because there is no function by that name to call")
-                next
             }
         }
     } else {
@@ -320,7 +319,7 @@ applyRules <- function(portfolio,
         assign.dindex(dindex)
         #pre-process for dimension reduction here
         for ( type in names(strategy$rules)){
-            if(type=='rebalance') next()
+            if(type=='rebalance') #next()
             # check if there's anything to do
             if(length(strategy$rules[[type]])>=1){
                 for (rule in strategy$rules[[type]]){
@@ -698,7 +697,6 @@ ruleProc <- function (ruletypelist,timestamp=NULL, path.dep, ruletype, ..., para
                 } else {
                     message("Skipping rule ", rule$name,
                             " because there is no function by that name to call")
-                    next
                 }
             }
         }
