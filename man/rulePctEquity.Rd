@@ -19,7 +19,7 @@ rulePctEquity(trade.percent = 0.02, ..., longlevels = 1, shortlevels = 1,
 
 \item{digits}{if not NULL(the default), will call \code{\link{round}} with specified number of digits}
 
-\item{refprice}{if not NULL(the default), will divide the calculated tra}
+\item{refprice}{if not NULL(the default), will divide the calculated trade size by the reference price}
 
 \item{portfolio}{text name of the portfolio to place orders in, typically set automatically}
 

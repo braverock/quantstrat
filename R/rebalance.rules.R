@@ -14,7 +14,7 @@
 #' @param longlevels numeric number of levels
 #' @param shortlevels numeric number of short levels, default longlevels 
 #' @param digits if not NULL(the default), will call \code{\link{round}} with specified number of digits
-#' @param refprice if not NULL(the default), will divide the calculated tra
+#' @param refprice if not NULL(the default), will divide the calculated trade size by the reference price
 #' @param portfolio text name of the portfolio to place orders in, typically set automatically
 #' @param account text name of the account to fetch initial equity from, defaults to initEq in the search path
 #' @param symbol identifier of the instrument to cancel orders for, typically set automatically
