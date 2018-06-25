@@ -12,6 +12,9 @@ knitr::opts_chunk$set(
   out.width = "100%"
 )
 ```
+
+[![Travis Build Status](https://travis-ci.org/braverock/quantstrat.svg?branch=master)](https://travis-ci.org/braverock/quantstrat)
+
 # quantstrat
 
 Transaction-oriented infrastructure for constructing trading systems and
@@ -140,6 +143,7 @@ Below is a growing list of resources (some actively being developed) as relates 
 
 - The demo scripts in the demo folder
 - [Datacamp course](https://www.datacamp.com/community/blog/financial-trading-in-r-with-ilya-kipnis) presented by quantstrat contributor Ilya Kipnis covering the basics of strategy development using quantstrat and R.
+- [2018 R/Finance quantstrat seminar](http://past.rinfinance.com/agenda/2018/BrianPeterson.html) workshop presented at R/Finance 2018. The markdown source for this workshop is included with quantstrat in the vignettes directory. 
 - [Backtesting Strategies with R](https://timtrice.github.io/backtesting-strategies/index.html) by Tim Trice
 - Guy Yollin [presentations](http://www.r-programming.org/papers)
 - 2013 [presentation](https://docs.google.com/presentation/d/1fGzDc-LFfCQJKHHzaonspuX1_TTm1EB5hlvCEDsz7zw/pub#slide=id.p) by quantstrat authors Jan Humme and Brian Peterson

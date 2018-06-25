@@ -1,5 +1,7 @@
 
 <!-- README.md is generated from README.Rmd. Please edit that file -->
+[![Travis Build Status](https://travis-ci.org/braverock/quantstrat.svg?branch=master)](https://travis-ci.org/braverock/quantstrat)
+
 quantstrat
 ==========
 
@@ -101,7 +103,7 @@ out<-applyStrategy(strategy=stratMACROSS , portfolios=portfolio.st)
 #> [1] "2016-08-31 00:00:00 AAPL 100 @ 103.068153"
 end_t<-Sys.time()
 print(end_t-start_t)
-#> Time difference of 0.5555789 secs
+#> Time difference of 0.1889369 secs
 ```
 
 Before we can review results using chart.Posn(), we update the portfolio.
@@ -114,7 +116,7 @@ end_t<-Sys.time()
 print("trade blotter portfolio update:")
 #> [1] "trade blotter portfolio update:"
 print(end_t-start_t)
-#> Time difference of 0.193083 secs
+#> Time difference of 0.03541875 secs
 
 chart.Posn(Portfolio='macross',Symbol=stock.str, TA=c("add_SMA(n=50,col='red')","add_SMA(n=200,col='blue')"))
 ```
@@ -146,6 +148,7 @@ Below is a growing list of resources (some actively being developed) as relates 
 
 -   The demo scripts in the demo folder
 -   [Datacamp course](https://www.datacamp.com/community/blog/financial-trading-in-r-with-ilya-kipnis) presented by quantstrat contributor Ilya Kipnis covering the basics of strategy development using quantstrat and R.
+-   [2018 R/Finance quantstrat seminar](http://past.rinfinance.com/agenda/2018/BrianPeterson.html) workshop presented at R/Finance 2018. The markdown source for this workshop is included with quantstrat in the vignettes directory.
 -   [Backtesting Strategies with R](https://timtrice.github.io/backtesting-strategies/index.html) by Tim Trice
 -   Guy Yollin [presentations](http://www.r-programming.org/papers)
 -   2013 [presentation](https://docs.google.com/presentation/d/1fGzDc-LFfCQJKHHzaonspuX1_TTm1EB5hlvCEDsz7zw/pub#slide=id.p) by quantstrat authors Jan Humme and Brian Peterson
