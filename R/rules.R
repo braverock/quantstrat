@@ -319,7 +319,7 @@ applyRules <- function(portfolio,
         assign.dindex(dindex)
         #pre-process for dimension reduction here
         for ( type in names(strategy$rules)){
-            if(type=='rebalance') #next()
+            if(type=='rebalance') next()
             # check if there's anything to do
             if(length(strategy$rules[[type]])>=1){
                 for (rule in strategy$rules[[type]]){
