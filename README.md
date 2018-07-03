@@ -19,6 +19,9 @@ In order to install [quantstrat](https://github.com/braverock/quantstrat) from [
 
 ``` r
 # install.packages("devtools")
+# install blotter from GitHub
+devtools::install_github("braverock/blotter")
+# next install quantstrat from GitHub
 devtools::install_github("braverock/quantstrat")
 ```
 
