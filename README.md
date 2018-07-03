@@ -15,11 +15,11 @@ quantstrat provides a generic infrastructure to model and backtest signal-based 
 Installation
 ------------
 
-In order to install [quantstrat](https://github.com/braverock/quantstrat) from [GitHub](https://github.com/), you will first need to install devtools.
+In order to install [quantstrat](https://github.com/braverock/quantstrat) from [GitHub](https://github.com/), you will first need to install devtools and blotter from GitHub.
 
 ``` r
 # install.packages("devtools")
-# install blotter from GitHub
+# next install blotter from GitHub
 devtools::install_github("braverock/blotter")
 # next install quantstrat from GitHub
 devtools::install_github("braverock/quantstrat")
@@ -106,7 +106,7 @@ out<-applyStrategy(strategy=stratMACROSS , portfolios=portfolio.st)
 #> [1] "2016-08-31 00:00:00 AAPL 100 @ 103.068153"
 end_t<-Sys.time()
 print(end_t-start_t)
-#> Time difference of 0.1889369 secs
+#> Time difference of 0.5271399 secs
 ```
 
 Before we can review results using chart.Posn(), we update the portfolio.
@@ -119,7 +119,7 @@ end_t<-Sys.time()
 print("trade blotter portfolio update:")
 #> [1] "trade blotter portfolio update:"
 print(end_t-start_t)
-#> Time difference of 0.03541875 secs
+#> Time difference of 0.177074 secs
 
 chart.Posn(Portfolio='macross',Symbol=stock.str, TA=c("add_SMA(n=50,col='red')","add_SMA(n=200,col='blue')"))
 ```
