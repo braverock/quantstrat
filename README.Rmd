@@ -35,7 +35,10 @@ encourage you to send contributions and test cases via the appropriate GitHub me
 In order to install [quantstrat](https://github.com/braverock/quantstrat) from [GitHub](https://github.com/), you will first need to install devtools and blotter from GitHub.
 
 ``` r
-# install.packages("devtools")
+install.packages("devtools") # if not installed
+install.packages("FinancialInstrument") #if not installed
+install.packages("PerformanceAnalytics") #if not installed
+
 # next install blotter from GitHub
 devtools::install_github("braverock/blotter")
 # next install quantstrat from GitHub
