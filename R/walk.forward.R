@@ -120,8 +120,8 @@ walk.forward <- function(  strategy.st
 
     ep <- endpoints(symbol.data, on=period)
 
-    total.start <- ep[1]
-    total.timespan <- paste(index(symbol.data[total.start]), '', sep='/', index(last(symbol.data)))
+    total.start <- ep[2] # ep[1] is always 0
+    total.timespan <- paste(index(symbol.data[total.start]), index(last(symbol.data)), sep='/')
 
     # construct the subsets to use for training/testing
     #define first Training interval
