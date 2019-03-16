@@ -139,6 +139,11 @@ walk.forward <- function(  strategy.st
     }
     
     testing.start.v  <- 1+training.end.v
+    
+    if(last(testing.start.v)>length(index(symbol.data))){
+      testing.start.v <- testing.start.v[-length(testing.start.v)]
+    }
+    
     testing.end.v    <- c(training.end.v[-1],last(ep))
     
     training.start   <- index(symbol.data[training.start.v])
