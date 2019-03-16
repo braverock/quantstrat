@@ -141,9 +141,17 @@ walk.forward <- function(  strategy.st
     testing.start.v  <- 1+training.end.v
     
     if(last(testing.start.v)>length(index(symbol.data))){
+      # last training period ends when the data ends, do remove it
       testing.start.v <- testing.start.v[-length(testing.start.v)]
+      if(last(training.end.v)>last(testing.start.v)){
+        training.end.v <- training.end.v[-length(training.end.v)]
+      } 
+      if(last(training.start.v)>=last(testing.start.v)){
+        training.start.v <- training.start.v[-last(training.start.v)]
+        training.end.v[length(training.end.v)] <- last(testing.start.v)
+      }
     }
-    
+
     testing.end.v    <- c(training.end.v[-1],last(ep))
     
     training.start   <- index(symbol.data[training.start.v])
