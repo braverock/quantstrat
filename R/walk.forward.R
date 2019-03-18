@@ -131,13 +131,6 @@ walk.forward <- function(  strategy.st
     
     training.start.v <- c(1,1+ep[cumsum(rep(k.testing,as.integer((length(ep)-k.training)/k.testing)))])
     
-    if(anchored || anchored=='anchored' || anchored=='rolling.subset'){
-      perf.start.v     <- training.start.v
-      perf.start       <- index(symbol.data[training.start.v])
-    } else {
-      perf.start <- perf.start.v  <- rep(NA,length(training.start.v))
-    }
-    
     testing.start.v  <- 1+training.end.v
     
     if(last(testing.start.v)>length(index(symbol.data))){
@@ -147,7 +140,7 @@ walk.forward <- function(  strategy.st
         training.end.v <- training.end.v[-length(training.end.v)]
       } 
       if(last(training.start.v)>=last(testing.start.v)){
-        training.start.v <- training.start.v[-last(training.start.v)]
+        training.start.v <- training.start.v[-length(training.start.v)]
         training.end.v[length(training.end.v)] <- last(testing.start.v)
       }
     }
@@ -162,6 +155,13 @@ walk.forward <- function(  strategy.st
     training.end     <- index(symbol.data[training.end.v])
     testing.start    <- index(symbol.data[testing.start.v])
     testing.end      <- index(symbol.data[testing.end.v])
+    
+    if(anchored || anchored=='anchored' || anchored=='rolling.subset'){
+      perf.start.v     <- training.start.v
+      perf.start       <- index(symbol.data[training.start.v])
+    } else {
+      perf.start <- perf.start.v  <- rep(NA,length(training.start.v))
+    }
     
     wf.subsets       <- data.frame( training.start=training.start
                                   , training.end=training.end
