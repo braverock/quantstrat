@@ -476,6 +476,7 @@ apply.paramset <- function(strategy.st
     portfolio <- .getPortfolio(portfolio.st)
     account <- getAccount(account.st)
     orderbook <- getOrderBook(portfolio.st)
+    orig.portfolio.st <- portfolio.st
 
     distributions <- strategy$paramsets[[paramset.label]]$distributions
     constraints <- strategy$paramsets[[paramset.label]]$constraints
@@ -689,6 +690,10 @@ apply.paramset <- function(strategy.st
         return(result)
     }
 
+    # put the original portfolio back in the .blotter env
+    put.portfolio(orig.portfolio.st, portfolio, envir=.blotter)
+    put.orderbook(orig.portfolio.st, orderbook, envir=.strategy)
+    
     #make sure we preserve the param combo name in cumPL
     if(nrow(results$tradeStats)>0 && nrow(results$tradeStats)==ncol(results$cumPL)){
       colnames(results$cumPL) <- rownames(results$tradeStats)
