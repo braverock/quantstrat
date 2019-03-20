@@ -134,19 +134,43 @@ walk.forward <- function(  strategy.st
     testing.start.v  <- 1+training.end.v
     
     if(last(testing.start.v)>length(index(symbol.data))){
-      # last training period ends when the data ends, do remove it
+      # last training period ends when the data ends, so remove it
       testing.start.v <- testing.start.v[-length(testing.start.v)]
-      if(last(training.end.v)>last(testing.start.v)){
-        training.end.v <- training.end.v[-length(training.end.v)]
-      } 
-      if(last(training.start.v)>=last(testing.start.v)){
-        training.start.v <- training.start.v[-length(training.start.v)]
-        training.end.v[length(training.end.v)] <- last(testing.start.v)
-      }
     }
 
     testing.end.v    <- c(training.end.v[-1],last(ep))
     
+    if(last(training.start.v)>=last(testing.start.v)){
+      # remove the last training period
+      training.start.v <- training.start.v[-length(training.start.v)]
+      training.end.v[length(training.end.v)] <- last(testing.start.v)
+    }
+
+    if(last(training.end.v)>=last(testing.end.v)){
+      # remove the last training period
+      training.start.v <- training.start.v[-length(training.start.v)]
+      training.end.v   <- training.end.v[-length(training.end.v)]
+    } 
+
+    if(length(training.start.v)>length(testing.start.v)){
+      # more training periods than testing periods
+      training.start.v <- training.start.v[-length(training.start.v)]
+      training.end.v   <- training.end.v[-length(training.end.v)]
+      # TODO: give the user an option to train anyway, and save these as 'production' parameters
+    }
+
+    if(length(testing.start.v)>length(training.start.v)){
+      # more testing periods than training periods
+      testing.start.v <- testing.start.v[-length(testing.start.v)]
+      testing.end.v   <- testing.end.v[-length(testing.end.v)]
+    }
+    
+    if(length(testing.end.v)>length(testing.start.v)){
+      #we have an extra ending, remove it
+      testing.end.v   <- testing.end.v[-length(testing.end.v)]
+    }
+    
+    #construct the vectors of dates
     training.start   <- index(symbol.data[training.start.v])
     if(anchored || anchored=='anchored' || anchored=='rolling.subset'){
       training.start.v <- rep(1,length(training.start.v))
@@ -156,12 +180,14 @@ walk.forward <- function(  strategy.st
     testing.start    <- index(symbol.data[testing.start.v])
     testing.end      <- index(symbol.data[testing.end.v])
     
+
     if(anchored || anchored=='anchored' || anchored=='rolling.subset'){
       perf.start.v     <- training.start.v
       perf.start       <- index(symbol.data[training.start.v])
     } else {
       perf.start <- perf.start.v  <- rep(NA,length(training.start.v))
     }
+    
     
     wf.subsets       <- data.frame( training.start=training.start
                                   , training.end=training.end
