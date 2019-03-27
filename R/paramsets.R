@@ -593,6 +593,7 @@ apply.paramset <- function(strategy.st
         if(psgc) gc()
       
         param.combo.num <- rownames(param.combo)
+        param.combo.date <- format.Date(last(index(mktdata)))
         #print(paste("Processing param.combo", param.combo.num))
         #print(param.combo)
 
@@ -622,7 +623,7 @@ apply.paramset <- function(strategy.st
 
         result <- new.env()
         result$param.combo <- param.combo
-        result$portfolio.st <- paste(portfolio.st, param.combo.num, sep='.')
+        result$portfolio.st <- paste(portfolio.st, param.combo.num, param.combo.date, sep='.')
 
         clone.portfolio(portfolio.st, result$portfolio.st)
         clone.orderbook(portfolio.st, result$portfolio.st)
@@ -695,8 +696,10 @@ apply.paramset <- function(strategy.st
     put.orderbook(orig.portfolio.st, orderbook, envir=.strategy)
     
     #make sure we preserve the param combo name in cumPL
-    if(nrow(results$tradeStats)>0 && nrow(results$tradeStats)==ncol(results$cumPL)){
-      colnames(results$cumPL) <- rownames(results$tradeStats)
+    if(!is.null(results$tradeStats)){
+      if(nrow(results$tradeStats)>0 && nrow(results$tradeStats)==ncol(results$cumPL)){
+         colnames(results$cumPL) <- rownames(results$tradeStats)
+      }
     }
     
     #increment trials
