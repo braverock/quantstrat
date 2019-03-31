@@ -124,7 +124,7 @@ walk.forward <- function(  strategy.st
     total.timespan <- paste(index(symbol.data[total.start]), '', sep='/', index(last(symbol.data)))
 
     # construct the subsets to use for training/testing
-    training.end.v   <- ep[c(k.training+1,(k.training+1)+cumsum(rep(k.testing,as.integer((length(ep)-k.training)/k.testing))))]
+    training.end.v   <- ep[c(k.training+1,(k.training)+cumsum(rep(k.testing,as.integer((length(ep)-k.training)/k.testing))))]
 
     if( is.na(last(training.end.v)) ) {
       training.end.v <- training.end.v[-length(training.end.v)]

@@ -597,7 +597,6 @@ apply.paramset <- function(strategy.st
         if(psgc) gc()
       
         param.combo.num <- rownames(param.combo)
-        param.combo.date <- format.Date(last(index(mktdata)))
         #print(paste("Processing param.combo", param.combo.num))
         #print(param.combo)
 
