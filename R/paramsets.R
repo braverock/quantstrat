@@ -477,6 +477,9 @@ apply.paramset <- function(strategy.st
     account <- getAccount(account.st)
     orderbook <- getOrderBook(portfolio.st)
     orig.portfolio.st <- portfolio.st
+    
+    clone.portfolio(orig.portfolio.st, paste0("orig.",orig.portfolio.st), strip.history = FALSE)
+    clone.orderbook(orig.portfolio.st, paste0("orig.",orig.portfolio.st), strip.history = FALSE)
 
     distributions <- strategy$paramsets[[paramset.label]]$distributions
     constraints <- strategy$paramsets[[paramset.label]]$constraints
@@ -618,7 +621,7 @@ apply.paramset <- function(strategy.st
 
         for (sym in symbols)
           assign(sym, get(sym), .GlobalEnv)
-
+        
         put.portfolio(portfolio.st, portfolio)
         put.account(account.st, account)
         put.orderbook(portfolio.st, orderbook)
@@ -626,7 +629,7 @@ apply.paramset <- function(strategy.st
 
         result <- new.env()
         result$param.combo <- param.combo
-        result$portfolio.st <- paste(portfolio.st, param.combo.num, sep='.')
+        result$portfolio.st <- paste(portfolio.st, "train", param.combo.num, sep='.')
 
         clone.portfolio(portfolio.st, result$portfolio.st)
         clone.orderbook(portfolio.st, result$portfolio.st)
@@ -695,8 +698,12 @@ apply.paramset <- function(strategy.st
     }
 
     # put the original portfolio back in the .blotter env
-    put.portfolio(orig.portfolio.st, portfolio, envir=.blotter)
-    put.orderbook(orig.portfolio.st, orderbook, envir=.strategy)
+    put.portfolio(orig.portfolio.st, .getPortfolio(paste0("orig.",orig.portfolio.st)), envir=.blotter)
+    clone.orderbook(paste0("orig.",orig.portfolio.st), orig.portfolio.st, strip.history = FALSE)
+    
+    # TODO: remove dirty portfolio and orderbook
+    # rm(paste0("portfolio.orig.",orig.portfolio.st), pos=.blotter)
+    # rm(paste0("orderbook.orig.",orig.portfolio.st), pos=.strategy)
     
     #make sure we preserve the param combo name in cumPL
     if(!is.null(results$tradeStats)){
