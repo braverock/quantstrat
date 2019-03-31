@@ -593,7 +593,6 @@ apply.paramset <- function(strategy.st
         if(psgc) gc()
       
         param.combo.num <- rownames(param.combo)
-        param.combo.date <- format.Date(last(index(mktdata)))
         #print(paste("Processing param.combo", param.combo.num))
         #print(param.combo)
 
@@ -623,7 +622,7 @@ apply.paramset <- function(strategy.st
 
         result <- new.env()
         result$param.combo <- param.combo
-        result$portfolio.st <- paste(portfolio.st, param.combo.num, param.combo.date, sep='.')
+        result$portfolio.st <- paste(portfolio.st, param.combo.num, sep='.')
 
         clone.portfolio(portfolio.st, result$portfolio.st)
         clone.orderbook(portfolio.st, result$portfolio.st)
