@@ -626,7 +626,7 @@ apply.paramset <- function(strategy.st
 
         result <- new.env()
         result$param.combo <- param.combo
-        result$portfolio.st <- paste(portfolio.st, param.combo.num, param.combo.date, sep='.')
+        result$portfolio.st <- paste(portfolio.st, param.combo.num, sep='.')
 
         clone.portfolio(portfolio.st, result$portfolio.st)
         clone.orderbook(portfolio.st, result$portfolio.st)
