@@ -231,6 +231,49 @@ osMaxPos <- function(data, timestamp, orderqty, ordertype, orderside, portfolio,
     return(0)
 }
 
+#' Order sizing function for fixing the position limit in percentage
+#' 
+#' Allows to fix the position limit in percentage of the current portfolio equity.
+#' 
+#' Slows down the backtesting process as it updates the portfolio at each timestamp and not at the end of the timeseries.
+#' 
+#' @param data an xts object containing market data. depending on rules, may need to be in OHLCV or BBO formats, and may include indicator and signal information
+#' @param timestamp timestamp coercible to POSIXct that will be the time the order will be inserted on 
+#' @param orderqty numeric quantity of the desired order, modified by osFUN
+#' @param portfolio text name of the portfolio to get the equity
+#' @param tradesize position limit in percentage, e.g. 0.3 for 30\%
+#' @param leverage the leverage size, relevant for margin trading and derivatives market
+#' @param verbose set it to true if you want to print logs on the console
+#' @param ... any other passthru parameters
+#' @seealso \code{\link{addPosLimit}}, \code{\link{getPosLimit}}, \code{\link{osMaxPos}}
+#' @export
+#' @author Valery Barmin \href{https://github.com/randomsuffer}{@randomsuffer}
+osFixedPercent <- function(data, timestamp, orderqty, portfolio, tradesize, leverage=1, verbose=false, ...) {
+  if(!exists("tradesize")) stop("No trade size defined")
+  
+  # update the portfolio
+  updatePortf(portfolio)
+  portfolio <- getPortfolio(portfolio)
+  
+  # calculate current equity
+  equity <- initEq + sum(portfolio$summary$Period.Realized.PL)
+  
+  # calculate maximum position size, an initial margin and order quantity
+  lastclose <- as.numeric(Cl(data[timestamp,]))
+  maxdollarpos <- equity * tradesize
+  initialmargin <- lastclose / leverage
+  orderqty <- sign(orderqty) * floor(maxdollarpos / initialmargin)
+  
+  if (verbose) print(paste('osFixedPercent:',
+                           'lastclose =', lastclose,
+                           'equity =', equity,
+                           'maxdollarpos =', maxdollarpos,
+                           'initialmargin =', initialmargin,
+                           'orderqty =', orderqty))
+  
+  return(orderqty)
+}
+
 #TODO ruleRiskPosLimits to check for overfilled position and scale back
 
 ###############################################################################
