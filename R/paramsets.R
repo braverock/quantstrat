@@ -54,7 +54,7 @@ clone.portfolio <- function(portfolio.st, cloned.portfolio.st, strip.history=TRU
         {
             portfolio$symbols[[symbol]]$txn <- portfolio$symbols[[symbol]]$txn[1,]
 
-            xts.tables <- grep('(^posPL|txn)',names(portfolio$symbols[[symbol]]), value=TRUE)
+            xts.tables <- grep('(^posPL|txn|PosLimit)',names(portfolio$symbols[[symbol]]), value=TRUE)
             for(xts.table in xts.tables)
                 portfolio$symbols[[symbol]][[xts.table]] <- portfolio$symbols[[symbol]][[xts.table]][1,]
         }
@@ -476,10 +476,6 @@ apply.paramset <- function(strategy.st
     portfolio <- .getPortfolio(portfolio.st)
     account <- getAccount(account.st)
     orderbook <- getOrderBook(portfolio.st)
-    orig.portfolio.st <- portfolio.st
-    
-    clone.portfolio(orig.portfolio.st, paste0("orig.",orig.portfolio.st), strip.history = FALSE)
-    clone.orderbook(orig.portfolio.st, paste0("orig.",orig.portfolio.st), strip.history = FALSE)
 
     distributions <- strategy$paramsets[[paramset.label]]$distributions
     constraints <- strategy$paramsets[[paramset.label]]$constraints
@@ -697,14 +693,6 @@ apply.paramset <- function(strategy.st
         return(result)
     }
 
-    # put the original portfolio back in the .blotter env
-    put.portfolio(orig.portfolio.st, .getPortfolio(paste0("orig.",orig.portfolio.st)), envir=.blotter)
-    clone.orderbook(paste0("orig.",orig.portfolio.st), orig.portfolio.st, strip.history = FALSE)
-    
-    # TODO: remove dirty portfolio and orderbook
-    # rm(paste0("portfolio.orig.",orig.portfolio.st), pos=.blotter)
-    # rm(paste0("orderbook.orig.",orig.portfolio.st), pos=.strategy)
-    
     #make sure we preserve the param combo name in cumPL
     if(!is.null(results$tradeStats)){
       if(nrow(results$tradeStats)>0 && nrow(results$tradeStats)==ncol(results$cumPL)){

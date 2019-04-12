@@ -112,6 +112,11 @@ walk.forward <- function(  strategy.st
 
     portfolio <- .getPortfolio(portfolio.st)
 
+    orig.portfolio.st <- portfolio.st
+    
+    clone.portfolio(orig.portfolio.st, paste0("orig.",orig.portfolio.st), strip.history = FALSE)
+    clone.orderbook(orig.portfolio.st, paste0("orig.",orig.portfolio.st), strip.history = FALSE)
+    
     results <- new.env()
 
     # assuming that timespans for all portfolio symbols are same, so ok to use 1st symbol to calculate end points
@@ -304,6 +309,10 @@ walk.forward <- function(  strategy.st
         print(paste('=== testing param.combo', param.combo.nr, 'on', testing.timespan))
         print(param.combo)
         
+        # put the original portfolio back in the .blotter env
+        put.portfolio(orig.portfolio.st, .getPortfolio(paste0("orig.",orig.portfolio.st)), envir=.blotter)
+        clone.orderbook(paste0("orig.",orig.portfolio.st), orig.portfolio.st, strip.history = FALSE)
+        
         # run backtest using selected param.combo
         # NOTE, this will generate OOS transactions in the portfolio identified,
         # so strart with a clean portfolio environment.
@@ -313,6 +322,11 @@ walk.forward <- function(  strategy.st
                      , rule.subset=testing.timespan
                      , ...
                      )
+        
+        # now copy the original portfolio out of the way
+        clone.portfolio(orig.portfolio.st, paste0("orig.",orig.portfolio.st), strip.history = FALSE)
+        clone.orderbook(orig.portfolio.st, paste0("orig.",orig.portfolio.st), strip.history = FALSE)
+        
       } else {
         if(is.null(tradeStats.list))
           warning(paste('no trades in training window', training.timespan))
