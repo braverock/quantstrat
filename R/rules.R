@@ -286,6 +286,14 @@ applyRules <- function(portfolio,
         mktdata <- make.index.unique(mktdata)
     }
 
+    # we need to know the last point we should be evaluating rules for
+    # we at least need to use this in assign.dindex, maybe elsewhere
+    if(!is.null(rule.subset)){
+      last.index <- which(index(mktdata)==last(index(mktdata[rule.subset])))
+    } else {
+      last.index <- which(index(mktdata)==last(index(mktdata)))
+    }
+  
     # ported from IBrokers thanks to Jeff
     # environment for data to be stored/accessed during applyRules execution
     # an example of this functionality is for the "symbols" variable
@@ -295,10 +303,11 @@ applyRules <- function(portfolio,
     #assign.Data <- function(x, value) assign(x, value, .Data)
     #remove.Data <- function(x) remove(x, .Data)
     get.dindex <- function() get("dindex",pos=.Data) # inherits=TRUE)
-    assign.dindex <- function(dindex) {
+    assign.dindex <- function(dindex, lindex=last.index) {
         dindex <- unique(dindex)
         if(!isOrdered(dindex))
             dindex <- sort(dindex)
+        dindex <- dindex[dindex <= lindex]
         #print(dindex)
         assign("dindex", dindex, .Data)
     }
