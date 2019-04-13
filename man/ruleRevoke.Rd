@@ -2,6 +2,7 @@
 % Please edit documentation in R/ruleRevoke.R
 \name{ruleRevoke}
 \alias{ruleRevoke}
+\alias{ruleCancel}
 \title{rule to revoke(cancel) an unfilled limit order on a signal}
 \usage{
 ruleRevoke(data = mktdata, timestamp, sigcol, sigval, orderside = NULL,
@@ -30,8 +31,9 @@ ruleRevoke(data = mktdata, timestamp, sigcol, sigval, orderside = NULL,
 }
 \description{
 As described elsewhere in the documentation, quantstrat models 
-\emph{orders}.  All orders in quantstrat are GTC orders, which means that
-unfilled limit orders have to be canceled manually or replaced by other orders.
+\emph{orders}.  All orders in quantstrat are GTC orders, unless a
+time in force is specified, which means that unfilled limit orders 
+have to be canceled manually or replaced by other orders.
 }
 \details{
 This function is used for revoking or canceling the orders based on a signal.  

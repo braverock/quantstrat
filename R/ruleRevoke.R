@@ -1,8 +1,9 @@
 #' rule to revoke(cancel) an unfilled limit order on a signal
 #' 
 #' As described elsewhere in the documentation, quantstrat models 
-#' \emph{orders}.  All orders in quantstrat are GTC orders, which means that
-#' unfilled limit orders have to be canceled manually or replaced by other orders.
+#' \emph{orders}.  All orders in quantstrat are GTC orders, unless a
+#' time in force is specified, which means that unfilled limit orders 
+#' have to be canceled manually or replaced by other orders.
 #' 
 #' This function is used for revoking or canceling the orders based on a signal.  
 #' Order status will be changed to 'revoked', to separate it from cancelations or
@@ -21,7 +22,9 @@
 #' @param ... any other passthru parameters
 #' @author Niklas Kolster, Jan Humme
 #' @seealso \code{\link{osNoOp}} , \code{\link{add.rule}}
-#' @export
+#' @aliases ruleCancel
+#' @export ruleRevoke
+#' @export ruleCancel
 ruleRevoke <- ruleCancel <- function(data=mktdata, timestamp, sigcol, sigval, orderside=NULL, orderset=NULL, portfolio, symbol, ruletype, ...)
 {
     if (ruletype != 'risk') {
@@ -44,7 +47,7 @@ ruleRevoke <- ruleCancel <- function(data=mktdata, timestamp, sigcol, sigval, or
                   side=orderside,
                   orderset=orderset, 
                   oldstatus='open', 
-                  newstatus='revoked',
+                  newstatus='canceled',
                   statustimestamp=timestamp
         )
     }
