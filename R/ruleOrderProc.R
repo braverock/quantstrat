@@ -92,7 +92,6 @@ ruleOrderProc <- function(portfolio, symbol, mktdata, timestamp=NULL, ordertype=
   if (!(length(OpenOrders.i)>=1)){
     return(NULL)  
   } else {
-
     mktdataTimestamp <- mktdata[curIndex]
     # only keep the last observation per time stamp
     if( NROW(mktdataTimestamp) > 1 ) mktdataTimestamp <- last(mktdataTimestamp)
@@ -265,8 +264,10 @@ ruleOrderProc <- function(portfolio, symbol, mktdata, timestamp=NULL, ordertype=
                                       side=ordersubset[ii,"Order.Side"],
                                       threshold=orderThreshold,
                                       status="open",
-                                      replace=FALSE, return=TRUE,
-                                      ,...=..., TxnFees=txnfees)
+                                      replace=FALSE, 
+                                      return=TRUE,
+                                      ...=..., 
+                                      TxnFees=txnfees)
                    
                    ordersubset<-rbind(ordersubset, neworder)
                    
