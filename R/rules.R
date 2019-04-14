@@ -289,9 +289,11 @@ applyRules <- function(portfolio,
     # we need to know the last point we should be evaluating rules for
     # we at least need to use this in assign.dindex, maybe elsewhere
     if(!is.null(rule.subset)){
-      last.index <- which(index(mktdata)==last(index(mktdata[rule.subset])))
+      first.index <- which(index(mktdata)==first(index(mktdata[rule.subset])))
+      last.index  <- which(index(mktdata)==last(index(mktdata[rule.subset])))
     } else {
-      last.index <- which(index(mktdata)==last(index(mktdata)))
+      first.index <- 1
+      last.index  <- which(index(mktdata)==last(index(mktdata)))
     }
   
     # ported from IBrokers thanks to Jeff
@@ -324,7 +326,7 @@ applyRules <- function(portfolio,
     
     #we could maybe do something more sophisticated, but this should work
     if(isTRUE(path.dep)){ #initialize the dimension reduction index (dindex)
-        dindex<-c(1,length(Dates))# -1) # set the dimension reduction/loop jumping index vector
+        dindex<-c(first.index,last.index) # set the dimension reduction/loop jumping index vector
         assign.dindex(dindex)
         #pre-process for dimension reduction here
         for ( type in names(strategy$rules)){
@@ -375,7 +377,7 @@ applyRules <- function(portfolio,
         #print(dindex)
     } else {
         Dates=''
-        dindex=1
+        dindex=first.index
     } # end dindex initialization
 
     # Find the next index the market will cross a resting order's price
