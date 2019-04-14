@@ -181,37 +181,54 @@ applyStrategy <- function(strategy,
          # TODO make this more elegant
          pd <- FALSE
          for(i in 1:length(strategy$rules)){  
-           if(length(strategy$rules[[i]])!=0){z <- strategy$rules[[i]]; if(z[[1]]$path.dep==TRUE){pd <- TRUE}}
+           if(length(strategy$rules[[i]])!=0){
+             z <- strategy$rules[[i]] 
+             if(z[[1]]$path.dep==TRUE){pd <- TRUE}
+           }
+         } 
+         
+         # fire non path dependent rules if they exist
+         # TODO: consider deprecating non-path-dependent strategies as useless
+         if(!isTRUE(pd) && length(strategy$rules[[i]])!=0){
+           sret$rules$nonpath<-applyRules(portfolio=portfolio, 
+                                          symbol=symbol, 
+                                          strategy=strategy, 
+                                          mktdata=mktdata, 
+                                          Dates=NULL, 
+                                          indicators=sret$indicators, 
+                                          signals=sret$signals, 
+                                          parameters=parameters,  
+                                          ..., 
+                                          path.dep=FALSE,
+                                          rule.subset=rule.subset,
+                                          debug=debug)
          }
-         
-         sret$rules$nonpath<-applyRules(portfolio=portfolio, 
-                                        symbol=symbol, 
-                                        strategy=strategy, 
-                                        mktdata=mktdata, 
-                                        Dates=NULL, 
-                                        indicators=sret$indicators, 
-                                        signals=sret$signals, 
-                                        parameters=parameters,  
-                                        ..., 
-                                        path.dep=FALSE,
-                                        rule.subset=rule.subset,
-                                        debug=debug)
-         
+ 
          # Check for open orders
-         rem.orders <- suppressWarnings(getOrders(portfolio=portfolio, symbol=symbol, status="open")) 
-         if(NROW(rem.orders)>0){pd <- TRUE}
-         if(pd==TRUE){sret$rules$pathdep<-applyRules(portfolio=portfolio, 
-                                                     symbol=symbol, 
-                                                     strategy=strategy, 
-                                                     mktdata=mktdata, 
-                                                     Dates=NULL, 
-                                                     indicators=sret$indicators, 
-                                                     signals=sret$signals, 
-                                                     parameters=parameters,  
-                                                     ..., 
-                                                     path.dep=TRUE,
-                                                     rule.subset=rule.subset,
-                                                     debug=debug)}
+         rem.orders <- suppressWarnings(getOrders(portfolio=portfolio, symbol=symbol, status="open"))
+         if(!is.null(rule.subset) && NROW(rem.orders)>0){
+           # we only want open orders up through the end of rule.subset
+           # we want to process open orders from before rule.subset, if they exist
+           last.date <- last(index(mktdata[rule.subset]))
+           rem.orders <- rem.orders[paste0('::',last.date)]
+         }
+         if(NROW(rem.orders)>0){
+           pd <- TRUE
+         } 
+         if(isTRUE(pd)){
+           sret$rules$pathdep<-applyRules(portfolio=portfolio, 
+                                          symbol=symbol, 
+                                          strategy=strategy, 
+                                          mktdata=mktdata, 
+                                          Dates=NULL, 
+                                          indicators=sret$indicators, 
+                                          signals=sret$signals, 
+                                          parameters=parameters,  
+                                          ..., 
+                                          path.dep=TRUE,
+                                          rule.subset=rule.subset,
+                                          debug=debug)
+         }
          
          if(isTRUE(initBySymbol)) {
              if(hasArg(Interval)){
