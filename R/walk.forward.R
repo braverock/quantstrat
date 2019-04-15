@@ -149,7 +149,7 @@ walk.forward <- function(  strategy.st
     if(last(training.start.v)>=last(testing.start.v)){
       # remove the last training period
       training.start.v <- training.start.v[-length(training.start.v)]
-      training.end.v[length(training.end.v)] <- last(testing.start.v)
+      training.end.v <- training.end.v[-length(training.end.v)]
     }
 
     if(last(training.end.v)>=last(testing.end.v)){
