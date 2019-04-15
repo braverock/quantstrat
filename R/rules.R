@@ -538,7 +538,7 @@ applyRules <- function(portfolio,
     hold=FALSE
     holdtill=first(time(Dates))-1 # TODO FIXME make holdtill default more robust?
     mktinstr<-getInstrument(symbol)
-    curIndex<-1
+    curIndex<-first.index
     if(nrow(mktdata)>1)
         freq <- periodicity(mktdata)  # run once and pass to ruleOrderProc
     else {
