@@ -4,8 +4,8 @@
 \alias{enable.rule}
 \title{enable a rule in the strategy}
 \usage{
-enable.rule(strategy, type = c(NULL, "risk", "order", "rebalance", "exit",
-  "enter", "chain"), label, enabled = TRUE, store = FALSE)
+enable.rule(strategy, type = c(NULL, "risk", "order", "rebalance",
+  "exit", "enter", "chain"), label, enabled = TRUE, store = FALSE)
 }
 \arguments{
 \item{strategy}{an object of type 'strategy' which contains the rule}

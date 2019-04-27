@@ -4,9 +4,9 @@
 \alias{rulePctEquity}
 \title{rule to base trade size on a percentage of available equity.}
 \usage{
-rulePctEquity(trade.percent = 0.02, ..., longlevels = 1, shortlevels = 1,
-  digits = NULL, refprice = NULL, portfolio, account = NULL, symbol,
-  timestamp)
+rulePctEquity(trade.percent = 0.02, ..., longlevels = 1,
+  shortlevels = 1, digits = NULL, refprice = NULL, portfolio,
+  account = NULL, symbol, timestamp)
 }
 \arguments{
 \item{trade.percent}{max percentage of equity to allow the strategy to trade in this symbol}

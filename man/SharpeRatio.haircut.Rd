@@ -70,12 +70,6 @@ assumed to be 50\% of reported performance.  They propose and demonstrate
 three methods of adjusting for potential multiple testing bias by adapting 
 three methods for adjusting confidence on multiple trials from the statstical
 literature.
-
-The non-exported \code{.haircutSR} function is the internal implementation of
-the haircut Sharpe Ratio calculations. It is based off of the code  written 
-by Jasen Mackie for his blog post referenced below. It calcualtes an equivalent
-adjusted Sharpe Ratio after taking the number and autocorrelation of the
-trials into account.
 }
 \details{
 In multiple hypothesis testing the challenge is to guard against false 

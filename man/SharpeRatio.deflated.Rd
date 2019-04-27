@@ -56,8 +56,6 @@ Per Bailey and Lopex de Prado (2014), construct a Deflated Sharpe Ratio and
 associated p-value based on an observed Sharpe ratio and information drawn
 from a series of trials (e.g. parameter optimization or other strategies tried
 before the candidate strategy)
-
-internal implementation of Deflated Sharpe
 }
 \references{
 Bailey, David H, and Marcos Lopez de Prado. 2014. "The Deflated Sharpe Ratio: 

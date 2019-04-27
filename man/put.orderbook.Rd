@@ -19,6 +19,4 @@ put an orderbook object in .strategy env
 \seealso{
 getOrderBook
 }
-\concept{
-order book
-}
+\concept{order book}

@@ -62,16 +62,11 @@ addOrder
 
 updateOrders
 }
-\concept{
-fill simulator
-
-orders
-
-backtest
-
-fills
+\concept{backtest}
+\concept{fill simulator}
+\concept{fills
 
 This function is meant to be sufficient for backtesting many/most strategies, 
 but would need to be replaced for production use.  It provides the interface 
-for taking the order book and determining when orders become trades.
-}
+for taking the order book and determining when orders become trades.}
+\concept{orders}

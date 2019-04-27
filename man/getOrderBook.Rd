@@ -37,6 +37,4 @@ addOrder
 
 getOrders
 }
-\concept{
-order book
-}
+\concept{order book}

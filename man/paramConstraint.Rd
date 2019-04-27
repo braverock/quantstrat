@@ -4,8 +4,8 @@
 \alias{paramConstraint}
 \title{Internal function used in applyParameter function for process constraints on relationship between two parameter values. (deprecated)}
 \usage{
-paramConstraint(label, data = mktdata, columns, relationship = c("gt", "lt",
-  "eq", "gte", "lte", "op"))
+paramConstraint(label, data = mktdata, columns, relationship = c("gt",
+  "lt", "eq", "gte", "lte", "op"))
 }
 \arguments{
 \item{label}{text label to apply to the constraint}

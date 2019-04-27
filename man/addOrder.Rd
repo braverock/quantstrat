@@ -6,9 +6,9 @@
 \usage{
 addOrder(portfolio, symbol, timestamp, qty, price, ordertype, side,
   threshold = NULL, orderset = "", status = "open",
-  statustimestamp = "", prefer = NULL, delay = 1e-05, tmult = FALSE,
-  replace = TRUE, return = FALSE, ..., TxnFees = 0, label = "",
-  time.in.force = "")
+  statustimestamp = "", prefer = NULL, delay = 1e-05,
+  tmult = FALSE, replace = TRUE, return = FALSE, ..., TxnFees = 0,
+  label = "", time.in.force = "")
 }
 \arguments{
 \item{portfolio}{text name of the portfolio to associate the order book with}
@@ -134,8 +134,5 @@ getOrderBook
 
 updateOrders
 }
-\concept{
-backtest
-
-order book
-}
+\concept{backtest}
+\concept{order book}

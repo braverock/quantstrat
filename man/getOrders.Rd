@@ -38,6 +38,4 @@ getOrderBook
 
 addOrder
 }
-\concept{
-order book
-}
+\concept{order book}

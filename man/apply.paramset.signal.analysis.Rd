@@ -5,8 +5,9 @@
 \title{Signal Analysis With Parmeter Optimization}
 \usage{
 apply.paramset.signal.analysis(strategy.st, paramset.label, portfolio.st,
-  sigcol, sigval, on, forward.days, cum.sum = TRUE, include.day.of.signal,
-  obj.fun, decreasing = TRUE, mktdata = NULL, verbose = TRUE)
+  sigcol, sigval, on, forward.days, cum.sum = TRUE,
+  include.day.of.signal, obj.fun, decreasing = TRUE, mktdata = NULL,
+  verbose = TRUE)
 }
 \arguments{
 \item{strategy.st}{an object of type 'strategy' to add the indicator to}

@@ -4,8 +4,8 @@
 \alias{sigComparison}
 \title{generate comparison signal}
 \usage{
-sigComparison(label, data = mktdata, columns, relationship = c("gt", "lt",
-  "eq", "gte", "lte"), offset1 = 0, offset2 = 0)
+sigComparison(label, data = mktdata, columns, relationship = c("gt",
+  "lt", "eq", "gte", "lte"), offset1 = 0, offset2 = 0)
 }
 \arguments{
 \item{label}{text label to apply to the output}

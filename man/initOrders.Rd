@@ -4,7 +4,8 @@
 \alias{initOrders}
 \title{initialize order container}
 \usage{
-initOrders(portfolio = NULL, symbols = NULL, initDate = "1950-01-01", ...)
+initOrders(portfolio = NULL, symbols = NULL, initDate = "1950-01-01",
+  ...)
 }
 \arguments{
 \item{portfolio}{text name of the portfolio to associate the order book with}
@@ -22,6 +23,4 @@ This function sets up the order container by portfolio.
 If no symbols list is provided (the default) the function will attempt 
 to retrieve the symbols list from the portfolio in the trade blotter.
 }
-\concept{
-order book
-}
+\concept{order book}

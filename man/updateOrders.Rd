@@ -4,9 +4,9 @@
 \alias{updateOrders}
 \title{update an order or orders}
 \usage{
-updateOrders(portfolio, symbol, timespan, ordertype = NULL, side = NULL,
-  qtysign = NULL, orderset = NULL, oldstatus = "open", newstatus,
-  statustimestamp)
+updateOrders(portfolio, symbol, timespan, ordertype = NULL,
+  side = NULL, qtysign = NULL, orderset = NULL, oldstatus = "open",
+  newstatus, statustimestamp)
 }
 \arguments{
 \item{portfolio}{text name of the portfolio to associate the order book with}
@@ -52,6 +52,4 @@ getOrders
 
 getOrderBook
 }
-\concept{
-order book
-}
+\concept{order book}

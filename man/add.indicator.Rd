@@ -4,8 +4,9 @@
 \alias{add.indicator}
 \title{add an indicator to a strategy}
 \usage{
-add.indicator(strategy, name, arguments, parameters = NULL, label = NULL,
-  ..., enabled = TRUE, indexnum = NULL, store = FALSE)
+add.indicator(strategy, name, arguments, parameters = NULL,
+  label = NULL, ..., enabled = TRUE, indexnum = NULL,
+  store = FALSE)
 }
 \arguments{
 \item{strategy}{an object (or the name of an object) type 'strategy' to add the indicator to}

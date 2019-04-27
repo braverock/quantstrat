@@ -8,8 +8,9 @@ ruleSignal(mktdata = mktdata, timestamp, sigcol, sigval, orderqty = 0,
   ordertype, orderside = NULL, orderset = NULL, threshold = NULL,
   tmult = FALSE, replace = TRUE, delay = 1e-04, osFUN = "osNoOp",
   pricemethod = c("market", "opside", "active"), portfolio, symbol, ...,
-  ruletype, TxnFees = 0, prefer = NULL, sethold = FALSE, label = "",
-  order.price = NULL, chain.price = NULL, time.in.force = "")
+  ruletype, TxnFees = 0, prefer = NULL, sethold = FALSE,
+  label = "", order.price = NULL, chain.price = NULL,
+  time.in.force = "")
 }
 \arguments{
 \item{mktdata}{an xts object containing market data.  depending on rules, may need to be in OHLCV or BBO formats, and may include indicator and signal information}
