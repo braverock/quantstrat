@@ -113,9 +113,11 @@ walk.forward <- function(  strategy.st
     portfolio <- .getPortfolio(portfolio.st)
 
     orig.portfolio.st <- portfolio.st
+
+    .safety <- new.env()
     
-    clone.portfolio(orig.portfolio.st, paste0("orig.",orig.portfolio.st), strip.history = FALSE)
-    clone.orderbook(orig.portfolio.st, paste0("orig.",orig.portfolio.st), strip.history = FALSE)
+    clone.portfolio(orig.portfolio.st, paste0("orig.",orig.portfolio.st), strip.history = FALSE,target_envir=.safety)
+    clone.orderbook(orig.portfolio.st, paste0("orig.",orig.portfolio.st), strip.history = FALSE,target_envir=.safety)
     
     results <- new.env()
 
@@ -310,8 +312,8 @@ walk.forward <- function(  strategy.st
         print(param.combo)
         
         # put the original portfolio back in the .blotter env
-        put.portfolio(orig.portfolio.st, .getPortfolio(paste0("orig.",orig.portfolio.st)), envir=.blotter)
-        clone.orderbook(paste0("orig.",orig.portfolio.st), orig.portfolio.st, strip.history = FALSE)
+        clone.portfolio(paste0("orig.",orig.portfolio.st), orig.portfolio.st, strip.history = FALSE,src_envir=.safety)
+        clone.orderbook(paste0("orig.",orig.portfolio.st), orig.portfolio.st, strip.history = FALSE,src_envir=.safety)
         
         # run backtest using selected param.combo
         # NOTE, this will generate OOS transactions in the portfolio identified,
@@ -323,9 +325,10 @@ walk.forward <- function(  strategy.st
                      , ...
                      )
         
+
         # now copy the original portfolio out of the way
-        clone.portfolio(orig.portfolio.st, paste0("orig.",orig.portfolio.st), strip.history = FALSE)
-        clone.orderbook(orig.portfolio.st, paste0("orig.",orig.portfolio.st), strip.history = FALSE)
+        clone.portfolio(orig.portfolio.st, paste0("orig.",orig.portfolio.st), strip.history = FALSE, target_envir=.safety)
+        clone.orderbook(orig.portfolio.st, paste0("orig.",orig.portfolio.st), strip.history = FALSE, target_envir=.safety)
         
       } else {
         if(is.null(tradeStats.list))
