@@ -40,13 +40,24 @@
 # TODO: fix expand.grid
 # TODO: "and" multiple constraints i.o. "or"
 
-# creates a copy of a portfolio, stripping all history (transactions etc)
-
-clone.portfolio <- function(portfolio.st, cloned.portfolio.st, strip.history=TRUE)
+#' clone a portfolio object, potentially stripping all history
+#'
+#' creates a copy of a portfolio, stripping all history (transactions etc)
+#' 
+#' @param portfolio.st string identifying the source portfolio
+#' @param cloned.portfolio.st string naming the target portfolio
+#' @param strip.history boolean, default TRUE, whether to remove all transaction and portfolio history, keeping only the structure (e.g. assets) 
+#' @param src_envir environment to get the portfolio to be cloned from, default \code{.blotter}
+#' @param target_envir environment to put the cloned portfolio in, passed to \code{\link[blotter]{put.portfolio}}
+clone.portfolio <- function(  portfolio.st
+                            , cloned.portfolio.st
+                            , strip.history=TRUE
+                            , src_envir=.blotter
+                            , target_envir=.blotter)
 {
     #must.have.args(match.call(), c('portfolio.st', 'cloned.portfolio.st'))
 
-    portfolio <- .getPortfolio(portfolio.st)
+    portfolio <- .getPortfolio(portfolio.st, envir = src_envir)
 
     if(strip.history==TRUE)
     {
@@ -60,29 +71,40 @@ clone.portfolio <- function(portfolio.st, cloned.portfolio.st, strip.history=TRU
         }
         portfolio$summary <- portfolio$summary[1,]
     }
-    put.portfolio(as.character(cloned.portfolio.st), portfolio)
+    put.portfolio(as.character(cloned.portfolio.st), portfolio, envir = target_envir)
 
     return(cloned.portfolio.st)
 }
 
-# creates a copy of an orderbook, stripping all orders
-
-clone.orderbook <- function(portfolio.st, cloned.portfolio.st, strip.history=TRUE)
+#' clone a orderbook object, potentially stripping all history
+#'
+#' creates a copy of a orderbook, stripping all history (orders etc)
+#' 
+#' @param orderbook.st string identifying the source orderbook
+#' @param cloned.orderbook.st string naming the target orderbook
+#' @param strip.history boolean, default TRUE, whether to remove all orderbook history, keeping only the structure (e.g. assets) 
+#' @param src_envir environment to get the source orderbook from, default \code{.strategy}
+#' @param target_envir environment to put the cloned orderbook in, passed to \code{\link{put.orderbook}}
+clone.orderbook <- function(  orderbook.st
+                            , cloned.orderbook.st
+                            , strip.history=TRUE
+                            ,src_envir=.strategy
+                            ,target_envir=.strategy)
 {
-    #must.have.args(match.call(), c('portfolio.st', 'cloned.portfolio.st'))
+    #must.have.args(match.call(), c('orderbook.st', 'cloned.orderbook.st'))
 
-    orderbook <- getOrderBook(portfolio.st)
+    orderbook <- getOrderBook(orderbook.st,envir = src_envir)
 
     i <- 1  # TODO: find index number by name
-    names(orderbook)[i] <- cloned.portfolio.st
+    names(orderbook)[i] <- cloned.orderbook.st
 
     if(strip.history == TRUE)
     {
-        for(symbol in names(orderbook[[portfolio.st]]))
-            orderbook[[portfolio.st]][[symbol]] <- orderbook[[portfolio.st]][[symbol]][1,]
+        for(symbol in names(orderbook[[orderbook.st]]))
+            orderbook[[orderbook.st]][[symbol]] <- orderbook[[orderbook.st]][[symbol]][1,]
     }
 
-    put.orderbook(cloned.portfolio.st, orderbook)
+    put.orderbook(cloned.orderbook.st, orderbook,envir = target_envir)
 }
 
 ### local functions ############################################################
@@ -502,11 +524,13 @@ apply.paramset <- function(strategy.st
     env.instrument <- as.list(FinancialInstrument:::.instrument)
     symbols <- names(getPortfolio(portfolio.st)$symbols)
 
-    if(is.null(audit))
-        .audit <- new.env()
-    else
-        .audit <- audit
+#    if(is.null(audit))
+#        .audit <- new.env()
+#    else
+#        .audit <- audit
 
+    if(!is.null(audit)) .audit <- audit
+    
     combine.results <- function(...)
     {
         args <- list(...)
@@ -523,13 +547,15 @@ apply.paramset <- function(strategy.st
             if(class(r)=='try-error' || any(class(r)=='error')){
               results$error[[i]]<-r
             } else { #process normally
-              # move portfolio from slave returned list into .blotter environment
-              put.portfolio(r$portfolio.st, r$portfolio, envir=.audit)
-              #r$portfolio <- NULL
-              
-              # move orderbook from slave returned list into .strategy environment
-              put.orderbook(r$portfolio.st, r$orderbook, envir=.audit)
-              #r$orderbook <- NULL
+              if(!is.null(audit)){
+                # move portfolio from slave returned list into .blotter environment
+                put.portfolio(r$portfolio.st, r$portfolio, envir=.audit)
+                #r$portfolio <- NULL
+                
+                # move orderbook from slave returned list into .strategy environment
+                put.orderbook(r$portfolio.st, r$orderbook, envir=.audit)
+                #r$orderbook <- NULL
+              }
               
               if(calc == 'master' || is.null(r$tradeStats) )
               {
@@ -674,8 +700,8 @@ apply.paramset <- function(strategy.st
             
             if(is.null(audit)){
               # clean up portfolio and orderbook on worker processes
-              rm(list=c(paste('portfolio', portfolio.st, sep='.'), paste('account', portfolio.st, sep='.')),envir=.blotter)
-              rm(list=c(paste('order_book', portfolio.st, sep='.')),envir=.strategy)
+              #rm(list=c(paste('portfolio', portfolio.st, sep='.'), paste('account', portfolio.st, sep='.')),envir=.blotter)
+              #rm(list=c(paste('order_book', portfolio.st, sep='.')),envir=.strategy)
             } else {
               result$portfolio <- getPortfolio(result$portfolio.st)
               result$orderbook <- getOrderBook(result$portfolio.st)
@@ -706,7 +732,7 @@ apply.paramset <- function(strategy.st
     
     if(is.null(audit) && calc=='master'){
       .audit <- .blotter
-    } else {
+    } else if(!is.null(audit)) {
       assign('distributions', distributions, envir=.audit)
       assign('constraints', constraints, envir=.audit)
       assign('paramset.label', paramset.label, envir=.audit)
