@@ -352,7 +352,7 @@ applyRules <- function(portfolio,
                             if(is.null(rule$timespan)) {
                                 assign.dindex(c(get.dindex(),which(mktdata[, sigcol] == sigval)))
                             } else {
-                                assign.dindex(c(get.dindex(),which(merge(.xts(.index(mktdata)),mktdata[rule$timespan, sigcol]) == sigval)))
+                                assign.dindex(c(get.dindex(),which(merge(.xts(,.index(mktdata)),mktdata[rule$timespan, sigcol]) == sigval)))
                             }
                         }
                     }
