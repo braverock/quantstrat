@@ -25,16 +25,21 @@ chart.forward <- function(audit.filename, portfolio.st=NULL)
   if(is.environment(audit.filename)){
     .audit <- audit.filename
   } else {
-    .audit <- NULL  # keep codetools happy
+    # .audit <- NULL  # keep codetools happy
     # ensure correct file written by walk.forward() is provided
-    if (!grepl("\\.results\\.RData$", audit.filename[1L])) {
+    if (!grepl("\\.Results\\.RData$", audit.filename[1L])) {
        stop("'audit.filename' should match pattern:\n  [audit.prefix].results.RData")
     }
     if (file.exists(audit.filename)) {
         load(audit.filename)
-    } else {
+      } else {
         stop("'audit.filename', ", audit.filename, " not found.")
-    }
+        }
+    if(is.environment(results)) {
+      .audit <- get("results")  # potentially Jasen's dodgy fix, means results must always be the name of the returned environment
+      } else {
+        stop("no environment named 'results' when calling load(audit.filename)")
+      }
   }
 
   if(length(ls(name=.audit,pattern='blotter'))){ 
@@ -56,7 +61,8 @@ chart.forward <- function(audit.filename, portfolio.st=NULL)
     names(R) <- portfolio.st
     
     #get the IS paramset cumPL from the environment
-    PL.xts <- audit.filename$insample.apply.paramset$cumPL
+    # PL.xts <- audit.filename$insample.apply.paramset$cumPL
+    PL.xts <- .audit$insample.apply.paramset$cumPL # potentially Jasen's dodgy fix, although it feels right to be calling .audit as opposed to audit.filename, since we passing audit.filename to .audit higher up when passing an env argument, or my new code assigning get("results") to .audit when passing filename to chart.forward()
     PL.xts <- PL.xts[-1,]
     
     
