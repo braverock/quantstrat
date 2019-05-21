@@ -56,7 +56,7 @@ chart.forward <- function(audit.filename, portfolio.st=NULL)
       stop('Returned vector of portfolio names, please select one from',portfolio.st)
     } 
     
-    R <- cumsum(getPortfolio(portfolio.st)[['summary']][,'Net.Trading.PL']) 
+    R <- cumsum(getPortfolio(paste0('test.',portfolio.st), envir = .audit$blotter)[['summary']][,'Net.Trading.PL']) 
     R <- R[-1,]
     names(R) <- portfolio.st
     
@@ -98,7 +98,7 @@ chart.forward <- function(audit.filename, portfolio.st=NULL)
     
     # now for the result portfolio (which doesn't end with a digit)
     portfolio.st <- ls(name=.audit, pattern='portfolio.*[^.0-9]$')
-    p <- getPortfolio(portfolio.st, envir=.audit)
+    p <- getPortfolio(paste0('test.',portfolio.st), envir=.audit$blotter)
     from <- index(p$summary[2])
     R <- cumsum(p$summary[paste(from, '/', sep=''),'Net.Trading.PL'])
     names(R) <- portfolio.st

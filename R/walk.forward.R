@@ -112,12 +112,18 @@ walk.forward <- function(  strategy.st
 
     portfolio <- .getPortfolio(portfolio.st)
 
-    orig.portfolio.st <- portfolio.st
+    test.portfolio.st <- paste0("test.", portfolio.st)
+    # orig.portfolio.st <- portfolio.st
 
     .safety <- new.env()
     
-    clone.portfolio(orig.portfolio.st, paste0("orig.",orig.portfolio.st), strip.history = FALSE,target_envir=.safety)
-    clone.orderbook(orig.portfolio.st, paste0("orig.",orig.portfolio.st), strip.history = FALSE,target_envir=.safety)
+    # initialize test portfolios
+    initPortf(name=test.portfolio.st, ls(portfolio$symbols))
+    initAcct(name=test.portfolio.st, portfolios=test.portfolio.st)
+    initOrders(portfolio=test.portfolio.st)
+    
+    clone.portfolio(paste0("test.",portfolio.st), paste0("test.",portfolio.st), strip.history = FALSE,target_envir=.safety)
+    clone.orderbook(paste0("test.",portfolio.st), paste0("test.",portfolio.st), strip.history = FALSE,target_envir=.safety)
     
     results <- new.env()
 
@@ -312,23 +318,29 @@ walk.forward <- function(  strategy.st
         print(param.combo)
         
         # put the original portfolio back in the .blotter env
-        clone.portfolio(paste0("orig.",orig.portfolio.st), orig.portfolio.st, strip.history = FALSE,src_envir=.safety)
-        clone.orderbook(paste0("orig.",orig.portfolio.st), orig.portfolio.st, strip.history = FALSE,src_envir=.safety)
+        # if(i == 1) { # first loop in wf.subsets, strip history from clone.portfolio as we have txns from last training window in there
+        #   strip_history <- TRUE
+        # } else {
+        #   strip_history <- FALSE
+        # }
+        clone.portfolio(paste0("test.",portfolio.st), paste0("test.",portfolio.st), strip.history = FALSE,src_envir=.safety)
+        clone.orderbook(paste0("test.",portfolio.st), paste0("test.",portfolio.st), strip.history = FALSE,src_envir=.safety)
         
         # run backtest using selected param.combo
         # NOTE, this will generate OOS transactions in the portfolio identified,
         # so strart with a clean portfolio environment.
         applyStrategy( strategy
-                     , portfolios=portfolio.st
+                     , portfolios=test.portfolio.st
+                     # , portfolios=portfolio.st
                      , mktdata=symbol.data
                      , rule.subset=testing.timespan
                      , ...
                      )
         
 
-        # now copy the original portfolio out of the way
-        clone.portfolio(orig.portfolio.st, paste0("orig.",orig.portfolio.st), strip.history = FALSE, target_envir=.safety)
-        clone.orderbook(orig.portfolio.st, paste0("orig.",orig.portfolio.st), strip.history = FALSE, target_envir=.safety)
+        # now copy the original portfolio out of the way, from .blotter to .safety env
+        clone.portfolio(paste0("test.",portfolio.st), paste0("test.",portfolio.st), strip.history = FALSE, target_envir=.safety)
+        clone.orderbook(paste0("test.",portfolio.st), paste0("test.",portfolio.st), strip.history = FALSE, target_envir=.safety)
         
       } else {
         if(is.null(tradeStats.list))
@@ -378,10 +390,16 @@ walk.forward <- function(  strategy.st
                         , ...=...
         )
     }
+    
+    # orig.portfolio.st holds our OOS txns, so lets clone that portfolio to
+    # another portfolio named test.portfolio.st which we will use as the OOS
+    # portfolio in chart.
+    clone.portfolio(paste0("test.",portfolio.st), paste0("test.",portfolio.st), strip.history = FALSE,src_envir=.safety)
+    clone.orderbook(paste0("test.",portfolio.st), paste0("test.",portfolio.st), strip.history = FALSE,src_envir=.safety)
     #updatePortf(portfolio.st, Dates=paste('::',as.Date(Sys.time()),sep=''))
-    updatePortf(portfolio.st, Dates=total.timespan, sep='')
-
-    results$tradeStats <- tradeStats(portfolio.st)
+    updatePortf(test.portfolio.st, Dates=total.timespan, sep='')
+    
+    results$tradeStats <- tradeStats(test.portfolio.st)
     #results$portfolio <- portfolio
 
     iso.format <- "%Y%m%dT%H%M%S"
