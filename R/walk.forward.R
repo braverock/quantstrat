@@ -318,11 +318,6 @@ walk.forward <- function(  strategy.st
         print(param.combo)
         
         # put the original portfolio back in the .blotter env
-        # if(i == 1) { # first loop in wf.subsets, strip history from clone.portfolio as we have txns from last training window in there
-        #   strip_history <- TRUE
-        # } else {
-        #   strip_history <- FALSE
-        # }
         clone.portfolio(paste0("test.",portfolio.st), paste0("test.",portfolio.st), strip.history = FALSE,src_envir=.safety)
         clone.orderbook(paste0("test.",portfolio.st), paste0("test.",portfolio.st), strip.history = FALSE,src_envir=.safety)
         
