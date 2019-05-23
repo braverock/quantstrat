@@ -356,11 +356,18 @@ walk.forward <- function(  strategy.st
           save(.audit, file = filestr)
         }
       }
-
-      if(include.insamples){
-        results[[time.range]] <- result
-      }
       
+      if(is.null(results[[time.range]]))  results[[time.range]] <- new.env()
+
+      #store some reduced form information to use later
+      results[[time.range]][['testing.param.combo']] <- result$testing.param.combo
+      results[[time.range]][['testing.timespan']] <- result$testing.timespan
+      results[[time.range]][['training.timespan']] <- result$training.timespan
+      results[[time.range]]$tradeStats <- result$apply.paramsets$tradeStats
+      if(saveenv){
+        results[[time.range]]$audit <- .audit
+      }
+
     } # end full rolling training/testing loop
 
     if(include.insamples){
