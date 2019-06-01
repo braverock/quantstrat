@@ -118,12 +118,8 @@ walk.forward <- function(  strategy.st
     .safety <- new.env()
     
     # initialize test portfolios
-    initPortf(name=test.portfolio.st, ls(portfolio$symbols))
-    initAcct(name=test.portfolio.st, portfolios=test.portfolio.st)
-    initOrders(portfolio=test.portfolio.st)
-    
-    clone.portfolio(paste0("test.",portfolio.st), paste0("test.",portfolio.st), strip.history = FALSE,target_envir=.safety)
-    clone.orderbook(paste0("test.",portfolio.st), paste0("test.",portfolio.st), strip.history = FALSE,target_envir=.safety)
+    clone.portfolio(paste0(portfolio.st), paste0("test.",portfolio.st), strip.history = FALSE,target_envir=.safety)
+    clone.orderbook(paste0(portfolio.st), paste0("test.",portfolio.st), strip.history = FALSE,target_envir=.safety)
     
     results <- new.env()
 
