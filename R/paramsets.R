@@ -57,7 +57,8 @@ clone.portfolio <- function(  portfolio.st
 {
     #must.have.args(match.call(), c('portfolio.st', 'cloned.portfolio.st'))
 
-    portfolio <- .getPortfolio(portfolio.st, envir = src_envir)
+    # get a *copy* of the portfolio, not the pointer to the environment
+    portfolio <- getPortfolio(portfolio.st, envir = src_envir)
 
     if(strip.history==TRUE)
     {
@@ -71,6 +72,7 @@ clone.portfolio <- function(  portfolio.st
         }
         portfolio$summary <- portfolio$summary[1,]
     }
+    
     put.portfolio(as.character(cloned.portfolio.st), portfolio, envir = target_envir)
 
     return(cloned.portfolio.st)
@@ -685,13 +687,13 @@ apply.paramset <- function(strategy.st
             redisConnect(host=redisContext$host)
         }
 
-        if(calc == 'slave')
+        if(calc == 'slave'  || calc == 'worker')
         {
             updatePortf(result$portfolio.st, ...)
             result$tradeStats <- tradeStats(result$portfolio.st, Dates=perf.subset, ...)
             result$dailyStats <- dailyStats(result$portfolio.st, Dates=perf.subset, perSymbol = FALSE, method='moment', ...)
             
-            result$cumPL <- cumsum(getPortfolio(portfolio.st)[['summary']][,'Net.Trading.PL'])
+            result$cumPL <- cumsum(.getPortfolio(result$portfolio.st)[['summary']][,'Net.Trading.PL'])[perf.subset]
             if(!is.null(perf.subset)) result$cumPL <- result$cumPL[perf.subset]
             colnames(result$cumPL) <- portfolio.st
             
