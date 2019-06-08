@@ -599,8 +599,7 @@ apply.paramset <- function(strategy.st
                 results$user.func <- rbind(results$user.func, cbind(r$param.combo, r$user.func))
               }
             } #end non-error results block
-        } # end loop over results
-        dummy <- 1
+        } # end loop over data returned by foreach
         return(results)
     } # end fn combine.results
 
@@ -693,7 +692,7 @@ apply.paramset <- function(strategy.st
             result$tradeStats <- tradeStats(result$portfolio.st, Dates=perf.subset, ...)
             result$dailyStats <- dailyStats(result$portfolio.st, Dates=perf.subset, perSymbol = FALSE, method='moment', ...)
             
-            result$cumPL <- cumsum(.getPortfolio(result$portfolio.st)[['summary']][,'Net.Trading.PL'])[perf.subset]
+            result$cumPL <- cumsum(.getPortfolio(result$portfolio.st)[['summary']][,'Net.Trading.PL'])
             if(!is.null(perf.subset)) result$cumPL <- result$cumPL[perf.subset]
             colnames(result$cumPL) <- portfolio.st
             
