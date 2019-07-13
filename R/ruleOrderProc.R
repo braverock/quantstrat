@@ -68,7 +68,7 @@ ruleOrderProc <- function(portfolio, symbol, mktdata, timestamp=NULL, ordertype=
   tif.xts <- ordersubset[OpenOrders.i, 'Time.In.Force']
   if(any(!tif.xts==''))
   {
-    if (any(indexClass(ordersubset)=='Date'))
+    if (any(tclass(ordersubset)=='Date'))
         tif <- as.Date(coredata(tif.xts))
     else
     {
