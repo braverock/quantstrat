@@ -129,8 +129,8 @@ NULL
 NULL
 
 #' sample audit environment output from running luxor demo in file data/luxor.wfa.ples.RData
-#' @name .audit
-#' @rdname dotaudit
+#' @name luxoraudit
+#' @rdname luxoraudit
 #' @docType data 
 #' @keywords data
 NULL
