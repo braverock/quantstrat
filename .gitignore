@@ -32,6 +32,7 @@ inst/doc
 *_files*
 *.bak
 *.sav
+.vimrc
 
 #tiingoapi file
 vignettes/tiingoapi.R
