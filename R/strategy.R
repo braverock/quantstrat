@@ -290,11 +290,6 @@ get.strategy <- getStrategy <- function(x, envir=.strategy){
     }
 }
 
-.onLoad <- function(lib, pkg) {
-    if(!exists('.strategy'))
-        .strategy <<- new.env()
-}
-
 #' put a strategy object in .strategy env
 #' @param strategy object; name will be extracted as strategy$name
 #' @param envir the environment to store the strategy in, defaults to .strategy
