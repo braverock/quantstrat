@@ -12,3 +12,4 @@ tiingoapi\.R
 ^.*\.sav$
 ^README\.Rmd$
 ^.*\.Rproj$
+^\.vimrc
