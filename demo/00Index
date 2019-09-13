@@ -1,4 +1,5 @@
 bbands     Build a simple Bollinger Bands strategy using one indicator, three signals, and three trade rules
+bbandsWFA  run walk forward analysis on a simple Bollinger Bands strategy
 faber      demonstrate a simple long term trend model using a 10-month SMA on a small portfolio of ETFs based on Mebane Faber paper
 faberMC    apply the Faber 10-month SMA strategy to a three-currency index portfolio
 faber_rebal    apply the Faber 10-month SMA strategy, rebalance quarterly
