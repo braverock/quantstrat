@@ -6,7 +6,7 @@ stopifnot(require(testthat))
 stopifnot(require(quantstrat))
 context("walk.forward")
 
-source("~/quantstrat/demo/bbandsWFA.R")
+source(paste0(path.package("quantstrat"),"/demo/bbandsWFA.R"))
 
 test_that("results environment has 11 objects", {
   expect_equal(length(results), 11)
