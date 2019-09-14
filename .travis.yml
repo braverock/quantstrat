@@ -1,6 +1,6 @@
 language: r
 
-dist: trusty
+dist: bionic
 
 # need sudo
 sudo: true
