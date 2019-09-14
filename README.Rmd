@@ -14,6 +14,7 @@ knitr::opts_chunk$set(
 ```
 
 [![Travis Build Status](https://travis-ci.org/braverock/quantstrat.svg?branch=master)](https://travis-ci.org/braverock/quantstrat)
+[![Codecov test coverage](https://codecov.io/gh/braverock/quantstrat/branch/master/graph/badge.svg)](https://codecov.io/gh/braverock/quantstrat?branch=master)
 
 # quantstrat
 
@@ -107,7 +108,7 @@ stratMACROSS <- add.rule(strategy = stratMACROSS,name='ruleSignal', arguments = 
 
 Now all we need to do is add our market data before calling the applyStrategy function to initiate the backtest.
 
-```{r mktdata_applyStrategy, echo=TRUE, message=FALSE}
+```{r mktdata_applyStrategy, echo=TRUE, message=FALSE, warning=FALSE}
 getSymbols(stock.str,from=startDate)
 for(i in stock.str)
   assign(i, adjustOHLC(get(i),use.Adjusted=TRUE))
@@ -133,7 +134,7 @@ chart.Posn(Portfolio='macross',Symbol=stock.str, TA=c("add_SMA(n=50,col='red')",
 If you would like to zoom into a particular period, you can use quantmod's zoomChart().
 
 ## quantmod::zoomChart()
-```{r charts3, echo=TRUE}
+```{r charts3, echo=TRUE, warning=FALSE}
 zoom_Chart('2014::2018')
 ```
 

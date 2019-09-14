@@ -30,7 +30,9 @@ Suggests:
     knitr,
     rmarkdown,
     pander,
-    xtable
+    xtable,
+    covr,
+    usethis
 Maintainer: Brian G. Peterson <brian@braverock.com>
 Description: Specify, build, and back-test quantitative
     financial trading and portfolio strategies.

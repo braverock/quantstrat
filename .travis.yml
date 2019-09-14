@@ -54,3 +54,7 @@ r_github_packages:
  - joshuaulrich/xts
  - braverock/blotter
  - ramnathv/rCharts
+ - r-lib/covr
+ 
+after_success:
+  - Rscript -e 'covr::codecov()'

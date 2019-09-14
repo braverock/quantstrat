@@ -3,6 +3,8 @@
 
 [![Travis Build
 Status](https://travis-ci.org/braverock/quantstrat.svg?branch=master)](https://travis-ci.org/braverock/quantstrat)
+[![Codecov test
+coverage](https://codecov.io/gh/braverock/quantstrat/branch/master/graph/badge.svg)](https://codecov.io/gh/braverock/quantstrat?branch=master)
 
 # quantstrat
 
@@ -116,24 +118,26 @@ for(i in stock.str)
 
 start_t<-Sys.time()
 out<-applyStrategy(strategy=stratMACROSS , portfolios=portfolio.st)
-#> [1] "2001-06-27 00:00:00 AAPL 100 @ 1.124248"
-#> [1] "2001-09-07 00:00:00 AAPL -100 @ 0.832348"
-#> [1] "2002-01-07 00:00:00 AAPL 100 @ 1.103054"
-#> [1] "2002-07-10 00:00:00 AAPL -100 @ 0.834275"
-#> [1] "2003-05-16 00:00:00 AAPL 100 @ 0.905564"
-#> [1] "2006-06-22 00:00:00 AAPL -100 @ 5.739735"
-#> [1] "2006-09-26 00:00:00 AAPL 100 @ 7.476684"
-#> [1] "2008-03-07 00:00:00 AAPL -100 @ 11.777149"
-#> [1] "2008-05-19 00:00:00 AAPL 100 @ 17.687405"
-#> [1] "2008-09-24 00:00:00 AAPL -100 @ 12.399479"
-#> [1] "2009-05-14 00:00:00 AAPL 100 @ 11.844582"
-#> [1] "2012-12-18 00:00:00 AAPL -100 @ 54.763748"
-#> [1] "2013-08-26 00:00:00 AAPL 100 @ 59.079327"
-#> [1] "2015-08-31 00:00:00 AAPL -100 @ 107.24485"
-#> [1] "2016-08-31 00:00:00 AAPL 100 @ 103.068153"
+#> [1] "2001-06-27 00:00:00 AAPL 100 @ 1.454938"
+#> [1] "2001-09-07 00:00:00 AAPL -100 @ 1.077177"
+#> [1] "2002-01-07 00:00:00 AAPL 100 @ 1.427509"
+#> [1] "2002-07-10 00:00:00 AAPL -100 @ 1.079671"
+#> [1] "2003-05-16 00:00:00 AAPL 100 @ 1.171929"
+#> [1] "2006-06-22 00:00:00 AAPL -100 @ 7.428038"
+#> [1] "2006-09-26 00:00:00 AAPL 100 @ 9.675898"
+#> [1] "2008-03-07 00:00:00 AAPL -100 @ 15.241315"
+#> [1] "2008-05-19 00:00:00 AAPL 100 @ 22.89002"
+#> [1] "2008-09-24 00:00:00 AAPL -100 @ 16.046701"
+#> [1] "2009-05-14 00:00:00 AAPL 100 @ 15.328584"
+#> [1] "2012-12-11 00:00:00 AAPL -100 @ 68.096306"
+#> [1] "2013-09-11 00:00:00 AAPL 100 @ 59.956573"
+#> [1] "2015-08-31 00:00:00 AAPL -100 @ 105.237"
+#> [1] "2016-08-31 00:00:00 AAPL 100 @ 101.138496"
+#> [1] "2018-12-24 00:00:00 AAPL -100 @ 145.090836"
+#> [1] "2019-05-07 00:00:00 AAPL 100 @ 201.316895"
 end_t<-Sys.time()
 print(end_t-start_t)
-#> Time difference of 0.183964 secs
+#> Time difference of 0.1750953 secs
 ```
 
 Before we can review results using chart.Posn(), we update the
@@ -147,7 +151,7 @@ end_t<-Sys.time()
 print("trade blotter portfolio update:")
 #> [1] "trade blotter portfolio update:"
 print(end_t-start_t)
-#> Time difference of 0.04124045 secs
+#> Time difference of 0.02506685 secs
 
 chart.Posn(Portfolio='macross',Symbol=stock.str, TA=c("add_SMA(n=50,col='red')","add_SMA(n=200,col='blue')"))
 ```

@@ -13,3 +13,4 @@ tiingoapi\.R
 ^README\.Rmd$
 ^.*\.Rproj$
 ^\.vimrc
+^codecov\.yml$
