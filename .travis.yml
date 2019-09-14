@@ -57,4 +57,4 @@ r_github_packages:
  - r-lib/covr
  
 after_success:
-  - Rscript -e 'covr::codecov()'
+  - travis_wait 30 Rscript -e 'covr::codecov()'
