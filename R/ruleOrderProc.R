@@ -135,7 +135,7 @@ ruleOrderProc <- function(portfolio, symbol, mktdata, timestamp=NULL, ordertype=
       
       orderType <- ordersubset[ii,"Order.Type"]
       
-      if(hasArg(allowMagicalThinking)) allowMagicalThinking=match.call(expand.dots=TRUE)$allowMagicalThinking
+      if(hasArg(allowMagicalThinking)) allowMagicalThinking=list(...)$allowMagicalThinking
       else allowMagicalThinking = FALSE
       
       # Get cached frequency, if it's available
