@@ -51,7 +51,7 @@ ruleSignal(mktdata = mktdata, timestamp, sigcol, sigval, orderqty = 0,
 
 \item{TxnFees}{numeric fees (usually negative) or function name for calculating TxnFees (processing happens later, not in this function)}
 
-\item{prefer}{price method for quantmod::getPrice. Refer to quantmod docs for details. Note if \code{prefer=NULL} then quantmod::getPrice will search for a column name including "price" then "trade" then "close". If none are found, the function will stop with an error message: "subscript out of bounds, no price was discernible from the data".}
+\item{prefer}{price method for \link[quantmod]{getPrice} provided by \code{quantmod}, see Details}
 
 \item{sethold}{boolean, puts entry Rule processing on hold, default FALSE}
 
@@ -89,6 +89,14 @@ If \code{threshold} is not numeric or \code{NULL} it should be the name of an in
 
 If \code{orderside} is NULL, the function will attempt to calculate the side from the current position 
 (if any), the order quantity, and the order type.
+
+If \code{prefer=NULL} then \link[quantmod]{getPrice} will grep for a column
+name including "price" then "trade" then "close". If none are found, the
+function will stop with an error message: "subscript out of bounds, no price
+was discernible from the data". \link[quantmod]{getPrice} is attempting to
+make a reasonable guess about the most likely 'price' the user might want,
+though in practice this may lead to unexpected results.  It is often more 
+prudent to specify \code{prefer} than to leave it to the default search order.
 }
 \seealso{
 \code{\link{osNoOp}} , \code{\link{add.rule}}

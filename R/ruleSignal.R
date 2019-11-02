@@ -25,7 +25,15 @@
 #' 
 #' If \code{orderside} is NULL, the function will attempt to calculate the side from the current position 
 #' (if any), the order quantity, and the order type.    
-#'   
+#'
+#' If \code{prefer=NULL} then \link[quantmod]{getPrice} will grep for a column
+#' name including "price" then "trade" then "close". If none are found, the
+#' function will stop with an error message: "subscript out of bounds, no price
+#' was discernible from the data". \link[quantmod]{getPrice} is attempting to
+#' make a reasonable guess about the most likely 'price' the user might want,
+#' though in practice this may lead to unexpected results.  It is often more 
+#' prudent to specify \code{prefer} than to leave it to the default search order.  
+#' 
 #' @param mktdata an xts object containing market data.  depending on rules, may need to be in OHLCV or BBO formats, and may include indicator and signal information
 #' @param timestamp timestamp coercible to POSIXct that will be the time the order will be inserted on 
 #' @param sigcol column name to check for signal
@@ -45,7 +53,7 @@
 #' @param ... any other passthru parameters
 #' @param ruletype one of "risk","order","rebalance","exit","entry", see \code{\link{add.rule}}
 #' @param TxnFees numeric fees (usually negative) or function name for calculating TxnFees (processing happens later, not in this function)
-#' @param prefer price method for quantmod::getPrice. Refer to quantmod docs for details. Note if \code{prefer=NULL} then quantmod::getPrice will search for a column name including "price" then "trade" then "close". If none are found, the function will stop with an error message: "subscript out of bounds, no price was discernible from the data".
+#' @param prefer price method for \link[quantmod]{getPrice} provided by \code{quantmod}, see Details
 #' @param sethold boolean, puts entry Rule processing on hold, default FALSE
 #' @param label rule label, default '', added by \code{\link{applyRules}}
 #' @param order.price the order price to use, will overrule any mktdata lookup as well as chain.price (see below), meant to specify eg. a stop-loss price that is unrelated to the fill price (see chain.price)
