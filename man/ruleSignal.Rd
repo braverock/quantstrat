@@ -51,7 +51,7 @@ ruleSignal(mktdata = mktdata, timestamp, sigcol, sigval, orderqty = 0,
 
 \item{TxnFees}{numeric fees (usually negative) or function name for calculating TxnFees (processing happens later, not in this function)}
 
-\item{prefer}{price method for getPrice}
+\item{prefer}{price method for quantmod::getPrice. Refer to quantmod docs for details. Note if \code{prefer=NULL} then quantmod::getPrice will search for a column name including "price" then "trade" then "close". If none are found, the function will stop with an error message: "subscript out of bounds, no price was discernible from the data".}
 
 \item{sethold}{boolean, puts entry Rule processing on hold, default FALSE}
 

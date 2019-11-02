@@ -45,7 +45,7 @@
 #' @param ... any other passthru parameters
 #' @param ruletype one of "risk","order","rebalance","exit","entry", see \code{\link{add.rule}}
 #' @param TxnFees numeric fees (usually negative) or function name for calculating TxnFees (processing happens later, not in this function)
-#' @param prefer price method for getPrice
+#' @param prefer price method for quantmod::getPrice. Refer to quantmod docs for details. Note if \code{prefer=NULL} then quantmod::getPrice will search for a column name including "price" then "trade" then "close". If none are found, the function will stop with an error message: "subscript out of bounds, no price was discernible from the data".
 #' @param sethold boolean, puts entry Rule processing on hold, default FALSE
 #' @param label rule label, default '', added by \code{\link{applyRules}}
 #' @param order.price the order price to use, will overrule any mktdata lookup as well as chain.price (see below), meant to specify eg. a stop-loss price that is unrelated to the fill price (see chain.price)
