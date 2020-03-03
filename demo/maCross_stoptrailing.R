@@ -1,7 +1,7 @@
 ###############################################################################
 # A demo script using a simple MA cross strategy, with trailing stops to be
 # used for a test. Thanks to @kvekka for reporting the bug in #116 and for
-# contributing this script.
+# contributing this script. See https://github.com/braverock/quantstrat/issues/116
 ###############################################################################
 
 
@@ -80,7 +80,7 @@ add.rule(strategy.st,
                           orderside = "long",
                           ordertype = "limit", #market/ limit
                           threshold = 1/100,
-                          time.in.force= 24*60*60*2,
+                          # time.in.force= 24*60*60*2,
                           tmult = T,
                           orderqty = 1000,
                           prefer = "Open", 
@@ -117,7 +117,7 @@ add.rule(strategy.st,
                           orderqty = "all",
                           prefer = "Close", 
                           threshold = 2/100, 
-                          time.in.force= 24*60*60*1,
+                          # time.in.force= 24*60*60*1,
                           tmult = T, 
                           TxnFees = -10,
                           orderset = "ocolong",
