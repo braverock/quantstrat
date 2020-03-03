@@ -354,7 +354,13 @@ ruleOrderProc <- function(portfolio, symbol, mktdata, timestamp=NULL, ordertype=
                  if(order.side == 'long'  && as.numeric(Lo(mktdataTimestamp)[,1]) < orderPrice
                     || order.side == 'short' && as.numeric(Hi(mktdataTimestamp)[,1]) > orderPrice)
                  {
-                   txnprice <- orderPrice
+                   if(order.side == 'long') {
+                     txnprice <- min(orderPrice, Op(mktdataTimestamp)[,1])
+                     ordersubset[ii,"Order.Price"] <- txnprice
+                   } else if(order.side == 'short') {
+                     txnprice <- max(orderPrice, Op(mktdataTimestamp)[,1])
+                     ordersubset[ii,"Order.Price"] <- txnprice
+                   }
                    txntime <- timestamp
                  } 
                  else
