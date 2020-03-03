@@ -9,15 +9,15 @@ context("demo/test_maCross_stoptrailing.R")
 devAskNewPage(ask = FALSE) # dont prompt for new page, mainly for R CMD check
 source(paste0(path.package("quantstrat"),"/demo/maCross_stoptrailing.R")) # source demo
 
-test_that("End.Equity equals 4899", {
-  expect_equal(round(tradeStats('Port.Luxor','AAPL')$End.Equity), 3799)
+test_that("End.Equity equals 2771", {
+  expect_equal(round(tradeStats('Port.Luxor','AAPL')$End.Equity), 2771)
 })
 
-test_that("num txns equals 3", { # note we pad the start with zeros
+test_that("num txns equals 11", { # note we pad the start with zeros
   expect_equal(nrow(getTxns('Port.Luxor','AAPL')), 11)
 })
 
-test_that("num orders equals 2", {
+test_that("num orders equals 17", {
   expect_equal(nrow(obook$Port.Luxor$AAPL), 17)
 })
 
