@@ -354,17 +354,11 @@ ruleOrderProc <- function(portfolio, symbol, mktdata, timestamp=NULL, ordertype=
                  if(order.side == 'long'  && as.numeric(Lo(mktdataTimestamp)[,1]) < orderPrice
                     || order.side == 'short' && as.numeric(Hi(mktdataTimestamp)[,1]) > orderPrice)
                  {
-                   if(order.side == 'long') {
-                     txnprice <- min(orderPrice, Op(mktdataTimestamp)[,1])
-                     ordersubset[ii,"Order.Price"] <- txnprice
-                   } else if(order.side == 'short') {
-                     txnprice <- max(orderPrice, Op(mktdataTimestamp)[,1])
-                     ordersubset[ii,"Order.Price"] <- txnprice
-                   }
+                   txnprice <- ifelse(orderPrice %in% c(Lo(mktdataTimestamp)[,1],Hi(mktdataTimestamp)[,1]), orderPrice, Op(mktdataTimestamp)[,1])
                    txntime <- timestamp
-                 } 
+                 }
                  else
-                 {
+                   {
                    # do we need to change the trailing stop?
                    
                    order.threshold <- as.numeric(ordersubset[ii, "Order.Threshold"])
