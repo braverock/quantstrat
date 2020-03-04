@@ -21,6 +21,11 @@ test_that("num orders equals 17", {
   expect_equal(nrow(obook$Port.Luxor$AAPL), 17)
 })
 
+test_that("sum closed order prices equals sum txn prices", {
+  expect_equal(sum(as.numeric(getOrderBook("Port.Luxor")$Port.Luxor$AAPL$Order.Price[which(getOrderBook("Port.Luxor")$Port.Luxor$AAPL$Order.Status == "closed")])), 
+               sum(getTxns("Port.Luxor","AAPL")$Txn.Price))
+})
+
 # Commands for running this test file from the console if required:
 #
 # require(testthat)

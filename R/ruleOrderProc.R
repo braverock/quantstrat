@@ -140,9 +140,9 @@ ruleOrderProc <- function(portfolio, symbol, mktdata, timestamp=NULL, ordertype=
       
       # Get cached frequency, if it's available
       if(hasArg(periodicity))
-          freq <- eval(match.call(expand.dots=TRUE)$periodicity, envir=parent.frame())
+        freq <- eval(match.call(expand.dots=TRUE)$periodicity, envir=parent.frame())
       else
-          freq <- periodicity(mktdata)
+        freq <- periodicity(mktdata)
       #switch on frequency
       switch(orderType,
              market = {
@@ -180,7 +180,7 @@ ruleOrderProc <- function(portfolio, symbol, mktdata, timestamp=NULL, ordertype=
                           #e.g. if pricemethod was opside, it sent a buy order at mktAsk. fill at greater of that ask, and current ask
                         } else txnprice = as.numeric(getPrice(mktdataTimestamp, prefer=prefer)[,1]) #filled at 'price'
                       }
-                    ) # end switch on frequency
+               ) # end switch on frequency
              },
              limit= ,
              stoplimit =,
@@ -193,23 +193,23 @@ ruleOrderProc <- function(portfolio, symbol, mktdata, timestamp=NULL, ordertype=
                  if((orderQty > 0 && orderType != 'stoplimit') || (orderQty < 0 && (orderType=='stoplimit'))) {
                    # buy limit, or sell stoplimit
                    if( (has.Lo(mktdata) && orderPrice > as.numeric(Lo(mktdataTimestamp)[,1])) || 
-                         (!has.Lo(mktdata) && orderPrice > as.numeric(getPrice(mktdataTimestamp, prefer=prefer)[,1])))
+                       (!has.Lo(mktdata) && orderPrice > as.numeric(getPrice(mktdataTimestamp, prefer=prefer)[,1])))
                    {
                      if(orderType == 'stoplimit')
-                         txnprice <- min(orderPrice, Op(mktdataTimestamp)[,1])
+                       txnprice <- min(orderPrice, Op(mktdataTimestamp)[,1])
                      else
-                         txnprice <- orderPrice
+                       txnprice <- orderPrice
                      txntime = timestamp
                    } else next() # price did not move through my order, should go to next order  
                  } else if((orderQty < 0 && orderType != 'stoplimit') || (orderQty > 0 && (orderType=='stoplimit'))) { 
                    # sell limit or buy stoplimit
                    if ( (has.Hi(mktdata) && orderPrice < as.numeric(Hi(mktdataTimestamp)[,1])) ||
-                          (!has.Hi(mktdata) && orderPrice < as.numeric(getPrice(mktdataTimestamp,prefer=prefer)[,1])) )
+                        (!has.Hi(mktdata) && orderPrice < as.numeric(getPrice(mktdataTimestamp,prefer=prefer)[,1])) )
                    {
                      if(orderType == 'stoplimit')
-                         txnprice <- max(orderPrice, Op(mktdataTimestamp)[,1])
+                       txnprice <- max(orderPrice, Op(mktdataTimestamp)[,1])
                      else
-                         txnprice <- orderPrice
+                       txnprice <- orderPrice
                      txntime = timestamp
                    } else next() # price did not move through my order, should go to next order 
                  } else {
@@ -355,10 +355,11 @@ ruleOrderProc <- function(portfolio, symbol, mktdata, timestamp=NULL, ordertype=
                     || order.side == 'short' && as.numeric(Hi(mktdataTimestamp)[,1]) > orderPrice)
                  {
                    txnprice <- ifelse(orderPrice %in% c(Lo(mktdataTimestamp)[,1],Hi(mktdataTimestamp)[,1]), orderPrice, Op(mktdataTimestamp)[,1])
+                   ordersubset[ii,"Order.Price"] <- txnprice
                    txntime <- timestamp
                  }
                  else
-                   {
+                 {
                    # do we need to change the trailing stop?
                    
                    order.threshold <- as.numeric(ordersubset[ii, "Order.Threshold"])
