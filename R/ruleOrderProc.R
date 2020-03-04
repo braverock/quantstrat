@@ -54,9 +54,9 @@ ruleOrderProc <- function(portfolio, symbol, mktdata, timestamp=NULL, ordertype=
   if(is.null(timestamp)) return()
   # Get row index of timestamp for faster subsetting
   if(hasArg(curIndex))
-      curIndex <- eval(match.call(expand.dots=TRUE)$curIndex, parent.frame())
+    curIndex <- eval(match.call(expand.dots=TRUE)$curIndex, parent.frame())
   else
-      curIndex <- mktdata[timestamp,which.i=TRUE]
+    curIndex <- mktdata[timestamp,which.i=TRUE]
   
   orderbook <- getOrderBook(portfolio)
   ordersubset <- orderbook[[portfolio]][[symbol]]
@@ -71,36 +71,36 @@ ruleOrderProc <- function(portfolio, symbol, mktdata, timestamp=NULL, ordertype=
     if (any(tclass(ordersubset)=='Date'))
         tif <- as.Date(coredata(tif.xts))
     else
-    {
+      {
         tif <- strptime(coredata(tif.xts), format='%Y-%m-%d %H:%M:%OS')
         tif.na <- is.na(tif)
         if(any(tif.na))
-            tif[tif.na] <- strptime(coredata(tif.xts[tif.na]), format='%Y-%m-%d %H:%M:%S')
-    }
-
+          tif[tif.na] <- strptime(coredata(tif.xts[tif.na]), format='%Y-%m-%d %H:%M:%S')
+      }
+    
     #check which ones should be expired
     ExpiredOrders.i<-which(tif<timestamp)
 
     ordersubset[OpenOrders.i[ExpiredOrders.i], "Order.Status"] = 'expired'  
     ordersubset[OpenOrders.i[ExpiredOrders.i], "Order.StatusTime"]<-ordersubset[OpenOrders.i[ExpiredOrders.i], "Time.In.Force"]
   }
-      
+  
   if(hasArg(prefer)) prefer=match.call(expand.dots=TRUE)$prefer
   else prefer = NULL
   
   # check for open orders
   if (!(length(OpenOrders.i)>=1)){
     return(NULL)  
-  } else {
-    mktdataTimestamp <- mktdata[curIndex]
-    # only keep the last observation per time stamp
-    if( NROW(mktdataTimestamp) > 1 ) mktdataTimestamp <- last(mktdataTimestamp)
-    isOHLCmktdata <- is.OHLC(mktdata)
-    isBBOmktdata  <- is.BBO(mktdata)
+    } else {
+      mktdataTimestamp <- mktdata[curIndex]
+      # only keep the last observation per time stamp
+      if( NROW(mktdataTimestamp) > 1 ) mktdataTimestamp <- last(mktdataTimestamp)
+      isOHLCmktdata <- is.OHLC(mktdata)
+      isBBOmktdata  <- is.BBO(mktdata)
     
-    for (ii in OpenOrders.i )
-    {
-      if(ordersubset[ii, "Order.Status"] != "open")   # need to check this bc side effects may have changed order.status in this loop
+      for (ii in OpenOrders.i )
+        {
+        if(ordersubset[ii, "Order.Status"] != "open")   # need to check this bc side effects may have changed order.status in this loop
         next()
       
       txnprice=NULL
@@ -114,12 +114,12 @@ ruleOrderProc <- function(portfolio, symbol, mktdata, timestamp=NULL, ordertype=
       
       orderQty <- ordersubset[ii,"Order.Qty"]
       if(orderQty %in% c('all','trigger'))
-      {
+        {
         # this has to be an exit or risk order, so: 
         orderQty=-1*getPosQty(Portfolio=portfolio,Symbol=symbol,Date=timestamp)
         orderside<-ordersubset[ii, "Order.Side"]
         if(((orderQty>0 && orderside=='long') || (orderQty<0 && orderside=='short')))
-        {
+          {
           # this condition may occur if (for example) a signal triggers an 'increase LONG pos' and 'close all SHORT pos' simultaneously
           # hence this is legal condition, and we must 0 the orderQty to reject the order
           
@@ -180,7 +180,7 @@ ruleOrderProc <- function(portfolio, symbol, mktdata, timestamp=NULL, ordertype=
                           #e.g. if pricemethod was opside, it sent a buy order at mktAsk. fill at greater of that ask, and current ask
                         } else txnprice = as.numeric(getPrice(mktdataTimestamp, prefer=prefer)[,1]) #filled at 'price'
                       }
-                 ) # end switch on frequency
+                    ) # end switch on frequency
              },
              limit= ,
              stoplimit =,
@@ -335,7 +335,7 @@ ruleOrderProc <- function(portfolio, symbol, mktdata, timestamp=NULL, ordertype=
                                       replace=FALSE, return=TRUE,
                                       orderset=ordersubset[ii,"Order.Set"],
                                       label=ordersubset[ii,"Rule"],
-                                      ,...=..., TxnFees=txnfees)
+                                      ...=..., TxnFees=txnfees)
                    
                    ordersubset<-rbind(ordersubset, neworder)
                    
@@ -387,7 +387,7 @@ ruleOrderProc <- function(portfolio, symbol, mktdata, timestamp=NULL, ordertype=
                                         replace=FALSE, return=TRUE,
                                         orderset=ordersubset[ii,"Order.Set"],
                                         label=ordersubset[ii,"Rule"],
-                                        ,...=..., TxnFees=txnfees)
+                                        ...=..., TxnFees=txnfees)
                      
                      ordersubset<-rbind(ordersubset, neworder)
                      
