@@ -10,7 +10,7 @@ devAskNewPage(ask = FALSE) # dont prompt for new page, mainly for R CMD check
 source(paste0(path.package("quantstrat"),"/demo/maCross_stoptrailing.R")) # source demo
 
 test_that("End.Equity equals 7809", {
-  expect_equal(round(tradeStats('Port.Luxor','AAPL')$End.Equity), 7809)
+  expect_equal(round(tradeStats('Port.Luxor','AAPL')$End.Equity), 2771)
 })
 
 test_that("num txns equals 11", { # note we pad the start with zeros

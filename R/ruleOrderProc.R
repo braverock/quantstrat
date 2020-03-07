@@ -354,52 +354,45 @@ ruleOrderProc <- function(portfolio, symbol, mktdata, timestamp=NULL, ordertype=
                  if(order.side == 'long'  && as.numeric(Lo(mktdataTimestamp)[,1]) < orderPrice
                     || order.side == 'short' && as.numeric(Hi(mktdataTimestamp)[,1]) > orderPrice)
                  {
-                   txnprice <- ifelse(orderPrice %in% c(Lo(mktdataTimestamp)[,1],Hi(mktdataTimestamp)[,1]), orderPrice, Op(mktdataTimestamp)[,1])
+                   if (order.side == 'long') {
+                     txnprice <- ifelse(orderPrice < Op(mktdataTimestamp)[,1], orderPrice, Op(mktdataTimestamp)[,1]) # assume we can unwind long position at the open price if open price < order price
+                     } else if (order.side == 'short') {
+                       txnprice <- ifelse(orderPrice > Op(mktdataTimestamp)[,1], orderPrice, Op(mktdataTimestamp)[,1]) # assume we can unwind short position at the open price if open price > order price
+                       }
                    ordersubset[ii,"Order.Price"] <- txnprice
                    txntime <- timestamp
-                 }
-                 else
-                   {
-                   # do we need to change the trailing stop?
-                   
-                   order.threshold <- as.numeric(ordersubset[ii, "Order.Threshold"])
-                   
-                   if(order.side == 'long')
-                     new.order.price <- max(orderPrice, as.numeric(Hi(mktdataTimestamp)[,1]) + order.threshold)
-                   if(order.side == 'short')
-                     new.order.price <- min(orderPrice, as.numeric(Lo(mktdataTimestamp)[,1]) + order.threshold)
-                   
-                   if(new.order.price != orderPrice)
-                   {
-                     # adjust trailing stop
+                   } else { # do we need to change the trailing stop?
+                     order.threshold <- as.numeric(ordersubset[ii, "Order.Threshold"])
                      
-                     order.qty <- ordersubset[ii, "Order.Qty"]   # if orderQty='all' we must recover it
-                     
-                     neworder<-addOrder(portfolio=portfolio,
-                                        symbol=symbol,
-                                        timestamp=timestamp,
-                                        qty=order.qty,
-                                        price=new.order.price - order.threshold,
-                                        ordertype=orderType,
-                                        side=order.side,
-                                        threshold=order.threshold,
-                                        status="open",
-                                        replace=FALSE, return=TRUE,
-                                        orderset=ordersubset[ii,"Order.Set"],
-                                        label=ordersubset[ii,"Rule"],
-                                        ...=..., TxnFees=txnfees)
-                     
-                     ordersubset<-rbind(ordersubset, neworder)
-                     
-                     ordersubset[ii,"Order.Status"]<-'replaced'
-                     ordersubset[ii,"Order.StatusTime"]<-format(timestamp, "%Y-%m-%d %H:%M:%S")
-                     
-                     next()
+                     if(order.side == 'long')
+                       new.order.price <- max(orderPrice, as.numeric(Hi(mktdataTimestamp)[,1]) + order.threshold)
+                     if(order.side == 'short')
+                       new.order.price <- min(orderPrice, as.numeric(Lo(mktdataTimestamp)[,1]) + order.threshold)
+                     if(new.order.price != orderPrice) { # adjust trailing stop
+                       order.qty <- ordersubset[ii, "Order.Qty"]   # if orderQty='all' we must recover it
+                       neworder<-addOrder(portfolio=portfolio,
+                                          symbol=symbol,
+                                          timestamp=timestamp,
+                                          qty=order.qty,
+                                          price=new.order.price - order.threshold,
+                                          ordertype=orderType,
+                                          side=order.side,
+                                          threshold=order.threshold,
+                                          status="open",
+                                          replace=FALSE, return=TRUE,
+                                          orderset=ordersubset[ii,"Order.Set"],
+                                          label=ordersubset[ii,"Rule"],
+                                          ...=..., TxnFees=txnfees)
+                       ordersubset<-rbind(ordersubset, neworder)
+                       
+                       ordersubset[ii,"Order.Status"]<-'replaced'
+                       ordersubset[ii,"Order.StatusTime"]<-format(timestamp, "%Y-%m-%d %H:%M:%S")
+                       
+                       next()
+                     }
                    }
                  }
-               }
-               
-             } # end stoptrailing
+               }# end stoptrailing
       )
       
       if(!is.null(txnprice) && !isTRUE(is.na(txnprice)))
