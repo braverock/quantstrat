@@ -88,8 +88,7 @@ stratMACROSS<- strategy(portfolio.st)
 
 We are now ready to add indicators, signals and rules. For more
 information on the theory of this approach, see below sections “About
-Signal-Based Strategy Modeling” and “How quantstrat Models
-Strategies”.
+Signal-Based Strategy Modeling” and “How quantstrat Models Strategies”.
 
 ``` r
 stratMACROSS <- add.indicator(strategy = stratMACROSS, name = "SMA", arguments = list(x=quote(Cl(mktdata)), n=50),label= "ma50" )
@@ -118,26 +117,26 @@ for(i in stock.str)
 
 start_t<-Sys.time()
 out<-applyStrategy(strategy=stratMACROSS , portfolios=portfolio.st)
-#> [1] "2001-06-27 00:00:00 AAPL 100 @ 1.454938"
-#> [1] "2001-09-07 00:00:00 AAPL -100 @ 1.077177"
-#> [1] "2002-01-07 00:00:00 AAPL 100 @ 1.427509"
-#> [1] "2002-07-10 00:00:00 AAPL -100 @ 1.079671"
-#> [1] "2003-05-16 00:00:00 AAPL 100 @ 1.171929"
-#> [1] "2006-06-22 00:00:00 AAPL -100 @ 7.428038"
-#> [1] "2006-09-26 00:00:00 AAPL 100 @ 9.675898"
-#> [1] "2008-03-07 00:00:00 AAPL -100 @ 15.241315"
-#> [1] "2008-05-19 00:00:00 AAPL 100 @ 22.89002"
-#> [1] "2008-09-24 00:00:00 AAPL -100 @ 16.046701"
-#> [1] "2009-05-14 00:00:00 AAPL 100 @ 15.328584"
-#> [1] "2012-12-11 00:00:00 AAPL -100 @ 68.096306"
-#> [1] "2013-09-11 00:00:00 AAPL 100 @ 59.956573"
-#> [1] "2015-08-31 00:00:00 AAPL -100 @ 105.237"
-#> [1] "2016-08-31 00:00:00 AAPL 100 @ 101.138496"
-#> [1] "2018-12-24 00:00:00 AAPL -100 @ 145.090836"
-#> [1] "2019-05-07 00:00:00 AAPL 100 @ 201.316895"
+#> [1] "2001-06-27 00:00:00 AAPL 100 @ 1.443241"
+#> [1] "2001-09-07 00:00:00 AAPL -100 @ 1.068518"
+#> [1] "2002-01-07 00:00:00 AAPL 100 @ 1.416034"
+#> [1] "2002-07-10 00:00:00 AAPL -100 @ 1.070991"
+#> [1] "2003-05-16 00:00:00 AAPL 100 @ 1.162508"
+#> [1] "2006-06-22 00:00:00 AAPL -100 @ 7.368322"
+#> [1] "2006-09-26 00:00:00 AAPL 100 @ 9.598111"
+#> [1] "2008-03-07 00:00:00 AAPL -100 @ 15.118788"
+#> [1] "2008-05-19 00:00:00 AAPL 100 @ 22.706005"
+#> [1] "2008-09-24 00:00:00 AAPL -100 @ 15.917701"
+#> [1] "2009-05-14 00:00:00 AAPL 100 @ 15.205353"
+#> [1] "2012-12-11 00:00:00 AAPL -100 @ 67.548859"
+#> [1] "2013-09-11 00:00:00 AAPL 100 @ 59.474586"
+#> [1] "2015-08-31 00:00:00 AAPL -100 @ 104.390999"
+#> [1] "2016-08-31 00:00:00 AAPL 100 @ 100.325439"
+#> [1] "2018-12-24 00:00:00 AAPL -100 @ 143.924454"
+#> [1] "2019-05-07 00:00:00 AAPL 100 @ 199.698502"
 end_t<-Sys.time()
 print(end_t-start_t)
-#> Time difference of 0.1750953 secs
+#> Time difference of 0.1832633 secs
 ```
 
 Before we can review results using chart.Posn(), we update the
@@ -151,7 +150,7 @@ end_t<-Sys.time()
 print("trade blotter portfolio update:")
 #> [1] "trade blotter portfolio update:"
 print(end_t-start_t)
-#> Time difference of 0.02506685 secs
+#> Time difference of 0.03264308 secs
 
 chart.Posn(Portfolio='macross',Symbol=stock.str, TA=c("add_SMA(n=50,col='red')","add_SMA(n=200,col='blue')"))
 ```
@@ -230,7 +229,7 @@ indicators and signals, rules are generally evaluated in a
 path-dependent fashion (path-independent rules are supported but are
 rare in real life) and are aware of all prior market data and current
 positions at the time of evaluation. Rules may either generate new or
-modify existing orders ( e.g. risk management, fill, rebalance, entry,
+modify existing orders (e.g. risk management, fill, rebalance, entry,
 exit).
 
 ## How quantstrat Models Strategies
@@ -271,3 +270,7 @@ changed / replaced / canceled. An order book allows the quantitative
 strategist to examine market conditions at the time these decisions are
 made. Also, the order history allows for easy computation of things that
 are important for many strategies, like order-to-fill ratios.
+
+### Contributing
+
+Please see the [contributing guide](.github/CONTRIBUTING.md).
