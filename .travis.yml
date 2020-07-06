@@ -27,23 +27,29 @@ r_binary_packages:
  - plyr
  - Rcpp
  - RCurl
- - shiny
+ # - shiny
  - stringr
  - stringi
  - MASS
  - RColorBrewer
- - utf8
+ # - utf8
  - digest
  - colorspace
- - curl
- - openssl
- - git2r
+ # - curl
+ # - openssl
+ # - git2r
  - foreach
  - iterators
- - RJSONIO
+ # - RJSONIO
  - yaml
  - testthat
  - rgl
+ 
+# Install dependencies from source which cannot be found as r_binary_packages
+install:
+  - if [ $TRAVIS_OS_NAME = linux ]; then
+      ./run.sh install_aptget r-cran-shiny r-cran-utf8 r-cran-curl \
+        r-cran-openssl r-cran-git2r r-cran-rjsonio;
 
 # Done via install.packages
 #r_packages:
