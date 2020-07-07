@@ -45,11 +45,6 @@ r_binary_packages:
  - testthat
  - rgl
  
-# Install dependencies from source which cannot be found as r_binary_packages
-install:
-  - if [ $TRAVIS_OS_NAME = linux ]; then
-      ./run.sh install_aptget r-cran-shiny r-cran-utf8 r-cran-curl r-cran-openssl r-cran-git2r r-cran-rjsonio;
-
 # Done via install.packages
 #r_packages:
 
