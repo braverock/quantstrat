@@ -20,33 +20,34 @@ r_check_args: "--no-build-vignettes --ignore-vignettes --as-cran"
 # - libcurl4-openssl-dev
 # - libxml2-dev
 
-before_isntall:
+before_install:
   - Rscript -e 'install.packages(c("shiny","utf8","curl","openssl","git2r","rjsonio"),lib="/home/travis/R-bin/lib/R/library/")'
+  - sudo-apt-repository -ry "ppa:marutter/rrutter4.0"
 
 # Binaries from Michael Rutter's ppa
-r_binary_packages:
- - magrittr
- - ggplot2
- - plyr
- - Rcpp
- - RCurl
- # - shiny
- - stringr
- - stringi
- - MASS
- - RColorBrewer
- # - utf8
- - digest
- - colorspace
- # - curl
- # - openssl
- # - git2r
- - foreach
- - iterators
- # - RJSONIO
- - yaml
- - testthat
- - rgl
+# r_binary_packages:
+#  - magrittr
+#  - ggplot2
+#  - plyr
+#  - Rcpp
+#  - RCurl
+#  # - shiny
+#  - stringr
+#  - stringi
+#  - MASS
+#  - RColorBrewer
+#  # - utf8
+#  - digest
+#  - colorspace
+#  # - curl
+#  # - openssl
+#  # - git2r
+#  - foreach
+#  - iterators
+#  # - RJSONIO
+#  - yaml
+#  - testthat
+#  - rgl
  
 # Done via install.packages
 #r_packages:
