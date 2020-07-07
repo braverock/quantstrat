@@ -22,7 +22,7 @@ r_check_args: "--no-build-vignettes --ignore-vignettes --as-cran"
 
 before_install:
   - Rscript -e 'install.packages(c("shiny","utf8","curl","openssl","git2r","rjsonio"),lib="/home/travis/R-bin/lib/R/library/")'
-  - sudo-apt-repository -ry "ppa:marutter/rrutter4.0"
+  - sudo-add-apt-repository -ry ppa:marutter/rrutter4.0
 
 # Binaries from Michael Rutter's ppa
 # r_binary_packages:
