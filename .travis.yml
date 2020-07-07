@@ -20,6 +20,9 @@ r_check_args: "--no-build-vignettes --ignore-vignettes --as-cran"
 # - libcurl4-openssl-dev
 # - libxml2-dev
 
+before_isntall:
+  - Rscript -e 'install.packages(c("shiny","utf8","curl","openssl","git2r","rjsonio"),lib="/home/travis/R-bin/lib/R/library/")
+
 # Binaries from Michael Rutter's ppa
 r_binary_packages:
  - magrittr
@@ -27,20 +30,20 @@ r_binary_packages:
  - plyr
  - Rcpp
  - RCurl
- # - shiny
+ - shiny
  - stringr
  - stringi
  - MASS
  - RColorBrewer
- # - utf8
+ - utf8
  - digest
  - colorspace
- # - curl
- # - openssl
- # - git2r
+ - curl
+ - openssl
+ - git2r
  - foreach
  - iterators
- # - RJSONIO
+ - RJSONIO
  - yaml
  - testthat
  - rgl
@@ -54,7 +57,7 @@ r_github_packages:
  - joshuaulrich/xts
  - braverock/blotter
  - ramnathv/rCharts
- - r-lib/covr
+ # - r-lib/covr
  
 after_success:
   - travis_wait 30 Rscript -e 'covr::codecov()'
