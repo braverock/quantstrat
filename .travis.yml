@@ -30,20 +30,20 @@ r_binary_packages:
  - plyr
  - Rcpp
  - RCurl
- - shiny
+ # - shiny
  - stringr
  - stringi
  - MASS
  - RColorBrewer
- - utf8
+ # - utf8
  - digest
  - colorspace
- - curl
- - openssl
- - git2r
+ # - curl
+ # - openssl
+ # - git2r
  - foreach
  - iterators
- - RJSONIO
+ # - RJSONIO
  - yaml
  - testthat
  - rgl
