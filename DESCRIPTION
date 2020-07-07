@@ -39,9 +39,10 @@ Description: Specify, build, and back-test quantitative
 Contributors: Yu Chen, Joe Dunn, Dirk Eddelbuettel,
     Michael Guan, Jeffrey A. Ryan, Garrett See
 LazyLoad: yes
+LazyData: true
 License: GPL-3
 Copyright: (c) 2009-2019
 ByteCompile: TRUE
 Encoding: UTF-8
-RoxygenNote: 7.0.2
+RoxygenNote: 7.1.1
 VignetteBuilder: knitr
