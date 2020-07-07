@@ -20,4 +20,7 @@
 #'   \item{Volume}{Aggregate Daily volume traded}
 #'   \item{Adjusted}{Adjusted prices}
 #' }
+#' 
+#' @usage data(AAPL)
+#' 
 "AAPL"
