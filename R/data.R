@@ -9,7 +9,7 @@
 #' We have chosen to fix the dataset, since we have no control over changes at
 #' the source, which would break our tests.
 #' 
-#' The variables are as follows:
+#' @usage data(AAPL)
 #'
 #' @format An xts object with 501 rows and 6 variables:
 #' \describe{
@@ -21,6 +21,5 @@
 #'   \item{Adjusted}{Adjusted prices}
 #' }
 #' 
-#' @usage data(AAPL)
-#' 
 "AAPL"
+
