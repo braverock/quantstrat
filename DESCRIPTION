@@ -33,6 +33,8 @@ Suggests:
     xtable,
     covr,
     usethis
+Remotes:
+    github::braverock/blotter
 Maintainer: Brian G. Peterson <brian@braverock.com>
 Description: Specify, build, and back-test quantitative
     financial trading and portfolio strategies.
