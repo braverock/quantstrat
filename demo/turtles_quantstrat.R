@@ -53,7 +53,12 @@ initOrders(portfolio=portfolio)
 # addPosLimit(portfolio, symbol, startDate, 100, 1 ) #set max pos
 allowMagicalThinking <- TRUE # potentially controversial
 
+# Portfolio Parameters
+size = 0.01
+maxUnits = 4
 stratTurtles<- strategy(portfolio)
+
+ATRperiod = 20
 
 # TODO: System 1 Indicators
 
@@ -65,11 +70,17 @@ stratTurtles<- strategy(portfolio)
 
 # TODO: System 2 short entry and exit
 
-# System 2 Indicators
+## System 2 Indicators
+# ATR
+strat.macdX <- add.indicator(strategy=strat.macdX, name="ATR",
+                             arguments=list(HLC=quote(HLC(mktdata)), n=ATRperiod),
+                             label="atrX")
+# Long Breakout
 stratTurtles <- add.indicator(strategy = stratTurtles,
                               name = "runMax",
                               arguments = list(x=quote(Hi(mktdata)), n=55),
                               label= "runMax55" )
+# Short Breakout
 stratTurtles <- add.indicator(strategy = stratTurtles,
                               name = "runMin",
                               arguments = list(x=quote(Lo(mktdata)[,1]), n=55),
@@ -86,16 +97,55 @@ stratTurtles <- add.signal(strategy = stratTurtles,
                            label="Lo.lte.runMin55")
 
 # System 2 Rules
+# stratTurtles <- add.rule(strategy = stratTurtles,
+#                          name='ruleSignal',
+#                          arguments = list(sigcol="Hi.gte.runMax55",sigval=TRUE, orderqty=100,
+#                                           ordertype='market', orderside='long', prefer="open"),
+#                          type='enter')
 stratTurtles <- add.rule(strategy = stratTurtles,
                          name='ruleSignal',
-                         arguments = list(sigcol="Hi.gte.runMax55",sigval=TRUE, orderqty=100,
+                         arguments = list(sigcol="Hi.gte.runMax55",sigval=TRUE, osFUN=ORDQTY2,
                                           ordertype='market', orderside='long', prefer="open"),
                          type='enter')
+
 stratTurtles <- add.rule(strategy = stratTurtles,
                          name='ruleSignal',
                          arguments = list(sigcol="Lo.lte.runMin55",sigval=TRUE, orderqty='all',
                                           ordertype='market', orderside='long', prefer="open")
                          ,type='exit')
+
+# System 2 Order Size function
+# 'N' is the 20-day EMA of the True Range, or more commonly the ATR
+# True Range = max(H-L, H-PDC, PDC-L)
+# 'N' = (19 x PDN + TR)/20
+# Volatility Adjusted Position Units
+# "The Turtles built positions in pieces which we called Units. Units were sized
+# so that 1 N represented 1% of the account equity."
+# Unit = (1% of Account) / (N x Dollars per Point)
+OrdQty2 <- function(data, timestamp, orderqty, ordertype, orderside,
+                    portfolio, symbol, prefer="Open",
+                    integerQty=TRUE, size,
+                    ...) {
+  if(getPosQty("turtles_quantstrat", symbol, timestamp) == 0){
+    
+    if(prefer=="Close") {
+      price <- as.numeric()
+    } else {
+      price <- as.numeric(Op(mktdata[timestamp,]))
+    }
+    sharesToTransact <- (initEq * size) / (mktdata$atr.atrX[timestamp])
+    if (orderside=="short") {
+      #qty <- -dollarsToTransact / price
+      qty <- -sharesToTransact
+    } else {
+      qty <- sharesToTransact
+    }
+    if(integerQty) {
+      qty <- trunc(sharesToTransact)
+    }
+    return(qty)
+  }
+}
 
 # Run backtest
 start_t<-Sys.time()
