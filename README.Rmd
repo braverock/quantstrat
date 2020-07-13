@@ -215,3 +215,6 @@ examine market conditions at the time these decisions are made. Also, the
 order history allows for easy computation of things that are important for
 many strategies, like order-to-fill ratios.
 
+### Contributing
+
+Please see the [contributing guide](.github/CONTRIBUTING.md).

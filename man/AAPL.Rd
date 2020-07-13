@@ -4,7 +4,8 @@
 \name{AAPL}
 \alias{AAPL}
 \title{AAPL time series of daily OHLCVA bars}
-\format{An xts object with 501 rows and 6 variables:
+\format{
+An xts object with 501 rows and 6 variables:
 \describe{
   \item{Open}{Daily Open prices}
   \item{High}{Daily High prices}
@@ -12,9 +13,10 @@
   \item{Close}{Daily Close prices}
   \item{Volume}{Aggregate Daily volume traded}
   \item{Adjusted}{Adjusted prices}
-}}
+}
+}
 \usage{
-AAPL
+data(AAPL)
 }
 \description{
 A dataset containing the daily OHLCVA values of AAPL from 2017-01-03 to
@@ -26,7 +28,5 @@ for(i in symbols) assign(i, adjustOHLC(get(i),use.Adjusted=TRUE))
 
 We have chosen to fix the dataset, since we have no control over changes at
 the source, which would break our tests.
-
-The variables are as follows:
 }
 \keyword{datasets}
