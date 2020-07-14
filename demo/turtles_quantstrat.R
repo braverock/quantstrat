@@ -224,3 +224,13 @@ ret1$total <- rowSums(ret1)
 print(last(cumsum(ret1$total)))
 plot.xts(main = "Daily Portfolio Returns", ret1$total)
 plot.xts(main = "Cumulative Portfolio Return", cumsum(ret1$total))
+
+getSymbols("SPY", src='yahoo', index.class=c("POSIXt","POSIXct"), from='1999-01-01')
+# SPY<-to.monthly(SPY, indexAt='lastof')  
+SPY.ret<-Return.calculate(SPY$SPY.Adjusted)
+dev.new()
+charts.PerformanceSummary(cbind(ret1$total,SPY.ret), geometric=FALSE, wealth.index=TRUE)
+
+# Trade Stats
+turtles_quantstrat.Stats <- t(tradeStats('turtles_quantstrat'))
+View(turtles_quantstrat.Stats)
