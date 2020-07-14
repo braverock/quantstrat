@@ -36,7 +36,7 @@ initDate="2008-01-01"
 initEq=100000
 print("Initializing portfolio and account structure")
 # Assemble a small portfolio of three stocks
-symbols = c("XLF", "XLP", "XLE")#, "XLY", "XLV", "XLI", "XLB", "XLK", "XLU")
+symbols = c("XLF", "XLP", "XLE", "XLY", "XLV", "XLI", "XLB", "XLK", "XLU")
 currency("USD")
 for(symbol in symbols){
   stock(symbol, currency="USD",multiplier=1)
@@ -54,9 +54,10 @@ initOrders(portfolio=portfolio)
 allowMagicalThinking <- TRUE # potentially controversial
 
 # Portfolio Parameters
-size = 0.01
+risk_size = 0.01
 maxUnits = 4
 stratTurtles<- strategy(portfolio)
+mult_N <- 0.5
 
 ATRperiod = 20
 
@@ -72,47 +73,61 @@ ATRperiod = 20
 
 ## System 2 Indicators
 # ATR
-strat.macdX <- add.indicator(strategy=strat.macdX, name="ATR",
+stratTurtles <- add.indicator(strategy=stratTurtles, name="ATR",
                              arguments=list(HLC=quote(HLC(mktdata)), n=ATRperiod),
                              label="atrX")
 # Long Breakout
 stratTurtles <- add.indicator(strategy = stratTurtles,
                               name = "runMax",
-                              arguments = list(x=quote(Hi(mktdata)), n=55),
+                              arguments = list(x=quote(Hi(mktdata)[,1]), n=55),
                               label= "runMax55" )
+# Long Exit
+stratTurtles <- add.indicator(strategy = stratTurtles,
+                              name = "runMin",
+                              arguments = list(x=quote(Lo(mktdata)[,1]), n=20),
+                              label= "runMin20")
 # Short Breakout
 stratTurtles <- add.indicator(strategy = stratTurtles,
                               name = "runMin",
                               arguments = list(x=quote(Lo(mktdata)[,1]), n=55),
                               label= "runMin55")
+# Short Exit
+stratTurtles <- add.indicator(strategy = stratTurtles,
+                              name = "runMax",
+                              arguments = list(x=quote(Hi(mktdata)[,1]), n=20),
+                              label= "runMax20")
 
-# System 2 Signals
+# # Test Indicators
+# test <- applyIndicators(stratTurtles, mktdata=OHLC(XLF))
+# head(test)
+
+## System 2 Signals
+# Long Entry Signal
 stratTurtles <- add.signal(strategy = stratTurtles,
                            name="sigCrossover",
                            arguments = list(columns=c("High", "runMax55"), relationship="gte"),
                            label="Hi.gte.runMax55")
+# Long Exit Signal
+stratTurtles <- add.signal(strategy = stratTurtles,
+                           name="sigCrossover",
+                           arguments = list(column=c("Low", "runMin20"),relationship="lte"),
+                           label="Lo.lte.runMin20")
+
+# Short Entry Signal
 stratTurtles <- add.signal(strategy = stratTurtles,
                            name="sigCrossover",
                            arguments = list(column=c("Low", "runMin55"),relationship="lte"),
                            label="Lo.lte.runMin55")
+# Short Exit Signal
+stratTurtles <- add.signal(strategy = stratTurtles,
+                           name="sigCrossover",
+                           arguments = list(columns=c("High", "runMax20"), relationship="gte"),
+                           label="Hi.gte.runMax20")
 
-# System 2 Rules
-# stratTurtles <- add.rule(strategy = stratTurtles,
-#                          name='ruleSignal',
-#                          arguments = list(sigcol="Hi.gte.runMax55",sigval=TRUE, orderqty=100,
-#                                           ordertype='market', orderside='long', prefer="open"),
-#                          type='enter')
-stratTurtles <- add.rule(strategy = stratTurtles,
-                         name='ruleSignal',
-                         arguments = list(sigcol="Hi.gte.runMax55",sigval=TRUE, osFUN=ORDQTY2,
-                                          ordertype='market', orderside='long', prefer="open"),
-                         type='enter')
 
-stratTurtles <- add.rule(strategy = stratTurtles,
-                         name='ruleSignal',
-                         arguments = list(sigcol="Lo.lte.runMin55",sigval=TRUE, orderqty='all',
-                                          ordertype='market', orderside='long', prefer="open")
-                         ,type='exit')
+# # Test Signals
+# testSignals <- applySignals(stratTurtles, mktdata=mktdata)
+# head(testSignals)
 
 # System 2 Order Size function
 # 'N' is the 20-day EMA of the True Range, or more commonly the ATR
@@ -123,8 +138,8 @@ stratTurtles <- add.rule(strategy = stratTurtles,
 # so that 1 N represented 1% of the account equity."
 # Unit = (1% of Account) / (N x Dollars per Point)
 OrdQty2 <- function(data, timestamp, orderqty, ordertype, orderside,
-                    portfolio, symbol, prefer="Open",
-                    integerQty=TRUE, size,
+                    portfolio, symbol, prefer="Close",
+                    integerQty=TRUE, size=risk_size,
                     ...) {
   if(getPosQty("turtles_quantstrat", symbol, timestamp) == 0){
     
@@ -141,11 +156,39 @@ OrdQty2 <- function(data, timestamp, orderqty, ordertype, orderside,
       qty <- sharesToTransact
     }
     if(integerQty) {
-      qty <- trunc(sharesToTransact)
+      qty <- trunc(qty)
     }
     return(qty)
   }
 }
+
+## System 2 Rules
+# Long Entry
+stratTurtles <- add.rule(strategy = stratTurtles,
+                         name='ruleSignal',
+                         arguments = list(sigcol="Hi.gte.runMax55",sigval=TRUE, osFUN=OrdQty2,
+                                          ordertype='market', orderside='long', prefer="open"),
+                         type='enter')
+# Long Exit
+stratTurtles <- add.rule(strategy = stratTurtles,
+                         name='ruleSignal',
+                         arguments = list(sigcol="Lo.lte.runMin20",sigval=TRUE, orderqty='all',
+                                          ordertype='market', orderside='long', prefer="open"),
+                         type='exit')
+
+# Short Entry
+stratTurtles <- add.rule(strategy = stratTurtles,
+                         name='ruleSignal',
+                         arguments = list(sigcol="Lo.lte.runMin55",sigval=TRUE, osFUN=OrdQty2,
+                                          ordertype='market', orderside='short', prefer="open"),
+                         type='enter')
+# Short Exit
+stratTurtles <- add.rule(strategy = stratTurtles,
+                         name='ruleSignal',
+                         arguments = list(sigcol="Hi.gte.runMax20",sigval=TRUE, orderqty='all',
+                                          ordertype='market', orderside='short', prefer="open"),
+                         type='exit')
+
 
 # Run backtest
 start_t<-Sys.time()
@@ -156,6 +199,7 @@ print(end_t-start_t)
 # Update portfolio
 start_t<-Sys.time()
 updatePortf(Portfolio='turtles_quantstrat',Dates=paste('::',as.Date(Sys.time()),sep=''))
+updateAcct(name='turtles_quantstrat')
 end_t<-Sys.time()
 print("trade blotter portfolio update:")
 print(end_t-start_t)
@@ -172,4 +216,11 @@ if(require(PerformanceAnalytics)){
   charts.PerformanceSummary(PortfReturns('turtles_quantstrat'),main='Turtle Demo Instrument Return on Equity',geometric=FALSE)
 }
 
-getEndEq(account,Sys.time())
+getEndEq(account)
+
+ret1 <- PortfReturns('turtles_quantstrat')
+ret1$total <- rowSums(ret1)
+
+print(last(cumsum(ret1$total)))
+plot.xts(main = "Daily Portfolio Returns", ret1$total)
+plot.xts(main = "Cumulative Portfolio Return", cumsum(ret1$total))
