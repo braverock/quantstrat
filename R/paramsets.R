@@ -580,6 +580,10 @@ apply.paramset <- function(strategy.st
               if(!is.null(r$tradeStats) ){
                 if(nrow(r$tradeStats)==0){
                   tmpnames <- colnames(r$tradeStats)
+                  if(nrow(r$tradeStats)==0) { # no trades returned in this param.combo
+                    print(paste0("No transactions returned for param.combo ", i, " out of ", length(args)))
+                    next # jump to next param.combo
+                  }
                   r$tradeStats <- data.frame(r$portfolio.st,t(rep(0,length(tmpnames)-1)))
                   colnames(r$tradeStats) <- tmpnames
                 }
