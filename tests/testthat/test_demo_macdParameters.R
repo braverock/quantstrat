@@ -8,8 +8,8 @@ context("deom/macdParameters.R")
 
 source(paste0(path.package("quantstrat"),"/demo/macdParameters.R"))
 
-test_that("results environment has 33 objects", {
-  expect_equal(length(results), 33)
+test_that("results environment has 34 objects", {
+  expect_equal(length(results), 34)
 })
 
 # Cannot test End.Equity since we use a random sample of all possible parameter combinations,
