@@ -262,11 +262,16 @@ walk.forward <- function(  strategy.st
                                              )
       
       tradeStats.list <- result$apply.paramset$tradeStats
+      dailyStats.list <- result$apply.paramset$dailyStats
       
       if(!missing(k.testing) && k.testing>0)
       {
         if(!is.function(obj.func))
           stop(paste(obj.func, 'unknown obj function', sep=': '))
+        
+        if(length(portfolio$symbols) > 1) { # use portfolio dailyStats instead symbol-specific tradeStats 
+          obj.args=list(x=quote(dailyStats.list$End.Equity))
+        }
         
         # select best param.combo
         param.combo.idx <- try(do.call(obj.func, obj.args))
@@ -288,8 +293,14 @@ walk.forward <- function(  strategy.st
             # or lowest degrees of freedom
             param.combo.idx <- last(param.combo.idx)
           }
-          param.combo <- tradeStats.list[param.combo.idx, 1:grep('Portfolio', names(tradeStats.list)) - 1]
-          param.combo.nr <- row.names(tradeStats.list)[param.combo.idx]
+          
+          if(length(portfolio$symbols) > 1) { # use portfolio dailyStats instead symbol-specific tradeStats 
+            param.combo <- dailyStats.list[param.combo.idx, 1:2]
+            param.combo.nr <- row.names(dailyStats.list)[param.combo.idx]
+          } else { # use symbol-specific tradeStats
+            param.combo <- tradeStats.list[param.combo.idx, 1:grep('Portfolio', names(tradeStats.list)) - 1]
+            param.combo.nr <- row.names(tradeStats.list)[param.combo.idx]
+          }
         }
         
         old.param.combo<-param.combo

@@ -564,6 +564,7 @@ apply.paramset <- function(strategy.st
                 # calculate tradeStats on portfolio
                 updatePortf(r$portfolio.st, Symbols = symbols, ...)
                 r$tradeStats <- tradeStats(r$portfolio.st,Dates = perf.subset, ...)
+                r$dailyStats <- dailyStats(r$portfolio.st,Dates = perf.subset, ...)
 
                 r$cumPL <- cumsum(r$portfolio.st[,'Net.Trading.PL'])
                 if(!is.null(perf.subset)) r$cumPL <- r$cumPL[perf.subset]
@@ -596,6 +597,24 @@ apply.paramset <- function(strategy.st
               
               if(!is.null(r$cumPL)){
                 results$cumPL <- cbind(results$cumPL,r$cumPL)
+              }
+              
+              # add copy of dailyStats to summary list for convenience
+              if(!is.null(r$dailyStats) ){
+                if(nrow(r$dailyStats)==0){
+                  tmpnames <- colnames(r$dailyStats)
+                  if(nrow(r$dailyStats)==0) { # no trades returned in this param.combo
+                    print(paste0("No transactions returned for param.combo ", i, " out of ", length(args)))
+                    next # jump to next param.combo
+                  }
+                  r$dailyStats <- data.frame(r$portfolio.st,t(rep(0,length(tmpnames)-1)))
+                  colnames(r$dailyStats) <- tmpnames
+                }
+                if(is.null(results$dailyStats)){
+                  results$dailyStats <- cbind(r$param.combo, r$dailyStats)
+                } else {
+                  results$dailyStats <- rbind(results$dailyStats, cbind(r$param.combo, r$dailyStats))
+                }
               }
               
               # add copy of user.func results to summary list for convenience
