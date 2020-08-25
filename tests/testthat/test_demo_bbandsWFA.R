@@ -8,8 +8,8 @@ context("deom/bbandsWFA.R")
 
 source(paste0(path.package("quantstrat"),"/demo/bbandsWFA.R"))
 
-test_that("results environment has 11 objects", {
-  expect_equal(length(results), 11)
+test_that("results environment has 12 objects", {
+  expect_equal(length(results), 12)
 })
 
 test_that("test TradeStats End.Equity equals -2835", {

@@ -8,8 +8,8 @@ context("deom/macdWFA.R")
 
 source(paste0(path.package("quantstrat"),"/demo/macdWFA.R"))
 
-test_that("wfresults environment has 12 objects", {
-  expect_equal(length(wfresults), 12)
+test_that("wfresults environment has 13 objects", {
+  expect_equal(length(wfresults), 13)
 })
 
 # Cannot test End.Equity since we use a random sample of all possible parameter combinations,
