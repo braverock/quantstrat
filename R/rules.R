@@ -571,8 +571,8 @@ applyRules <- function(portfolio,
               posQty = mktdata[,has.Lo(mktdata,which=TRUE)[1]],
               negQty = mktdata[,has.Hi(mktdata,which=TRUE)[1]]),
           stoptrailing = list(
-              posQty = getPrice(mktdata, prefer='close')[,1],
-              negQty = getPrice(mktdata, prefer='close')[,1]))
+              posQty = getPrice(mktdata, prefer='high')[,1],
+              negQty = getPrice(mktdata, prefer='low')[,1]))
     } else { # univariate or something built with fn_SpreadBuilder
         prefer <- if(hasArg("prefer")) match.call(expand.dots=TRUE)$prefer else NULL
         mktPrices <- list(
