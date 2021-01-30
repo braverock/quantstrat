@@ -413,6 +413,8 @@ applyRules <- function(portfolio,
 
             if(mktPrices$isOHLC || mktPrices$isBBO)                # get buy market price for this order type, if it exists
                 mktPrice <- mktPrices[[orderType]]$posQty
+                low_mktPrice <- mktPrices[[orderType]]$negQty      # used for determining if stoptrailing order trades
+                high_mktPrice <- mktPrices[[orderType]]$posQty     # used for determining if stoptrailing order price needs to be adjusted due to new high
         } else {             # selling
             # determine relationship
             relationship <-
@@ -423,6 +425,8 @@ applyRules <- function(portfolio,
 
             if(mktPrices$isOHLC || mktPrices$isBBO)                # get sell market price for this order type, if it exists
                 mktPrice <- mktPrices[[orderType]]$negQty
+                low_mktPrice <- mktPrices[[orderType]]$negQty      # used for determining if stoptrailing order trades
+                high_mktPrice <- mktPrices[[orderType]]$posQty     # used for determining if stoptrailing order price needs to be adjusted due to new high
         }
         # ensure we have a mktPrice
         if (is.null(mktPrice) || (length(mktPrice) == 1L && is.na(mktPrice)))
@@ -430,7 +434,16 @@ applyRules <- function(portfolio,
 
         # use .firstCross to find the location of the first orderPrice that crosses mktdata[,col]
         # *after* curIndex, since that is the soonest we can get filled.
-        out$cross <- .firstCross(mktPrice, orderPrice, relationship, start=curIndex+1L)
+        if(orderType %in% "stoptrailing") {
+            if(orderQty > 0) {
+                out$cross <- .firstCross(high_mktPrice, orderPrice, relationship, start=curIndex+1L)
+            } else if(orderQty < 0) {
+                out$cross <- .firstCross(low_mktPrice, orderPrice, relationship, start=curIndex+1L)
+            }
+        } else {
+            out$cross <- .firstCross(mktPrice, orderPrice, relationship, start=curIndex+1L)
+        }
+            
 
         # check if trailing order needs to be moved
         out$move_order <- FALSE
@@ -439,9 +452,11 @@ applyRules <- function(portfolio,
             if(orderQty > 0) {
                 relationship <- "lt"
                 newOrderPrice <- orderPrice - abs(orderThreshold)
+                mktPrice <- low_mktPrice                           # use low price for determining if stoptrailing order price needs to change
             } else {
                 relationship <- "gt"
                 newOrderPrice <- orderPrice + abs(orderThreshold)
+                mktPrice <- high_mktPrice                          # use high price for determining if stoptrailing order price needs to change
             }
             out$move_order <- .firstCross(mktPrice, newOrderPrice, relationship, start=curIndex+1L)
         }
