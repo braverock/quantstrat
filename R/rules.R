@@ -413,8 +413,8 @@ applyRules <- function(portfolio,
 
             if(mktPrices$isOHLC || mktPrices$isBBO)                # get buy market price for this order type, if it exists
                 mktPrice <- mktPrices[[orderType]]$posQty
-                low_mktPrice <- mktPrices[[orderType]]$negQty      # used for determining if stoptrailing order trades
-                high_mktPrice <- mktPrices[[orderType]]$posQty     # used for determining if stoptrailing order price needs to be adjusted due to new high
+                low_mktPrice <- mktPrices[[orderType]]$negQty      # used for determining if stoptrailing order price needs to be adjusted due to new low
+                high_mktPrice <- mktPrices[[orderType]]$posQty     # used for determining if stoptrailing order trades
         } else {             # selling
             # determine relationship
             relationship <-
