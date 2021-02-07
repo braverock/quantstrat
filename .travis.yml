@@ -21,7 +21,7 @@ r_check_args: "--no-build-vignettes --ignore-vignettes --as-cran"
 # - libxml2-dev
 
 before_install:
-  - Rscript -e 'install.packages(c("shiny","utf8","curl","openssl","git2r","rjsonio"),lib="/home/travis/R-bin/lib/R/library/")'
+  # - Rscript -e 'install.packages(c("shiny","utf8","curl","openssl","git2r","rjsonio"),lib="/home/travis/R-bin/lib/R/library/")'
   - sudo add-apt-repository -ry ppa:marutter/rrutter4.0
   - sudo apt install libftgl2 libcgal-dev libglu1-mesa-dev libglu1-mesa-dev libx11-dev libfreetype6-dev
 
