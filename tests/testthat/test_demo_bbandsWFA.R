@@ -2,6 +2,7 @@
 #
 # See issue #101 - https://github.com/braverock/quantstrat/issues/101
 
+options(warn=-1)
 stopifnot(require(testthat))
 stopifnot(require(quantstrat))
 context("deom/bbandsWFA.R")

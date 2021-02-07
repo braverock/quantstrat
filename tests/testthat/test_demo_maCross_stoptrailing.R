@@ -1,7 +1,6 @@
 # A test for indicators, signals and rules using the macd demo
 #
 #
-
 stopifnot(require(testthat))
 stopifnot(require(quantstrat))
 context("demo/test_maCross_stoptrailing.R")

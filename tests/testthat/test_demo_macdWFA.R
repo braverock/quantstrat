@@ -2,6 +2,7 @@
 #
 #
 
+options(warn=-1)
 stopifnot(require(testthat))
 stopifnot(require(quantstrat))
 context("deom/macdWFA.R")

@@ -34,4 +34,4 @@ luxor.sample.walk.forward	Jaekle & Tomasini; walk forward chart sample
 signal.SMA	SMA Cross Strategy with Signal Analysis Example; See maCross.R
 signal.RSI	RSI Cross Strategy with Signal Analysis Example; See rsi.R
 maCross_stoptrailing  maCross demo with stoptrailing ordertype used in tests/testthat/test_demo_maCross_stoptrailing.R
-
+demo_test_blotter_break test code sourced in the test_blotter_break.R test file 
