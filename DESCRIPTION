@@ -24,7 +24,6 @@ Suggests:
     testthat,
     rCharts,
     gamlss,
-    gamlss.util,
     reshape2,
     beanplot,
     knitr,
