@@ -21,6 +21,17 @@
 #' 
 #' \code{orderqty} should be either numeric, or one of 'all'/'trigger'. 'all' can only be used with order of ruletype='exit' or 'risk', and will close the entire position. 'trigger' can only be used with ruletype='chain' and is exactly identical to 'all', except that the actual transaction is suppressed, and can be used to kick in a new order chain.
 #' 
+#' Where \code{ordertype} is a "stoptrailing" order and the market data is OHLC
+#' data, the reference price used for determining whether an order price has
+#' been crossed (ie. whether or not we can assume a trade would have occurred)
+#' is the "Low" for negative quantity stoptrailing orders (ie. initial entry was
+#' a long entry) and the bar's "High" for positive quantity stoptrailing orders
+#' (ie. initial entry was a short entry).
+#' For determining whether or not the stoptrailing order price needs to be re-
+#' set, we look for any index which sets a higher "High" in the case of long
+#' entries, and lower "Lows" in the case of short entries.
+#' For BBO data, "bid" and "ask" are used in place of "Low" and "High"
+#' 
 #' If \code{threshold} is not numeric or \code{NULL} it should be the name of an indicator mktdata column holding the threshold values.
 #' 
 #' If \code{orderside} is NULL, the function will attempt to calculate the side from the current position 
