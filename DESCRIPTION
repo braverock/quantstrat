@@ -2,7 +2,7 @@ Package: quantstrat
 Type: Package
 Title: Quantitative Strategy Model Framework
 Version: 0.16.9
-Date: 2019-09-14 $Date$
+Date: 2021-02-07 $Date$
 Author: Peter Carl, Brian G. Peterson, Joshua Ulrich, Jasen Mackie, Jan Humme
 Depends:
     R(>= 3.2),
@@ -24,7 +24,6 @@ Suggests:
     testthat,
     rCharts,
     gamlss,
-    gamlss.util,
     reshape2,
     beanplot,
     knitr,
