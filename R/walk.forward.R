@@ -251,7 +251,7 @@ walk.forward <- function(  strategy.st
                                              , paramset.label=paramset.label
                                              , portfolio.st=portfolio.st
                                              , account.st=account.st
-                                             , mktdata=NULL
+                                             , mktdata=symbol.data
                                              , rule.subset=training.timespan
                                              , nsamples=nsamples
                                              , calc='slave'
@@ -323,7 +323,7 @@ walk.forward <- function(  strategy.st
         applyStrategy( strategy
                      , portfolios=test.portfolio.st
                      # , portfolios=portfolio.st
-                     , mktdata=NULL
+                     , mktdata=symbol.data
                      , rule.subset=testing.timespan
                      , ...
                      )
@@ -380,7 +380,7 @@ walk.forward <- function(  strategy.st
                         , paramset.label=paramset.label
                         , portfolio.st=portfolio.st
                         , account.st=account.st
-                        , mktdata=NULL
+                        , mktdata=symbol.data
                         , nsamples=nsamples
                         , calc='slave'
                         , audit=.insampleaudit
