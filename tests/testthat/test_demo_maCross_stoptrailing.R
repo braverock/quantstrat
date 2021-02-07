@@ -17,8 +17,8 @@ test_that("num txns equals 11", { # note we pad the start with zeros
   expect_equal(nrow(getTxns('Port.Luxor','AAPL')), 11)
 })
 
-test_that("num orders equals 17", {
-  expect_equal(nrow(obook$Port.Luxor$AAPL), 17)
+test_that("num orders equals 19", {
+  expect_equal(nrow(obook$Port.Luxor$AAPL), 19)
 })
 
 test_that("sum closed order prices equals sum txn prices", {
@@ -26,16 +26,10 @@ test_that("sum closed order prices equals sum txn prices", {
                sum(getTxns("Port.Luxor","AAPL")$Txn.Price))
 })
 
-test_that("stoptrailing trade prices equal 150.7013, 151.2416, 163.0308, 164.8702, 168.1434", {
-  expect_equal(round(as.numeric(getOrderBook("Port.Luxor")$Port.Luxor$AAPL$Order.Price[which(getOrderBook("Port.Luxor")$Port.Luxor$AAPL$Order.Status == "closed" & getOrderBook("Port.Luxor")$Port.Luxor$AAPL$Order.Type == "stoptrailing")]$Order.Price), 4),
+test_that("stoptrailing order prices equal 138.7663, 141.5517, 141.6479, 150.7013, 144.4037, 147.0306, 147.0788, 148.2753, 149.5006, 151.4304, 151.2416, 163.0308, 164.8702, 168.1434", {
+  expect_equal(round(as.numeric(getOrderBook("Port.Luxor")$Port.Luxor$AAPL$Order.Price[which(getOrderBook("Port.Luxor")$Port.Luxor$AAPL$Order.Type == "stoptrailing")]$Order.Price), 4),
                
-               # 2017-08-02 00:00:00.00001 "150.70126151877" 
-               # 2017-10-17 00:00:00.00001 "151.241571914452"
-               # 2018-03-22 00:00:00.00009 "163.030760854114"
-               # 2018-04-19 00:00:00.00009 "164.870181860637"
-               # 2018-11-23 00:00:00.00009 "168.14344619348"
-               
-               c(150.7013, 151.2416, 163.0308, 164.8702, 168.1434))
+               c(138.7663, 141.5517, 141.6479, 150.7013, 144.4037, 147.0306, 147.0788, 148.2753, 149.5006, 151.4304, 151.2416, 163.0308, 164.8702, 168.1434))
 })
        
 # Commands for running this test file from the console if required:
