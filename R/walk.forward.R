@@ -371,7 +371,6 @@ walk.forward <- function(  strategy.st
       results[[time.range]][['testing.timespan']] <- result$testing.timespan
       results[[time.range]][['training.timespan']] <- result$training.timespan
       results[[time.range]]$tradeStats <- result$apply.paramsets$tradeStats
-      results[[time.range]]$dailyStats <- result$apply.paramsets$dailyStats
       if(saveenv){
         results[[time.range]]$audit <- .audit
       }
@@ -410,7 +409,6 @@ walk.forward <- function(  strategy.st
     updatePortf(test.portfolio.st, Dates=total.timespan, sep='')
     
     results$tradeStats <- tradeStats(test.portfolio.st)
-    results$dailyStats <- dailyStats(test.portfolio.st)
     #results$portfolio <- portfolio
 
     iso.format <- "%Y%m%dT%H%M%S"
