@@ -5,6 +5,7 @@
 #' @param params.filter - a regular expression to reduce dimensions by filtering on certain columns
 #' @param statistics a vector containing the column names to produce graphs for
 #' @param title an optional title to be printed above each graph
+#' @param fun.aggregate the aggregation function to use for the statistic of interest
 #' @return invisible -- called for side-effect
 #' @examples
 #' \dontrun{
@@ -19,7 +20,7 @@
 #' @author Jan Humme, rewritten by Chinmay Patil
 #' @export
 
-tradeGraphs <- function(stats, free.params, params.filter = NULL, statistics, title = NULL)
+tradeGraphs <- function(stats, free.params, params.filter = NULL, statistics, title = NULL, fun.aggregate=sum)
 {
     # TODO: fix axes to use non scientific notation
     # TODO: fix use of full rainbow for small fractions (eg. Profit.Factor, now only uses red)
@@ -48,7 +49,7 @@ tradeGraphs <- function(stats, free.params, params.filter = NULL, statistics, ti
         }
 
         data_r <- reshape2::recast(data, as.formula(paste0(var1, " ~ ", var2)),
-                                   id.var=c(var1,var2), measure.var=c(var3))
+                                   id.var=c(var1,var2), measure.var=c(var3), fun.aggregate = fun.aggregate)
         x <- data_r[, 1]
         y <- as.numeric(colnames(data_r)[-1])
         z <- unlist(data_r[, -1])
