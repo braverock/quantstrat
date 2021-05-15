@@ -900,8 +900,8 @@ distributional.boxplot<-function(signal,x.val=seq(1, 50, 5),val=10,ylim=c(-5, 5)
   
   if(is.null(signal)) stop('No signals to plot')
 
-  if(!requireNamespace('gamlss', quietly=TRUE)) stop("The 'gamlss' package is required to use this function")
-  if(!requireNamespace('gamlss.util', quietly=TRUE)) stop("The 'gamlss.util' package is required to use this function")
+  # if(!requireNamespace('gamlss', quietly=TRUE)) stop("The 'gamlss' package is required to use this function")
+  # if(!requireNamespace('gamlss.util', quietly=TRUE)) stop("The 'gamlss.util' package is required to use this function")
   
   # Reformat data
   n.row = nrow(signal)

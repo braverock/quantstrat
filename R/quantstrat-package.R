@@ -138,7 +138,11 @@ NULL
 # variables that will always be available if needed at run-time, 
 # but need to be available at compile time for 
 # R CMD check
-utils::globalVariables(names=c('beanplot','Change','env','gamlss','hPlot',
+# utils::globalVariables(names=c('beanplot','Change','env','gamlss','hPlot',
+#                                'initDate','initEq','melt','mktdata','param.combo',
+#                                'Period','plotSimpleGamlss','price','redisClose',
+#                                'redisConnect','redisGetContext','timespan'))
+utils::globalVariables(names=c('beanplot','Change','env','hPlot',
                                'initDate','initEq','melt','mktdata','param.combo',
-                               'Period','plotSimpleGamlss','price','redisClose',
+                               'Period','price','redisClose',
                                'redisConnect','redisGetContext','timespan'))

@@ -23,7 +23,6 @@ Suggests:
     rgl,
     testthat,
     rCharts,
-    gamlss,
     reshape2,
     beanplot,
     knitr,
@@ -31,7 +30,8 @@ Suggests:
     pander,
     xtable,
     covr,
-    usethis
+    usethis,
+    survival
 Remotes:
     github::braverock/blotter
 Maintainer: Brian G. Peterson <brian@braverock.com>
