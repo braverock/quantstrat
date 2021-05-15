@@ -7,8 +7,8 @@
 # Load Packages:
 require(iterators)
 require(quantstrat)
-# require(gamlss.util)  # depends on gamlss
-require(survival)
+require(gamlss.util)  # depends on gamlss
+# require(survival)
 
 suppressWarnings(rm("order_book.RSI",pos=.strategy))
 suppressWarnings(rm("account.RSI","portfolio.RSI",pos=.blotter))
@@ -79,11 +79,11 @@ results =apply.paramset.signal.analysis(strategy.st,
                                         verbose=TRUE)
 
 
-# Plot Paramset Combined Barchart [Subset list to plot a sub portion if too large]
-signal.plot(results$sigret.by.asset$SPY, rows=2, columns = 5)
-
 # Distributional Box Plot via gamlss
 distributional.boxplot(results$sigret.by.asset$SPY$paramset.2, xlim = c(0, 10))
+
+# Plot Paramset Combined Barchart [Subset list to plot a sub portion if too large]
+signal.plot(results$sigret.by.asset$SPY, rows=2, columns = 5)
 
 ###############################################################################
 # R (http://r-project.org/) Quantitative Strategy Model Framework

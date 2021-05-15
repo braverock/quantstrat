@@ -25,13 +25,14 @@ Suggests:
     rCharts,
     reshape2,
     beanplot,
+    gamlss,
+    gamlss.util,
     knitr,
     rmarkdown,
     pander,
     xtable,
     covr,
     usethis,
-    survival
 Remotes:
     github::braverock/blotter
 Maintainer: Brian G. Peterson <brian@braverock.com>

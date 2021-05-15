@@ -8,6 +8,7 @@
 require(iterators)
 require(quantstrat)
 # require(gamlss.util)  # depends on gamlss
+require(gamlss.util) # from cran/gamlss on GitHub
 
 ###########################################################################
 # Configure Date Time Settings
