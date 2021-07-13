@@ -91,7 +91,7 @@ stratMACROSS<- strategy(portfolio.st)
 We are now ready to add indicators, signals and rules. For more information on the theory of this approach, see below sections "About Signal-Based Strategy Modeling" and "How quantstrat Models Strategies".
 
 ```{r indicators_rules_signals, echo=TRUE, message=FALSE}
-stratMACROSS <- add.indicator(strategy = stratMACROSS, name = "SMA", arguments = list(x=quote(Cl(mktdata)), n=50),label= "ma50" )
+stratMACROSS <- add.indicator(strategy = stratMACROSS, name = "SMA", arguments = list(x=quote(Cl(mktdata)[,1]), n=50),label= "ma50" )
 stratMACROSS <- add.indicator(strategy = stratMACROSS, name = "SMA", arguments = list(x=quote(Cl(mktdata)[,1]), n=200),label= "ma200")
 
 stratMACROSS <- add.signal(strategy = stratMACROSS,name="sigCrossover",arguments = list(columns=c("ma50","ma200"), relationship="gte"),label="ma50.gt.ma200")
