@@ -441,7 +441,7 @@ sigTimestamp <- function(label, data=mktdata, timestamp, on="days") {
 
 apply.paramset.signal.analysis<-function(strategy.st, paramset.label, portfolio.st, sigcol,sigval,
                                          on,forward.days,cum.sum=TRUE,include.day.of.signal,
-                                         obj.fun,decreasing=TRUE, cum.rtns=FALSE, mktdata=NULL,verbose=TRUE){
+                                         obj.fun,decreasing=TRUE, mktdata=NULL,verbose=TRUE, cum.rtns=FALSE){
   
   must.have.args(match.call(), c('strategy.st', 'paramset.label', 'portfolio.st')) #
   if(missing(obj.fun))
