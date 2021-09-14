@@ -618,8 +618,8 @@ signal.generate.statistics<-function(post.ret, obj.fun=NULL, decreasing=TRUE){
 #' @param forward.days number of days to look forward after signal (days to exit post signal)
 #' @param cum.sum \code{TRUE},\code{FALSE}; cumulative sum of price changes
 #' @param include.day.of.signal whether to analyze the return on signal day
-#' @param cum.rtns whether to do signal analysis in returns space
 #' @param mktdata market data
+#' @param cum.rtns whether to do signal analysis in returns space
 #' @author Michael Guan
 #' @return \code{matrix} of post signal price changes; rows = nth signal, column = nth period since signal
 #' @seealso 
@@ -627,7 +627,7 @@ signal.generate.statistics<-function(post.ret, obj.fun=NULL, decreasing=TRUE){
 #' @export
 
 post.signal.returns<-function(signals,sigval,on=NULL,forward.days,cum.sum=TRUE,
-                              include.day.of.signal=FALSE,cum.rtns=FALSE,mktdata=NULL){
+                              include.day.of.signal=FALSE,mktdata=NULL,cum.rtns=FALSE){
 
   # Incremental Index Values / Label Generation
   if(include.day.of.signal == TRUE){

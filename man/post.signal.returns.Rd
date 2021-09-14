@@ -20,9 +20,9 @@ post.signal.returns(signals, sigval, on = NULL, forward.days,
 
 \item{include.day.of.signal}{whether to analyze the return on signal day}
 
-\item{cum.rtns}{whether to do signal analysis in returns space}
-
 \item{mktdata}{market data}
+
+\item{cum.rtns}{whether to do signal analysis in returns space}
 }
 \value{
 \code{matrix} of post signal price changes; rows = nth signal, column = nth period since signal
