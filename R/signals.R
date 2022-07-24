@@ -258,7 +258,8 @@ sigPeak <- function(label,data,column, direction=c("peak","bottom")){
     #(Lag(IBM[,4],2)<Lag(IBM[,4],1)) & Lag(IBM[,4],1) >IBM[,4]
     switch(direction,
            "peak"   = { ret_sig <- Lag(data[,colNum],2) < Lag(data[,colNum],1) & Lag(data[,colNum],1) > data[,colNum] } ,
-           "bottom","valley" = { ret_sig <- Lag(data[,colNum],2) > Lag(data[,colNum],1) & Lag(data[,colNum],1) < data[,colNum] }
+           "bottom" = ,
+           "valley" = { ret_sig <- Lag(data[,colNum],2) > Lag(data[,colNum],1) & Lag(data[,colNum],1) < data[,colNum] }
     )
     colnames(ret_sig)<-paste(label,direction,"sig",sep='.')
     return(ret_sig)
