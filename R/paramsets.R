@@ -181,7 +181,7 @@ select.samples <- function(nsamples, param.combos)
 #' 
 #' This internal, non-exported function examines the paramset specification, 
 #' and then uses that to insert the chosen parameters into a copy of the strategy
-#' object.  It will search the strategy onject, component by component, and 
+#' object.  It will search the strategy object, component by component, and 
 #' attempt to locate the components named in the paramset, so that the individual 
 #' parameter values may be changed.
 #'
@@ -591,6 +591,20 @@ apply.paramset <- function(strategy.st
                   results$tradeStats <- cbind(r$param.combo, r$tradeStats)
                 } else {
                   results$tradeStats <- rbind(results$tradeStats, cbind(r$param.combo, r$tradeStats))
+                }
+              }
+
+              # add copy of dailyStats to summary list for convenience
+              if(!is.null(r$dailyStats) ){
+                if(nrow(r$dailyStats)==0){
+                  tmpnames <- colnames(r$dailyStats)
+                  r$dailyStats <- data.frame(r$portfolio.st,t(rep(0,length(tmpnames)-1)))
+                  colnames(r$dailyStats) <- tmpnames
+                }
+                if(is.null(results$dailyStats)){
+                  results$dailyStats <- cbind(r$param.combo, r$dailyStats)
+                } else {
+                  results$dailyStats <- rbind(results$dailyStats, cbind(r$param.combo, r$dailyStats))
                 }
               }
               
