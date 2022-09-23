@@ -44,7 +44,7 @@ stratMACROSS <- add.rule(strategy = stratMACROSS,name='ruleSignal', arguments = 
 # stratMACROSS <- add.rule(strategy = stratMACROSS,name='ruleSignal', arguments = list(sigcol="ma50.lt.ma200",sigval=TRUE, orderqty=-100, ordertype='market', orderside='short'),type='enter')
 # stratMACROSS <- add.rule(strategy = stratMACROSS,name='ruleSignal', arguments = list(sigcol="ma50.gt.ma200",sigval=TRUE, orderqty=100, ordertype='market', orderside='short'),type='exit')
 
-getSymbols(stock.str,from=startDate)
+getSymbols(stock.str,from=startDate,src='yahoo')
 for(i in stock.str)
   assign(i, adjustOHLC(get(i),use.Adjusted=TRUE))
 
