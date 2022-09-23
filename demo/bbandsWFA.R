@@ -11,9 +11,9 @@ stock.st = c("SPY")
 currency("USD")
 stock(stock.st, currency="USD",multiplier=1)
 Sys.setenv(TZ="UTC") 
-initDate = '2011-12-31'
-startDate = '2012-01-01'
-endDate = '2017-12-31'    
+initDate = '2006-12-31'
+startDate = '2007-01-01'
+endDate = '2019-12-31'    
 initEq=1e6
 tradeSize = initEq/10
 getSymbols(stock.st,from=startDate,to=endDate,index.class="POSIXct",adjust=TRUE,src='yahoo')
@@ -84,10 +84,11 @@ results <- walk.forward(
   paramset.label='BBOPT',
   portfolio.st="opt",
   account.st="opt",
-  period='years',
   k.training=yrsTrain,
+  period='years',
   k.testing=yrsTest,
   nsamples=0,
+  obj.args = list(x=quote(tradeStats.list$Gross.Profits/abs(tradeStats.list$Gross.Losses))), # max Profit Factor
   audit.prefix='wfa',
   anchored=FALSE,
   verbose=TRUE,
