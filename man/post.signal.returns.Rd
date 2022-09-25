@@ -5,7 +5,7 @@
 \title{Generate Post Signal Returns}
 \usage{
 post.signal.returns(signals, sigval, on = NULL, forward.days,
-  cum.sum = TRUE, include.day.of.signal = FALSE, mktdata = NULL)
+  cum.sum = TRUE, include.day.of.signal = FALSE, cum.rtns=FALSE, mktdata = NULL)
 }
 \arguments{
 \item{signals}{xts object with signals, one column}
@@ -21,6 +21,8 @@ post.signal.returns(signals, sigval, on = NULL, forward.days,
 \item{include.day.of.signal}{whether to analyze the return on signal day}
 
 \item{mktdata}{market data}
+
+\item{cum.rtns}{whether to do signal analysis in returns space}
 }
 \value{
 \code{matrix} of post signal price changes; rows = nth signal, column = nth period since signal

@@ -442,7 +442,7 @@ sigTimestamp <- function(label, data=mktdata, timestamp, on="days") {
 
 apply.paramset.signal.analysis<-function(strategy.st, paramset.label, portfolio.st, sigcol,sigval,
                                          on,forward.days,cum.sum=TRUE,include.day.of.signal,
-                                         obj.fun,decreasing=TRUE,mktdata=NULL,verbose=TRUE){
+                                         obj.fun,decreasing=TRUE, mktdata=NULL,verbose=TRUE, cum.rtns=FALSE){
   
   must.have.args(match.call(), c('strategy.st', 'paramset.label', 'portfolio.st')) #
   if(missing(obj.fun))
@@ -508,7 +508,7 @@ apply.paramset.signal.analysis<-function(strategy.st, paramset.label, portfolio.
       # Extract Post Signal Price Deltas for Given Asset Signals [can't do apply() here, unless force a dim on it inside function]
       signal.ret.list.by.asset[[symbols[j]]] = post.signal.returns(signals=.sig.list[[name.ref]][,paste(symbols[j],'.signal',sep='')],
                                                                    sigval=sigval,on=on,forward.days=forward.days,
-                                                                   cum.sum=cum.sum,include.day.of.signal=include.day.of.signal)
+                                                                   cum.sum=cum.sum,include.day.of.signal=include.day.of.signal, cum.rtns=cum.rtns)
       
       # Store Post Signal Price Deltas for Given Asset
       .sig.ret.by.asset[[symbols[j]]][[name.ref]] = signal.ret.list.by.asset[[symbols[j]]]
@@ -620,6 +620,7 @@ signal.generate.statistics<-function(post.ret, obj.fun=NULL, decreasing=TRUE){
 #' @param cum.sum \code{TRUE},\code{FALSE}; cumulative sum of price changes
 #' @param include.day.of.signal whether to analyze the return on signal day
 #' @param mktdata market data
+#' @param cum.rtns whether to do signal analysis in returns space
 #' @author Michael Guan
 #' @return \code{matrix} of post signal price changes; rows = nth signal, column = nth period since signal
 #' @seealso 
@@ -627,8 +628,8 @@ signal.generate.statistics<-function(post.ret, obj.fun=NULL, decreasing=TRUE){
 #' @export
 
 post.signal.returns<-function(signals,sigval,on=NULL,forward.days,cum.sum=TRUE,
-                              include.day.of.signal=FALSE,mktdata=NULL){
-  
+                              include.day.of.signal=FALSE,mktdata=NULL,cum.rtns=FALSE){
+
   # Incremental Index Values / Label Generation
   if(include.day.of.signal == TRUE){
     days.increment = seq(0,forward.days)
@@ -636,13 +637,13 @@ post.signal.returns<-function(signals,sigval,on=NULL,forward.days,cum.sum=TRUE,
     days.increment = seq(1,forward.days+1)
   }
   name.ref = paste0("Period.", head(days.increment, -1))
-  
+
   # Get Relevant Market Data
   if(is.null(mktdata)){
     symbol = gsub('.signal','',colnames(signals))
     mktdata = get(symbol)
   }
-  
+
   if(!is.null(on)){
     # Determine Number of Periods in Given Frequency ie) 1 week has 5 days if signal frequency = days
     days.in.period = cbind(na.omit(signals),na.omit(signals)[endpoints(na.omit(signals),on),])[,2]
@@ -652,35 +653,36 @@ post.signal.returns<-function(signals,sigval,on=NULL,forward.days,cum.sum=TRUE,
   }else{
     days.in.period = 1
   }
-  
-  # Get Price Delta 
+
+  # Get Price Delta
   ret = tryCatch({
     ret = diff(Cl(mktdata))
   }, error = function(e){
     stop('Market Data does not contain a row with Close. Try to set and aggregate data on to a higher frequency.')
   })
   ret[1,] = 0
-  
+
   # Align Mkt Data and Signals
   signals = signals[index(ret),]
   # Get Indexes of Signals
   idx = which(as.vector(signals)==sigval)
-  
+
   # Take out signals that cause "out of bounds" exception
   idx.cancel = idx[which((nrow(signals) - idx) < max((days.increment * days.in.period)))]
   if(length(idx.cancel)!=0){
-    signals[idx.cancel,]=0  
-    idx = idx[-which(idx %in% idx.cancel)]  
+    signals[idx.cancel,]=0
+    idx = idx[-which(idx %in% idx.cancel)]
   }
-  
+
   if(length(idx) == 0)stop("There are no signals for analysis. Try reducing the number of look ahead periods.")
-  
+
   # Daily return since signal; each column = days since signal; each row = each signal
   signal.ret = matrix(NA,nrow=length(idx),ncol=length(name.ref)) #daily return since signal
-  
+
   # Extract Returns
+  if(cum.rtns==FALSE){
   for(j in 1:length(idx)){
-    
+
     signal.ret[j,] = tryCatch({
       na.omit(diff( getPrice(mktdata[idx[j] + (days.increment * days.in.period)  ,]) ))
     }, error = function(e){
@@ -688,10 +690,21 @@ post.signal.returns<-function(signals,sigval,on=NULL,forward.days,cum.sum=TRUE,
       stop('Not enough forward data to evaluate post signal returns.')
     })
   }
-  
+     if(cum.sum == TRUE) signal.ret = t(apply(signal.ret,1,cumsum)) # cumulative sum of price changes yields equity drift
+  }else{
+     for(j in 1:length(idx)){
+      signal.ret[j,] = tryCatch({
+      na.omit(diff( log(getPrice(mktdata[idx[j] + (days.increment * days.in.period)  ,])) ))
+    }, error = function(e){
+      cat('')
+      stop('Not enough forward data to evaluate post signal returns.')
+    })}
+    signal.ret=t(apply(signal.ret+1,1,cumprod))-1
+    }
+
   colnames(signal.ret) = name.ref
-  
-  if(cum.sum == TRUE) signal.ret = t(apply(signal.ret,1,cumsum)) # cumulative sum of price changes yields equity drift
+
+
   #matplot(signal.ret,type='l')
   return(signal.ret)
 }
