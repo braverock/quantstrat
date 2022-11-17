@@ -4,8 +4,17 @@
 \alias{add.signal}
 \title{add a signal to a strategy}
 \usage{
-add.signal(strategy, name, arguments, parameters = NULL, label = NULL,
-  ..., enabled = TRUE, indexnum = NULL, store = FALSE)
+add.signal(
+  strategy,
+  name,
+  arguments,
+  parameters = NULL,
+  label = NULL,
+  ...,
+  enabled = TRUE,
+  indexnum = NULL,
+  store = FALSE
+)
 }
 \arguments{
 \item{strategy}{an object (or the name of an object) of type 'strategy' to add the signal to}

@@ -4,11 +4,26 @@
 \alias{apply.paramset}
 \title{Apply a paramset to the strategy}
 \usage{
-apply.paramset(strategy.st, paramset.label, portfolio.st, ..., account.st,
-  mktdata = NULL, nsamples = 0, user.func = NULL, user.args = NULL,
-  calc = "slave", audit = NULL, packages = NULL, verbose = FALSE,
-  paramsets, rule.subset = NULL, perf.subset = NULL, psgc = TRUE,
-  store = TRUE)
+apply.paramset(
+  strategy.st,
+  paramset.label,
+  portfolio.st,
+  ...,
+  account.st,
+  mktdata = NULL,
+  nsamples = 0,
+  user.func = NULL,
+  user.args = NULL,
+  calc = "slave",
+  audit = NULL,
+  packages = NULL,
+  verbose = FALSE,
+  paramsets,
+  rule.subset = NULL,
+  perf.subset = NULL,
+  psgc = TRUE,
+  store = TRUE
+)
 }
 \arguments{
 \item{strategy.st}{the name of the strategy object}

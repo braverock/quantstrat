@@ -4,8 +4,16 @@
 \alias{applyParameter}
 \title{Generate parameter sets for a specific strategy, test the strategy on each set of parameters, output result package. (deprecated)}
 \usage{
-applyParameter(strategy, portfolios, parameterPool, parameterConstraints,
-  method, sampleSize, verbose = FALSE, ...)
+applyParameter(
+  strategy,
+  portfolios,
+  parameterPool,
+  parameterConstraints,
+  method,
+  sampleSize,
+  verbose = FALSE,
+  ...
+)
 }
 \arguments{
 \item{strategy}{The strategy to test paramters to.}

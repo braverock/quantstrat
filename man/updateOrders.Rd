@@ -4,9 +4,18 @@
 \alias{updateOrders}
 \title{update an order or orders}
 \usage{
-updateOrders(portfolio, symbol, timespan, ordertype = NULL,
-  side = NULL, qtysign = NULL, orderset = NULL, oldstatus = "open",
-  newstatus, statustimestamp)
+updateOrders(
+  portfolio,
+  symbol,
+  timespan,
+  ordertype = NULL,
+  side = NULL,
+  qtysign = NULL,
+  orderset = NULL,
+  oldstatus = "open",
+  newstatus,
+  statustimestamp
+)
 }
 \arguments{
 \item{portfolio}{text name of the portfolio to associate the order book with}
@@ -36,11 +45,11 @@ When an order gets filled, it should have its status moved to 'closed'.
 When an order is updated with a new order, the order status should change to 'replaced' 
 with a StatusTime that is the same as the one for the new order.  This could happen in 
 the case of a traditional Cancel/Replace, because of a trailing stop, or in the
-case of a partial fill that needs to enter a replaced order for the remainder.
+case of a partial fill that needs to enter a replaced order for the remainder. 
 
 When a risk event or over-limit event happens, typically open orders will be 'revoked'.  
 Possibly new orders will be added to close open positions.  
-Many models will also want to run a process at the close of market that will cancel all open orders.
+Many models will also want to run a process at the close of market that will cancel all open orders. 
 
 If orderset is passed to updateOrders, all orders with oldstatus 
 for the orderset will be updated, regardless of their other parameters.

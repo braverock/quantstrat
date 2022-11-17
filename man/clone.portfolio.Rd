@@ -4,8 +4,13 @@
 \alias{clone.portfolio}
 \title{clone a portfolio object, potentially stripping all history}
 \usage{
-clone.portfolio(portfolio.st, cloned.portfolio.st, strip.history = TRUE,
-  src_envir = .blotter, target_envir = .blotter)
+clone.portfolio(
+  portfolio.st,
+  cloned.portfolio.st,
+  strip.history = TRUE,
+  src_envir = .blotter,
+  target_envir = .blotter
+)
 }
 \arguments{
 \item{portfolio.st}{string identifying the source portfolio}

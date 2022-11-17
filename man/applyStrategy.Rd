@@ -4,10 +4,22 @@
 \alias{applyStrategy}
 \title{apply the strategy to arbitrary market data}
 \usage{
-applyStrategy(strategy, portfolios, mktdata = NULL, parameters = NULL,
-  ..., debug = FALSE, symbols = NULL, initStrat = FALSE,
-  updateStrat = FALSE, initBySymbol = FALSE, gc = FALSE,
-  delorders = FALSE, rule.subset = NULL, mdenv = NULL)
+applyStrategy(
+  strategy,
+  portfolios,
+  mktdata = NULL,
+  parameters = NULL,
+  ...,
+  debug = FALSE,
+  symbols = NULL,
+  initStrat = FALSE,
+  updateStrat = FALSE,
+  initBySymbol = FALSE,
+  gc = FALSE,
+  delorders = FALSE,
+  rule.subset = NULL,
+  mdenv = NULL
+)
 }
 \arguments{
 \item{strategy}{an object of type 'strategy' to add the indicator to}

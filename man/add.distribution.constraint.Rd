@@ -4,8 +4,15 @@
 \alias{add.distribution.constraint}
 \title{Adds a constraint on 2 distributions within a paramset}
 \usage{
-add.distribution.constraint(strategy, paramset.label, distribution.label.1,
-  distribution.label.2, operator, label, store = TRUE)
+add.distribution.constraint(
+  strategy,
+  paramset.label,
+  distribution.label.1,
+  distribution.label.2,
+  operator,
+  label,
+  store = TRUE
+)
 }
 \arguments{
 \item{strategy}{the name of the strategy object to add the constraint to}

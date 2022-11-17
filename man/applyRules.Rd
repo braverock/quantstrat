@@ -4,9 +4,20 @@
 \alias{applyRules}
 \title{apply the rules in the strategy to arbitrary market data}
 \usage{
-applyRules(portfolio, symbol, strategy, mktdata, indicators = NULL,
-  signals = NULL, parameters = NULL, ..., path.dep = TRUE,
-  rule.order = NULL, rule.subset = NULL, debug = FALSE)
+applyRules(
+  portfolio,
+  symbol,
+  strategy,
+  mktdata,
+  indicators = NULL,
+  signals = NULL,
+  parameters = NULL,
+  ...,
+  path.dep = TRUE,
+  rule.order = NULL,
+  rule.subset = NULL,
+  debug = FALSE
+)
 }
 \arguments{
 \item{portfolio}{text name of the portfolio to associate the order book with}
@@ -48,11 +59,11 @@ variables into play.  These would be most likely implemented by risk rules.  Whe
 \code{hold==TRUE}, any open oders will still be processed (orders are \emph{NOT} 
 canceled automatically, but no new orders may be entered.  \code{type='risk'}
 rules will still function during a hold.  Note that hold must be set via a custom
-rule.  We tend to set hold in an order or risk rule.
+rule.  We tend to set hold in an order or risk rule. 
 
 \code{quantstrat} has a significant amount of logic devoted to handling 
 path-dependent rule execution.  Most of that code/logic resides in this
-function.
+function.  
 
 This function, along with \code{\link{ruleOrderProc}}, \code{\link{addOrder}}, and 
 \code{\link{applyStrategy}} will likely need to be replaced to connect to a live 

@@ -5,9 +5,17 @@
 \alias{profit.hurdle}
 \title{Profit Hurdle function - A Minimum Profitability Method for Proposed Trading Strategies}
 \usage{
-profitHurdle(portfolios, ..., strategy = NULL, trials = NULL,
-  alpha_sig = 0.05, vol_annual = 0.1, RHO = 0.2, audit = NULL,
-  env = .GlobalEnv)
+profitHurdle(
+  portfolios,
+  ...,
+  strategy = NULL,
+  trials = NULL,
+  alpha_sig = 0.05,
+  vol_annual = 0.1,
+  RHO = 0.2,
+  audit = NULL,
+  env = .GlobalEnv
+)
 }
 \arguments{
 \item{portfolios}{string name of portfolio, or optionally a vector of portfolios, see DETAILS}

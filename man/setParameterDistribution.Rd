@@ -4,8 +4,16 @@
 \alias{setParameterDistribution}
 \title{Function used to create an object that contains the distribution of parameters to be generated from, before testing parameters of a strategy. (deprecated)}
 \usage{
-setParameterDistribution(paramDist = NULL, strategy, component.type,
-  component.label, distribution = NULL, weight, label, psindex = NULL)
+setParameterDistribution(
+  paramDist = NULL,
+  strategy,
+  component.type,
+  component.label,
+  distribution = NULL,
+  weight,
+  label,
+  psindex = NULL
+)
 }
 \arguments{
 \item{paramDist}{The object in which the parameter list is stored; if this parameter is missing, or object does not exist, the function will return a new object.}

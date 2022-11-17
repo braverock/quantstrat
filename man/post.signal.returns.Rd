@@ -4,8 +4,15 @@
 \alias{post.signal.returns}
 \title{Generate Post Signal Returns}
 \usage{
-post.signal.returns(signals, sigval, on = NULL, forward.days,
-  cum.sum = TRUE, include.day.of.signal = FALSE, mktdata = NULL)
+post.signal.returns(
+  signals,
+  sigval,
+  on = NULL,
+  forward.days,
+  cum.sum = TRUE,
+  include.day.of.signal = FALSE,
+  mktdata = NULL
+)
 }
 \arguments{
 \item{signals}{xts object with signals, one column}

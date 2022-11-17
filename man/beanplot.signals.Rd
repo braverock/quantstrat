@@ -4,10 +4,21 @@
 \alias{beanplot.signals}
 \title{Visualization of Signal Across Lookback with Beanplots}
 \usage{
-beanplot.signals(signals, rows = NULL, columns = NULL, mai = c(0.1,
-  0.4, 0.2, 0.1), mgp = c(1, 1, 0), xlab = "", ylab = "",
-  cex.main = 0.6, xaxt = "n", cex.axis = 0.5, h = 0,
-  hlinecol = "red", ...)
+beanplot.signals(
+  signals,
+  rows = NULL,
+  columns = NULL,
+  mai = c(0.1, 0.4, 0.2, 0.1),
+  mgp = c(1, 1, 0),
+  xlab = "",
+  ylab = "",
+  cex.main = 0.6,
+  xaxt = "n",
+  cex.axis = 0.5,
+  h = 0,
+  hlinecol = "red",
+  ...
+)
 }
 \arguments{
 \item{signals}{list of paramset forward looking price changes by asset}

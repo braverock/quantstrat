@@ -4,8 +4,13 @@
 \alias{clone.orderbook}
 \title{clone a orderbook object, potentially stripping all history}
 \usage{
-clone.orderbook(orderbook.st, cloned.orderbook.st, strip.history = TRUE,
-  src_envir = .strategy, target_envir = .strategy)
+clone.orderbook(
+  orderbook.st,
+  cloned.orderbook.st,
+  strip.history = TRUE,
+  src_envir = .strategy,
+  target_envir = .strategy
+)
 }
 \arguments{
 \item{orderbook.st}{string identifying the source orderbook}

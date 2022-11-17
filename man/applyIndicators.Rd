@@ -25,7 +25,7 @@ and will apply each indicator specified in the strategy definition to it.
 \details{
 If the indicator function returns an xts object or a vector of the same length 
 as mktdata, the columns created by the indicator function will be added to the 
-mktdata object via \code{\link{cbind}}.
+mktdata object via \code{\link{cbind}}. 
 
 If the indicator function returns multiple columns, the label will be 
 \code{\link{paste}}'d to the end of either the returned column names or the 

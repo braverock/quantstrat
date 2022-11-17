@@ -4,8 +4,18 @@
 \alias{osMaxPos}
 \title{order sizing function for position limits and level sizing}
 \usage{
-osMaxPos(data, timestamp, orderqty, ordertype, orderside, portfolio,
-  symbol, ruletype, digits = 0, ...)
+osMaxPos(
+  data,
+  timestamp,
+  orderqty,
+  ordertype,
+  orderside,
+  portfolio,
+  symbol,
+  ruletype,
+  digits = 0,
+  ...
+)
 }
 \arguments{
 \item{data}{an xts object containing market data.  depending on rules, may need to be in OHLCV or BBO formats, and may include indicator and signal information}

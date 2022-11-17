@@ -4,9 +4,17 @@
 \alias{add.indicator}
 \title{add an indicator to a strategy}
 \usage{
-add.indicator(strategy, name, arguments, parameters = NULL,
-  label = NULL, ..., enabled = TRUE, indexnum = NULL,
-  store = FALSE)
+add.indicator(
+  strategy,
+  name,
+  arguments,
+  parameters = NULL,
+  label = NULL,
+  ...,
+  enabled = TRUE,
+  indexnum = NULL,
+  store = FALSE
+)
 }
 \arguments{
 \item{strategy}{an object (or the name of an object) type 'strategy' to add the indicator to}
@@ -46,7 +54,7 @@ may be used as inputs to construct signals or fire rules.
 For example, the \code{x} argument to a moving average function may be defined as \code{x=quote(Cl(mktdata))}
 
 If you look at the demo scripts, you'll notice that we often use \code{quote(mktdata)} in setting up indicators, signals, or rules.
-This tells \R to delay evaluation via \code{quote()}, and to use the special variable \code{mktdata}.
+This tells \R to delay evaluation via \code{quote()}, and to use the special variable \code{mktdata}. 
 
 \code{mktdata} is typically created internally to \code{quantstrat} by looking in the global environment for 
 a time series of prices or returns. mktdata may also contain other data you've manipulated outside quantstrat, 
@@ -54,7 +62,7 @@ though where possible you should use quantstrat to contain all the logic for the
 to aid in maintenance and modifications.
 
 The use of \code{quote()} tells R to not evaluate what's inside the quote until the function is evaluated later.  
-By the time that code is evaluated, \code{mktdata} will be populated with the correct price information based on the contents of whatever portfolio you are evaluating the strategy on.
+By the time that code is evaluated, \code{mktdata} will be populated with the correct price information based on the contents of whatever portfolio you are evaluating the strategy on. 
 
 \code{parameters} is another named list, and normally will not be needed.  
 If you have multiple indicator, signal, or rule functions share the that 

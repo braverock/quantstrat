@@ -6,9 +6,14 @@
 \alias{dof}
 \title{calculate degrees of freedom used by a strategy and available from test data}
 \usage{
-degrees.of.freedom(strategy, portfolios = NULL, ...,
-  paramset.method = c("trial", "max", "sum"), env = .GlobalEnv,
-  verbose = TRUE)
+degrees.of.freedom(
+  strategy,
+  portfolios = NULL,
+  ...,
+  paramset.method = c("trial", "max", "sum"),
+  env = .GlobalEnv,
+  verbose = TRUE
+)
 }
 \arguments{
 \item{strategy}{an object of type 'strategy' or the name of a stored strategy to examine}

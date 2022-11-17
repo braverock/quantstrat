@@ -4,10 +4,21 @@
 \alias{apply.paramset.signal.analysis}
 \title{Signal Analysis With Parmeter Optimization}
 \usage{
-apply.paramset.signal.analysis(strategy.st, paramset.label, portfolio.st,
-  sigcol, sigval, on, forward.days, cum.sum = TRUE,
-  include.day.of.signal, obj.fun, decreasing = TRUE, mktdata = NULL,
-  verbose = TRUE)
+apply.paramset.signal.analysis(
+  strategy.st,
+  paramset.label,
+  portfolio.st,
+  sigcol,
+  sigval,
+  on,
+  forward.days,
+  cum.sum = TRUE,
+  include.day.of.signal,
+  obj.fun,
+  decreasing = TRUE,
+  mktdata = NULL,
+  verbose = TRUE
+)
 }
 \arguments{
 \item{strategy.st}{an object of type 'strategy' to add the indicator to}
@@ -56,7 +67,7 @@ More generally, the function is designed to generate signals across various para
 constraints. Afterwards it extract the next N day price changes for further anlaysis.
 
 The parameter \code{on} allows user to calculate post signal returns in different frequencies. Different signals have different timeframes effectiveness. 
-\code{forward.days} lets the user select the number of post signal days to analyze results.
+\code{forward.days} lets the user select the number of post signal days to analyze results. 
 
 To determine the goodness of a parameter set relative to all others, we let the user specify their own objective function (via parameter \code{obj.func})
 that will be used to calculate an objective value representing each parameter. These will then be sorted from best to worst. The

@@ -6,8 +6,14 @@
 \alias{.haircutSR}
 \title{Haircut Sharpe Ratio to correct for number of trials and autocorrelation}
 \usage{
-haircutSharpe(portfolios, ..., strategy = NULL, trials = NULL,
-  audit = NULL, env = .GlobalEnv)
+haircutSharpe(
+  portfolios,
+  ...,
+  strategy = NULL,
+  trials = NULL,
+  audit = NULL,
+  env = .GlobalEnv
+)
 
 .haircutSR(sm_fre, num_obs, SR, ind_an, ind_aut, rho, num_test, RHO)
 }

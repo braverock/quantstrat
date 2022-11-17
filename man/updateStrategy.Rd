@@ -4,10 +4,21 @@
 \alias{updateStrategy}
 \title{run standard and custom strategy wrapup functions such as updating portfolio, account, and ending equity}
 \usage{
-updateStrategy(strategy, portfolio = "default", account = portfolio,
-  Symbols = NULL, parameters = NULL, Dates = NULL, Prices = NULL,
-  update.Portf = TRUE, update.Acct = TRUE, update.EndEq = TRUE,
-  showEq = TRUE, chart = TRUE, ...)
+updateStrategy(
+  strategy,
+  portfolio = "default",
+  account = portfolio,
+  Symbols = NULL,
+  parameters = NULL,
+  Dates = NULL,
+  Prices = NULL,
+  update.Portf = TRUE,
+  update.Acct = TRUE,
+  update.EndEq = TRUE,
+  showEq = TRUE,
+  chart = TRUE,
+  ...
+)
 }
 \arguments{
 \item{strategy}{object of type \code{strategy} to initialize data/containers for}
@@ -49,7 +60,7 @@ be evaluated \emph{before} the standardized functions.
 For example, if you are working with high frequency data, it would be common 
 to \emph{mark the book} on a lower frequency, perhaps minutes, hours, or even days,
 rather than tick.  A custom wrapup function could take your high frequency 
-data and transform it to lower frequency data before the call to \code{\link{updatePortf}}.
+data and transform it to lower frequency data before the call to \code{\link{updatePortf}}. 
 
 The 'standard wrapup functions included are:
 \describe{

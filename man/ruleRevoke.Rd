@@ -5,8 +5,18 @@
 \alias{ruleCancel}
 \title{rule to revoke(cancel) an unfilled limit order on a signal}
 \usage{
-ruleRevoke(data = mktdata, timestamp, sigcol, sigval, orderside = NULL,
-  orderset = NULL, portfolio, symbol, ruletype, ...)
+ruleRevoke(
+  data = mktdata,
+  timestamp,
+  sigcol,
+  sigval,
+  orderside = NULL,
+  orderset = NULL,
+  portfolio,
+  symbol,
+  ruletype,
+  ...
+)
 }
 \arguments{
 \item{data}{an xts object containing market data.  depending on rules, may need to be in OHLCV or BBO formats, and may include indicator and signal information}

@@ -4,8 +4,14 @@
 \alias{sigThreshold}
 \title{generate a threshold signal}
 \usage{
-sigThreshold(label, data = mktdata, column, threshold = 0,
-  relationship = c("gt", "lt", "eq", "gte", "lte"), cross = FALSE)
+sigThreshold(
+  label,
+  data = mktdata,
+  column,
+  threshold = 0,
+  relationship = c("gt", "lt", "eq", "gte", "lte"),
+  cross = FALSE
+)
 }
 \arguments{
 \item{label}{text label to apply to the output}

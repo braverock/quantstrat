@@ -4,9 +4,16 @@
 \alias{distributional.boxplot}
 \title{Visualization of Single Signal}
 \usage{
-distributional.boxplot(signal, x.val = seq(1, 50, 5), val = 10,
-  ylim = c(-5, 5), xlim = c(0, 50), mai = c(1, 1, 0.3, 0.5), h = 0,
-  ...)
+distributional.boxplot(
+  signal,
+  x.val = seq(1, 50, 5),
+  val = 10,
+  ylim = c(-5, 5),
+  xlim = c(0, 50),
+  mai = c(1, 1, 0.3, 0.5),
+  h = 0,
+  ...
+)
 }
 \arguments{
 \item{signal}{list of paramset forward looking price changes by asset}

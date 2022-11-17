@@ -4,9 +4,17 @@
 \alias{applyStrategy.rebalancing}
 \title{apply the strategy to arbitrary market data, with periodic rebalancing}
 \usage{
-applyStrategy.rebalancing(strategy, portfolios, mktdata = NULL,
-  parameters = NULL, ..., verbose = TRUE, symbols = NULL,
-  initStrat = FALSE, updateStrat = FALSE)
+applyStrategy.rebalancing(
+  strategy,
+  portfolios,
+  mktdata = NULL,
+  parameters = NULL,
+  ...,
+  verbose = TRUE,
+  symbols = NULL,
+  initStrat = FALSE,
+  updateStrat = FALSE
+)
 }
 \arguments{
 \item{strategy}{an object of type 'strategy' or the name of a stored strategy to apply}

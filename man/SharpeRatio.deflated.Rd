@@ -6,11 +6,24 @@
 \alias{.deflatedSharpe}
 \title{Calculate a Deflated Sharpe Ratio using number of trials and portfolio moments}
 \usage{
-deflatedSharpe(portfolios, ..., strategy = NULL, trials = NULL,
-  audit = NULL, env = .GlobalEnv)
+deflatedSharpe(
+  portfolios,
+  ...,
+  strategy = NULL,
+  trials = NULL,
+  audit = NULL,
+  env = .GlobalEnv
+)
 
-.deflatedSharpe(sharpe, nTrials, varTrials, skew, kurt, numPeriods,
-  periodsInYear = 252)
+.deflatedSharpe(
+  sharpe,
+  nTrials,
+  varTrials,
+  skew,
+  kurt,
+  numPeriods,
+  periodsInYear = 252
+)
 }
 \arguments{
 \item{portfolios}{string name of portfolio, or optionally a vector of portfolios, see DETAILS}

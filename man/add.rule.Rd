@@ -4,10 +4,22 @@
 \alias{add.rule}
 \title{add a rule to a strategy}
 \usage{
-add.rule(strategy, name, arguments, parameters = NULL, label = NULL,
+add.rule(
+  strategy,
+  name,
+  arguments,
+  parameters = NULL,
+  label = NULL,
   type = c(NULL, "risk", "order", "rebalance", "exit", "enter", "chain"),
-  parent = NULL, ..., enabled = TRUE, indexnum = NULL,
-  path.dep = TRUE, timespan = NULL, store = FALSE, storefun = TRUE)
+  parent = NULL,
+  ...,
+  enabled = TRUE,
+  indexnum = NULL,
+  path.dep = TRUE,
+  timespan = NULL,
+  store = FALSE,
+  storefun = TRUE
+)
 }
 \arguments{
 \item{strategy}{an object of type 'strategy' to add the rule to}
@@ -50,6 +62,7 @@ will be processed in every time increment for the \code{mktdata} passed into
 \code{\link{applyStrategy}}.  Non path dependent rules will likely be quite rare in real life, 
 and will be applied after indicators and signals, and before path-dependent rules are processed.
 
+
 All rules have a \code{type}.  These may be any of:
 \describe{
   \item{risk}{ rules that check and react to risk of positions, may stop all other rule execution temporarily or permanently}
@@ -78,7 +91,7 @@ time based subsetting.  See ISO-8601 specification and xts documentation for
 more details.  Note that these are only applicable to intra-day execution, 
 and will remain that way barring patches (tests and documentation) from 
 interested parties.  The subsetting may (will likely) work with normal 
-ISO/xts subset ranges, but consider it unsupported.
+ISO/xts subset ranges, but consider it unsupported. 
 
 The \code{name} parameter should be a character string naming the function
 to be called in the \code{\link{applyRules}} loop. The \code{add.rule} 

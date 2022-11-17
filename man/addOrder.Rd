@@ -4,11 +4,28 @@
 \alias{addOrder}
 \title{add an order to the order book}
 \usage{
-addOrder(portfolio, symbol, timestamp, qty, price, ordertype, side,
-  threshold = NULL, orderset = "", status = "open",
-  statustimestamp = "", prefer = NULL, delay = 1e-05,
-  tmult = FALSE, replace = TRUE, return = FALSE, ..., TxnFees = 0,
-  label = "", time.in.force = "")
+addOrder(
+  portfolio,
+  symbol,
+  timestamp,
+  qty,
+  price,
+  ordertype,
+  side,
+  threshold = NULL,
+  orderset = "",
+  status = "open",
+  statustimestamp = "",
+  prefer = NULL,
+  delay = 1e-05,
+  tmult = FALSE,
+  replace = TRUE,
+  return = FALSE,
+  ...,
+  TxnFees = 0,
+  label = "",
+  time.in.force = ""
+)
 }
 \arguments{
 \item{portfolio}{text name of the portfolio to associate the order book with}
@@ -73,7 +90,7 @@ set \code{replace=FALSE}.
 We have modeled a 'limit' order, used to enter or exit a position at a specific price, determined by the
 prefered price (see \code{prefer}) plus \code{threshold} (see below).
 
-We have modeled two types of stop orders, which should be sufficient to model most types of stops.
+We have modeled two types of stop orders, which should be sufficient to model most types of stops.  
 
 We have modeled the simplest type, a 'stoplimit' order, which is just a limit order used to enter 
 or exit a position at a specific price, determined by the prefered price (see \code{prefer}) plus \code{threshold}
@@ -88,7 +105,7 @@ of the order. In this way, a 10 pct trailing exit will not change in size from t
 price changes. Be aware that a stoptrailing order may be moved ("replaced") frequently.
 
 Some markets and brokers recognize a stop that triggers a market order, when the stop is triggered, 
-a market order will be executed at the then-prevailing price.  We have not modeled this type of order.
+a market order will be executed at the then-prevailing price.  We have not modeled this type of order.   
 
 We have also added the 'iceberg' order type.  This order type should
 most often be paired with \code{delay} and \code{\link{osMaxPos}}.  The 
@@ -121,9 +138,9 @@ trading environment:
 \enumerate{
      \item a market data interface to provide updated market data, usually accessed in an event loop
 
-\item an order interface for sending orders (and canceling or updating them) to the market
+     \item an order interface for sending orders (and canceling or updating them) to the market
 
-\item a fill interface that reports the transaction details when an order has been filled 
+     \item a fill interface that reports the transaction details when an order has been filled 
 }
 
 Conversion to a live trading environment will also likely require a new version of 

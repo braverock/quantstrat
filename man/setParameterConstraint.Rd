@@ -4,8 +4,12 @@
 \alias{setParameterConstraint}
 \title{Function to construct parameter constraint object. (deprecated)}
 \usage{
-setParameterConstraint(paramConstraintObj = list(), constraintLabel,
-  paramList, relationship)
+setParameterConstraint(
+  paramConstraintObj = list(),
+  constraintLabel,
+  paramList,
+  relationship
+)
 }
 \arguments{
 \item{paramConstraintObj}{the ParameterConstraint object to be updated, if missing, funtion will create a new one.}

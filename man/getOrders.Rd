@@ -4,9 +4,17 @@
 \alias{getOrders}
 \title{get orders by time span, status, type, and side}
 \usage{
-getOrders(portfolio, symbol, status = "open", timespan = NULL,
-  ordertype = NULL, side = NULL, qtysign = NULL, orderset = NULL,
-  which.i = FALSE)
+getOrders(
+  portfolio,
+  symbol,
+  status = "open",
+  timespan = NULL,
+  ordertype = NULL,
+  side = NULL,
+  qtysign = NULL,
+  orderset = NULL,
+  which.i = FALSE
+)
 }
 \arguments{
 \item{portfolio}{text name of the portfolio to associate the order book with}

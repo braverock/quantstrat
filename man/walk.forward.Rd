@@ -4,12 +4,26 @@
 \alias{walk.forward}
 \title{Rolling Walk Forward Analysis}
 \usage{
-walk.forward(strategy.st, paramset.label, portfolio.st, account.st, period,
-  k.training, nsamples = 0, audit.prefix = NULL, k.testing,
-  obj.func = function(x) {     which(x == max(x)) }, obj.args = list(x
-  = quote(tradeStats.list$Net.Trading.PL)), anchored = FALSE,
-  include.insamples = TRUE, ..., verbose = FALSE, savewf = FALSE,
-  saveenv = FALSE, psgc = TRUE)
+walk.forward(
+  strategy.st,
+  paramset.label,
+  portfolio.st,
+  account.st,
+  period,
+  k.training,
+  nsamples = 0,
+  audit.prefix = NULL,
+  k.testing,
+  obj.func = function(x) {     which(x == max(x)) },
+  obj.args = list(x = quote(tradeStats.list$Net.Trading.PL)),
+  anchored = FALSE,
+  include.insamples = TRUE,
+  ...,
+  verbose = FALSE,
+  savewf = FALSE,
+  saveenv = FALSE,
+  psgc = TRUE
+)
 }
 \arguments{
 \item{strategy.st}{the name of the strategy object}
@@ -73,12 +87,12 @@ use of all the data, e.g. for a risk metric such as a volatility estimator,
 for a regime model, or for a long-memory process of some sort.  If
 \code{anchored=TRUE} and you have specified \code{k.training}, then the
 performance of each paramset will only be evaluated on the rolling training 
-window, even though larger (anchored) periods are used for input calculations.
+window, even though larger (anchored) periods are used for input calculations.  
 
 Note that walk.forward will generate out of sample (OOS) transactions using
 the chosen parameter set into the portfolio designated by portfolio.st. So
 walk.forward shoud be supplied with a 'clean' portfolio environment to avoid 
-issues such as out of order transactions.
+issues such as out of order transactions. 
 
 The \code{psgc} argument is a tradeoff between memory efficiency and speed.
 \R does garbage collection promarily when it is running low on RAM, but this 

@@ -4,8 +4,15 @@
 \alias{ruleOrderProc}
 \title{process open orders at time \emph{t}, generating transactions or new orders}
 \usage{
-ruleOrderProc(portfolio, symbol, mktdata, timestamp = NULL,
-  ordertype = NULL, ..., slippageFUN = NULL)
+ruleOrderProc(
+  portfolio,
+  symbol,
+  mktdata,
+  timestamp = NULL,
+  ordertype = NULL,
+  ...,
+  slippageFUN = NULL
+)
 }
 \arguments{
 \item{portfolio}{text name of the portfolio to associate the order book with}
@@ -46,7 +53,7 @@ Note that this function is called by default in the 'orders' slot of the
 processing rule, it will \emph{replace} this function.  If you want your 
 custom order rule and ruleOrderProc to both be called, you will need
 explicitly add a rule to call ruleOrderProc either before or after your 
-custom order processing function.
+custom order processing function. 
 
 We would like to model slippage here via \code{slippageFUN}.  Code contributions, suggestions, 
 and requests appreciated.
