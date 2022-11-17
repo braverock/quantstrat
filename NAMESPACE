@@ -3,6 +3,8 @@
 S3method(print,dof)
 S3method(print,haircutSR)
 S3method(print,profitHurdle)
+export(Federov.constraints)
+export(Federov.paramset)
 export(SharpeRatio.deflated)
 export(SharpeRatio.haircut)
 export(add.distribution)
