@@ -31,7 +31,8 @@ Suggests:
     pander,
     xtable,
     covr,
-    usethis
+    usethis,
+    AlgDesign
 Remotes:
     github::braverock/blotter
 Maintainer: Brian G. Peterson <brian@braverock.com>
