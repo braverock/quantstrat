@@ -21,7 +21,7 @@ strategy specification object.
 \details{
 This internal, non-exported function examines the paramset specification, 
 and then uses that to insert the chosen parameters into a copy of the strategy
-object.  It will search the strategy onject, component by component, and 
+object.  It will search the strategy object, component by component, and 
 attempt to locate the components named in the paramset, so that the individual 
 parameter values may be changed.
 }

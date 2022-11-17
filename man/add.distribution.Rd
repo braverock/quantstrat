@@ -4,8 +4,17 @@
 \alias{add.distribution}
 \title{Adds a distribution to a paramset in a strategy}
 \usage{
-add.distribution(strategy, paramset.label, component.type, component.label,
-  variable, weight = NULL, label, store = TRUE)
+add.distribution(
+  strategy,
+  paramset.label,
+  component.type,
+  component.label,
+  variable,
+  variable.dist = NULL,
+  weight = NULL,
+  label,
+  store = TRUE
+)
 }
 \arguments{
 \item{strategy}{the name of the strategy object to add the distribution to}
@@ -16,7 +25,9 @@ add.distribution(strategy, paramset.label, component.type, component.label,
 
 \item{component.label}{a label identifying the component. must be unique per component type}
 
-\item{variable}{the name of the variable in the component}
+\item{variable}{the name of the variable in the component, and optionally, it's distribution}
+
+\item{variable.dist}{the distribution to be applied to variable}
 
 \item{weight}{vector}
 
@@ -28,11 +39,39 @@ add.distribution(strategy, paramset.label, component.type, component.label,
 Creates a distribution in paramset, where a distribution consists of the name of a variable in
 a strategy component plus a range of values for this variable.
 }
+\details{
+In the original version of this function `variable` was defined as a named 
+list that contained the distribution directly. e.g.
+
+` variable = list(mVAR = 1:50)`
+
+In order to more efficiently support equality constraints, we have optionally
+separated `variable` and `variable.dist`:
+
+`variable = 'mVAR',`
+`variable.dist = 1:50`
+
+and for an equality-constrained distribution:
+
+`variable=c('mVAR','mOtherVAR'),`
+`variable.dist=1:50`
+
+The old formulation is still supported for backwards compatibility if 
+`variable.dist=NULL`, the default.
+
+Variables that should be equal, or equality-constrained, should be defined by
+creating a vector of the same length for `component.label` and `variable`. 
+There is currently no error checking for getting this wrong, please be careful, patches welcome.
+The equal-length vectors will then apply the same distribution to one or more
+`variable`s in the same `component.type`.  This is far more efficient than 
+testing the constraints utilizing `apply.constraints`, and ensures the  
+equality of the parameters.
+}
 \seealso{
 \code{\link{add.distribution.constraint}}, 
     \code{\link{delete.paramset}}, 
     \code{\link{apply.paramset}}
 }
 \author{
-Jan Humme
+Jan Humme, Brian Peterson
 }

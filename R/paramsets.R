@@ -1,7 +1,7 @@
 ###############################################################################
 # R (http://r-project.org/) Quantitative Strategy Model Framework
 #
-# Copyright (c) 2009-2015
+# Copyright (c) 2009-2023
 # Peter Carl, Dirk Eddelbuettel, Brian G. Peterson, Jeffrey Ryan, and Joshua Ulrich 
 #
 # This library is distributed under the terms of the GNU Public License (GPL)
@@ -13,7 +13,7 @@
 #
 # Authors: Jan Humme, Brian Peterson
 #
-# This code is a based on earlier work by Yu Chen
+# This code is inspired by  earlier work by Yu Chen and Brian Peterson
 #
 ###############################################################################
 #
@@ -126,18 +126,23 @@ create.paramset <- function(strategy, paramset.label)
     strategy
 }
 
+#' given a distributions object expand all options to a full factorial representation
+#'
+#' @param distributions distributions slot from a strtaegy object
+#'
+#' @return expanded grid of all distributions as a `data.frame` by distribution labels  
+#'
+#' @seealso expand.grid
 expand.distributions <- function(distributions)
 {
-    param.values <- list()
-
-    for(distribution.name in names(distributions))
-    {
-        variable.name <- names(distributions[[distribution.name]]$variable)
-
-        param.values[[distribution.name]] <-
-            distributions[[distribution.name]]$variable[[variable.name]]
-    }
-    expand.grid(param.values)
+  param.values <- list()
+  
+  for(distribution.label in names(distributions))
+  {
+    param.values[[distribution.label]] <-
+      coredata(distributions[[distribution.label]]$variable.dist)
+  }
+  expand.grid(param.values)
 }
 
 apply.constraints <- function(constraints, distributions, param.combos)
@@ -195,11 +200,12 @@ install.param.combo <- function(strategy, param.combo, paramset.label)
     }
   
     if (nrow(param.combo)>1) {
-      # choose the last row because expand.grid in paramsets will make 
+      # choose the last row because expand.grid in paramsets will generally make 
       # the last row the row with the largest parameter values, roughly 
       # equivalent to highest stability of data usage, 
       # or lowest degrees of freedom
       param.combo <- param.combo[nrow(param.combo),] 
+      warning('"param.combo" passed to "install.param.combo" has more than one row, was this intentional?')
     }
 
     for(param.label in colnames(param.combo))
@@ -208,7 +214,6 @@ install.param.combo <- function(strategy, param.combo, paramset.label)
 
         component.type <- distribution$component.type
         component.label <- distribution$component.label
-        variable.name <- names(distribution$variable)
 
         found <- FALSE
         switch(component.type,
@@ -216,19 +221,20 @@ install.param.combo <- function(strategy, param.combo, paramset.label)
             signal =
             {
                 # indicator and signal slots in strategy list use plural name for some reason:
-                components.type <- paste(component.type,'s',sep='') 
+                ctype <- paste(component.type,'s',sep='') 
 
-                n <- length(strategy[[components.type]])
+                n <- length(strategy[[ctype]])
 
                 for(index in 1:n)
                 {
-                    if(strategy[[components.type]][[index]]$label == component.label)
+                  for(c in 1:length(component.label)){
+                    if(strategy[[ctype]][[index]]$label == component.label[c])
                     {
-                        strategy[[components.type]][[index]]$arguments[[variable.name]] <- param.combo[,param.label]
-
-                        found <- TRUE
-                        break
+                      strategy[[ctype]][[index]]$arguments[[distribution$variable[c]]] <- param.combo[,param.label]
+                      
+                      found <- TRUE
                     }
+                  }
                 }
             },
             order =,
@@ -240,16 +246,17 @@ install.param.combo <- function(strategy, param.combo, paramset.label)
 
                 for(index in 1:n)
                 {
-                    if(strategy$rules[[component.type]][[index]]$label == component.label)
+                  for(c in 1:length(component.label)){
+                    if(strategy$rules[[component.type]][[index]]$label == component.label[c])
                     {
                         if(variable.name %in% c('timespan'))
-                            strategy$rules[[component.type]][[index]][[variable.name]] <- as.character(param.combo[,param.label])
+                            strategy$rules[[component.type]][[index]][[variable.name[c]]] <- as.character(param.combo[,param.label])
                         else
-                            strategy$rules[[component.type]][[index]]$arguments[[variable.name]] <- param.combo[,param.label]
+                            strategy$rules[[component.type]][[index]]$arguments[[variable.name[c]]] <- param.combo[,param.label]
 
                         found <- TRUE
-                        break
                     }
+                  }
                 }
             }
         )
@@ -304,22 +311,55 @@ delete.paramset <- function(strategy, paramset.label, store=TRUE)
 #' Creates a distribution in paramset, where a distribution consists of the name of a variable in
 #' a strategy component plus a range of values for this variable.
 #' 
+#' In the original version of this function `variable` was defined as a named 
+#' list that contained the distribution directly. e.g.
+#' 
+#' ` variable = list(mVAR = 1:50)`
+#' 
+#' In order to more efficiently support equality constraints, we have optionally
+#' separated `variable` and `variable.dist`:
+#' 
+#' `variable = 'mVAR',`
+#' `variable.dist = 1:50`
+#' 
+#' and for an equality-constrained distribution:
+#' 
+#' `variable=c('mVAR','mOtherVAR'),`
+#' `variable.dist=1:50`
+#' 
+#' The old formulation is still supported for backwards compatibility if 
+#' `variable.dist=NULL`, the default.
+#' 
+#' Variables that should be equal, or equality-constrained, should be defined by
+#' creating a vector of the same length for `component.label` and `variable`. 
+#' There is currently no error checking for getting this wrong, please be careful, patches welcome.
+#' The equal-length vectors will then apply the same distribution to one or more
+#' `variable`s in the same `component.type`.  This is far more efficient than 
+#' testing the constraints utilizing `apply.constraints`, and ensures the  
+#' equality of the parameters.
+#' 
 #' @param strategy the name of the strategy object to add the distribution to
 #' @param paramset.label a label uniquely identifying the paramset within the strategy
 #' @param component.type one of c('indicator', 'signal', 'order', 'enter', 'exit', 'chain')
 #' @param component.label a label identifying the component. must be unique per component type
-#' @param variable the name of the variable in the component
+#' @param variable the name of the variable in the component, and optionally, it's distribution
+#' @param variable.dist the distribution to be applied to variable
 #' @param label a label uniquely identifying the distribution within the paramset
 #' @param weight vector
 #' @param store indicates whether to store the strategy in the .strategy environment
 #'
-#' @author Jan Humme
+#' @author Jan Humme, Brian Peterson
 #' @seealso 
 #'     \code{\link{add.distribution.constraint}}, 
 #'     \code{\link{delete.paramset}}, 
 #'     \code{\link{apply.paramset}}
 #' @export
-add.distribution <- function(strategy, paramset.label, component.type, component.label, variable, weight=NULL, label, store=TRUE)
+add.distribution <- function(strategy, paramset.label, 
+                             component.type, component.label, 
+                             variable, variable.dist=NULL, 
+                             weight=NULL, 
+                             label, 
+                             store=TRUE)
 {
     must.have.args(match.call(), c('strategy', 'paramset.label', 'component.type', 'component.label', 'variable', 'label'))
 
@@ -328,11 +368,16 @@ add.distribution <- function(strategy, paramset.label, component.type, component
         strategy <- must.be.strategy(strategy)
         store <- TRUE
     }
+    if(is.null(variable.dist)){
+      variable.dist<-variable[[1]]
+      variable<-names(variable)[1]
+    }
 
     new_distribution <- list()
     new_distribution$component.type <- component.type
     new_distribution$component.label <- component.label
     new_distribution$variable <- variable
+    new_distribution$variable.dist <- coredata(variable.dist)
     new_distribution$weight <- weight
 
     if(!(paramset.label %in% names(strategy$paramsets)))
@@ -767,4 +812,3 @@ apply.paramset <- function(strategy.st
     if(psgc) gc()
     return(results)
 }
-
