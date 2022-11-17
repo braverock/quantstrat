@@ -86,7 +86,7 @@ initPortf('faber', symbols=symbols)
 initAcct('faber', portfolios='faber', initEq=100000)
 initOrders(portfolio='faber')
 
-# set intial position limits
+# set initial position limits
 posval<-initEq/length(symbols)
 for(symbol in symbols){
     pos<-round((posval/first(getPrice(get(symbol)))[,1]),-2)
