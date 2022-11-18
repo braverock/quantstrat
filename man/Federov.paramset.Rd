@@ -2,12 +2,13 @@
 % Please edit documentation in R/Federov.design.R
 \name{Federov.paramset}
 \alias{Federov.paramset}
-\title{construct a full Federov design for a strategy parameter set}
+\title{construct a full Federov design or a constrained Monte Carlo Federov design for a strategy parameter set}
 \usage{
 Federov.paramset(
   strategy,
   paramset.label,
   ...,
+  method = "Federov",
   printd = FALSE,
   returnlist = FALSE,
   approximate = TRUE,
@@ -21,6 +22,8 @@ Federov.paramset(
 
 \item{...}{any other passthrough parameters}
 
+\item{method}{one of "Federov" or "MonteCarlo", see Details}
+
 \item{printd}{if TRUE, print the design summary}
 
 \item{returnlist}{if TRUE, return the list object describing the Federov design, else return just the `param.combos`}
@@ -33,7 +36,30 @@ Federov.paramset(
 
 }
 \description{
-construct a full Federov design for a strategy parameter set
+This function provides a wrapper for constructing Federov designs for
+parameters by using the parameter set logic of quantstrat and the experiment
+design functions from the `AlgDesign` package.  It will construct a full or
+approximate Federov design via `method="Federov"` (not case sensitive) using
+the `optFederov` function and will construct a constrained Monte Carlo
+Federov design via `method="MonteCarlo"` using the `optMonteCarlo` function.
+}
+\details{
+It is important to note from the beginning that while `method="Federov"` is
+the default, that the closed form Federov design is not suitable when there
+are constraints.  Because of this, we will change the method to use the 
+Monte-Carlo methodology if there are constraints in the paramset.
+
+For now, for constrained Monte Carlo Federov designs, we are not supporting 
+factor or mixture models, though these designs are supported by the `AlgDesign`
+package.  Patches welcome, or even just discussion of solid use cases.
+ 
+The user may use \dots to pass through any additional parameters for use by 
+`optFederov` or `optMonteCarlo`. For example, `nLevels`, `nCand`, `nRepeats`
+may be candidates for finer grained control.  see `?AlgDesign::optMonteCarlo`
+for details.  We have tried to make reasonable decisions based on the data
+contained in the strategy object. `nLevels` defaults to the minimum of 5 
+(though 3 is a reasonable and smaller choice) or the number of levels 
+contained in the paramset for that variable.
 }
 \seealso{
 optFederov
