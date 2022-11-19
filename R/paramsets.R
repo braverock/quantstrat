@@ -587,7 +587,7 @@ apply.paramset <- function(strategy.st
     {
         args <- list(...)
 
-        results <- new.env()
+        results <- new.env(env=globalenv(),size=length(args))
         results$error <-list()
         results$cumPL <- xts()
         
