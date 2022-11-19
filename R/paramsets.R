@@ -559,6 +559,11 @@ apply.paramset <- function(strategy.st
     } else {
         param.combos <- paramsets
     }
+    
+    #increment trials
+    strategy$trials <- strategy$trials+nrow(param.combos)
+    if(store) assign(strategy$name,strategy,envir=as.environment(.strategy))
+    
     # This is work-around for a buglet in iterators:::getIterVal.dataframeiter
     # Convert param.combos to matrix if it's only one column, else the
     # iterator will drop the data.frame dimensions, resulting in a vector
@@ -789,10 +794,6 @@ apply.paramset <- function(strategy.st
          colnames(results$cumPL) <- rownames(results$tradeStats)
       }
     }
-    
-    #increment trials
-    strategy$trials <- strategy$trials+nrow(param.combos)
-    if(store) assign(strategy$name,strategy,envir=as.environment(.strategy))
     
     if(is.null(audit) && calc=='master'){
       .audit <- .blotter
