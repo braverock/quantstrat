@@ -91,7 +91,7 @@ Federov.paramset <- function(strategy.st,
            
            param.design <- optFederov(~quad(.),data=param.combos,approximate=approximate, center=center)
            
-           if(length(constraints)&&constrain) {
+           if(length(constraints)>1&&isTRUE(constrain)) {
              param.design$design <- apply.constraints(constraints=constraints, distributions=distributions, param.combos=param.design$design[,-1])
            }
          },
@@ -172,7 +172,7 @@ Federov.paramset <- function(strategy.st,
     rownames(param.design$design) <- NULL # number as string rownames get in the way
     
     if(method=='Federov'){
-      if(length(constraints)&&constrain) return(param.design$design)
+      if(length(constraints)>1&&isTRUE(constrain)) return(param.design$design)
       else return(param.design$design[,-1]) # 'Proportion' in the first column!
     } else {
       return(param.design$design)
