@@ -306,9 +306,9 @@ put.strategy <- function(strategy, envir=.strategy)
 #' @export
 load.strategy <- function(strategy.name,file=NULL)
 {
-    if(is.null(file.name)) file.name <- paste(strategy.name, 'RData', sep='.')
+    if(is.null(file)) file <- paste(strategy.name, 'RData', sep='.')
 
-    load(file=file.name, envir=.strategy)
+    load(file=file, envir=.strategy)
     assign(.strategy$strategy$name, .strategy$strategy, envir=.strategy)
 }
 
@@ -318,10 +318,10 @@ load.strategy <- function(strategy.name,file=NULL)
 #' @export
 save.strategy <- function(strategy.name,file=NULL)
 {
-    strategy <- get(as.character(strategy.name), pos=.strategy, inherits=TRUE)
-    if(is.null(file.name)) file.name <- paste(strategy.name, 'RData', sep='.')
+    strategy <- getStrategy(as.character(strategy.name))
+    if(is.null(file)) file <- paste(strategy.name, 'RData', sep='.')
 
-    save(strategy, pos=.strategy, file=file.name)
+    save(strategy, file=file)
 }
 
 ###############################################################################
