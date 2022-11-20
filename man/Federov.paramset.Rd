@@ -12,7 +12,8 @@ Federov.paramset(
   printd = FALSE,
   returnlist = FALSE,
   approximate = TRUE,
-  center = TRUE
+  center = TRUE,
+  constrain = FALSE
 )
 }
 \arguments{
@@ -31,6 +32,8 @@ Federov.paramset(
 \item{approximate}{if FALSE, use an exact design, will be slower but more accurate than if TRUE}
 
 \item{center}{if TRUE, the default, center the parameters around a center value, see Details}
+
+\item{constrain}{if TRUE, `apply.constraints` for the full Federov design, see Details}
 }
 \value{
 
@@ -46,9 +49,15 @@ Federov design via `method="MonteCarlo"` using the `optMonteCarlo` function.
 \details{
 It is important to note from the beginning that while `method="Federov"` is
 the default, that the closed form Federov design is not suitable when there
-are constraints.  Because of this, we will change the method to use the 
-Monte-Carlo methodology if there are constraints in the paramset.
-
+are constraints.  We will warn the user if there are constraints in the 
+strategy specification and a full Federov design is chosen.  The function
+also supports the option `constrain=TRUE` that will apply constraints to 
+the full Federov design.  For some strategies with many constraints, this 
+may result in a significantly unbalanced set.  This should still be OK as a 
+starting point for optimization, but may hamper some statistical inference
+about parameter interactions and lower the overall power of the design if
+the unbalanced nature is severe.
+ 
 For now, for constrained Monte Carlo Federov designs, we are not supporting 
 factor or mixture models, though these designs are supported by the `AlgDesign`
 package.  Patches welcome, or even just discussion of solid use cases.

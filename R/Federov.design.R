@@ -24,9 +24,15 @@
 #' 
 #' It is important to note from the beginning that while `method="Federov"` is
 #' the default, that the closed form Federov design is not suitable when there
-#' are constraints.  Because of this, we will change the method to use the 
-#' Monte-Carlo methodology if there are constraints in the paramset.
-#' 
+#' are constraints.  We will warn the user if there are constraints in the 
+#' strategy specification and a full Federov design is chosen.  The function
+#' also supports the option `constrain=TRUE` that will apply constraints to 
+#' the full Federov design.  For some strategies with many constraints, this 
+#' may result in a significantly unbalanced set.  This should still be OK as a 
+#' starting point for optimization, but may hamper some statistical inference
+#' about parameter interactions and lower the overall power of the design if
+#' the unbalanced nature is severe.
+#'  
 #' For now, for constrained Monte Carlo Federov designs, we are not supporting 
 #' factor or mixture models, though these designs are supported by the `AlgDesign`
 #' package.  Patches welcome, or even just discussion of solid use cases.
@@ -47,7 +53,8 @@
 #' @param returnlist if TRUE, return the list object describing the Federov design, else return just the `param.combos`
 #' @param approximate if FALSE, use an exact design, will be slower but more accurate than if TRUE
 #' @param center if TRUE, the default, center the parameters around a center value, see Details
-#'
+#' @param constrain if TRUE, `apply.constraints` for the full Federov design, see Details
+#' 
 #' @return
 #' @export
 #'
@@ -59,7 +66,8 @@ Federov.paramset <- function(strategy.st,
                              printd=FALSE, 
                              returnlist=FALSE, 
                              approximate=TRUE, 
-                             center=TRUE){
+                             center=TRUE,
+                             constrain=FALSE){
   
   if(!requireNamespace('AlgDesign', quietly=TRUE)) stop("The 'AlgDesign' package is required to use this function")
   else{
@@ -71,7 +79,7 @@ Federov.paramset <- function(strategy.st,
   distributions <- strategy$paramsets[[paramset.label]]$distributions
   constraints <- strategy$paramsets[[paramset.label]]$constraints
   
-  if(length(constraints)&&method=='Federov') warning('The Federov method will not honor constraints, use `method="MonteCarlo" instead.') 
+  if(length(constraints)&&method=='Federov'&&!isTRUE(constrain)) warning('The full Federov method will not honor constraints, consider using `method="MonteCarlo"` or `constrain=TRUE`.') 
   
   switch(method,
          federov =,
@@ -82,6 +90,10 @@ Federov.paramset <- function(strategy.st,
            rownames(param.combos) <- NULL  # reset rownames
            
            param.design <- optFederov(~quad(.),data=param.combos,approximate=approximate, center=center)
+           
+           if(length(constraints)&&constrain) {
+             param.design$design <- apply.constraints(constraints=constraints, distributions=distributions, param.combos=param.design$design[,-1])
+           }
          },
          montecarlo =,
          MonteCarlo =
@@ -157,10 +169,12 @@ Federov.paramset <- function(strategy.st,
   if(returnlist){
     return(param.design)
   } else {
-    if(method=='Federov'){ 
-      return(param.design$design[,-1]) #names in the first column!
+    rownames(param.design$design) <- NULL # number as string rownames get in the way
+    
+    if(method=='Federov'){
+      if(length(constraints)&&constrain) return(param.design$design)
+      else return(param.design$design[,-1]) # 'Proportion' in the first column!
     } else {
-      rownames(param.design$design) <- NULL #number as string rownames get in the way
       return(param.design$design)
     } # end method return block
   } # end returnlist block
