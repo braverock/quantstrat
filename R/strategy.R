@@ -309,7 +309,9 @@ load.strategy <- function(strategy.name,file=NULL)
     if(is.null(file)) file <- paste(strategy.name, 'RData', sep='.')
 
     load(file=file, envir=.strategy)
-    assign(.strategy$strategy$name, .strategy$strategy, envir=.strategy)
+    assign(strategy.name, .strategy$strategy, envir=.strategy)
+    rm('strategy',envir = .strategy)
+    invisible(strategy)
 }
 
 #' save a strategy object from memory onto disk
