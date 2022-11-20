@@ -316,7 +316,7 @@ load.strategy <- function(strategy.name,file=NULL)
 #' @param strategy.name a string specifying the name of the strategy object; may also be used to create a file name
 #' @param file.name string specifying the filename to use, if NULL, a default will be created
 #' @export
-save.strategy <- function(strategy.name)
+save.strategy <- function(strategy.name,file=NULL)
 {
     strategy <- get(as.character(strategy.name), pos=.strategy, inherits=TRUE)
     if(is.null(file.name)) file.name <- paste(strategy.name, 'RData', sep='.')
