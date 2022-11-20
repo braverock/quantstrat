@@ -4,10 +4,12 @@
 \alias{save.strategy}
 \title{save a strategy object from memory onto disk}
 \usage{
-save.strategy(strategy.name)
+save.strategy(strategy.name, file = NULL)
 }
 \arguments{
-\item{strategy.name}{a string specifying the name of the strategy object; will also be used to create a file name}
+\item{strategy.name}{a string specifying the name of the strategy object; may also be used to create a file name}
+
+\item{file.name}{string specifying the filename to use, if NULL, a default will be created}
 }
 \description{
 save a strategy object from memory onto disk

@@ -5,7 +5,7 @@
 \title{construct a full Federov design or a constrained Monte Carlo Federov design for a strategy parameter set}
 \usage{
 Federov.paramset(
-  strategy,
+  strategy.st,
   paramset.label,
   ...,
   method = "Federov",
@@ -16,7 +16,7 @@ Federov.paramset(
 )
 }
 \arguments{
-\item{strategy}{an object of type `strategy` that contains a parameter set to construct a Federov design for}
+\item{strategy.st}{astring describing the name of an object of type `strategy` that contains a parameter set to construct a Federov design for}
 
 \item{paramset.label}{label describing the paramset to use in the strategy object}
 

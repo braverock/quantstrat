@@ -39,7 +39,7 @@
 #' (though 3 is a reasonable and smaller choice) or the number of levels 
 #' contained in the paramset for that variable.
 #' 
-#' @param strategy an object of type `strategy` that contains a parameter set to construct a Federov design for
+#' @param strategy.st astring describing the name of an object of type `strategy` that contains a parameter set to construct a Federov design for
 #' @param paramset.label label describing the paramset to use in the strategy object
 #' @param ... any other passthrough parameters
 #' @param method one of "Federov" or "MonteCarlo", see Details
@@ -52,7 +52,7 @@
 #' @export
 #'
 #' @seealso optFederov
-Federov.paramset <- function(strategy, 
+Federov.paramset <- function(strategy.st, 
                              paramset.label, 
                              ...,  
                              method='Federov',
@@ -62,12 +62,16 @@ Federov.paramset <- function(strategy,
                              center=TRUE){
   
   if(!requireNamespace('AlgDesign', quietly=TRUE)) stop("The 'AlgDesign' package is required to use this function")
-  
-  strategy <- must.be.strategy(strategy)
+  else{
+    require(AlgDesign,quietly = TRUE)
+  }
+  strategy <- must.be.strategy(strategy.st)
   must.be.paramset(strategy, paramset.label)
   
   distributions <- strategy$paramsets[[paramset.label]]$distributions
   constraints <- strategy$paramsets[[paramset.label]]$constraints
+  
+  if(length(constraints)&&method=='Federov') warning('The Federov method will not honor constraints, use `method="MonteCarlo" instead.') 
   
   switch(method,
          federov =,
@@ -103,7 +107,7 @@ Federov.paramset <- function(strategy,
            # lined up with how it is structured in the paramsets slot of the 
            # strategy object.
            
-           data<-NULL
+           df<-NULL
            
            if(!hasArg('round')) r <- 0
            else r<-round
@@ -116,28 +120,30 @@ Federov.paramset <- function(strategy,
            
            # TODO: grab some of the match.arg logic we use elsewhere to clean up passthroughs
                
-           for(i in length(strategy$paramsets[[paramset.label]]$distributions)){ 
+           for(i in 1:length(strategy$paramsets[[paramset.label]]$distributions)){ 
              
              if(hasArg('nLevels')) nLevels<-nLevels
              else nLevels <- min(5,length(strategy$paramsets[[paramset.label]]$distributions[[i]]$variable.dist))
              
-             d <- data.frame(var=names(strategy$paramsets[[paramset.label]]$distributions[[i]]), 
+             rg <- range(strategy$paramsets[[paramset.label]]$distributions[[i]]$variable.dist)
+             
+             d <- data.frame(var=names(strategy$paramsets[[paramset.label]]$distributions[i]), 
                              low=min(strategy$paramsets[[paramset.label]]$distributions[[i]]$variable.dist),
                              high=max(strategy$paramsets[[paramset.label]]$distributions[[i]]$variable.dist),
-                             center=range(strategy$paramsets[[paramset.label]]$distributions[[i]]$variable.dist)[2]/2,
+                             center=(rg[1]+rg[2])/2,
                              nLevels=nLevels,
                              round=r,
                              factor=FALSE,
                              mix=FALSE 
              )
              
-             if(is.null(data)) data<-d
-             else data <- rbind(data,d)
+             if(is.null(df)) df<-d
+             else df <- rbind(df,d)
            }
            
            param.design <- optMonteCarlo(~quad(.),
-                                         data=data,
-                                         con=Federov.constraints,
+                                         data=df,
+                                         constraints=Federov.constraints,
                                          args=printd,
                                          nRepeats=nRepeats,
                                         ) 
@@ -172,10 +178,10 @@ Federov.paramset <- function(strategy,
 Federov.constraints <- function(param.vec, ...){
   # AlgDesign, unfortunately, uses un-named parameter vectors.  
   # We need the names to check the constraints.
-  s <- get('strategy')  # might need to set pos=-2 or something here 
+  s <- dynGet('strategy.st',inherits=TRUE)  # get was flaky here, pos seemed variable, use dynGet instead
   s <- must.be.strategy(s)
   
-  paramset.label <- try(get('paramset.label'))
+  paramset.label <- try(dynGet('paramset.label',inherits=TRUE))
   if(class(paramset.label)=='try-error') paramset.label <- first(names(s$paramsets))
   distributions <- s$paramsets[[paramset.label]]$distributions
   constraints <- s$paramsets[[paramset.label]]$constraints
@@ -184,7 +190,7 @@ Federov.constraints <- function(param.vec, ...){
   if(is.null(names(param.vec))){
     names(param.combo)<-names(s$paramsets[[paramset.label]]$distributions)
   }
-  param.combo <- t(as.data.frame(param.combos))
+  param.combo <- t(as.data.frame(param.combo))
   rownames(param.combo)<-NULL
   param.combo <- as.data.frame(param.combo)
   
