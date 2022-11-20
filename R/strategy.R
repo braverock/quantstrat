@@ -301,23 +301,25 @@ put.strategy <- function(strategy, envir=.strategy)
 }
 
 #' load a strategy object from disk into memory
-#' @param strategy.name a string specifying the name of the strategy object; will also be used to create a file name
+#' @param strategy.name a string specifying the name of the strategy object; may also be used to create a file name
+#' @param file.name string specifying the filename to use, if NULL, a default will be created
 #' @export
-load.strategy <- function(strategy.name)
+load.strategy <- function(strategy.name,file=NULL)
 {
-    file.name <- paste(strategy.name, 'RData', sep='.')
+    if(is.null(file.name)) file.name <- paste(strategy.name, 'RData', sep='.')
 
     load(file=file.name, envir=.strategy)
     assign(.strategy$strategy$name, .strategy$strategy, envir=.strategy)
 }
 
 #' save a strategy object from memory onto disk
-#' @param strategy.name a string specifying the name of the strategy object; will also be used to create a file name
+#' @param strategy.name a string specifying the name of the strategy object; may also be used to create a file name
+#' @param file.name string specifying the filename to use, if NULL, a default will be created
 #' @export
 save.strategy <- function(strategy.name)
 {
     strategy <- get(as.character(strategy.name), pos=.strategy, inherits=TRUE)
-    file.name <- paste(strategy.name, 'RData', sep='.')
+    if(is.null(file.name)) file.name <- paste(strategy.name, 'RData', sep='.')
 
     save(strategy, pos=.strategy, file=file.name)
 }
