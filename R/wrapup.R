@@ -147,7 +147,7 @@ function(strategy,
         }
     }
     
-    if (out[[1]] == out[[2]]) out[[1]]
+    if (length(out)>1 && out[[1]] == out[[2]]) out[[1]]
     else out
 }
 
