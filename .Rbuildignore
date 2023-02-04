@@ -14,3 +14,6 @@ tiingoapi\.R
 ^.*\.Rproj$
 ^\.vimrc
 ^codecov\.yml$
+\.git
+\.github
+\.gitignore
