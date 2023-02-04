@@ -302,7 +302,7 @@ put.strategy <- function(strategy, envir=.strategy)
 
 #' load a strategy object from disk into memory
 #' @param strategy.name a string specifying the name of the strategy object; may also be used to create a file name
-#' @param file.name string specifying the filename to use, if NULL, a default will be created
+#' @param file string specifying the filename to use, if NULL, a default will be created
 #' @export
 load.strategy <- function(strategy.name,file=NULL)
 {
@@ -316,7 +316,7 @@ load.strategy <- function(strategy.name,file=NULL)
 
 #' save a strategy object from memory onto disk
 #' @param strategy.name a string specifying the name of the strategy object; may also be used to create a file name
-#' @param file.name string specifying the filename to use, if NULL, a default will be created
+#' @param file string specifying the filename to use, if NULL, a default will be created
 #' @export
 save.strategy <- function(strategy.name,file=NULL)
 {

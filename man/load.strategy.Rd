@@ -9,7 +9,7 @@ load.strategy(strategy.name, file = NULL)
 \arguments{
 \item{strategy.name}{a string specifying the name of the strategy object; may also be used to create a file name}
 
-\item{file.name}{string specifying the filename to use, if NULL, a default will be created}
+\item{file}{string specifying the filename to use, if NULL, a default will be created}
 }
 \description{
 load a strategy object from disk into memory
