@@ -249,6 +249,7 @@ install.param.combo <- function(strategy, param.combo, paramset.label)
                   for(c in 1:length(component.label)){
                     if(strategy$rules[[component.type]][[index]]$label == component.label[c])
                     {
+                        variable.name <- distribution$variable[c]
                         if(variable.name %in% c('timespan'))
                             strategy$rules[[component.type]][[index]][[variable.name[c]]] <- as.character(param.combo[,param.label])
                         else
