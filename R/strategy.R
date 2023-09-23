@@ -75,7 +75,7 @@ strategy <- function(name, ..., assets=NULL, constraints=NULL ,store=FALSE)
 #' 
 #' This function is the wrapper that holds together the execution of a strategy.
 #' 
-#' After the straetgy object has been created, it may be applied to any 
+#' After the strategy object has been created, it may be applied to any 
 #' combination of symbols and parameters.
 #' 
 #' The symbols to be utilized will be defined in one of two ways, either by
