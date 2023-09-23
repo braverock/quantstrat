@@ -144,10 +144,9 @@ applyStrategy <- function(strategy,
        
        if(isTRUE(debug)) ret[[portfolio]]<-list() # this is slot [[i]] which we will use later
        pobj<-.getPortfolio(portfolio)
-       symbols<- ls(pobj$symbols)
-       sret<-new.env(hash=TRUE)
-       
+       symbols<- ls(pobj$symbols)            
        for (symbol in symbols){
+         sret<-new.env(hash=TRUE)
          if(isTRUE(load.mktdata)){
              if(isTRUE(initBySymbol)) initSymbol(strategy, symbol, ... = ...)
              if(!is.null(mdenv)){
